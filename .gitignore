@@ -1,0 +1,40 @@
+# Build output
+build/
+target/
+bin/
+out/
+*.class
+*.war
+*.ear
+
+# Tomcat / servlet runtime files
+logs/
+temp/
+work/
+localhost.*.log
+catalina*.log
+host-manager.*.log
+manager.*.log
+
+# Eclipse / Java IDE
+.classpath
+.project
+.settings/
+.metadata/
+.recommenders/
+.apt_generated/
+.factorypath
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Maven / Gradle caches
+/.gradle/
+
+# OS files
+.DS_Store
+Thumbs.db
