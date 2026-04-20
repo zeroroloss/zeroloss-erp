@@ -38,3 +38,6 @@ manager.*.log
 # OS files
 .DS_Store
 Thumbs.db
+
+# lib
+**/webapp/WEB-INF/lib/*.jar 
