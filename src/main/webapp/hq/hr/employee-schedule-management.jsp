@@ -7,61 +7,89 @@
     <title>직원 일정 관리 - ZERO LOSS 본사 관리 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .sidebar-open .sidebar {
-            transform: translateX(0);
-        }
-        .modal-hidden {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 0;
-        }
-        .day-cell {
-            border: 1px solid #e5e7eb;
-            padding: 8px;
-            overflow: hidden;
-            overflow-y: auto;
-        }
-        .day-cell.other-month {
-            background-color: #f9fafb;
-        }
-        .day-cell.today {
-            background-color: #eff6ff;
-            border-left: 3px solid #3b82f6;
-        }
-        .day-header {
-            text-align: center;
-            padding: 12px 8px;
-            font-weight: 600;
-            border-bottom: 2px solid #e5e7eb;
-            background-color: #f3f4f6;
-            font-size: 14px;
-            color: #374151;
-        }
-        .schedule-event {
-            font-size: 12px;
-            padding: 6px;
-            margin-bottom: 4px;
-            border-radius: 4px;
-            color: white;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        .schedule-event:hover {
-            opacity: 0.9;
-        }
-        .type-근무 { background-color: #3b82f6; }
-        .type-휴가 { background-color: #10b981; }
-        .type-교육 { background-color: #a855f7; }
-        .type-회의 { background-color: #f97316; }
-        .type-출장 { background-color: #ef4444; }
-    </style>
+	<style>
+	    .sidebar-open .sidebar {
+	        transform: translateX(0);
+	    }
+	    .modal-hidden {
+	        display: none !important;
+	        visibility: hidden !important;
+	        opacity: 0 !important;
+	        pointer-events: none !important;
+	    }
+	    .calendar-grid {
+	        display: grid;
+	        grid-template-columns: repeat(7, 1fr);
+	        gap: 0;
+	    }
+	    .day-cell {
+	        border: 1px solid #e5e7eb;
+	        padding: 8px;
+	        overflow: hidden;
+	        overflow-y: auto;
+	    }
+	    .day-cell.other-month {
+	        background-color: #f9fafb;
+	    }
+	    .day-cell.today {
+	        background-color: #eff6ff;
+	        border-left: 3px solid #3b82f6;
+	    }
+	    .day-header {
+	        text-align: center;
+	        padding: 12px 8px;
+	        font-weight: 600;
+	        border-bottom: 2px solid #e5e7eb;
+	        background-color: #f3f4f6;
+	        font-size: 14px;
+	        color: #374151;
+	    }
+	    .schedule-event {
+	        font-size: 12px;
+	        padding: 6px;
+	        margin-bottom: 4px;
+	        border-radius: 4px;
+	        color: white;
+	        cursor: pointer;
+	        transition: opacity 0.2s;
+	    }
+	    .schedule-event:hover {
+	        opacity: 0.9;
+	    }
+	    .type-근무 { background-color: #3b82f6; }
+	    .type-휴가 { background-color: #10b981; }
+	    .type-교육 { background-color: #a855f7; }
+	    .type-회의 { background-color: #f97316; }
+	    .type-출장 { background-color: #ef4444; }
+	
+	    /* 수정 모달 전용 */
+	    .modal-input,
+	    .modal-select,
+	    .modal-textarea {
+	        width: 100%;
+	        border: 1px solid #d1d5db;
+	        border-radius: 0.5rem;
+	        padding: 0.625rem 0.875rem;
+	        font-size: 0.875rem;
+	        outline: none;
+	        transition: all 0.2s;
+	        background: #fff;
+	    }
+	    .modal-input:focus,
+	    .modal-select:focus,
+	    .modal-textarea:focus {
+	        border-color: #00853D;
+	        box-shadow: 0 0 0 3px rgba(0, 133, 61, 0.12);
+	    }
+	    .modal-textarea {
+	        min-height: 96px;
+	        resize: none;
+	    }
+	    .modal-readonly {
+	        background-color: #f3f4f6;
+	        color: #6b7280;
+	    }
+	</style>
 </head>
 <body class="bg-gray-50">
     <div class="min-h-screen">
@@ -369,17 +397,6 @@
                     </div>
                 </div>
 
-                <!-- 휴게 시간 -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">휴게 시간</label>
-                    <div class="grid grid-cols-3 gap-3">
-                        <button type="button" onclick="setBreakTime('30분')" class="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-[#00853D] hover:bg-green-50 transition-colors text-sm breakTimeBtn">30분</button>
-                        <button type="button" onclick="setBreakTime('1시간')" class="px-4 py-2 border-2 border-[#00853D] bg-green-50 rounded-lg text-sm font-medium text-[#00853D] breakTimeBtn">1시간</button>
-                        <button type="button" onclick="setBreakTime('1.5시간')" class="px-4 py-2 border-2 border-gray-300 rounded-lg hover:border-[#00853D] hover:bg-green-50 transition-colors text-sm breakTimeBtn">1.5시간</button>
-                    </div>
-                    <input type="text" id="breakTimeInput" placeholder="또는 직접 입력 (예: 45분)" class="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
-                </div>
-
                 <!-- 반복 여부 -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">반복 여부</label>
@@ -457,6 +474,140 @@
             </div>
         </div>
     </div>
+    
+	<!-- 일정 수정 모달 -->
+	<div id="editModal" class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onclick="if(event.target === this) closeEditModal()">
+	    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+	        <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white">
+	            <h3 class="text-lg font-bold text-gray-900">일정 수정</h3>
+	            <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
+	                <i class="fas fa-times w-5 h-5"></i>
+	            </button>
+	        </div>
+	
+	        <div class="p-6 space-y-6">
+	            <input type="hidden" id="editScheduleId">
+	
+	            <!-- 직원 및 매장 -->
+	            <div class="grid grid-cols-2 gap-4">
+	                <div>
+	                    <label class="block text-sm font-medium text-gray-700 mb-2">직원</label>
+	                    <input type="text" id="editEmployeeName" class="modal-input modal-readonly" readonly>
+	                </div>
+	
+	                <div>
+	                    <label class="block text-sm font-medium text-gray-700 mb-2">매장</label>
+	                    <select id="editBranch" class="modal-select">
+	                        <option value="">매장을 선택하세요</option>
+	                        <option value="본사">본사</option>
+	                        <option value="강남점">강남점</option>
+	                        <option value="신촌점">신촌점</option>
+	                        <option value="홍대점">홍대점</option>
+	                        <option value="건대점">건대점</option>
+	                    </select>
+	                </div>
+	            </div>
+	
+	            <!-- 날짜 및 근무 유형 -->
+	            <div class="grid grid-cols-2 gap-4">
+	                <div>
+	                    <label class="block text-sm font-medium text-gray-700 mb-2">날짜</label>
+	                    <input type="date" id="editDate" class="modal-input modal-readonly" readonly>
+	                </div>
+	
+	                <div>
+	                    <label class="block text-sm font-medium text-gray-700 mb-2">근무 유형</label>
+	                    <select id="editScheduleType" class="modal-select">
+	                        <option value="근무">근무</option>
+	                        <option value="휴가">휴가</option>
+	                        <option value="교육">교육</option>
+	                        <option value="회의">회의</option>
+	                        <option value="출장">출장</option>
+	                    </select>
+	                </div>
+	            </div>
+	
+	            <!-- 근무 시간 -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700 mb-2">근무 시간</label>
+	                <div class="grid grid-cols-2 gap-4">
+	                    <div>
+	                        <label class="block text-xs text-gray-500 mb-1">시작 시간</label>
+	                        <input type="time" id="editStartTime" class="modal-input">
+	                    </div>
+	                    <div>
+	                        <label class="block text-xs text-gray-500 mb-1">종료 시간</label>
+	                        <input type="time" id="editEndTime" class="modal-input">
+	                    </div>
+	                </div>
+	            </div>
+	
+	            <!-- 반복 여부 -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700 mb-2">반복 여부</label>
+	                <div class="space-y-2">
+	                    <label class="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-[#00853D] cursor-pointer transition-colors">
+	                        <input type="radio" name="editRepeat" value="none" class="w-4 h-4 text-[#00853D] focus:ring-[#00853D]">
+	                        <span class="text-sm text-gray-700">반복 없음</span>
+	                    </label>
+	
+	                    <label class="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-[#00853D] cursor-pointer transition-colors">
+	                        <input type="radio" name="editRepeat" value="weekly" class="w-4 h-4 text-[#00853D] focus:ring-[#00853D]">
+	                        <span class="text-sm text-gray-700">매주 반복</span>
+	                    </label>
+	
+	                    <label class="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-[#00853D] cursor-pointer transition-colors">
+	                        <input type="radio" name="editRepeat" value="biweekly" class="w-4 h-4 text-[#00853D] focus:ring-[#00853D]">
+	                        <span class="text-sm text-gray-700">격주 반복</span>
+	                    </label>
+	
+	                    <label class="flex items-center gap-3 p-3 border-2 border-gray-200 rounded-lg hover:border-[#00853D] cursor-pointer transition-colors">
+	                        <input type="radio" name="editRepeat" value="monthly" class="w-4 h-4 text-[#00853D] focus:ring-[#00853D]">
+	                        <span class="text-sm text-gray-700">월별 반복</span>
+	                    </label>
+	                </div>
+	            </div>
+	
+	            <!-- 근무 역할 -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700 mb-2">근무 역할</label>
+	                <select id="editRole" class="modal-select">
+	                    <option value="">선택하세요</option>
+	                    <option value="매장 관리">매장 관리</option>
+	                    <option value="주방">주방</option>
+	                    <option value="홀 서빙">홀 서빙</option>
+	                    <option value="카운터">카운터</option>
+	                    <option value="배달">배달</option>
+	                    <option value="재고 관리">재고 관리</option>
+	                    <option value="청소">청소</option>
+	                    <option value="교육 진행">교육 진행</option>
+	                </select>
+	            </div>
+	
+	            <!-- 메모 -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700 mb-2">메모</label>
+	                <textarea id="editNotes" class="modal-textarea" placeholder="추가 정보나 특이사항을 입력하세요..."></textarea>
+	            </div>
+	        </div>
+	
+	        <div class="border-t border-gray-200 px-6 py-4 flex justify-between items-center sticky bottom-0 bg-white">
+	            <button type="button" onclick="deleteSchedule()" class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm">
+	                <i class="fas fa-trash-alt"></i>
+	                삭제
+	            </button>
+	
+	            <div class="flex gap-3">
+	                <button type="button" onclick="closeEditModal()" class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-sm">
+	                    취소
+	                </button>
+	                <button type="button" onclick="updateSchedule()" class="px-5 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors text-sm">
+	                    저장
+	                </button>
+	            </div>
+	        </div>
+	    </div>
+	</div>
 
     <script>
         // 직원 데이터 (React와 동일)
@@ -486,7 +637,6 @@
         var currentDate = new Date(2024, 3, 1); // 2024년 4월
         var viewMode = 'month';
         var selectedEmployees = [];
-        var selectedBreakTime = '1시간';
 
         // 초기화
         window.addEventListener('DOMContentLoaded', function() {
@@ -540,19 +690,6 @@
             for (var i = 0; i < checkboxes.length; i++) {
                 selectedEmployees.push(checkboxes[i].value);
             }
-        }
-
-        // 휴게 시간 설정
-        function setBreakTime(time) {
-            selectedBreakTime = time;
-            var btns = document.querySelectorAll('.breakTimeBtn');
-            for (var i = 0; i < btns.length; i++) {
-                btns[i].classList.remove('border-[#00853D]', 'bg-green-50', 'text-[#00853D]', 'font-medium');
-                btns[i].classList.add('border-gray-300');
-            }
-            event.target.classList.remove('border-gray-300');
-            event.target.classList.add('border-[#00853D]', 'bg-green-50', 'text-[#00853D]', 'font-medium');
-            document.getElementById('breakTimeInput').value = '';
         }
 
         // 뷰 모드 설정
@@ -705,8 +842,8 @@
                 for (var j = 0; j < Math.min(daySchedules.length, maxEvents); j++) {
                     var s = daySchedules[j];
                     var empName = s.employee.substring(0, 3);
-                    html += '  <div class="schedule-event type-' + s.type + '" onclick="event.stopPropagation(); viewSchedule(\'' + s.id + '\')" title="' + s.employee + ' - ' + s.title + '">';
-                    html += '<span class="text-xs font-semibold">' + empName + '</span> <span class="text-xs">' + s.title + '</span>';
+                    html += '  <div class="schedule-event type-' + s.type + '" onclick="event.stopPropagation(); viewSchedule(\'' + s.id + '\')" title="' + s.employee + ' - ' + s.type + '">';
+                    html += '<span class="text-xs font-semibold">' + empName + '</span> <span class="text-xs">' + s.type + '</span>';
                     html += '</div>';
                 }
 
@@ -728,9 +865,8 @@
 
         // 달력에서 날짜 선택
         function selectDateForModal(dateStr) {
-            document.getElementById('scheduleDate').value = dateStr;
-            showAddModal();
-        }
+		    showAddModal(dateStr);
+		}
 
         // 통계 업데이트
         function updateStats() {
@@ -752,35 +888,22 @@
         }
 
         // 모달 열기/닫기
-        function showAddModal() {
-            // 필드 초기화
-            document.getElementById('positionSelect').value = '';
-            document.getElementById('employeeCheckboxes').classList.add('hidden');
-            document.getElementById('employeeList').innerHTML = '';
-            document.getElementById('branchSelect').value = '';
-            document.getElementById('scheduleDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('scheduleType').value = '근무';
-            document.getElementById('startTime').value = '09:00';
-            document.getElementById('endTime').value = '18:00';
-            document.getElementById('role').value = '';
-            document.getElementById('notes').value = '';
-            
-            // 휴게 시간 초기화 (1시간으로 선택된 상태)
-            var breakButtons = document.querySelectorAll('.breakTimeBtn');
-            for (var i = 0; i < breakButtons.length; i++) {
-                breakButtons[i].classList.remove('border-[#00853D]', 'bg-green-50', 'text-[#00853D]', 'font-medium');
-                breakButtons[i].classList.add('border-gray-300');
-            }
-            breakButtons[1].classList.remove('border-gray-300');
-            breakButtons[1].classList.add('border-[#00853D]', 'bg-green-50', 'text-[#00853D]', 'font-medium');
-            document.getElementById('breakTimeInput').value = '';
-            selectedBreakTime = '1시간';
-            
-            // 반복 초기화
-            document.querySelector('input[name="repeat"][value="none"]').checked = true;
-            
-            document.getElementById('addModal').classList.remove('modal-hidden');
-        }
+        function showAddModal(selectedDate) {
+		    document.getElementById('positionSelect').value = '';
+		    document.getElementById('employeeCheckboxes').classList.add('hidden');
+		    document.getElementById('employeeList').innerHTML = '';
+		    document.getElementById('branchSelect').value = '';
+		    document.getElementById('scheduleDate').value = selectedDate || new Date().toISOString().split('T')[0];
+		    document.getElementById('scheduleType').value = '근무';
+		    document.getElementById('startTime').value = '09:00';
+		    document.getElementById('endTime').value = '18:00';
+		    document.getElementById('role').value = '';
+		    document.getElementById('notes').value = '';
+		
+		    document.querySelector('input[name="repeat"][value="none"]').checked = true;
+		
+		    document.getElementById('addModal').classList.remove('modal-hidden');
+		}
 
         function closeAddModal() {
             document.getElementById('addModal').classList.add('modal-hidden');
@@ -836,10 +959,85 @@
 
         // 일정 조회
         function viewSchedule(id) {
-            var schedule = schedules.find(function(s) { return s.id === id; });
-            if (schedule) {
-                alert(schedule.employee + '\n' + schedule.title + '\n' + schedule.date + ' ' + schedule.startTime + '-' + schedule.endTime + (schedule.location ? '\n장소: ' + schedule.location : '') + (schedule.notes ? '\n메모: ' + schedule.notes : ''));
+		    var schedule = schedules.find(function(s) { return s.id === id; });
+		    if (!schedule) return;
+		
+		    document.getElementById('editScheduleId').value = schedule.id;
+		    document.getElementById('editEmployeeName').value = schedule.employee || '';
+		    document.getElementById('editBranch').value = schedule.branch || '';
+		    document.getElementById('editDate').value = schedule.date || '';
+		    document.getElementById('editScheduleType').value = schedule.type || '근무';
+		    document.getElementById('editStartTime').value = schedule.startTime || '';
+		    document.getElementById('editEndTime').value = schedule.endTime || '';
+		    document.getElementById('editRole').value = schedule.role || '';
+		    document.getElementById('editNotes').value = schedule.notes || '';
+		    
+		    var repeatValue = schedule.repeat || 'none';
+		    var repeatRadio = document.querySelector('input[name="editRepeat"][value="' + repeatValue + '"]');
+		    if (repeatRadio) {
+		        repeatRadio.checked = true;
+		    }
+		
+		    document.getElementById('editModal').classList.remove('modal-hidden');
+		}
+        
+        // 일정 수정 닫기
+        function closeEditModal() {
+            document.getElementById('editModal').classList.add('modal-hidden');
+        }
+		
+        // 일정 수정
+		function updateSchedule() {
+		    var scheduleId = document.getElementById('editScheduleId').value;
+		    var branch = document.getElementById('editBranch').value;
+		    var type = document.getElementById('editScheduleType').value;
+		    var startTime = document.getElementById('editStartTime').value;
+		    var endTime = document.getElementById('editEndTime').value;
+		    var repeat = document.querySelector('input[name="editRepeat"]:checked') ? document.querySelector('input[name="editRepeat"]:checked').value : 'none';
+		    var role = document.getElementById('editRole').value;
+		    var notes = document.getElementById('editNotes').value;
+		
+		    if (!branch || !type || !startTime || !endTime) {
+		        alert('필수 항목을 모두 입력하세요.');
+		        return;
+		    }
+		
+		    var schedule = schedules.find(function(s) { return s.id === scheduleId; });
+		    if (!schedule) {
+		        alert('수정할 일정을 찾을 수 없습니다.');
+		        return;
+		    }
+		
+		    schedule.branch = branch;
+		    schedule.type = type;
+		    schedule.startTime = startTime;
+		    schedule.endTime = endTime;
+		    schedule.repeat = repeat;
+		    schedule.role = role;
+		    schedule.notes = notes;
+		
+		    alert('일정이 수정되었습니다.');
+		    closeEditModal();
+		    renderCalendar();
+		    updateStats();
+		}
+
+        // 일정 삭제
+        function deleteSchedule() {
+            var scheduleId = document.getElementById('editScheduleId').value;
+
+            if (!confirm('이 일정을 삭제하시겠습니까?')) {
+                return;
             }
+
+            schedules = schedules.filter(function(s) {
+                return s.id !== scheduleId;
+            });
+
+            alert('일정이 삭제되었습니다.');
+            closeEditModal();
+            renderCalendar();
+            updateStats();
         }
 
         // 사이드바 메뉴 토글

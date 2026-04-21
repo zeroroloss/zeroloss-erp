@@ -12,7 +12,7 @@
             </button>
 
             <div class="text-right">
-                <p class="text-sm font-medium">Admin User</p>
+                <p class="text-sm font-medium">본사 관리자</p>
                 <p class="text-xs text-gray-500">admin</p>
             </div>
 
