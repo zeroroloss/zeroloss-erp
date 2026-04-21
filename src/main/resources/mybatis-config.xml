@@ -1,0 +1,52 @@
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<!DOCTYPE configuration-->
+<!--	PUBLIC "-//mybatis.org//DTD Config 3.0//EN"-->
+<!--	"http://mybatis.org/dtd/mybatis-3-config.dtd">-->
+
+<!--&lt;!&ndash; MyBatis 설정 파일 &ndash;&gt;-->
+<!--<configuration>-->
+
+<!--    &lt;!&ndash; 1. typeAliases : DTO 클래스의 별칭(alias) 설정 &ndash;&gt;-->
+<!--    <typeAliases>-->
+<!--        &lt;!&ndash; dto.Account 클래스를 'Account'라는 이름으로 매핑 &ndash;&gt;-->
+<!--        <typeAlias type="dto.Account" alias="Account"/>-->
+<!--        &lt;!&ndash; dto.Member 클래스를 'Member'라는 이름으로 매핑 &ndash;&gt;-->
+<!--        <typeAlias type="dto.Member" alias="Member"/>-->
+<!--    </typeAliases>-->
+
+<!--    &lt;!&ndash; 2. environments : DB 환경 설정 &ndash;&gt;-->
+<!--    <environments default="development">-->
+<!--        <environment id="development">-->
+
+<!--            &lt;!&ndash; 트랜잭션 매니저 설정 &ndash;&gt;-->
+<!--            &lt;!&ndash; JDBC : MyBatis가 직접 Connection commit/rollback 관리 &ndash;&gt;-->
+<!--            <transactionManager type="JDBC"/>-->
+
+<!--            &lt;!&ndash; 데이터소스 설정 &ndash;&gt;-->
+<!--            <dataSource type="POOLED"> &lt;!&ndash; 커넥션 풀 사용 &ndash;&gt;-->
+<!--                &lt;!&ndash; DB 드라이버 클래스 &ndash;&gt;-->
+<!--                <property name="driver" value="org.mariadb.jdbc.Driver"/>-->
+<!--                &lt;!&ndash; DB URL &ndash;&gt;-->
+<!--                <property name="url" value="jdbc:mariadb://localhost:3306/testdb_26_1"/>-->
+<!--                &lt;!&ndash; DB 계정 &ndash;&gt;-->
+<!--                <property name="username" value="root"/>-->
+<!--                <property name="password" value="7564"/>-->
+
+<!--                &lt;!&ndash; 최대 활성 커넥션 수 : 동시에 사용 가능한 커넥션 수 &ndash;&gt;-->
+<!--                <property name="poolMaximumActiveConnections" value="500"/>-->
+<!--                &lt;!&ndash; 최대 유휴 커넥션 수 : 풀에 유지될 수 있는 커넥션 수 &ndash;&gt;-->
+<!--                <property name="poolMaximumIdleConnections" value="500"/>-->
+<!--            </dataSource>-->
+
+<!--        </environment>-->
+<!--    </environments>-->
+
+<!--    &lt;!&ndash; 3. mappers : MyBatis Mapper XML 파일 위치 &ndash;&gt;-->
+<!--    <mappers>-->
+<!--        &lt;!&ndash; account 관련 SQL 정의 &ndash;&gt;-->
+<!--        <mapper resource="mapper/account.xml"/>-->
+<!--        &lt;!&ndash; member 관련 SQL 정의 &ndash;&gt;-->
+<!--        <mapper resource="mapper/member.xml"/>-->
+<!--    </mappers>-->
+
+<!--</configuration>-->
