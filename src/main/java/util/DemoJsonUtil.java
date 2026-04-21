@@ -6,6 +6,7 @@ public final class DemoJsonUtil {
     private static final Gson GSON = new Gson();
 
     private DemoJsonUtil() {
+    	
     }
 
     public static String toJson(Object object) {
