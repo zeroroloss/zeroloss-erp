@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.account">
+	<insert id="insertAccount" parameterType="dto.Account">
+		insert into account(emp_no,branch_code,hq_id,role_id,login_id,password,status)
+		values(#{empNo},#{branchCode},#{hqId},#{roleId},#{loginId},#{password},#{status})
+	</insert>
+	
+	<select id="selectAccount" parameterType="String" resultType="dto.Account">
+		select * from account where login_id=#{value} and status = 'ACTIVE'
+	</select>
+	
+	<update id="updateLastLoginAt" parameterType="int">
+		update account set last_login_at = now() where account_id = #{value}
+	</update>
+</mapper>
