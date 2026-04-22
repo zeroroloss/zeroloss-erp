@@ -47,13 +47,13 @@
                 </div>
             </div>
 
-            <%@ include file="/hq/common/sidebar.jspf" %>
+            <%@ include file="/hq/common/sidebar.jsp" %>
         </aside>
 
-        <!-- Main Content -->
-        <div class="lg:ml-64">
-            <!-- 헤더 -->
-            <%@ include file="/hq/common/header.jspf" %>
+        <!-- 메인 콘텐츠 -->
+        <div class="lg:pl-64">
+            <!-- 상단 헤더 -->
+            <%@ include file="/hq/common/header.jsp" %>
 
             <!-- Content Area -->
             <main class="p-6">

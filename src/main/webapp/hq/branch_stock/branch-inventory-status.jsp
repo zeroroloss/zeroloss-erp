@@ -35,7 +35,7 @@
                 </div>
             </div>
 
-            <%@ include file="/hq/common/sidebar.jspf" %>
+            <%@ include file="/hq/common/sidebar.jsp" %>
 
             <!-- 사용자 정보 -->
             <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
@@ -54,7 +54,7 @@
         <!-- 메인 콘텐츠 -->
         <div class="lg:pl-64">
             <!-- 상단 헤더 -->
-            <%@ include file="/hq/common/header.jspf" %>
+            <%@ include file="/hq/common/header.jsp" %>
 
             <!-- 페이지 콘텐츠 -->
             <main class="p-6">
