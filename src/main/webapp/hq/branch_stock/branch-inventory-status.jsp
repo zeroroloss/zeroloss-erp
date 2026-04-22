@@ -36,19 +36,6 @@
             </div>
 
             <%@ include file="/hq/common/sidebar.jsp" %>
-
-            <!-- 사용자 정보 -->
-            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
-                <a href="#" class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg transition-colors">
-                    <div class="w-10 h-10 rounded-full bg-[#00853D] flex items-center justify-center text-white font-semibold">
-                        본
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900">본사관리자</p>
-                        <p class="text-xs text-gray-500">admin</p>
-                    </div>
-                </a>
-            </div>
         </aside>
 
         <!-- 메인 콘텐츠 -->

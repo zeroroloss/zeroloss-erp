@@ -38,7 +38,7 @@
                 <!-- 헤더 + 액션 버튼 -->
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-900">물류창고 내 품목</h2>
+                        <h2 class="text-3xl font-bold text-gray-900">물류창고 내 품목 <span id="totalItemsCount" class="text-2xl font-normal text-gray-500">0개</span></h2>
                         <p class="text-gray-500 mt-1">전체 품목 마스터를 관리하세요</p>
                     </div>
                     <button onclick="handleNewItem()" class="flex items-center gap-2 px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors">
@@ -49,7 +49,7 @@
 
                 <!-- 필터 -->
                 <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">카테고리 선택</label>
                             <select id="filterCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" onchange="updateItemNames(); filterItems();">
@@ -79,56 +79,14 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 통계 -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center">
-                                <i class="fas fa-box w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-xl font-bold text-gray-900" id="totalCount">0개</p>
-                                <p class="text-xs text-gray-500">전체 품목</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-lg bg-green-100 text-green-600 flex items-center justify-center">
-                                <i class="fas fa-check-circle w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-xl font-bold text-green-600" id="activeCount">0개</p>
-                                <p class="text-xs text-gray-500">활성 품목</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-lg bg-gray-100 text-gray-600 flex items-center justify-center">
-                                <i class="fas fa-box w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-xl font-bold text-gray-600" id="inactiveCount">0개</p>
-                                <p class="text-xs text-gray-500">비활성 품목</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
-                                <i class="fas fa-filter w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-xl font-bold text-purple-600" id="categoryCount">7개</p>
-                                <p class="text-xs text-gray-500">카테고리</p>
-                            </div>
-                        </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="filterItems()" class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
+                            조회하기
+                        </button>
+                        <button onclick="resetFilters()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
+                            초기화
+                        </button>
                     </div>
                 </div>
 
@@ -144,10 +102,8 @@
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목코드</th>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">카테고리</th>
-                                    <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">매입 단가</th>
+                                    <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">단위당 가격</th>
                                     <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">안전 재고</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">공급사</th>
-                                    <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">상태</th>
                                     <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">관리</th>
                                 </tr>
                             </thead>
@@ -200,36 +156,14 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">매입 단가</label>
-                        <p class="text-lg font-semibold text-gray-900" id="detailPrice"></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">안전 재고</label>
-                        <p class="text-lg font-semibold text-gray-900" id="detailSafetyStock"></p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">공급사</label>
-                        <p class="text-gray-900" id="detailSupplier"></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">유통기한</label>
-                        <p class="text-gray-900" id="detailShelfLife"></p>
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">단위당 가격</label>
+                    <p class="text-lg font-semibold text-gray-900" id="detailPrice"></p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">보관 방식</label>
-                    <p class="text-gray-900" id="detailStorageMethod"></p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">설명</label>
-                    <p class="text-gray-900" id="detailDescription"></p>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">안전 재고</label>
+                    <p class="text-lg font-semibold text-gray-900" id="detailSafetyStock"></p>
                 </div>
             </div>
 
@@ -287,34 +221,13 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">매입 단가</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">단위당 가격</label>
                         <input type="number" id="editPrice" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">안전 재고</label>
                         <input type="number" id="editSafetyStock" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                     </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">공급사</label>
-                        <input type="text" id="editSupplier" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">유통기한 (일)</label>
-                        <input type="number" id="editShelfLife" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">보관 방식</label>
-                    <input type="text" id="editStorageMethod" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">설명</label>
-                    <textarea id="editDescription" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" rows="3"></textarea>
                 </div>
             </div>
 
@@ -466,7 +379,7 @@
                 const priceFormatted = item.unitPrice.toLocaleString();
                 const safetyStockFormatted = item.safetyStock + item.unit;
 
-                tr.innerHTML = '<td class="py-4 px-6 font-mono text-sm text-gray-600">' + item.itemCode + '</td><td class="py-4 px-6 font-medium text-gray-900">' + item.itemName + '</td><td class="py-4 px-6"><span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">' + item.category + '</span></td><td class="py-4 px-6 text-right text-gray-900">₩' + priceFormatted + '</td><td class="py-4 px-6 text-right font-semibold text-gray-900">' + safetyStockFormatted + '</td><td class="py-4 px-6 text-gray-700">' + item.supplier + '</td><td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ' + statusClass + '">' + statusBadge + '</span></td><td class="py-4 px-6 text-center"><button class="inline-flex items-center gap-1 px-3 py-1 text-[#00853D] hover:text-[#006B2F] hover:bg-green-50 rounded-lg transition-colors" onclick="event.stopPropagation(); editItem(event);" data-item-id="' + item.id + '"><i class="fas fa-edit w-4 h-4"></i>수정</button></td>';
+                tr.innerHTML = '<td class="py-4 px-6 font-mono text-sm text-gray-600">' + item.itemCode + '</td><td class="py-4 px-6 font-medium text-gray-900">' + item.itemName + '</td><td class="py-4 px-6"><span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">' + item.category + '</span></td><td class="py-4 px-6 text-right text-gray-900">₩' + priceFormatted + '</td><td class="py-4 px-6 text-right font-semibold text-gray-900">' + safetyStockFormatted + '</td><td class="py-4 px-6 text-center"><button class="inline-flex items-center gap-1 px-3 py-1 text-[#00853D] hover:text-[#006B2F] hover:bg-green-50 rounded-lg transition-colors" onclick="event.stopPropagation(); editItem(event);" data-item-id="' + item.id + '"><i class="fas fa-edit w-4 h-4"></i>수정</button></td>';
 
                 tbody.appendChild(tr);
             });
@@ -477,13 +390,16 @@
         // 통계 업데이트
         function updateStats() {
             const total = items.length;
-            const active = items.filter(i => i.status === 'active').length;
-            const inactive = items.filter(i => i.status === 'inactive').length;
+            document.getElementById('totalItemsCount').textContent = total + '개';
+        }
 
-            document.getElementById('totalCount').textContent = total + '개';
-            document.getElementById('activeCount').textContent = active + '개';
-            document.getElementById('inactiveCount').textContent = inactive + '개';
-            document.getElementById('categoryCount').textContent = '7개';
+        // 필터 초기화
+        function resetFilters() {
+            document.getElementById('filterCategory').value = '전체';
+            document.getElementById('filterItemName').value = '전체';
+            document.getElementById('searchQuery').value = '';
+            updateItemNames();
+            filterItems();
         }
 
         // 상세 보기
@@ -495,10 +411,6 @@
             document.getElementById('detailUnit').textContent = item.unit;
             document.getElementById('detailPrice').textContent = '₩' + item.unitPrice.toLocaleString();
             document.getElementById('detailSafetyStock').textContent = item.safetyStock + item.unit;
-            document.getElementById('detailSupplier').textContent = item.supplier;
-            document.getElementById('detailShelfLife').textContent = item.shelfLife + '일';
-            document.getElementById('detailStorageMethod').textContent = item.storageMethod;
-            document.getElementById('detailDescription').textContent = item.description;
             document.getElementById('detailModal').classList.remove('hidden');
         }
 
@@ -533,10 +445,6 @@
             document.getElementById('editUnit').value = item.unit;
             document.getElementById('editPrice').value = item.unitPrice;
             document.getElementById('editSafetyStock').value = item.safetyStock;
-            document.getElementById('editSupplier').value = item.supplier;
-            document.getElementById('editShelfLife').value = item.shelfLife;
-            document.getElementById('editStorageMethod').value = item.storageMethod;
-            document.getElementById('editDescription').value = item.description;
 
             document.getElementById('editModal').classList.remove('hidden');
         }
@@ -556,10 +464,6 @@
             document.getElementById('editUnit').value = 'kg';
             document.getElementById('editPrice').value = '';
             document.getElementById('editSafetyStock').value = '';
-            document.getElementById('editSupplier').value = '';
-            document.getElementById('editShelfLife').value = '';
-            document.getElementById('editStorageMethod').value = '';
-            document.getElementById('editDescription').value = '';
 
             document.getElementById('editModal').classList.remove('hidden');
         }
@@ -583,10 +487,6 @@
                     unit: document.getElementById('editUnit').value,
                     unitPrice: Number(document.getElementById('editPrice').value),
                     safetyStock: Number(document.getElementById('editSafetyStock').value),
-                    supplier: document.getElementById('editSupplier').value,
-                    shelfLife: Number(document.getElementById('editShelfLife').value),
-                    storageMethod: document.getElementById('editStorageMethod').value,
-                    description: document.getElementById('editDescription').value,
                     status: 'active'
                 };
                 items.unshift(newItem);
@@ -597,10 +497,6 @@
                 selectedItem.unit = document.getElementById('editUnit').value;
                 selectedItem.unitPrice = Number(document.getElementById('editPrice').value);
                 selectedItem.safetyStock = Number(document.getElementById('editSafetyStock').value);
-                selectedItem.supplier = document.getElementById('editSupplier').value;
-                selectedItem.shelfLife = Number(document.getElementById('editShelfLife').value);
-                selectedItem.storageMethod = document.getElementById('editStorageMethod').value;
-                selectedItem.description = document.getElementById('editDescription').value;
                 alert('품목 정보가 수정되었습니다.');
             }
 
@@ -634,6 +530,7 @@
         // 초기화
         window.addEventListener('DOMContentLoaded', function() {
             items = mockItems.slice();
+            updateStats();
             updateItemNames();
             filterItems();
         });

@@ -12,6 +12,7 @@
     boolean warehouseGroup = uri.contains("/hq/warehouse/");
     boolean warehouseReceiveActive = uri.endsWith("/hq/warehouse/warehouse-receive.jsp");
     boolean warehouseReleaseActive = uri.endsWith("/hq/warehouse/warehouse-release.jsp");
+    boolean warehouseStockActive = uri.endsWith("/hq/warehouse/warehouse-stock.jsp");
     boolean warehouseExpiryActive = uri.endsWith("/hq/warehouse/warehouse-expiry-tracking.jsp");
     boolean warehouseItemsActive = uri.endsWith("/hq/warehouse/warehouse-items.jsp");
 
@@ -71,6 +72,7 @@
     <div class="submenu <%= warehouseGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
         <a href="<%= cp %>/hq/warehouse/warehouse-receive.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseReceiveActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 물류창고 입고</a>
         <a href="<%= cp %>/hq/warehouse/warehouse-release.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseReleaseActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 물류창고 출고</a>
+        <a href="<%= cp %>/hq/warehouse/warehouse-stock.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseStockActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 물류창고 재고 조회</a>
         <a href="<%= cp %>/hq/warehouse/warehouse-expiry-tracking.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseExpiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">유통기한 조회</a>
         <a href="<%= cp %>/hq/warehouse/warehouse-items.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseItemsActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">물류창고 내 품목</a>
     </div>

@@ -46,79 +46,10 @@
                         <h2 class="text-3xl font-bold text-gray-900">본사 물류창고 입고</h2>
                         <p class="text-gray-500 mt-1">신규 입고를 등록하고 입고 이력을 관리하세요</p>
                     </div>
-                    <button onclick="toggleReceiveForm()" class="flex items-center gap-2 px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
+                    <button onclick="handleNewItem()" class="flex items-center gap-2 px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors">
                         <i class="fas fa-plus w-5 h-5"></i>
                         신규 입고 등록
                     </button>
-                </div>
-
-                <!-- 신규 입고 등록 폼 -->
-                <div id="receiveFormContainer" class="bg-white rounded-lg border border-gray-200 p-6 mb-6 hidden">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">신규 입고 등록</h3>
-                    <form onsubmit="handleReceive(event)">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-                            <!-- 공급사 -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">공급사 <span class="text-red-600">*</span></label>
-                                <select id="formSupplier" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                    <option value="">선택하세요</option>
-                                    <option value="(주)프레시미트">(주)프레시미트</option>
-                                    <option value="(주)유진유업">(주)유진유업</option>
-                                    <option value="(주)신선농산">(주)신선농산</option>
-                                    <option value="(주)베이커리월드">(주)베이커리월드</option>
-                                    <option value="(주)글로벌푸드">(주)글로벌푸드</option>
-                                    <option value="(주)한국식품">(주)한국식품</option>
-                                </select>
-                            </div>
-
-                            <!-- 품목명 -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">품목명 <span class="text-red-600">*</span></label>
-                                <select id="formItem" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                    <option value="">선택하세요</option>
-                                    <option value="MEAT-001">소고기 패티 (개)</option>
-                                    <option value="DAIRY-001">생크림 (L)</option>
-                                    <option value="VEG-001">감자 (kg)</option>
-                                    <option value="VEG-002">양상추 (kg)</option>
-                                    <option value="BREAD-001">버거빵 (개)</option>
-                                    <option value="DAIRY-002">체다치즈 (장)</option>
-                                    <option value="SAUCE-001">식용유 (L)</option>
-                                    <option value="BEV-001">콜라 시럽 (L)</option>
-                                </select>
-                            </div>
-
-                            <!-- 수량 -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">수량 <span class="text-red-600">*</span></label>
-                                <input type="number" id="formQuantity" placeholder="수량 입력" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                            </div>
-
-                            <!-- 단가 -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">단가 <span class="text-red-600">*</span></label>
-                                <input type="number" id="formUnitPrice" placeholder="단가 입력" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                            </div>
-
-                            <!-- 유통기한 -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">유통기한 <span class="text-red-600">*</span></label>
-                                <input type="date" id="formExpiryDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                            </div>
-
-                            <!-- 합계 -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">합계</label>
-                                <div class="px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
-                                    <p class="text-sm font-semibold text-gray-900" id="totalAmount">₩0</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-end gap-2">
-                            <button type="button" onclick="toggleReceiveForm()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">취소</button>
-                            <button type="submit" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">입고 등록</button>
-                        </div>
-                    </form>
                 </div>
 
                 <!-- 필터 -->
@@ -191,47 +122,19 @@
                     </div>
                 </div>
 
-                <!-- 통계 -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="bg-white rounded-lg border border-gray-200 p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">조회 기간 입고액</p>
-                                <p class="text-3xl font-bold text-[#00853D] mt-2" id="rangeTotal">₩0</p>
-                            </div>
-                            <i class="fas fa-box text-4xl text-[#00853D] opacity-20"></i>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg border border-gray-200 p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">조회 건수</p>
-                                <p class="text-3xl font-bold text-blue-600 mt-2" id="totalRecords">0</p>
-                            </div>
-                            <i class="fas fa-list text-4xl text-blue-600 opacity-20"></i>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg border border-gray-200 p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">평균 입고가</p>
-                                <p class="text-3xl font-bold text-purple-600 mt-2" id="avgPrice">₩0</p>
-                            </div>
-                            <i class="fas fa-chart-bar text-4xl text-purple-600 opacity-20"></i>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- 입고 이력 테이블 -->
                 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <div class="px-6 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                        <h3 class="text-base font-semibold text-gray-900">입고 이력 리스트</h3>
+                        <p class="text-xs text-gray-500">조회 건수 <span id="totalRecords" class="font-semibold text-gray-700">0건</span></p>
+                    </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead class="bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">날짜/시간</th>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">공급사</th>
+                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">카테고리</th>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
                                     <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">수량</th>
                                     <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">단가</th>
@@ -268,6 +171,90 @@
                     </div>
                 </div>
             </main>
+        </div>
+    </div>
+
+    <!-- 신규 입고 등록 모달 -->
+    <div id="receiveModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-5xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-900">신규 입고 등록</h3>
+                <button onclick="closeReceiveModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleReceive(event)">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">공급사 <span class="text-red-600">*</span></label>
+                        <select id="formSupplier" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                            <option value="">선택하세요</option>
+                            <option value="(주)프레시미트">(주)프레시미트</option>
+                            <option value="(주)유진유업">(주)유진유업</option>
+                            <option value="(주)신선농산">(주)신선농산</option>
+                            <option value="(주)베이커리월드">(주)베이커리월드</option>
+                            <option value="(주)글로벌푸드">(주)글로벌푸드</option>
+                            <option value="(주)한국식품">(주)한국식품</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">카테고리 <span class="text-red-600">*</span></label>
+                        <select id="formCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                            <option value="">선택하세요</option>
+                            <option value="육류">육류</option>
+                            <option value="채소">채소</option>
+                            <option value="유제품">유제품</option>
+                            <option value="빵류">빵류</option>
+                            <option value="음료">음료</option>
+                            <option value="조미료">조미료</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">품목명 <span class="text-red-600">*</span></label>
+                        <select id="formItem" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                            <option value="">선택하세요</option>
+                            <option value="MEAT-001">소고기 패티 (개)</option>
+                            <option value="DAIRY-001">생크림 (L)</option>
+                            <option value="VEG-001">감자 (kg)</option>
+                            <option value="VEG-002">양상추 (kg)</option>
+                            <option value="BREAD-001">버거빵 (개)</option>
+                            <option value="DAIRY-002">체다치즈 (장)</option>
+                            <option value="SAUCE-001">식용유 (L)</option>
+                            <option value="BEV-001">콜라 시럽 (L)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">수량 <span class="text-red-600">*</span></label>
+                        <input type="number" id="formQuantity" placeholder="수량 입력" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">단가 <span class="text-red-600">*</span></label>
+                        <input type="number" id="formUnitPrice" placeholder="단가 입력" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">유통기한 <span class="text-red-600">*</span></label>
+                        <input type="date" id="formExpiryDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">합계</label>
+                        <div class="px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
+                            <p class="text-sm font-semibold text-gray-900" id="totalAmount">₩0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2">
+                    <button type="button" onclick="closeReceiveModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">입고 등록</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -336,14 +323,13 @@
         // 백드롭 클릭 시 사이드바 닫기
         document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
 
-        // 신규 입고 등록 폼 토글
-        function toggleReceiveForm() {
-            const formContainer = document.getElementById('receiveFormContainer');
-            formContainer.classList.toggle('hidden');
-            
-            if (!formContainer.classList.contains('hidden')) {
-                document.getElementById('formSupplier').focus();
-            }
+        function handleNewItem() {
+            document.getElementById('receiveModal').classList.remove('hidden');
+            document.getElementById('formSupplier').focus();
+        }
+
+        function closeReceiveModal() {
+            document.getElementById('receiveModal').classList.add('hidden');
         }
 
         // 입고 등록 처리
@@ -351,18 +337,18 @@
             event.preventDefault();
             
             const supplier = document.getElementById('formSupplier').value;
+            const category = document.getElementById('formCategory').value;
             const itemCode = document.getElementById('formItem').value;
             const quantity = parseInt(document.getElementById('formQuantity').value) || 0;
             const unitPrice = parseInt(document.getElementById('formUnitPrice').value) || 0;
             const expiryDate = document.getElementById('formExpiryDate').value;
 
-            if (!supplier || !itemCode || !quantity || !unitPrice || !expiryDate) {
+            if (!supplier || !category || !itemCode || !quantity || !unitPrice || !expiryDate) {
                 alert('모든 필수 항목을 입력해주세요.');
                 return;
             }
 
             const itemNames = { 'MEAT-001': '소고기 패티', 'DAIRY-001': '생크림', 'VEG-001': '감자', 'VEG-002': '양상추', 'BREAD-001': '버거빵', 'DAIRY-002': '체다치즈', 'SAUCE-001': '식용유', 'BEV-001': '콜라 시럽' };
-            const categories = { 'MEAT-001': '육류', 'DAIRY-001': '유제품', 'VEG-001': '채소', 'VEG-002': '채소', 'BREAD-001': '빵류', 'DAIRY-002': '유제품', 'SAUCE-001': '조미료', 'BEV-001': '음료' };
             const units = { 'MEAT-001': '개', 'DAIRY-001': 'L', 'VEG-001': 'kg', 'VEG-002': 'kg', 'BREAD-001': '개', 'DAIRY-002': '장', 'SAUCE-001': 'L', 'BEV-001': 'L' };
 
             const now = new Date();
@@ -373,7 +359,7 @@
                 supplier: supplier,
                 itemCode: itemCode,
                 itemName: itemNames[itemCode],
-                category: categories[itemCode],
+                category: category,
                 quantity: quantity,
                 unit: units[itemCode],
                 unitPrice: unitPrice,
@@ -384,7 +370,9 @@
             };
 
             receiveHistory.unshift(newRecord);
-            toggleReceiveForm();
+            closeReceiveModal();
+            event.target.reset();
+            document.getElementById('totalAmount').textContent = '₩0';
             applyFilters();
             alert('입고 처리가 완료되었습니다.');
         }
@@ -446,7 +434,7 @@
                 
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-gray-100 hover:bg-gray-50';
-                tr.innerHTML = '<td class="py-4 px-6 text-sm text-gray-900">' + record.date + ' ' + record.time + '</td><td class="py-4 px-6 text-sm text-gray-900">' + record.supplier + '</td><td class="py-4 px-6 text-sm font-medium text-gray-900">' + record.itemName + '</td><td class="py-4 px-6 text-right text-sm text-gray-600">' + record.quantity + record.unit + '</td><td class="py-4 px-6 text-right text-sm text-gray-600">₩' + formattedUnitPrice + '</td><td class="py-4 px-6 text-right text-sm font-semibold text-[#00853D]">₩' + formattedTotal + '</td><td class="py-4 px-6 text-sm text-gray-600">' + record.expiryDate + '</td><td class="py-4 px-6 text-sm text-gray-600">' + record.handler + '</td>';
+                tr.innerHTML = '<td class="py-4 px-6 text-sm text-gray-900">' + record.date + ' ' + record.time + '</td><td class="py-4 px-6 text-sm text-gray-900">' + record.supplier + '</td><td class="py-4 px-6 text-sm text-gray-600">' + record.category + '</td><td class="py-4 px-6 text-sm font-medium text-gray-900">' + record.itemName + '</td><td class="py-4 px-6 text-right text-sm text-gray-600">' + record.quantity + record.unit + '</td><td class="py-4 px-6 text-right text-sm text-gray-600">₩' + formattedUnitPrice + '</td><td class="py-4 px-6 text-right text-sm font-semibold text-[#00853D]">₩' + formattedTotal + '</td><td class="py-4 px-6 text-sm text-gray-600">' + record.expiryDate + '</td>';
                 tbody.appendChild(tr);
             });
 
@@ -509,14 +497,9 @@
             if (currentPage < totalPages) goToPage(currentPage + 1);
         }
 
-        // 통계 업데이트
+        // 조회 건수 업데이트
         function updateStats() {
-            const rangeTotal = filteredRecords.reduce((sum, r) => sum + r.totalPrice, 0);
-            const avgPrice = filteredRecords.length > 0 ? Math.floor(rangeTotal / filteredRecords.length) : 0;
-            
-            document.getElementById('rangeTotal').textContent = '₩' + rangeTotal.toLocaleString('ko-KR');
-            document.getElementById('totalRecords').textContent = filteredRecords.length;
-            document.getElementById('avgPrice').textContent = '₩' + avgPrice.toLocaleString('ko-KR');
+            document.getElementById('totalRecords').textContent = filteredRecords.length + '건';
         }
 
         // 실시간 합계 계산
@@ -537,6 +520,10 @@
                 !e.target.closest('#userMenu')) {
                 userMenu.classList.add('hidden');
             }
+        });
+
+        document.getElementById('receiveModal').addEventListener('click', function(e) {
+            if (e.target === this) closeReceiveModal();
         });
 
         // 초기 로드

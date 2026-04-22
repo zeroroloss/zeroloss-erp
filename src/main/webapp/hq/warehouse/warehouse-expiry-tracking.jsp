@@ -48,21 +48,16 @@
 
                 <!-- 필터 -->
                 <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- 상태 필터 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- 품목명 검색 -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">상태 필터</label>
-                            <select id="filterStatus" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                <option value="전체">전체</option>
-                                <option value="긴급">긴급</option>
-                                <option value="경고">경고</option>
-                                <option value="정상">정상</option>
-                            </select>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">품목명 검색</label>
+                            <input type="text" id="filterItemName" placeholder="품목명 입력" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                         </div>
 
                         <!-- 카테고리 필터 -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">카테고리 필터</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
                             <select id="filterCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                                 <option value="전체">전체</option>
                                 <option value="육류">육류</option>
@@ -73,44 +68,16 @@
                                 <option value="조미료">조미료</option>
                             </select>
                         </div>
-                    </div>
-                </div>
 
-                <!-- 통계 -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
-                                <i class="fas fa-triangle-exclamation w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-xl font-bold text-red-600" id="urgentCount">0</p>
-                                <p class="text-xs text-gray-500">긴급 (3일 이내)</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">
-                                <i class="fas fa-clock w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-xl font-bold text-orange-600" id="warningCount">0</p>
-                                <p class="text-xs text-gray-500">경고 (4-7일)</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center">
-                                <i class="fas fa-dollar-sign w-5 h-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-xl font-bold text-purple-600" id="totalValue">₩0</p>
-                                <p class="text-xs text-gray-500">위험 자산 가치</p>
-                            </div>
+                        <!-- 상태 필터 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">상태</label>
+                            <select id="filterStatus" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                                <option value="전체">전체</option>
+                                <option value="urgent">긴급</option>
+                                <option value="warning">경고</option>
+                                <option value="normal">정상</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -134,9 +101,19 @@
 
                 <!-- 유통기한 임박 품목 테이블 -->
                 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                        <h3 class="font-semibold text-lg text-gray-900">유통기한 임박 품목 리스트</h3>
-                        <p class="text-sm text-gray-500 mt-1">체크박스를 선택하여 일괄 처리하세요</p>
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-semibold text-lg text-gray-900">유통기한 임박 품목 리스트</h3>
+                            <p class="text-sm text-gray-500 mt-1">체크박스를 선택하여 일괄 처리하세요</p>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="text-right">
+                                <p class="text-sm text-red-600 font-semibold">긴급 <span id="urgentCount" class="text-lg font-bold">0개</span></p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm text-orange-600 font-semibold">경고 <span id="warningCount" class="text-lg font-bold">0개</span></p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -273,19 +250,20 @@
 
         // 필터된 항목 가져오기
         function getFilteredItems() {
-            const statusFilter = document.getElementById('filterStatus').value;
+            const itemNameFilter = document.getElementById('filterItemName').value.trim().toLowerCase();
             const categoryFilter = document.getElementById('filterCategory').value;
+            const statusFilter = document.getElementById('filterStatus').value;
             
             return expiryItems.filter(item => {
-                let statusMatch = statusFilter === '전체';
-                if (!statusMatch) {
-                    if (statusFilter === '긴급') statusMatch = item.status === 'urgent';
-                    else if (statusFilter === '경고') statusMatch = item.status === 'warning';
-                    else if (statusFilter === '정상') statusMatch = item.status === 'normal';
+                const matchesItemName = !itemNameFilter || item.itemName.toLowerCase().includes(itemNameFilter) || item.itemCode.toLowerCase().includes(itemNameFilter);
+                const matchesCategory = categoryFilter === '전체' || item.category === categoryFilter;
+                
+                let matchesStatus = statusFilter === '전체';
+                if (!matchesStatus) {
+                    matchesStatus = item.status === statusFilter;
                 }
                 
-                const categoryMatch = categoryFilter === '전체' || item.category === categoryFilter;
-                return statusMatch && categoryMatch;
+                return matchesItemName && matchesCategory && matchesStatus;
             });
         }
 
@@ -369,13 +347,11 @@
         // 통계 업데이트
         function updateStats() {
             const filtered = getFilteredItems();
-            const urgentCount = filtered.filter(i => i.daysLeft <= 3).length;
-            const warningCount = filtered.filter(i => i.daysLeft > 3 && i.daysLeft <= 7).length;
-            const totalValue = filtered.filter(i => i.daysLeft <= 3).reduce((sum, i) => sum + i.totalValue, 0);
+            const urgentCount = filtered.filter(i => i.status === 'urgent').length;
+            const warningCount = filtered.filter(i => i.status === 'warning').length;
 
             document.getElementById('urgentCount').textContent = urgentCount + '개';
             document.getElementById('warningCount').textContent = warningCount + '개';
-            document.getElementById('totalValue').textContent = '₩' + (totalValue / 1000000).toFixed(1) + 'M';
         }
 
         // 폐기 처리 모달
@@ -398,7 +374,7 @@
         }
 
         // 필터 변경 이벤트
-        document.getElementById('filterStatus').addEventListener('change', () => {
+        document.getElementById('filterItemName').addEventListener('input', () => {
             selectedItems = [];
             document.getElementById('selectAllCheckbox').checked = false;
             updateActionBar();
@@ -406,6 +382,13 @@
         });
 
         document.getElementById('filterCategory').addEventListener('change', () => {
+            selectedItems = [];
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateActionBar();
+            renderTable();
+        });
+
+        document.getElementById('filterStatus').addEventListener('change', () => {
             selectedItems = [];
             document.getElementById('selectAllCheckbox').checked = false;
             updateActionBar();

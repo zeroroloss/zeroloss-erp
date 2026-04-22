@@ -36,19 +36,6 @@
             </div>
 
             <%@ include file="/hq/common/sidebar.jsp" %>
-
-            <!-- 사용자 정보 -->
-            <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-gray-50">
-                <a href="#" class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-lg transition-colors">
-                    <div class="w-10 h-10 rounded-full bg-[#00853D] flex items-center justify-center text-white font-semibold">
-                        본
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-900">본사관리자</p>
-                        <p class="text-xs text-gray-500">admin</p>
-                    </div>
-                </a>
-            </div>
         </aside>
 
         <!-- 메인 콘텐츠 -->
@@ -101,112 +88,76 @@
                     </div>
                 </div>
 
-                <!-- 탭 -->
-                <div class="flex gap-4 mb-6 border-b border-gray-200">
-                    <button onclick="setActiveTab('expiry')" class="pb-3 px-4 font-semibold border-b-2 tab-btn active" data-tab="expiry">
-                        <i class="fas fa-hourglass-end w-4 h-4 mr-2"></i>유통기한 임박 (<span id="expiryCount">0</span>)
-                    </button>
-                    <button onclick="setActiveTab('disposal')" class="pb-3 px-4 font-semibold border-b-2 tab-btn" data-tab="disposal">
-                        <i class="fas fa-trash w-4 h-4 mr-2"></i>손실 기록 (<span id="disposalCount">0</span>)
-                    </button>
-                </div>
-
-                <!-- 탭 1: 유통기한 임박 -->
-                <div id="expiryTab" class="tab-content active">
-                    <!-- 통계 카드 -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-600">긴급</p>
-                                    <p class="text-3xl font-bold text-red-600" id="urgentCount">0</p>
-                                </div>
-                                <i class="fas fa-exclamation-circle text-red-600 text-4xl opacity-20"></i>
+                <!-- 통합 통계 카드 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">유통기한 임박 (긴급)</p>
+                                <p class="text-3xl font-bold text-red-600" id="urgentCount">0</p>
                             </div>
-                        </div>
-
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-600">주의</p>
-                                    <p class="text-3xl font-bold text-yellow-600" id="warningCount">0</p>
-                                </div>
-                                <i class="fas fa-exclamation-triangle text-yellow-600 text-4xl opacity-20"></i>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-600">전체</p>
-                                    <p class="text-3xl font-bold text-blue-600" id="totalExpiryCount">0</p>
-                                </div>
-                                <i class="fas fa-box text-blue-600 text-4xl opacity-20"></i>
-                            </div>
+                            <i class="fas fa-exclamation-circle text-red-600 text-4xl opacity-20"></i>
                         </div>
                     </div>
 
-                    <!-- 지점별 재고 현황 -->
-                    <div id="branchListContainer" class="space-y-4">
-                        <!-- 동적으로 생성됨 -->
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">유통기한 임박 (주의)</p>
+                                <p class="text-3xl font-bold text-yellow-600" id="warningCount">0</p>
+                            </div>
+                            <i class="fas fa-exclamation-triangle text-yellow-600 text-4xl opacity-20"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">폐기 건수</p>
+                                <p class="text-3xl font-bold text-blue-600" id="disposalRecordCount">0</p>
+                                <p class="text-xs text-gray-500 mt-2" id="disposalReasonSummary">만료 0건 | 품질 0건 | 기타 0건</p>
+                            </div>
+                            <i class="fas fa-trash text-blue-600 text-4xl opacity-20"></i>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 탭 2: 손실 기록 -->
-                <div id="disposalTab" class="tab-content hidden">
-                    <!-- 통계 카드 -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-600">총 손실액</p>
-                                    <p class="text-3xl font-bold text-red-600" id="totalAmount">0원</p>
-                                </div>
-                                <i class="fas fa-dollar-sign text-red-600 text-4xl opacity-20"></i>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 좌측: 유통기한 임박 품목 -->
+                    <section>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-lg font-semibold text-gray-900">유통기한 임박 품목 리스트</h3>
+                        </div>
+                        <div id="branchListContainer" class="space-y-4 max-h-[680px] overflow-y-auto pr-1">
+                            <!-- 동적으로 생성됨 -->
+                        </div>
+                    </section>
+
+                    <!-- 우측: 폐기 리스트 -->
+                    <section>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-lg font-semibold text-gray-900">폐기 건수 리스트</h3>
+                        </div>
+                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden max-h-[680px]">
+                            <div class="overflow-auto h-full">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50 border-b border-gray-200">
+                                        <tr>
+                                            <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">날짜</th>
+                                            <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">지점</th>
+                                            <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
+                                            <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">수량</th>
+                                            <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">손실액</th>
+                                            <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">사유</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="disposalTableBody">
+                                        <!-- 동적으로 생성됨 -->
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-600">기록 건수</p>
-                                    <p class="text-3xl font-bold text-blue-600" id="disposalRecordCount">0</p>
-                                </div>
-                                <i class="fas fa-list text-blue-600 text-4xl opacity-20"></i>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-600">주요 사유</p>
-                                    <p class="text-lg font-bold text-gray-900" id="topReason">-</p>
-                                </div>
-                                <i class="fas fa-chart-pie text-gray-600 text-4xl opacity-20"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 테이블 -->
-                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead class="bg-gray-50 border-b border-gray-200">
-                                    <tr>
-                                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">날짜</th>
-                                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">지점</th>
-                                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
-                                        <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">수량</th>
-                                        <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">손실액</th>
-                                        <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">사유</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="disposalTableBody">
-                                    <!-- 동적으로 생성됨 -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    </section>
                 </div>
             </main>
         </div>
@@ -214,11 +165,8 @@
 
     <script>
         // 전역 상태
-        let allExpiryData = [];
         let filteredExpiryData = [];
-        let allDisposalData = [];
         let filteredDisposalData = [];
-        let activeTab = 'expiry';
 
         // Mock 유통기한 임박 데이터
         const mockExpiryItems = [
@@ -305,41 +253,6 @@
         // 백드롭 클릭 시 사이드바 닫기
         document.getElementById('sidebarBackdrop').addEventListener('click', closeSidebar);
 
-        // 탭 변경
-        function setActiveTab(tab) {
-            activeTab = tab;
-            
-            // 탭 버튼 스타일 업데이트
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active', 'text-[#00853D]', 'border-b-2', 'border-[#00853D]');
-                btn.classList.add('text-gray-500');
-            });
-            
-            const activeBtn = document.querySelector('[data-tab="' + tab + '"]');
-            if (activeBtn) {
-                activeBtn.classList.add('active', 'text-[#00853D]', 'border-b-2', 'border-[#00853D]');
-                activeBtn.classList.remove('text-gray-500');
-            }
-
-            // 탭 콘텐츠 표시
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-                content.classList.remove('active');
-            });
-            
-            const activeContent = document.getElementById(tab + 'Tab');
-            if (activeContent) {
-                activeContent.classList.remove('hidden');
-                activeContent.classList.add('active');
-            }
-
-            if (tab === 'expiry') {
-                renderExpiryTab();
-            } else if (tab === 'disposal') {
-                renderDisposalTab();
-            }
-        }
-
         // 필터링
         function handleFilter() {
             const selectedBranch = document.getElementById('branchSelect').value;
@@ -374,11 +287,7 @@
                 return a.branch.localeCompare(b.branch);
             });
 
-            if (activeTab === 'expiry') {
-                renderExpiryTab();
-            } else if (activeTab === 'disposal') {
-                renderDisposalTab();
-            }
+            renderUnifiedView();
         }
 
         // 초기화
@@ -389,24 +298,33 @@
             
             filteredExpiryData = mockExpiryItems.slice();
             filteredDisposalData = mockDisposalRecords.slice();
-            
-            if (activeTab === 'expiry') {
-                renderExpiryTab();
-            } else if (activeTab === 'disposal') {
-                renderDisposalTab();
-            }
+
+            renderUnifiedView();
         }
 
-        // 유통기한 임박 탭 렌더링
-        function renderExpiryTab() {
-            const urgentCount = filteredExpiryData.filter(i => i.daysLeft <= 2).length;
-            const warningCount = filteredExpiryData.filter(i => i.daysLeft > 2 && i.daysLeft <= 7).length;
-            const totalCount = filteredExpiryData.length;
+        function renderUnifiedView() {
+            renderSummaryCards();
+            renderExpirySection();
+            renderDisposalSection();
+        }
 
-            document.getElementById('expiryCount').textContent = totalCount;
+        function renderSummaryCards() {
+            const urgentCount = filteredExpiryData.filter(i => i.daysLeft <= 2).length;
+            const warningCount = filteredExpiryData.filter(i => i.daysLeft > 2 && i.daysLeft <= 10).length;
+
+            const expiryReasonCount = filteredDisposalData.filter(r => r.reason === '유통기한 만료').length;
+            const qualityReasonCount = filteredDisposalData.filter(r => r.reason === '품질 불량').length;
+            const disposalCount = filteredDisposalData.length;
+            const otherReasonCount = disposalCount - expiryReasonCount - qualityReasonCount;
+
             document.getElementById('urgentCount').textContent = urgentCount;
             document.getElementById('warningCount').textContent = warningCount;
-            document.getElementById('totalExpiryCount').textContent = totalCount;
+            document.getElementById('disposalRecordCount').textContent = disposalCount;
+            document.getElementById('disposalReasonSummary').textContent = '만료 ' + expiryReasonCount + '건 | 품질 ' + qualityReasonCount + '건 | 기타 ' + otherReasonCount + '건';
+        }
+
+        // 유통기한 임박 섹션 렌더링
+        function renderExpirySection() {
 
             // 지점별 그룹핑
             const branchGroups = {};
@@ -448,31 +366,14 @@
             }
         }
 
-        // 손실 기록 탭 렌더링
-        function renderDisposalTab() {
-            const totalAmount = filteredDisposalData.reduce((sum, r) => sum + r.amount, 0);
-            const disposalCount = filteredDisposalData.length;
-            
-            // 손실 사유별 통계
-            const reasonStats = {};
-            filteredDisposalData.forEach(r => {
-                reasonStats[r.reason] = (reasonStats[r.reason] || 0) + 1;
-            });
-
-            const topReason = Object.entries(reasonStats).sort((a, b) => b[1] - a[1])[0]?.[0] || '-';
-            const formattedAmount = totalAmount.toLocaleString('ko-KR');
-
-            document.getElementById('disposalCount').textContent = disposalCount;
-            document.getElementById('totalAmount').textContent = formattedAmount + '원';
-            document.getElementById('disposalRecordCount').textContent = disposalCount;
-            document.getElementById('topReason').textContent = topReason;
-
+        // 폐기 이력 섹션 렌더링
+        function renderDisposalSection() {
             // 테이블 렌더링
             const tbody = document.getElementById('disposalTableBody');
             tbody.innerHTML = '';
 
             if (filteredDisposalData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-500"><i class="fas fa-box w-12 h-12 mx-auto mb-3 text-gray-400"></i><p>손실 기록이 없습니다</p></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-500"><i class="fas fa-box w-12 h-12 mx-auto mb-3 text-gray-400"></i><p>폐기 이력이 없습니다</p></td></tr>';
                 return;
             }
 
@@ -501,7 +402,7 @@
         window.addEventListener('DOMContentLoaded', function() {
             filteredExpiryData = mockExpiryItems.slice();
             filteredDisposalData = mockDisposalRecords.slice();
-            renderExpiryTab();
+            renderUnifiedView();
         });
     </script>
 </body>

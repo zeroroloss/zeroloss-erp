@@ -43,8 +43,7 @@
 
                 <!-- 필터 섹션 -->
                 <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-                    <h3 class="font-semibold text-gray-900 mb-4">필터 조건</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">지점 선택</label>
                             <select id="branchFilter" onchange="applyFilters()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -64,67 +63,24 @@
                                 <input type="date" id="endDate" value="2026-03-29" onchange="applyFilters()" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                             </div>
                         </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">상태 필터</label>
-                            <select id="statusFilter" onchange="applyFilters()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="all">전체</option>
-                                <option value="pending">대기</option>
-                                <option value="approved">승인</option>
-                                <option value="rejected">반려</option>
-                            </select>
-                        </div>
                     </div>
                 </div>
 
-                <!-- 통계 카드 -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-white rounded-lg border border-yellow-200 p-4 bg-yellow-50">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs text-yellow-600 mb-1">대기 (승인필요)</p>
-                                <p class="text-2xl font-bold text-yellow-600" id="pendingCount">0</p>
-                            </div>
-                            <div class="w-12 h-12 rounded-lg bg-yellow-100 text-yellow-600 flex items-center justify-center text-lg">
-                                <i class="fas fa-hourglass-half w-6 h-6"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg border border-green-200 p-4 bg-green-50">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs text-green-600 mb-1">승인 (처리완료)</p>
-                                <p class="text-2xl font-bold text-green-600" id="approvedCount">0</p>
-                            </div>
-                            <div class="w-12 h-12 rounded-lg bg-green-100 text-green-600 flex items-center justify-center text-lg">
-                                <i class="fas fa-check-circle w-6 h-6"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg border border-red-200 p-4 bg-red-50">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs text-red-600 mb-1">반려 (재검토)</p>
-                                <p class="text-2xl font-bold text-red-600" id="rejectedCount">0</p>
-                            </div>
-                            <div class="w-12 h-12 rounded-lg bg-red-100 text-red-600 flex items-center justify-center text-lg">
-                                <i class="fas fa-circle-xmark w-6 h-6"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg border border-blue-200 p-4 bg-blue-50">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs text-blue-600 mb-1">전체 발주 요청</p>
-                                <p class="text-2xl font-bold text-blue-600" id="totalCount">0</p>
-                            </div>
-                            <div class="w-12 h-12 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-lg">
-                                <i class="fas fa-file-lines w-6 h-6"></i>
-                            </div>
-                        </div>
+                <!-- 상태 버튼 -->
+                <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+                    <div class="flex flex-wrap gap-3" id="statusFilterButtons">
+                        <button type="button" data-status="all" onclick="setStatusFilter('all')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            전체 발주요청 <span id="countAll" class="text-xs text-gray-500">0건</span>
+                        </button>
+                        <button type="button" data-status="pending" onclick="setStatusFilter('pending')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-yellow-200 text-sm font-medium text-yellow-700 hover:bg-yellow-50">
+                            대기 <span id="countPending" class="text-xs text-yellow-600">0건</span>
+                        </button>
+                        <button type="button" data-status="approved" onclick="setStatusFilter('approved')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-green-200 text-sm font-medium text-green-700 hover:bg-green-50">
+                            승인 <span id="countApproved" class="text-xs text-green-600">0건</span>
+                        </button>
+                        <button type="button" data-status="rejected" onclick="setStatusFilter('rejected')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 text-sm font-medium text-red-700 hover:bg-red-50">
+                            반려 <span id="countRejected" class="text-xs text-red-600">0건</span>
+                        </button>
                     </div>
                 </div>
 
@@ -250,6 +206,7 @@
         let filteredOrders = [];
         let currentPage = 1;
         const itemsPerPage = 10;
+        let currentStatusFilter = 'all';
 
         // Mock 데이터
         const mockOrders = [
@@ -355,36 +312,65 @@
             }
         }
 
+        // 상태 필터 설정
+        function setStatusFilter(status) {
+            currentStatusFilter = status;
+            updateStatusButtonStyles();
+            applyFilters();
+            updateStatusCounts();
+        }
+
+        // 상태 버튼 스타일 업데이트
+        function updateStatusButtonStyles() {
+            document.querySelectorAll('.status-filter-btn').forEach(button => {
+                const status = button.getAttribute('data-status');
+                button.classList.remove('bg-yellow-50', 'bg-green-50', 'bg-red-50', 'border-yellow-200', 'border-green-200', 'border-red-200', 'text-yellow-700', 'text-green-700', 'text-red-700');
+                button.classList.remove('bg-gray-900', 'text-white', 'border-gray-900');
+                button.classList.add('border-gray-300', 'text-gray-700');
+
+                if (status === currentStatusFilter) {
+                    if (status === 'all') {
+                        button.classList.add('bg-gray-900', 'text-white', 'border-gray-900');
+                    } else if (status === 'pending') {
+                        button.classList.add('bg-yellow-50', 'border-yellow-200', 'text-yellow-700');
+                    } else if (status === 'approved') {
+                        button.classList.add('bg-green-50', 'border-green-200', 'text-green-700');
+                    } else if (status === 'rejected') {
+                        button.classList.add('bg-red-50', 'border-red-200', 'text-red-700');
+                    }
+                }
+            });
+        }
+
         // 필터 적용
         function applyFilters() {
             const branch = document.getElementById('branchFilter').value;
-            const status = document.getElementById('statusFilter').value;
             const startDate = new Date(document.getElementById('startDate').value);
             const endDate = new Date(document.getElementById('endDate').value);
 
             filteredOrders = allOrders.filter(function(order) {
                 const orderDate = new Date(order.date.split(' ')[0]);
                 const matchBranch = !branch || order.branch === branch;
-                const matchStatus = status === 'all' || order.status === status;
+                const matchStatus = currentStatusFilter === 'all' || order.status === currentStatusFilter;
                 const matchDate = orderDate >= startDate && orderDate <= endDate;
                 return matchBranch && matchStatus && matchDate;
             });
 
             currentPage = 1;
-            updateStatistics();
             renderTable();
         }
 
-        // 통계 업데이트
-        function updateStatistics() {
+        // 상태별 카운트 업데이트
+        function updateStatusCounts() {
             const pending = allOrders.filter(function(o) { return o.status === 'pending'; }).length;
             const approved = allOrders.filter(function(o) { return o.status === 'approved'; }).length;
             const rejected = allOrders.filter(function(o) { return o.status === 'rejected'; }).length;
+            const all = allOrders.length;
             
-            document.getElementById('pendingCount').textContent = pending;
-            document.getElementById('approvedCount').textContent = approved;
-            document.getElementById('rejectedCount').textContent = rejected;
-            document.getElementById('totalCount').textContent = allOrders.length;
+            document.getElementById('countAll').textContent = all + '건';
+            document.getElementById('countPending').textContent = pending + '건';
+            document.getElementById('countApproved').textContent = approved + '건';
+            document.getElementById('countRejected').textContent = rejected + '건';
         }
 
         // 테이블 렌더링
@@ -515,7 +501,8 @@
         window.addEventListener('DOMContentLoaded', function() {
             allOrders = mockOrders;
             filteredOrders = allOrders;
-            updateStatistics();
+            updateStatusCounts();
+            updateStatusButtonStyles();
             renderTable();
         });
     </script>

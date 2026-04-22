@@ -342,7 +342,10 @@
             const container = document.getElementById('orderListContainer');
             container.innerHTML = '';
 
-            orders.forEach(function(order) {
+            // 대기중(pending) 상태의 주문만 필터링
+            const pendingOrders = orders.filter(function(order) { return order.status === 'pending'; });
+
+            pendingOrders.forEach(function(order) {
                 const totalQty = order.items.reduce(function(sum, item) { return sum + item.requestedQty; }, 0);
                 const isSelected = selectedOrder && selectedOrder.id === order.id;
                 const bgClass = isSelected ? 'bg-blue-50 border-l-4 border-blue-500' : 'hover:bg-gray-50';
@@ -357,8 +360,8 @@
                 container.appendChild(div);
             });
 
-            document.getElementById('totalOrderCount').textContent = orders.length;
-            const pendingCount = orders.filter(function(o) { return o.status === 'pending'; }).length;
+            document.getElementById('totalOrderCount').textContent = pendingOrders.length;
+            const pendingCount = pendingOrders.length;
             document.getElementById('pendingCount').textContent = pendingCount;
         }
 
@@ -574,7 +577,7 @@
         window.addEventListener('DOMContentLoaded', function() {
             orders = mockOrders;
             renderOrderList();
-            selectOrder(orders[0]);
+            // 초기에는 선택 없음 - emptyView만 표시
         });
     </script>
 </body>
