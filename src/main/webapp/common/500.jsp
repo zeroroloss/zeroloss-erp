@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isErrorPage="true"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -39,7 +39,6 @@
 
             <!-- 에러 상세 정보 (개발 환경에서만) -->
             <%
-                Exception exception = (Exception) request.getAttribute("javax.servlet.error.exception");
                 if (exception != null && "development".equals(application.getInitParameter("env"))) {
             %>
             <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-left">
