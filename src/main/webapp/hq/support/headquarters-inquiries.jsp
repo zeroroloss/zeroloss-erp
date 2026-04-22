@@ -52,8 +52,6 @@
 
         <!-- 메인 콘텐츠 -->
         <div class="lg:pl-64">
-            <!-- 상단 헤더 -->
-            <%@ include file="/hq/common/header.jsp" %>
 
             <!-- Content Area -->
             <main class="p-6">

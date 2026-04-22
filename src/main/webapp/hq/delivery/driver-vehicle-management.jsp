@@ -37,8 +37,6 @@
 
         <!-- 메인 콘텐츠 -->
         <div class="lg:pl-64">
-            <!-- 헤더 -->
-            <%@ include file="/hq/common/header.jsp" %>
 
             <!-- 페이지 콘텐츠 -->
             <main class="p-6">

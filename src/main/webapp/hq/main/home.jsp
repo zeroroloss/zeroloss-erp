@@ -19,27 +19,35 @@
         <div id="sidebarBackdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
 
         <!-- 사이드바 -->
-        <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 overflow-y-auto">
-            <div class="p-6 border-b border-gray-200">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-[#00853D] rounded-full flex items-center justify-center">
-                        <span class="text-white font-bold text-xl">분</span>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-gray-900">Zero Loss</h1>
-                        <p class="text-xs text-gray-500">ERP</p>
-                    </div>
-                </div>
-            </div>
-
-            <%@ include file="/hq/common/sidebar.jsp" %>
-        </aside>
+		<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 overflow-y-auto">
+		    
+		    <!-- 로고 + 알림 영역 -->
+		    <div class="p-6 border-b border-gray-200">
+		        <div class="flex items-center justify-between">
+		            <div class="flex items-center gap-3">
+		                <div class="w-10 h-10 bg-[#00853D] rounded-full flex items-center justify-center">
+		                    <span class="text-white font-bold text-xl">분</span>
+		                </div>
+		                <div>
+		                    <h1 class="text-xl font-bold text-gray-900">Zero Loss</h1>
+		                    <p class="text-xs text-gray-500">ERP</p>
+		                </div>
+		            </div>
+		
+		            <!-- 알림 버튼 -->
+		            <button class="p-2 rounded-lg hover:bg-gray-100 relative">
+		                <i class="fas fa-bell w-5 h-5"></i>
+		                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+		            </button>
+		        </div>
+		    </div>
+		
+		    <%@ include file="/hq/common/sidebar.jsp" %>
+		</aside>
 
         <!-- 메인 콘텐츠 -->
         <div class="lg:pl-64">
-            <!-- 상단 헤더 -->
-            <%@ include file="/hq/common/header.jsp" %>
-
+            
             <!-- 페이지 콘텐츠 -->
             <main class="p-6">
                 <!-- 메인 컨테이너 -->
