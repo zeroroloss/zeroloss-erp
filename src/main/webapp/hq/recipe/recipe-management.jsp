@@ -17,7 +17,7 @@
     <%@ include file="/hq/common/sidebar.jsp" %>
 
     <div class="lg:pl-72">
-    <main class="p-6">
+        <main class="p-6">
             <div class="space-y-6">
                 <div class="flex justify-between items-start">
                     <div>
@@ -648,6 +648,21 @@
         else { s.classList.add('-translate-x-full'); b.classList.add('hidden'); }
     }
 
+    function toggleMenu(element) {
+	    const submenu = element.nextElementSibling;
+	    if (submenu && submenu.classList.contains('submenu')) {
+	        submenu.classList.toggle('hidden');
+	        const icon = element.querySelector('i.fa-chevron-right, i.fa-chevron-down');
+	        if (icon) {
+	            icon.classList.toggle('fa-chevron-right');
+	            icon.classList.toggle('fa-chevron-down');
+	        }
+	    }
+	}
+
+    function logout() {
+        window.location.href = ctx + '/common/login.jsp';
+    }
     function toggleMenu(element) {
 	    const submenu = element.nextElementSibling;
 	    if (submenu && submenu.classList.contains('submenu')) {
