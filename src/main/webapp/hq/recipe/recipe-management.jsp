@@ -18,13 +18,12 @@
 <div class="min-h-screen">
     <div id="sidebarBackdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
 
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 overflow-y-auto">
+    <aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 flex flex-col">
         <%
             Integer unreadCount = (Integer) request.getAttribute("unreadCount");
             if (unreadCount == null) unreadCount = 0;
 
             AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
-
             String titleText = "Zero Loss";
             String subText = "ERP";
 
@@ -58,19 +57,29 @@
 
                     <% if (unreadCount > 0) { %>
                     <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
-		                        <%= unreadCount > 99 ? "99+" : unreadCount %>
-		                    </span>
+                        <%= unreadCount > 99 ? "99+" : unreadCount %>
+                    </span>
                     <% } %>
                 </button>
             </div>
         </div>
 
         <%@ include file="/hq/common/sidebar.jsp" %>
+        <div class="mt-auto p-4 border-t border-gray-200 bg-white">
+            <form action="${pageContext.request.contextPath}/logout" method="post">
+                <button
+                    type="submit"
+                    class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+                >
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>로그아웃</span>
+                </button>
+            </form>
+        </div>
     </aside>
 
-
     <div class="lg:pl-72">
-    <main class="p-6">
+        <main class="p-6">
             <div class="space-y-6">
                 <div class="flex justify-between items-start">
                     <div>
@@ -701,7 +710,21 @@
         else { s.classList.add('-translate-x-full'); b.classList.add('hidden'); }
     }
 
-    function logout() { window.location.href = ctx + '/common/login.jsp'; }
+    function toggleMenu(element) {
+	    const submenu = element.nextElementSibling;
+	    if (submenu && submenu.classList.contains('submenu')) {
+	        submenu.classList.toggle('hidden');
+	        const icon = element.querySelector('i.fa-chevron-right, i.fa-chevron-down');
+	        if (icon) {
+	            icon.classList.toggle('fa-chevron-right');
+	            icon.classList.toggle('fa-chevron-down');
+	        }
+	    }
+	}
+
+    function logout() {
+        window.location.href = ctx + '/common/login.jsp';
+    }
 
     init();
 </script>
