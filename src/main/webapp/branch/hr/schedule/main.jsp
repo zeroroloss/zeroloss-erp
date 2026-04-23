@@ -89,8 +89,7 @@
   <%@ include file="/branch/common/layout/sidebar.jsp" %>
   <div class="zl-content">
     <%@ include file="/branch/common/layout/topbar.jsp" %>
-    <main class="zl-page">
-      <div class="wrap">
+      <div class="wrap p-6">
         <div class="head">
           <div>
             <h1 class="title">직원 일정 관리</h1>

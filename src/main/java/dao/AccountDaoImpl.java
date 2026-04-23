@@ -21,11 +21,11 @@ public class AccountDaoImpl implements AccountDao {
 	}
 
 	@Override
-	public AccountDTO selectAccount(String loginId) throws Exception {
+	public AccountDTO searchAccount(String loginId) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		AccountDTO account=null;
 		try {
-			account = sqlSession.selectOne("mapper.account.selectAccount", loginId);
+			account = sqlSession.selectOne("mapper.account.searchAccount", loginId);
 		} catch(Exception e) {
 			throw e;
 		} finally {

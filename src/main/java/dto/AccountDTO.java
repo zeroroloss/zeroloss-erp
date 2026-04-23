@@ -13,6 +13,9 @@ public class AccountDTO {
 	private String status;
 	private LocalDateTime createdAt;
 	private LocalDateTime lastLoginAt;
+	private String userName;
+	private String roleName;
+	private String branchName;
 	
 	public AccountDTO() {
 		super();
@@ -137,11 +140,36 @@ public class AccountDTO {
 		this.lastLoginAt = lastLoginAt;
 	}
 
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getRoleName() {
+		return roleName;
+	}
+
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
+	}
+
+	public String getBranchName() {
+		return branchName;
+	}
+
+	public void setBranchName(String branchName) {
+		this.branchName = branchName;
+	}
+
 	@Override
 	public String toString() {
-		return "Account [accountId=" + accountId + ", empNo=" + empNo + ", branchCode=" + branchCode + ", hqId=" + hqId
-				+ ", roleId=" + roleId + ", loginId=" + loginId + ", password=" + password + ", status=" + status
-				+ ", createdAt=" + createdAt + ", lastLoginAt=" + lastLoginAt + "]";
+		return "AccountDTO [accountId=" + accountId + ", empNo=" + empNo + ", branchCode=" + branchCode + ", hqId="
+				+ hqId + ", roleId=" + roleId + ", loginId=" + loginId + ", password=" + password + ", status=" + status
+				+ ", createdAt=" + createdAt + ", lastLoginAt=" + lastLoginAt + ", userName=" + userName + ", roleName="
+				+ roleName + ", branchName=" + branchName + "]";
 	}
-	
+
 }

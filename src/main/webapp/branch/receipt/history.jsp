@@ -66,8 +66,7 @@
 <%@ include file="/branch/common/layout/sidebar.jsp" %>
 <div class="zl-content">
 <%@ include file="/branch/common/layout/topbar.jsp" %>
-<main class="zl-page">
-<div class="wrap">
+<div class="wrap p-6">
     <div class="page-head">
         <h1 class="page-title">입고 이력</h1>
         <p class="page-sub">과거 입고 내역을 조회하고 관리합니다</p>

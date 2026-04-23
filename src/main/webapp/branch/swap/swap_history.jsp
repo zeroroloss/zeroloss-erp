@@ -29,7 +29,7 @@
 </head>
 <body>
 <div class="zl-app"><%@ include file="/branch/common/layout/sidebar.jsp" %><div class="zl-content"><%@ include file="/branch/common/layout/topbar.jsp" %>
-<main class="zl-page"><div class="wrap">
+<div class="wrap p-6">
   <h1 class="title">재고 교환/요청</h1><p class="sub">지점 간 재고를 교환하고 요청을 관리하세요</p>
   <section class="stats">
     <article class="stat"><div class="stat-ico s1" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></div><div class="stat-text"><span class="n">2건</span><div class="l">보낸 요청 (대기중)</div></div></article>

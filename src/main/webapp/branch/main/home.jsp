@@ -15,7 +15,6 @@
 <%@ include file="/branch/common/layout/sidebar.jsp" %>
 <div class="zl-content">
 <%@ include file="/branch/common/layout/topbar.jsp" %>
-<main class="zl-page">
 <div class="p-6">
     <!-- 페이지 헤더 -->
     <div class="bg-gradient-to-r from-[#00853D] to-[#00A94F] rounded-xl p-8 text-white shadow-lg mb-6">

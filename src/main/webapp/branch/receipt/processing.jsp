@@ -78,8 +78,7 @@
 <%@ include file="/branch/common/layout/sidebar.jsp" %>
 <div class="zl-content">
 <%@ include file="/branch/common/layout/topbar.jsp" %>
-<main class="zl-page">
-<div class="wrap">
+<div class="wrap p-6">
     <div class="page-head">
         <div>
             <h1 class="page-title">입고 처리</h1>

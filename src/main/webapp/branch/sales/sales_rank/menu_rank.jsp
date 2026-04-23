@@ -61,8 +61,7 @@
 <%@ include file="/branch/common/layout/sidebar.jsp" %>
 <div class="zl-content">
 <%@ include file="/branch/common/layout/topbar.jsp" %>
-<main class="zl-page">
-<div class="wrap">
+<div class="wrap p-6">
     <header class="head">
         <h1>매출 순위</h1>
         <p>강남지점 - 메뉴별, 시간대별 매출 랭킹을 확인하세요</p>
