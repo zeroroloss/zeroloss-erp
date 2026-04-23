@@ -2,7 +2,7 @@ package service;
 
 import dao.AccountDao;
 import dao.AccountDaoImpl;
-import dto.Account;
+import dto.AccountDTO;
 
 public class AccountServiceImpl implements AccountService {
 	private AccountDao accountDao;
@@ -12,8 +12,8 @@ public class AccountServiceImpl implements AccountService {
 	}
 		
 		@Override
-		public Account login(String loginId, String password) throws Exception {
-		    Account acc = accountDao.selectAccount(loginId);
+		public AccountDTO login(String loginId, String password) throws Exception {
+		    AccountDTO acc = accountDao.selectAccount(loginId);
 		    if(acc == null) throw new Exception("존재하지 않는 아이디입니다.");
 		    if(!"ACTIVE".equals(acc.getStatus())) throw new Exception("비활성화된 계정입니다.");
 

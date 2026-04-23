@@ -1,9 +1,9 @@
 package dao;
 
-import dto.Account;
+import dto.AccountDTO;
 
 public interface AccountDao {
-	void insertAccount(Account account) throws Exception;
-	Account selectAccount(String login_id) throws Exception;
+	void insertAccount(AccountDTO account) throws Exception;
+	AccountDTO selectAccount(String login_id) throws Exception;
 	void updateLastLoginAt(int accountId) throws Exception;
 }

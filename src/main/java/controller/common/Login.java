@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import dto.Account;
+import dto.AccountDTO;
 import service.AccountService;
 import service.AccountServiceImpl;
 
@@ -46,7 +46,7 @@ public class Login extends HttpServlet {
 		
 		try {
 			AccountService service = new AccountServiceImpl();
-			Account account = service.login(loginId, password);
+			AccountDTO account = service.login(loginId, password);
 			
 			HttpSession session = request.getSession();
 			session.setAttribute("loginUser", account);

@@ -1,7 +1,7 @@
 package service;
 
-import dto.Account;
+import dto.AccountDTO;
 
 public interface AccountService {
-	Account login(String loginId, String password) throws Exception;
+	AccountDTO login(String loginId, String password) throws Exception;
 }

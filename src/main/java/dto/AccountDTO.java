@@ -2,7 +2,7 @@ package dto;
 
 import java.time.LocalDateTime;
 
-public class Account {
+public class AccountDTO {
 	private Integer accountId;
 	private Integer empNo;
 	private Integer branchCode;
@@ -14,11 +14,11 @@ public class Account {
 	private LocalDateTime createdAt;
 	private LocalDateTime lastLoginAt;
 	
-	public Account() {
+	public AccountDTO() {
 		super();
 	}
 
-	public Account(Integer accountId, Integer empNo, Integer branchCode, Integer hqId, Integer roleId, String loginId,
+	public AccountDTO(Integer accountId, Integer empNo, Integer branchCode, Integer hqId, Integer roleId, String loginId,
 			String password, String status, LocalDateTime lastLoginAt) {
 		super();
 		this.accountId = accountId;
@@ -32,7 +32,7 @@ public class Account {
 		this.lastLoginAt = lastLoginAt;
 	}
 
-	public Account(Integer accountId, Integer empNo, Integer branchCode, Integer roleId, String loginId,
+	public AccountDTO(Integer accountId, Integer empNo, Integer branchCode, Integer roleId, String loginId,
 			String password, String status, LocalDateTime lastLoginAt) {
 		super();
 		this.accountId = accountId;
@@ -45,7 +45,7 @@ public class Account {
 		this.lastLoginAt = lastLoginAt;
 	}
 
-	public Account(Integer accountId, Integer empNo, Integer branchCode, Integer roleId, String loginId,
+	public AccountDTO(Integer accountId, Integer empNo, Integer branchCode, Integer roleId, String loginId,
 			String password, String status) {
 		super();
 		this.accountId = accountId;

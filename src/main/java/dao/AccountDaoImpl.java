@@ -2,12 +2,12 @@ package dao;
 
 import org.apache.ibatis.session.SqlSession;
 
-import dto.Account;
+import dto.AccountDTO;
 import util.MyBatisSqlSessionFactory;
 
 public class AccountDaoImpl implements AccountDao {
 	@Override
-	public void insertAccount(Account account) throws Exception {
+	public void insertAccount(AccountDTO account) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		try {
 			sqlSession.insert("mapper.account.insertAccount", account);
@@ -21,9 +21,9 @@ public class AccountDaoImpl implements AccountDao {
 	}
 
 	@Override
-	public Account selectAccount(String loginId) throws Exception {
+	public AccountDTO selectAccount(String loginId) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
-		Account account=null;
+		AccountDTO account=null;
 		try {
 			account = sqlSession.selectOne("mapper.account.selectAccount", loginId);
 		} catch(Exception e) {
