@@ -1,20 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
-         version="4.0">
-         <error-page>
-    		<error-code>404</error-code>
-   			<location>/common/error/404.jsp</location>
-		</error-page>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+	version="4.0">
+	<error-page>
+		<error-code>404</error-code>
+		<location>/common/error/404.jsp</location>
+	</error-page>
 
-		<error-page>
-    		<error-code>500</error-code>
-    		<location>/common/error/500.jsp</location>
-		</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/common/error/500.jsp</location>
+	</error-page>
 
-		<error-page>
-    		<exception-type>java.lang.Exception</exception-type>
-    		<location>/common/error/500.jsp</location>
-		</error-page>
+	<error-page>
+		<exception-type>java.lang.Exception</exception-type>
+		<location>/common/error/500.jsp</location>
+	</error-page>
+		
+	<!-- request (POST) 시 인코딩 UTF-8 설정 --> 
+	<!-- 서버가 요청 데이터를 읽을 때 인코딩 적용 -->
+	<filter>
+		<filter-name>CharacterEncodingFilter</filter-name>
+		<filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
+		<!-- SetCharacterEncodingFilter는 기본적으로 request 인코딩에 적용되고, response는 별도로 설정해야 한다. -->
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+	        <param-name>ignore</param-name> <!-- ignore=true요청에 이미 인코딩이 있어도 강제로 UTF-8 적용 -->
+	        <param-value>true</param-value>   <!-- false → true 변경 -->
+	    </init-param>
+	</filter>
+		
+	<filter-mapping>
+	    <filter-name>CharacterEncodingFilter</filter-name>
+	    <url-pattern>/*</url-pattern>
+	</filter-mapping>
+
 </web-app>
