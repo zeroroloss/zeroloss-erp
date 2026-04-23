@@ -1,6 +1,17 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="dto.AccountDTO" %>
 <%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+response.setHeader("Pragma", "no-cache");
+response.setDateHeader("Expires", 0);
+
+AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
+if (loginUser == null) {
+    response.sendRedirect(request.getContextPath() + "/common/login.jsp");
+    return;
+}
+%>
+<%
 String uri = request.getRequestURI();
 
 boolean homeActive = uri.endsWith("/branch/main/home.jsp");
@@ -34,7 +45,7 @@ boolean inquiryActive = uri.contains("/branch/support/inquiry/");
 %>
 <div id="sidebarBackdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
 
-<aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 overflow-y-auto">
+<aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 flex flex-col">
     <%
     Integer unreadCount = (Integer) request.getAttribute("unreadCount");
     if (unreadCount == null) unreadCount = 0;
@@ -46,8 +57,6 @@ boolean inquiryActive = uri.contains("/branch/support/inquiry/");
                 <span class="text-white font-bold text-xl">분</span>
             </div>
             <%
-   				AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
-			
 			    String titleText = "Zero Loss";
 			    String subText = "ERP";
 			
@@ -77,7 +86,7 @@ boolean inquiryActive = uri.contains("/branch/support/inquiry/");
         
     </div>
 
-    <nav class="p-4 space-y-1">
+    <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
         <a href="<%= request.getContextPath() %>/branch/main/home.jsp" class="flex items-center gap-3 px-3 py-2.5 rounded-lg <%= homeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
             <i class="fas fa-home w-5 h-5"></i>
             <span class="text-sm">홈</span>
@@ -165,6 +174,17 @@ boolean inquiryActive = uri.contains("/branch/support/inquiry/");
             <a href="<%= request.getContextPath() %>/branch/support/inquiry/main.jsp" class="block px-4 py-2 rounded-lg text-sm <%= inquiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">문의사항</a>
         </div>
     </nav>
+    <!-- 로그아웃 -->
+    <div class="mt-auto p-4 border-t border-gray-200 bg-white">
+        <form action="${pageContext.request.contextPath}/logout" method="post">
+            <button
+                type="submit"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>로그아웃</span>
+            </button>
+        </form>
+    </div>
 </aside>
 
 <script>

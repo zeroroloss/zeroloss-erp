@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="dto.AccountDTO" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -23,8 +24,10 @@
                 <span class="text-[#00853D] font-bold text-2xl">분</span>
             </div>
             <div>
-                <h2 class="text-3xl font-bold">지점장 관리 대시보드</h2>
-                <p class="text-white/90 mt-1">강남지점 | 2026년 4월 20일</p>
+                <h2 class="text-3xl font-bold">
+                <%="ZERO LOSS " + loginUser.getBranchName() + " 지점 관리 시스템"%>
+                </h2>
+                <p class="text-white/90 mt-1"><%="2026년 4월 20일 | " + loginUser.getUserName() + " " + loginUser.getRoleName() + "님 환영합니다."%></p>
             </div>
         </div>
     </div>
