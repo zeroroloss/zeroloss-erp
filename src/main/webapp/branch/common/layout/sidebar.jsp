@@ -33,7 +33,7 @@ boolean salesDetailActive = uri.contains("/branch/sales/branch_sales/");
 boolean salesRankActive = uri.contains("/branch/sales/sales_rank/");
 
 boolean swapActive = uri.contains("/branch/swap/");
-boolean recipeActive = uri.contains("/branch/recipe/");
+boolean recipeActive = uri.endsWith("/branch/recipe/recipe-management.jsp");
 
 boolean hrGroup = uri.contains("/branch/hr/");
 boolean hrEmployeeActive = uri.contains("/branch/hr/employee/");
@@ -53,9 +53,9 @@ boolean inquiryActive = uri.contains("/branch/support/inquiry/");
 	
     <div class="p-6 border-b border-gray-200">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-[#00853D] rounded-full flex items-center justify-center">
-                <span class="text-white font-bold text-xl">분</span>
-            </div>
+            <div class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+			    <img src="<%= request.getContextPath() %>/upload/images/logo.png" alt="로고" class="w-full h-full object-cover">
+			</div>
             <%
 			    String titleText = "Zero Loss";
 			    String subText = "ERP";
@@ -145,7 +145,7 @@ boolean inquiryActive = uri.contains("/branch/support/inquiry/");
             <span class="text-sm">재고 교환/요청</span>
         </a>
 
-        <a href="<%= request.getContextPath() %>/branch/recipe/main.jsp" class="flex items-center gap-3 px-3 py-2.5 rounded-lg <%= recipeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
+        <a href="<%= request.getContextPath() %>/branch/recipe/recipe-management.jsp" class="flex items-center gap-3 px-3 py-2.5 rounded-lg <%= recipeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
             <i class="fas fa-book w-5 h-5"></i>
             <span class="text-sm">레시피 관리</span>
         </a>

@@ -20,9 +20,9 @@
     <!-- 페이지 헤더 -->
     <div class="bg-gradient-to-r from-[#00853D] to-[#00A94F] rounded-xl p-8 text-white shadow-lg mb-6">
         <div class="flex items-center gap-3 mb-3">
-            <div class="w-12 h-12 bg-[#FFD100] rounded-lg flex items-center justify-center">
-                <span class="text-[#00853D] font-bold text-2xl">분</span>
-            </div>
+            <div class="w-12 h-12 bg-[#FFD100] rounded-lg flex items-center justify-center overflow-hidden">
+			    <img src="<%= request.getContextPath() %>/upload/images/logo.png" alt="로고" class="w-full h-full object-cover">
+			</div>
             <div>
                 <h2 class="text-3xl font-bold">
                 <%="ZERO LOSS " + loginUser.getBranchName() + " 지점 관리 시스템"%>
