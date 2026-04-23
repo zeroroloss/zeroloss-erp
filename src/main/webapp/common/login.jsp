@@ -15,7 +15,7 @@
             <!-- 메인 카드 -->
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden border-2 border-[#00853D]/20">
                 <!-- 헤더 섹션 -->
-                <div class="p-8 text-center">
+                <div class="p-8 py-16 text-center">
                     <!-- 로고 -->
                     <div class="inline-flex items-center justify-center w-16 h-16 bg-[#00853D] rounded-full mb-4">
                         <i class="fas fa-lock text-white text-2xl"></i>
@@ -26,63 +26,82 @@
                 </div>
 
                 <!-- 폼 섹션 -->
-                <div class="px-8 pb-8">
+                <div class="px-8 pb-16">
                     <%
                         String errorMsg = (String)request.getAttribute("error");
                         if (errorMsg != null && !errorMsg.isEmpty()) {
-                    %>
-                        
-                    <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                        <i class="fas fa-exclamation-circle text-red-600 flex-shrink-0 mt-0.5"></i>
-                        <p class="text-sm text-red-800"><%= errorMsg %></p>
+					%>
+                            
+                        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+                            <i class="fas fa-exclamation-circle text-red-600 flex-shrink-0 mt-0.5"></i>
+                            <p class="text-sm text-red-800"><%= errorMsg %></p>
+                        </div>
+                     <% } %>
+                     <%                    	
+	                     String logout = request.getParameter("logout");
+		                 if("success".equals(logout)){
+	                 %>
+	                 	<script>
+	                 	alert("정상적으로 로그아웃 되었습니다.");
+	                 	</script>
+	                 <%
+	                     }
+	 				%>
+
+                        <form method="post" action="${pageContext.request.contextPath }/login" class="space-y-6" autocomplete="off">
+                            <div>
+                                <label for="loginId" class="block text-sm font-medium text-gray-700 mb-1">
+                                    아이디
+                                </label>
+                                <div class="relative">
+                                    <i class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input
+                                        id="loginId"
+                                        type="text"
+                                        name="loginId"
+                                        autocomplete="off"
+                                        required
+                                        class="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D]/20 focus:border-[#00853D] transition-all outline-none"
+                                        placeholder="아이디를 입력해주세요"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                                    비밀번호
+                                </label>
+                                <div class="relative">
+                                    <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input
+                                        id="password"
+                                        type="password"
+                                        name="password"
+                                        autocomplete="off"
+                                        required
+                                        class="w-full pl-10 pr-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D]/20 focus:border-[#00853D] transition-all outline-none"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="w-full bg-[#00853D] text-white py-4 rounded-lg font-medium hover:bg-[#006B2F] transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+                            >
+                                로그인
+                            </button>
+                        </form>
+                        <script>
+    					window.addEventListener("pageshow", function () {
+    					    const loginId = document.getElementById("loginId");
+    					    const password = document.getElementById("password");
+    					
+    					    if (loginId) loginId.value = "";
+    					    if (password) password.value = "";
+    					});
+    					</script>
                     </div>
-                    <% } %>
-
-                    <form method="post" action="${pageContext.request.contextPath }/login" class="space-y-4">
-                        <div>
-                            <label for="loginId" class="block text-sm font-medium text-gray-700 mb-1">
-                                아이디
-                            </label>
-                            <div class="relative">
-                                <i class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                <input
-                                    id="loginId"
-                                    type="text"
-                                    name="loginId"
-                                    autocomplete="off"
-                                    required
-                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D]/20 focus:border-[#00853D] transition-all outline-none"
-                                    placeholder="아이디를 입력해주세요"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-                                비밀번호
-                            </label>
-                            <div class="relative">
-                                <i class="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    autocomplete="off"
-                                    required
-                                    class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D]/20 focus:border-[#00853D] transition-all outline-none"
-                                    placeholder="••••••••"
-                                />
-                            </div>
-                        </div>
-
-                        <button
-                            type="submit"
-                            class="w-full bg-[#00853D] text-white py-3 rounded-lg font-medium hover:bg-[#006B2F] transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-6"
-                        >
-                            로그인
-                        </button>
-                    </form>
-                </div>
             </div>
         </div>
     </div>

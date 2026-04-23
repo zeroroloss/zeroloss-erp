@@ -1,5 +1,16 @@
 ﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="dto.AccountDTO" %>
+<%
+response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+response.setHeader("Pragma", "no-cache");
+response.setDateHeader("Expires", 0);
+
+AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
+if (loginUser == null) {
+    response.sendRedirect(request.getContextPath() + "/common/login.jsp");
+    return;
+}
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -32,12 +43,10 @@
         <div id="sidebarBackdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
 
         <!-- 사이드바 -->
-		<aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 overflow-y-auto">
+		<aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 flex flex-col">
 		    <%
 		        Integer unreadCount = (Integer) request.getAttribute("unreadCount");
 		        if (unreadCount == null) unreadCount = 0;
-		
-		        AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
 		
 		        String titleText = "Zero Loss";
 		        String subText = "ERP";
@@ -80,6 +89,17 @@
 		    </div>
 		
 		    <%@ include file="/hq/common/sidebar.jsp" %>
+		    <div class="mt-auto p-4 border-t border-gray-200 bg-white">
+			    <form action="${pageContext.request.contextPath}/logout" method="post">
+			        <button
+			            type="submit"
+			            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all"
+			        >
+			            <i class="fas fa-sign-out-alt"></i>
+			            <span>로그아웃</span>
+			        </button>
+			    </form>
+			</div>
 		</aside>
 
         <!-- 메인 콘텐츠 -->

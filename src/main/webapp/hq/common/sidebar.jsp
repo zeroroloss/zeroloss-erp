@@ -44,7 +44,7 @@
     boolean employeeScheduleActive = uri.endsWith("/hq/hr/employee-schedule-management.jsp");
 %>
 
-<nav class="p-4 space-y-1">
+<nav class="flex-1 p-4 space-y-1 overflow-y-auto">
     <a href="<%= cp %>/hq/main/home.jsp" class="flex items-center gap-3 px-3 py-2.5 rounded-lg <%= homeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
         <i class="fas fa-home w-5 h-5"></i>
         <span class="text-sm">홈</span>
