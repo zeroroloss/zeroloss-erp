@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dao.hq.RecipeDao">
+
+    <select id="selectMainCategories" resultType="dto.MainCategoryDTO">
+        SELECT category_id AS categoryId, name, is_active AS isActive FROM main_category WHERE is_active = TRUE
+    </select>
+
+    <select id="selectSubCategories" resultType="map">
+        SELECT sub_category_code AS subCategoryCode, name FROM sub_category WHERE main_category_id = #{mainCategoryId}
+    </select>
+
+    <select id="selectMaterials" resultType="dto.MaterialDTO">
+        SELECT
+            material_code        AS materialCode,
+            material_group_id    AS materialGroupId,
+            material_name        AS materialName,
+            material_price       AS materialPrice,
+            unit
+        FROM material
+    </select>
+
+    <select id="findMaterialsByCodes" parameterType="java.util.List" resultType="dto.MaterialDTO">
+        SELECT
+            material_code        AS materialCode,
+            material_group_id    AS materialGroupId,
+            material_name        AS materialName,
+            material_price       AS materialPrice,
+            unit
+        FROM
+            material
+        WHERE
+            material_code IN
+            <foreach item="item" collection="list" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+    </select>
+
+    <select id="selectMaxRecipeCode" resultType="string">
+        SELECT MAX(CAST(recipe_code AS UNSIGNED))
+        FROM recipe
+        WHERE category_id = #{categoryId}
+    </select>
+
+    <select id="selectRecipeList" resultType="dto.RecipeViewDTO">
+        SELECT
+            r.recipe_code AS id,
+            r.name,
+            IFNULL(mc.name, '분류없음') AS category,
+            r.category_id AS categoryId,
+            r.sub_category_code AS subCategoryCode,
+            r.instruction AS description,
+            r.price,
+            r.img_url AS image,
+            r.is_active AS isActive,
+            -- [수정] 원가를 동적으로 계산하는 서브쿼리 추가
+            (SELECT IFNULL(SUM(m.material_price * rd.required_qty), 0)
+             FROM recipe_detail rd
+             JOIN material m ON rd.material_code = m.material_code
+             WHERE rd.recipe_code = r.recipe_code) AS cost
+        FROM recipe r
+        LEFT JOIN main_category mc ON r.category_id = mc.category_id
+        ORDER BY r.recipe_code DESC
+    </select>
+
+    <!-- [최종 수정] resultMap과 selectRecipeDetail 쿼리 -->
+    <resultMap id="RecipeDetailMap" type="dto.RecipeViewDTO">
+        <id property="id" column="recipe_code"/>
+        <result property="name" column="name"/>
+        <result property="category" column="category"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="subCategoryCode" column="sub_category_code"/>
+        <result property="subCategoryName" column="sub_category_name"/>
+        <result property="instructions" column="instruction"/>
+        <result property="price" column="price"/>
+        <result property="cost" column="cost"/>
+        <result property="image" column="img_url"/>
+        <result property="isActive" column="is_active"/>
+        <collection property="ingredients" ofType="dto.RecipeViewDTO$RecipeIngredientDTO">
+            <result property="materialCode" column="material_code"/>
+            <result property="name" column="material_name"/>
+            <result property="quantity" column="required_qty"/>
+            <result property="unit" column="unit"/>
+            <result property="materialPrice" column="material_price"/> <!-- 이 부분 추가 -->
+        </collection>
+    </resultMap>
+
+    <select id="selectRecipeDetail" resultMap="RecipeDetailMap">
+        SELECT
+            r.recipe_code, r.category_id, r.sub_category_code, r.name, r.instruction, r.price, r.img_url, r.is_active, r.cost,
+            mc.name AS category,
+            sc.name AS sub_category_name,
+            rd.required_qty, m.material_code, m.material_name, m.unit,
+            m.material_price -- 이 부분 추가
+        FROM recipe r
+        LEFT JOIN main_category mc ON r.category_id = mc.category_id
+        LEFT JOIN sub_category sc ON r.sub_category_code = sc.sub_category_code
+        LEFT JOIN recipe_detail rd ON r.recipe_code = rd.recipe_code
+        LEFT JOIN material m ON rd.material_code = m.material_code
+        WHERE r.recipe_code = #{id}
+        ORDER BY rd.recipe_code, rd.material_code
+    </select>
+
+    <insert id="insertRecipe">
+        INSERT INTO recipe (recipe_code, category_id, sub_category_code, name, price, cost, instruction, img_url, is_active)
+        VALUES (#{id}, #{categoryId}, #{subCategoryCode}, #{name}, #{price}, #{cost}, #{instructions}, #{image}, #{isActive})
+    </insert>
+
+    <!-- [수정] img_url을 조건부로 업데이트하도록 변경 -->
+    <update id="updateRecipe">
+        UPDATE recipe
+        <set>
+            category_id = #{categoryId},
+            sub_category_code = #{subCategoryCode},
+            name = #{name},
+            price = #{price},
+            cost = #{cost},
+            instruction = #{instructions},
+            is_active = #{isActive},
+            <if test="image != null">
+                img_url = #{image},
+            </if>
+        </set>
+        WHERE recipe_code = #{id}
+    </update>
+
+    <delete id="deleteRecipe"> DELETE FROM recipe WHERE recipe_code = #{id} </delete>
+    <delete id="deleteRecipeDetails"> DELETE FROM recipe_detail WHERE recipe_code = #{id} </delete>
+
+    <insert id="insertRecipeDetails">
+        INSERT INTO recipe_detail (recipe_code, material_code, required_qty) VALUES
+        <foreach collection="ingredients" item="item" separator=",">
+            (#{id}, #{item.materialCode}, #{item.quantity})
+        </foreach>
+    </insert>
+</mapper>
