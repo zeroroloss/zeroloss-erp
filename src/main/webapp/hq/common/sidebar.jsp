@@ -6,20 +6,20 @@
     boolean homeActive = uri.endsWith("/hq/main/home.jsp");
 
     boolean branchStockGroup = uri.contains("/hq/branch_stock/");
-    boolean branchInventoryActive = uri.endsWith("/hq/branch_stock/branch-inventory-status.jsp");
-    boolean lossManagementActive = uri.endsWith("/hq/branch_stock/loss-management.jsp");
+    boolean branchInventoryActive = uri.endsWith("/hq/branch_stock/stock.jsp");
+    boolean lossManagementActive = uri.endsWith("/hq/branch_stock/loss.jsp");
 
     boolean warehouseGroup = uri.contains("/hq/warehouse/");
-    boolean warehouseReceiveActive = uri.endsWith("/hq/warehouse/warehouse-receive.jsp");
-    boolean warehouseReleaseActive = uri.endsWith("/hq/warehouse/warehouse-release.jsp");
-    boolean warehouseStockActive = uri.endsWith("/hq/warehouse/warehouse-stock.jsp");
-    boolean warehouseExpiryActive = uri.endsWith("/hq/warehouse/warehouse-expiry-tracking.jsp");
-    boolean warehouseItemsActive = uri.endsWith("/hq/warehouse/warehouse-items.jsp");
+    boolean warehouseReceiveActive = uri.endsWith("/hq/warehouse/inbound.jsp");
+    boolean warehouseReleaseActive = uri.endsWith("/hq/warehouse/outbound.jsp");
+    boolean warehouseStockActive = uri.endsWith("/hq/warehouse/stock.jsp");
+    boolean warehouseExpiryActive = uri.endsWith("/hq/warehouse/expiry_date.jsp");
+    boolean warehouseItemsActive = uri.endsWith("/hq/warehouse/item.jsp");
 
     boolean placeOrderGroup = uri.contains("/hq/place_order/");
-    boolean orderDashboardActive = uri.endsWith("/hq/place_order/order-requests-dashboard.jsp");
-    boolean orderManagementActive = uri.endsWith("/hq/place_order/order-requests-management.jsp");
-    boolean orderLimitsActive = uri.endsWith("/hq/place_order/order-item-limits.jsp");
+    boolean orderDashboardActive = uri.endsWith("/hq/place_order/request_history.jsp");
+    boolean orderManagementActive = uri.endsWith("/hq/place_order/processing.jsp");
+    boolean orderLimitsActive = uri.endsWith("/hq/place_order/item_limit.jsp");
 
     boolean salesGroup = uri.contains("/hq/sales/");
     boolean salesDetailActive = uri.endsWith("/hq/sales/sales-detail.jsp");
@@ -58,8 +58,8 @@
         <i class="fas <%= branchStockGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
     </button>
     <div class="submenu <%= branchStockGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
-        <a href="<%= cp %>/hq/branch_stock/branch-inventory-status.jsp" class="block px-4 py-2 rounded-lg text-sm <%= branchInventoryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">지점재고 현황</a>
-        <a href="<%= cp %>/hq/branch_stock/loss-management.jsp" class="block px-4 py-2 rounded-lg text-sm <%= lossManagementActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">지점 손실 관리</a>
+        <a href="<%= cp %>/hq/branch_stock/stock.jsp" class="block px-4 py-2 rounded-lg text-sm <%= branchInventoryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">지점재고 현황</a>
+        <a href="<%= cp %>/hq/branch_stock/loss.jsp" class="block px-4 py-2 rounded-lg text-sm <%= lossManagementActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">지점 손실 관리</a>
     </div>
 
     <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= warehouseGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
@@ -70,11 +70,11 @@
         <i class="fas <%= warehouseGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
     </button>
     <div class="submenu <%= warehouseGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
-        <a href="<%= cp %>/hq/warehouse/warehouse-receive.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseReceiveActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 물류창고 입고</a>
-        <a href="<%= cp %>/hq/warehouse/warehouse-release.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseReleaseActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 물류창고 출고</a>
-        <a href="<%= cp %>/hq/warehouse/warehouse-stock.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseStockActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 물류창고 재고 조회</a>
-        <a href="<%= cp %>/hq/warehouse/warehouse-expiry-tracking.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseExpiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">유통기한 조회</a>
-        <a href="<%= cp %>/hq/warehouse/warehouse-items.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseItemsActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">물류창고 내 품목</a>
+        <a href="<%= cp %>/hq/warehouse/inbound.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseReceiveActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 물류창고 입고</a>
+        <a href="<%= cp %>/hq/warehouse/outbound.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseReleaseActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 물류창고 출고</a>
+        <a href="<%= cp %>/hq/warehouse/stock.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseStockActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 물류창고 재고 조회</a>
+        <a href="<%= cp %>/hq/warehouse/expiry_date.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseExpiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">유통기한 조회</a>
+        <a href="<%= cp %>/hq/warehouse/item.jsp" class="block px-4 py-2 rounded-lg text-sm <%= warehouseItemsActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">물류창고 내 품목</a>
     </div>
 
     <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= placeOrderGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
@@ -85,9 +85,9 @@
         <i class="fas <%= placeOrderGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
     </button>
     <div class="submenu <%= placeOrderGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
-        <a href="<%= cp %>/hq/place_order/order-requests-dashboard.jsp" class="block px-4 py-2 rounded-lg text-sm <%= orderDashboardActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">발주 요청 취합 및 조회</a>
-        <a href="<%= cp %>/hq/place_order/order-requests-management.jsp" class="block px-4 py-2 rounded-lg text-sm <%= orderManagementActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">발주 요청 승인/반려</a>
-        <a href="<%= cp %>/hq/place_order/order-item-limits.jsp" class="block px-4 py-2 rounded-lg text-sm <%= orderLimitsActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">품목별 발주 수량 설정</a>
+        <a href="<%= cp %>/hq/place_order/request_history.jsp" class="block px-4 py-2 rounded-lg text-sm <%= orderDashboardActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">발주 요청 취합 및 조회</a>
+        <a href="<%= cp %>/hq/place_order/processing.jsp" class="block px-4 py-2 rounded-lg text-sm <%= orderManagementActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">발주 요청 승인/반려</a>
+        <a href="<%= cp %>/hq/place_order/item_limit.jsp" class="block px-4 py-2 rounded-lg text-sm <%= orderLimitsActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">품목별 발주 수량 설정</a>
     </div>
 
     <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= salesGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
