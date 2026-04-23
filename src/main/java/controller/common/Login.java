@@ -50,9 +50,9 @@ public class Login extends HttpServlet {
 			
 			HttpSession session = request.getSession();
 			session.setAttribute("loginUser", account);
-			session.setAttribute("roleId", account.getRoleId());
-			session.setAttribute("branchCode", account.getBranchCode());
-			session.setAttribute("hqId", account.getHqId());
+			session.setAttribute("roleName", account.getRoleName());
+			session.setAttribute("branchName", account.getBranchName());
+			session.setAttribute("userName", account.getUserName());
 			
 			if(account.getHqId()!= null) {
 				response.sendRedirect(request.getContextPath()+"/hq/main/home.jsp");

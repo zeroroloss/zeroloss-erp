@@ -49,8 +49,7 @@
 <%@ include file="/branch/common/layout/sidebar.jsp" %>
 <div class="zl-content">
 <%@ include file="/branch/common/layout/topbar.jsp" %>
-<main class="zl-page">
-<div class="wrap">
+<div class="wrap p-6">
     <header class="head">
         <h1>매출 조회</h1>
         <p>강남지점의 매출 데이터를 다양한 방식으로 조회하세요</p>

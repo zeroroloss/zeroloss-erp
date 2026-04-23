@@ -82,8 +82,7 @@
 <%@ include file="/branch/common/layout/sidebar.jsp" %>
 <div class="zl-content">
 <%@ include file="/branch/common/layout/topbar.jsp" %>
-<main class="zl-page">
-<div class="wrap">
+<div class="wrap p-6">
     <div class="page-head">
         <h1 class="page-title">발주 내역</h1>
         <p class="page-sub">전체 발주 내역을 상태별로 확인하세요</p>

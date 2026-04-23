@@ -90,8 +90,7 @@
 <%@ include file="/branch/common/layout/sidebar.jsp" %>
 <div class="zl-content">
 <%@ include file="/branch/common/layout/topbar.jsp" %>
-<main class="zl-page">
-<div class="wrap">
+<div class="wrap p-6">
     <div class="page-header">
         <h1 class="page-title">재고 현황</h1>
         <p class="page-sub">현재 지점의 재고 상태를 확인합니다</p>

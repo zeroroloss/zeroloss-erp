@@ -82,8 +82,7 @@
   <%@ include file="/branch/common/layout/sidebar.jsp" %>
   <div class="zl-content">
     <%@ include file="/branch/common/layout/topbar.jsp" %>
-    <main class="zl-page">
-      <div class="wrap">
+      <div class="wrap p-6">
         <div class="head"><div><h1 class="title">문의사항</h1><p class="sub">본사에 문의사항이나 건의사항을 전달할 수 있습니다.</p></div><a class="add-btn" href="/branch/support/inquiry/create_inquiry.jsp">＋ 문의하기</a></div>
         <section class="stats"><article class="stat"><div class="k">전체 문의</div><div class="v">3건</div></article><article class="stat"><div class="k">대기 중</div><div class="v" style="color:#b45309;">1건</div></article><article class="stat"><div class="k">처리 중</div><div class="v" style="color:#2563eb;">1건</div></article><article class="stat"><div class="k">답변 완료</div><div class="v" style="color:#16a34a;">1건</div></article></section>
         <section class="filter"><div class="filter-row"><input class="input" type="text" placeholder="제목 또는 내용으로 검색..." /><select class="select"><option>전체</option></select><select class="select"><option>전체</option></select></div></section>

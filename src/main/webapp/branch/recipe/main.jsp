@@ -75,8 +75,7 @@
   <%@ include file="/branch/common/layout/sidebar.jsp" %>
   <div class="zl-content">
     <%@ include file="/branch/common/layout/topbar.jsp" %>
-    <main class="zl-page">
-      <div class="wrap">
+      <div class="wrap p-6">
         <section class="head">
           <h1>레시피 관리</h1>
           <p>메뉴 레시피를 조회하세요 (조회 전용)</p>

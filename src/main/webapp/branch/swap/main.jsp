@@ -36,8 +36,7 @@
   <%@ include file="/branch/common/layout/sidebar.jsp" %>
   <div class="zl-content">
     <%@ include file="/branch/common/layout/topbar.jsp" %>
-    <main class="zl-page">
-      <div class="wrap">
+      <div class="wrap p-6">
         <h1 class="title">재고 교환/요청</h1>
         <p class="sub">지점 간 재고를 교환하고 요청을 관리하세요</p>
 

@@ -16,7 +16,7 @@
 .zl-sub-link { display: block; text-decoration: none; color: #4b5563; font-size: 13px; padding: 8px 12px 8px 24px; border-radius: 8px; margin-bottom: 4px; }
 .zl-sub-link:hover { background: #f9fafb; }
 .zl-sub-link.active { background: #dcfce7; color: #166534; font-weight: 700; }
-.zl-content { margin-left: 256px; min-height: 100vh; }
+.zl-content { margin-left: 288px; min-height: 100vh; }
 .zl-header { position: sticky; top: 0; z-index: 30; background: #ffffff; border-bottom: 1px solid #e5e7eb; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); }
 .zl-header-inner { min-height: 72px; padding: 0 18px 0 24px; display: flex; justify-content: flex-end; align-items: center; gap: 16px; }
 .zl-title { margin: 0; font-size: 18px; color: #111827; }
@@ -36,7 +36,7 @@
 .zl-menu-group > summary .zl-right { transition: transform 0.2s ease; color: #9ca3af; }
 .zl-menu-group[open] > summary .zl-right { transform: rotate(90deg); }
 .zl-submenu { margin: 4px 0 8px 0; }
-.zl-page { padding: 22px; }
+.zl-page {  }
 @media (max-width: 1100px) {
   .zl-sidebar { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid #e5e7eb; }
   .zl-content { margin-left: 0; }
