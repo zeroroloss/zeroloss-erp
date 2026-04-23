@@ -1,4 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.*" %>
+<%
+    Map<String, List<String>> categoryMaterialMap =
+        (Map<String, List<String>>) request.getAttribute("categoryMaterialMap");
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -12,6 +17,12 @@
             transform: translateX(0);
         }
     </style>
+    
+    <script>
+        const categoryMaterialMap = <%= request.getAttribute("categoryMaterialJson") == null
+            ? "{}"
+            : request.getAttribute("categoryMaterialJson") %>;
+    </script>
 </head>
 <body class="bg-gray-50">
 	    <%@ include file="/hq/common/sidebar.jsp" %>
@@ -29,13 +40,15 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
                             <select id="filterCategory" onchange="updateStockItemNames()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                                 <option value="전체">전체</option>
-                                <option value="단백질">단백질</option>
-                                <option value="야채">야채</option>
-                                <option value="치즈">치즈</option>
-                                <option value="빵류">빵류</option>
-                                <option value="소스">소스</option>
-                                <option value="음료">음료</option>
-                                <option value="쿠키">쿠키</option>
+                                <%
+                                	if (categoryMaterialMap != null) {
+                                		for (String category : categoryMaterialMap.keySet()) {
+                                %>
+                                	<option value="<%=category %>"><%=category %></option>
+                                <%			
+                                		}
+                                	}
+                                %>
                             </select>
                         </div>
                         <div>
@@ -70,11 +83,11 @@
                         <button type="button" data-status="AVAILABLE" onclick="setStatusFilter('AVAILABLE')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-green-200 text-sm font-medium text-green-700 hover:bg-green-50">
                             사용 가능 <span id="countAvailable" class="text-xs text-green-600">0건</span>
                         </button>
-                        <button type="button" data-status="HOLD" onclick="setStatusFilter('HOLD')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-yellow-200 text-sm font-medium text-yellow-700 hover:bg-yellow-50">
-                            재고 없음 <span id="countHold" class="text-xs text-yellow-600">0건</span>
+                        <button type="button" data-status="1_BOUND" onclick="setStatusFilter('OUT_OF_STOCK')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-yellow-200 text-sm font-medium text-yellow-700 hover:bg-yellow-50">
+                            재고 없음 <span id="countOutOfBound" class="text-xs text-yellow-600">0건</span>
                         </button>
-                        <button type="button" data-status="EXPIRED" onclick="setStatusFilter('EXPIRED')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 text-sm font-medium text-red-700 hover:bg-red-50">
-                            폐기됨 <span id="countExpired" class="text-xs text-red-600">0건</span>
+                        <button type="button" data-status="DISPOSED" onclick="setStatusFilter('DISPOSED')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 text-sm font-medium text-red-700 hover:bg-red-50">
+                            폐기됨 <span id="countDisposed" class="text-xs text-red-600">0건</span>
                         </button>
                     </div>
                 </div>
@@ -83,7 +96,6 @@
                     <div class="px-6 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
                         <div>
                             <h3 class="text-base font-semibold text-gray-900">본사 물류창고 재고 리스트</h3>
-                            <p class="text-xs text-gray-500 mt-1">warehouse_stock 기준 현재고 조회</p>
                         </div>
                         <p class="text-base text-gray-500">조회 건수 <span id="recordCount" class="font-semibold text-gray-700">0건</span></p>
                     </div>
@@ -245,30 +257,39 @@
             updateStatusCounts();
         }
 
+        function getStatusMeta(status) {
+            if (status === 'AVAILABLE') {
+                return { label: '사용 가능', badgeClass: 'bg-green-100 text-green-700', btnClass: ['bg-green-50', 'border-green-200', 'text-green-700'] };
+            }
+            if (status === 'OUT_OF_STOCK') {
+                return { label: '재고 없음', badgeClass: 'bg-yellow-100 text-yellow-700', btnClass: ['bg-yellow-50', 'border-yellow-200', 'text-yellow-700'] };
+            }
+            if (status === 'DISPOSED') {
+                return { label: '폐기됨', badgeClass: 'bg-red-100 text-red-700', btnClass: ['bg-red-50', 'border-red-200', 'text-red-700'] };
+            }
+            return { label: status || '-', badgeClass: 'bg-gray-100 text-gray-700', btnClass: ['bg-gray-50', 'border-gray-300', 'text-gray-700'] };
+        }
+
         function updateStockItemNames() {
-            const selectedCategory = document.getElementById('filterCategory').value;
+        	const categorySelect = document.getElementById("filterCategory");
             const itemNameSelect = document.getElementById('filterItemName');
-            const uniqueNames = ['전체'];
-
-            allStocks.forEach(stock => {
-                if (selectedCategory === '전체' || stock.category === selectedCategory) {
-                    if (!uniqueNames.includes(stock.materialName)) {
-                        uniqueNames.push(stock.materialName);
-                    }
-                }
-            });
-
-            const previousValue = itemNameSelect.value;
-            itemNameSelect.innerHTML = '';
-            uniqueNames.forEach(name => {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name;
-                itemNameSelect.appendChild(option);
-            });
-
-            if (uniqueNames.includes(previousValue)) {
-                itemNameSelect.value = previousValue;
+            
+            const selectedCategory = categorySelect.value;
+            
+            // 품목 초기화
+            itemNameSelect.innerHTML = '<option value="전체">전체</option>';
+            if (selectedCategory === "전체")
+            	return;
+            
+            const items = categoryMaterialMap[selectedCategory];
+            
+            if (items && items.length > 0) {
+            	items.forEach(item => {
+            		const option = document.createElement("option");
+            		option.value = item;
+            		option.textContent = item;
+            		itemNameSelect.appendChild(option);
+            	});
             }
         }
 
@@ -282,12 +303,9 @@
                 if (status === currentStatusFilter) {
                     if (status === '전체') {
                         button.classList.add('bg-gray-900', 'text-white', 'border-gray-900');
-                    } else if (status === 'AVAILABLE') {
-                        button.classList.add('bg-green-50', 'border-green-200', 'text-green-700');
-                    } else if (status === 'HOLD') {
-                        button.classList.add('bg-yellow-50', 'border-yellow-200', 'text-yellow-700');
-                    } else if (status === 'EXPIRED') {
-                        button.classList.add('bg-red-50', 'border-red-200', 'text-red-700');
+                    } else {
+                        const meta = getStatusMeta(status);
+                        button.classList.add(...meta.btnClass);
                     }
                 }
             });
@@ -295,35 +313,57 @@
 
         // 조회하기 버튼 시, AJAX로 리스트 다시 받아오기
         function applyFilters() {
-            const search = document.getElementById('filterSearch').value.trim();
             const categoryName = document.getElementById('filterCategory').value;
             const itemName = document.getElementById('filterItemName').value;
+            const search = document.getElementById('filterSearch').value.trim();
             
             const params = new URLSearchParams({
-                categoryName: categoryName === '전체' ? '' : categoryName,
-                itemName: itemName === '전체' ? '' : itemName,
+                categoryName: categoryName,
+                itemName: itemName,
                 keyword: search
             });
 
-            // ajax
-            fetch('<%= request.getContextPath() %>/api/hq/warehouse/stock?' + params.toString(), {
-                method: 'GET'
-            })
-            .then(res => res.json())
-            .then(data => {
-                allStocks = data;       // 서버에서 받은 전체 데이터
-                filteredStocks = data;  // 초기 필터 상세
+    const url = "<%= request.getContextPath() %>/api/hq/warehouse/stock?" + params.toString();
+    console.log('📤 API 요청:', url);
 
-                renderTable();
-                updateStatusCounts();
-                updateStatusButtonStyles();
-
-                document.getElementById('recordCount').textContent = data.length + '건';
-            })
-            .catch(err => {
-                console.error('조회 실패', err);
+    fetch(url)
+        .then(res => {
+            console.log('📥 Response 상태:', res.status);
+            
+            if (!res.ok) {
+                return res.json().then(errData => {
+                    throw new Error(errData.message || 'HTTP ' + res.status);
+                });
+            }
+            return res.json();
+        })
+        .then(data => {
+            console.log('✅ 받은 데이터:', data);
+            
+            // 에러 응답인 경우 처리
+            if (data.status === 'error') {
+                throw new Error(data.message);
+            }
+            
+            allStocks = data || [];
+            filteredStocks = allStocks.filter(stock => {
+                return currentStatusFilter === '전체' || stock.status === currentStatusFilter;
             });
-        }
+
+            renderTable();
+            updateStatusCounts();
+            updateStatusButtonStyles();
+
+            document.getElementById('recordCount').textContent = filteredStocks.length + '건';
+        })
+        .catch(err => {
+            console.error('❌ 조회 실패:', err);
+            alert('재고 조회 실패: ' + err.message);
+            allStocks = [];
+            filteredStocks = [];
+            renderTable();
+        });
+}
 
         function resetFilters() {
             document.getElementById('filterSearch').value = '';
@@ -348,17 +388,17 @@
             document.getElementById('emptyState').classList.add('hidden');
 
             filteredStocks.forEach(stock => {
-                const statusLabel = stock.status === 'AVAILABLE' ? '사용 가능' : stock.status === 'HOLD' ? '재고 없음' : '폐기됨';
-                const statusClass = stock.status === 'AVAILABLE' ? 'bg-green-100 text-green-700' : stock.status === 'HOLD' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700';
+                const meta = getStatusMeta(stock.status);
 
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-gray-100 hover:bg-gray-50';
-                tr.innerHTML = '<td class="py-4 px-6 text-sm text-gray-900 font-mono">' + stock.stockNo + '</td>' +
+                tr.innerHTML =
+                    '<td class="py-4 px-6 text-sm text-gray-900 font-mono">' + stock.stockNo + '</td>' +
                     '<td class="py-4 px-6 text-sm text-gray-600"><span class="px-2 py-0.5 rounded bg-gray-100">' + stock.category + '</span></td>' +
                     '<td class="py-4 px-6 text-sm font-medium text-gray-900">' + stock.materialName + '</td>' +
-                    '<td class="py-4 px-6 text-right text-sm font-semibold text-gray-900">' + stock.currentQty + stock.unit + '</td>' +
+                    '<td class="py-4 px-6 text-right text-sm font-semibold text-gray-900">' + (stock.currentQty ?? 0) + ' ' + (stock.unit ?? '') + '</td>' +
                     '<td class="py-4 px-6 text-sm text-gray-600">' + stock.receivedAt + '</td>' +
-                    '<td class="py-4 px-6 text-center"><span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ' + statusClass + '">' + statusLabel + '</span></td>' +
+                    '<td class="py-4 px-6 text-center"><span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '">' + meta.label + '</span></td>' +
                     '<td class="py-4 px-6 text-center"><button onclick="openDetail(\'' + stock.stockNo + '\')" class="px-3 py-1.5 text-sm text-[#00853D] hover:bg-green-50 rounded-lg transition-colors">상세정보</button></td>';
                 tbody.appendChild(tr);
             });
@@ -366,23 +406,25 @@
 
         function updateStatusCounts() {
             const availableCount = allStocks.filter(stock => stock.status === 'AVAILABLE').length;
-            const holdCount = allStocks.filter(stock => stock.status === 'HOLD').length;
-            const expiredCount = allStocks.filter(stock => stock.status === 'EXPIRED').length;
+            const outOfBoundCount = allStocks.filter(stock => stock.status === 'OUT_OF_STOCK').length;
+            const disposedCount = allStocks.filter(stock => stock.status === 'DISPOSED').length;
 
             document.getElementById('countAll').textContent = allStocks.length + '건';
             document.getElementById('countAvailable').textContent = availableCount + '건';
-            document.getElementById('countHold').textContent = holdCount + '건';
-            document.getElementById('countExpired').textContent = expiredCount + '건';
+            document.getElementById('countOutOfBound').textContent = outOfBoundCount + '건';
+            document.getElementById('countDisposed').textContent = disposedCount + '건';
         }
 
         function openDetail(stockNo) {
             selectedStock = allStocks.find(stock => stock.stockNo === stockNo) || null;
             if (!selectedStock) return;
 
+            const meta = getStatusMeta(selectedStock.status);
+
             document.getElementById('detailStockCode').textContent = selectedStock.stockNo;
             document.getElementById('detailMaterialCode').textContent = selectedStock.materialCode;
             document.getElementById('detailMaterialName').textContent = selectedStock.materialName;
-            document.getElementById('detailQty').textContent = selectedStock.currentQty + selectedStock.unit + ' / ' + selectedStock.status;
+            document.getElementById('detailQty').textContent = (selectedStock.currentQty ?? 0) + (selectedStock.unit ?? '') + ' / ' + meta.label;
             document.getElementById('detailReceivedAt').textContent = selectedStock.receivedAt;
             document.getElementById('detailExpiryDate').textContent = selectedStock.expiryDate;
             document.getElementById('modalSubtitle').textContent = selectedStock.category + ' · ' + selectedStock.materialName;
@@ -417,7 +459,12 @@
         });
 
         window.addEventListener('DOMContentLoaded', function() {
-            applyFilters(); // 처음도 서버에서 받아오기
+            document.getElementById('filterCategory').value = '전체';
+            updateStockItemNames(); // 품목 select를 "전체"로 재구성
+            document.getElementById('filterItemName').value = '전체';
+            document.getElementById('filterSearch').value = '';
+            currentStatusFilter = '전체';
+            applyFilters(); // category=전체, item=전체, keyword=''
         });
     </script>
 </body>

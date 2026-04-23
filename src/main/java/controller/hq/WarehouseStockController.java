@@ -1,6 +1,7 @@
 package controller.hq;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,9 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dto.hq.warehouse.CategoryMaterialDTO;
-import dto.hq.warehouse.WarehouseStockResultDTO;
-import dto.hq.warehouse.WarehouseStockSearchDTO;
+import com.google.gson.Gson;
+
 import service.hq.WarehouseStockService;
 import service.hq.WarehouseStockServiceImpl;
 
@@ -27,12 +27,21 @@ public class WarehouseStockController extends HttpServlet {
         service = new WarehouseStockServiceImpl();
     }
 
-    // /hq/warehouse_stock.jsp 화면을 초기에 띄울 때 호출된다.
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		
-		//Map<String, List<String>> categoryMaterialMap = service.getCategoryMaterialMap();
-		//request.setAttribute("categoryMaterialMap", categoryMaterialMap);
-		//request.getRequestDispatcher("/hq/warehouse/stock.jsp").forward(request, response);
+
+	    Map<String, List<String>> categoryMaterialMap = service.getCategoryMaterialMap();
+	    if (categoryMaterialMap == null) {
+	        categoryMaterialMap = new LinkedHashMap<>();
+	    }
+
+	    request.setAttribute("categoryMaterialMap", categoryMaterialMap);
+	    
+	    // Gson/Jackson 등 프로젝트 표준 사용
+	    String categoryMaterialJson = new Gson().toJson(categoryMaterialMap);
+	    request.setAttribute("categoryMaterialJson", categoryMaterialJson);
+
+	    request.getRequestDispatcher("/hq/warehouse/stock.jsp").forward(request, response);
 	}
+    
 }

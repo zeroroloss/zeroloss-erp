@@ -1,76 +1,40 @@
 package dto.hq.warehouse;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 public class WarehouseStockResultDTO {
-	
     private String stockNo;
-    private String categoryName;
-    private String itemName;
-    private BigDecimal qty;
-    private LocalDateTime receivedAt;
+    private String category;
+    private String materialCode;
+    private String materialName;
+    private Integer currentQty;
+    private String unit;
+    private String receivedAt; // 문자열로 받기
+    private String expiryDate; // 문자열로 받기
     private String status;
-    private String detailInfo;
-    
-	public WarehouseStockResultDTO() {
-		super();
-	}
-	
-	public WarehouseStockResultDTO(String stockNo, String categoryName, String itemName, BigDecimal qty,
-			LocalDateTime receivedAt, String status, String detailInfo) {
-		super();
-		this.stockNo = stockNo;
-		this.categoryName = categoryName;
-		this.itemName = itemName;
-		this.qty = qty;
-		this.receivedAt = receivedAt;
-		this.status = status;
-		this.detailInfo = detailInfo;
-	}
-	
-	public String getStockNo() {
-		return stockNo;
-	}
-	public void setStockNo(String stockNo) {
-		this.stockNo = stockNo;
-	}
-	public String getCategoryName() {
-		return categoryName;
-	}
-	public void setCategoryName(String categoryName) {
-		this.categoryName = categoryName;
-	}
-	public String getItemName() {
-		return itemName;
-	}
-	public void setItemName(String itemName) {
-		this.itemName = itemName;
-	}
-	public BigDecimal getQty() {
-		return qty;
-	}
-	public void setQty(BigDecimal qty) {
-		this.qty = qty;
-	}
-	public LocalDateTime getReceivedAt() {
-		return receivedAt;
-	}
-	public void setReceivedAt(LocalDateTime receivedAt) {
-		this.receivedAt = receivedAt;
-	}
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
-	public String getDetailInfo() {
-		return detailInfo;
-	}
-	public void setDetailInfo(String detailInfo) {
-		this.detailInfo = detailInfo;
-	}
-    
-    
+
+    public String getStockNo() { return stockNo; }
+    public void setStockNo(String stockNo) { this.stockNo = stockNo; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+
+    public String getMaterialCode() { return materialCode; }
+    public void setMaterialCode(String materialCode) { this.materialCode = materialCode; }
+
+    public String getMaterialName() { return materialName; }
+    public void setMaterialName(String materialName) { this.materialName = materialName; }
+
+    public Integer getCurrentQty() { return currentQty; }
+    public void setCurrentQty(Integer currentQty) { this.currentQty = currentQty; }
+
+    public String getUnit() { return unit; }
+    public void setUnit(String unit) { this.unit = unit; }
+
+    public String getReceivedAt() { return receivedAt; }
+    public void setReceivedAt(String receivedAt) { this.receivedAt = receivedAt; }
+
+    public String getExpiryDate() { return expiryDate; }
+    public void setExpiryDate(String expiryDate) { this.expiryDate = expiryDate; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

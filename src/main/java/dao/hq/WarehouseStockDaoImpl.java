@@ -12,7 +12,8 @@ public class WarehouseStockDaoImpl implements WarehouseStockDao {
 
 	@Override
 	public List<WarehouseStockResultDTO> searchList(SqlSession sqlSession, WarehouseStockSearchDTO searchDTO) {
-		return sqlSession.selectList("mapper.hq.warehouseStock.selectStocks", searchDTO);
+		List<WarehouseStockResultDTO> result = sqlSession.selectList("mapper.hq.warehouseStock.selectStocks", searchDTO);
+		return result;
 	}
 
 	@Override
