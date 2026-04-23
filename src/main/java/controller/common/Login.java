@@ -65,7 +65,6 @@ public class Login extends HttpServlet {
 		} catch(Exception e) {
 			e.printStackTrace();
 			request.setAttribute("error", e.getMessage());
-			request.setAttribute("loginId", loginId);
 			request.getRequestDispatcher("/common/login.jsp").forward(request, response);
 		}
 	}

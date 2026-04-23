@@ -28,9 +28,10 @@
                 <!-- 폼 섹션 -->
                 <div class="px-8 pb-8">
                     <%
-                        String errorMsg = request.getParameter("error");
+                        String errorMsg = (String)request.getAttribute("error");
                         if (errorMsg != null && !errorMsg.isEmpty()) {
                     %>
+                        
                     <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
                         <i class="fas fa-exclamation-circle text-red-600 flex-shrink-0 mt-0.5"></i>
                         <p class="text-sm text-red-800"><%= errorMsg %></p>
@@ -48,6 +49,7 @@
                                     id="loginId"
                                     type="text"
                                     name="loginId"
+                                    autocomplete="off"
                                     required
                                     class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D]/20 focus:border-[#00853D] transition-all outline-none"
                                     placeholder="아이디를 입력해주세요"
@@ -65,6 +67,7 @@
                                     id="password"
                                     type="password"
                                     name="password"
+                                    autocomplete="off"
                                     required
                                     class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D]/20 focus:border-[#00853D] transition-all outline-none"
                                     placeholder="••••••••"
