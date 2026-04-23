@@ -1,5 +1,4 @@
 ﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="dto.AccountDTO" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -15,62 +14,10 @@
     </style>
 </head>
 <body class="bg-gray-50">
-<div class="min-h-screen">
-    <div id="sidebarBackdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
-
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 overflow-y-auto">
-        <%
-            Integer unreadCount = (Integer) request.getAttribute("unreadCount");
-            if (unreadCount == null) unreadCount = 0;
-
-            AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
-
-            String titleText = "Zero Loss";
-            String subText = "ERP";
-
-            if (loginUser != null) {
-                String userName = loginUser.getUserName() != null ? loginUser.getUserName() : "";
-                String roleName = loginUser.getRoleName() != null ? loginUser.getRoleName() : "";
-                String branchName = loginUser.getBranchName() != null ? loginUser.getBranchName() : "";
-
-                titleText = userName + " " + roleName;
-                subText = loginUser.getHqId() != null ? "본사" : branchName;
-            }
-        %>
-
-        <div class="p-6 border-b border-gray-200">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-[#00853D] rounded-full flex items-center justify-center flex-shrink-0">
-                    <span class="text-white font-bold text-xl">분</span>
-                </div>
-
-                <div class="min-w-0 max-w-[140px]">
-                    <h1 class="text-sm font-bold text-gray-900 truncate" title="<%= titleText %>">
-                        <%= titleText %>
-                    </h1>
-                    <p class="text-xs text-gray-500 truncate" title="<%= subText %>">
-                        <%= subText %>
-                    </p>
-                </div>
-
-                <button type="button" class="ml-auto p-2 rounded-lg hover:bg-gray-100 relative flex-shrink-0">
-                    <i class="fas fa-bell text-gray-700 w-5 h-5"></i>
-
-                    <% if (unreadCount > 0) { %>
-                    <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
-		                        <%= unreadCount > 99 ? "99+" : unreadCount %>
-		                    </span>
-                    <% } %>
-                </button>
-            </div>
-        </div>
-
-        <%@ include file="/hq/common/sidebar.jsp" %>
-    </aside>
-
+    <%@ include file="/hq/common/sidebar.jsp" %>
 
     <div class="lg:pl-72">
-    <main class="p-6">
+        <main class="p-6">
             <div class="space-y-6">
                 <div class="flex justify-between items-start">
                     <div>
@@ -701,7 +648,36 @@
         else { s.classList.add('-translate-x-full'); b.classList.add('hidden'); }
     }
 
-    function logout() { window.location.href = ctx + '/common/login.jsp'; }
+    function toggleMenu(element) {
+	    const submenu = element.nextElementSibling;
+	    if (submenu && submenu.classList.contains('submenu')) {
+	        submenu.classList.toggle('hidden');
+	        const icon = element.querySelector('i.fa-chevron-right, i.fa-chevron-down');
+	        if (icon) {
+	            icon.classList.toggle('fa-chevron-right');
+	            icon.classList.toggle('fa-chevron-down');
+	        }
+	    }
+	}
+
+    function logout() {
+        window.location.href = ctx + '/common/login.jsp';
+    }
+    function toggleMenu(element) {
+	    const submenu = element.nextElementSibling;
+	    if (submenu && submenu.classList.contains('submenu')) {
+	        submenu.classList.toggle('hidden');
+	        const icon = element.querySelector('i.fa-chevron-right, i.fa-chevron-down');
+	        if (icon) {
+	            icon.classList.toggle('fa-chevron-right');
+	            icon.classList.toggle('fa-chevron-down');
+	        }
+	    }
+	}
+
+    function logout() {
+        window.location.href = ctx + '/common/login.jsp';
+    }
 
     init();
 </script>
