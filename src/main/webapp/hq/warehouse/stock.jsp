@@ -101,12 +101,8 @@ if (loginUser == null) {
                 <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">재료 검색</label>
-                            <input type="text" id="filterSearch" placeholder="재료명 또는 코드 입력" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                        </div>
-                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
-                            <select id="filterCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                            <select id="filterCategory" onchange="updateStockItemNames()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                                 <option value="전체">전체</option>
                                 <option value="단백질">단백질</option>
                                 <option value="야채">야채</option>
@@ -118,13 +114,15 @@ if (loginUser == null) {
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">상태</label>
-                            <select id="filterStatusDropdown" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">품목명</label>
+                            <select id="filterItemName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                                 <option value="전체">전체</option>
-                                <option value="AVAILABLE">사용 가능</option>
-                                <option value="HOLD">재고 없음</option>
-                                <option value="EXPIRED">폐기됨</option>
                             </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">검색</label>
+                            <input type="text" id="filterSearch" placeholder="재고코드, 카테고리, 품목 검색" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                         </div>
                     </div>
 
@@ -162,7 +160,7 @@ if (loginUser == null) {
                             <h3 class="text-base font-semibold text-gray-900">본사 물류창고 재고 리스트</h3>
                             <p class="text-xs text-gray-500 mt-1">warehouse_stock 기준 현재고 조회</p>
                         </div>
-                        <p class="text-xs text-gray-500">조회 건수 <span id="recordCount" class="font-semibold text-gray-700">0건</span></p>
+                        <p class="text-base text-gray-500">조회 건수 <span id="recordCount" class="font-semibold text-gray-700">0건</span></p>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -170,8 +168,8 @@ if (loginUser == null) {
                             <thead class="bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">재고코드</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">재료명</th>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">카테고리</th>
+                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
                                     <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">현재고</th>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">입고 시점</th>
                                     <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">상태</th>
@@ -318,8 +316,35 @@ if (loginUser == null) {
         function setStatusFilter(status) {
             currentStatusFilter = status;
             updateStatusButtonStyles();
-            renderTable();
+            applyFilters();
             updateStatusCounts();
+        }
+
+        function updateStockItemNames() {
+            const selectedCategory = document.getElementById('filterCategory').value;
+            const itemNameSelect = document.getElementById('filterItemName');
+            const uniqueNames = ['전체'];
+
+            allStocks.forEach(stock => {
+                if (selectedCategory === '전체' || stock.category === selectedCategory) {
+                    if (!uniqueNames.includes(stock.materialName)) {
+                        uniqueNames.push(stock.materialName);
+                    }
+                }
+            });
+
+            const previousValue = itemNameSelect.value;
+            itemNameSelect.innerHTML = '';
+            uniqueNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                itemNameSelect.appendChild(option);
+            });
+
+            if (uniqueNames.includes(previousValue)) {
+                itemNameSelect.value = previousValue;
+            }
         }
 
         function updateStatusButtonStyles() {
@@ -343,29 +368,46 @@ if (loginUser == null) {
             });
         }
 
+        // 조회하기 버튼 시, AJAX로 리스트 다시 받아오기
         function applyFilters() {
-            const search = document.getElementById('filterSearch').value.trim().toLowerCase();
-            const category = document.getElementById('filterCategory').value;
-            const statusDropdown = document.getElementById('filterStatusDropdown').value;
-
-            filteredStocks = allStocks.filter(stock => {
-                const matchesSearch = !search || stock.materialName.toLowerCase().includes(search) || stock.materialCode.toLowerCase().includes(search) || stock.stockNo.toLowerCase().includes(search);
-                const matchesCategory = category === '전체' || stock.category === category;
-                const matchesStatus = currentStatusFilter === '전체' || stock.status === currentStatusFilter;
-                return matchesSearch && matchesCategory && matchesStatus;
+            const search = document.getElementById('filterSearch').value.trim();
+            const categoryName = document.getElementById('filterCategory').value;
+            const itemName = document.getElementById('filterItemName').value;
+            
+            const params = new URLSearchParams({
+                categoryName: categoryName === '전체' ? '' : categoryName,
+                itemName: itemName === '전체' ? '' : itemName,
+                keyword: search
             });
 
-            renderTable();
-            updateStatusCounts();
+            // ajax
+            fetch('<%= request.getContextPath() %>/api/hq/warehouse/stock?' + params.toString(), {
+                method: 'GET'
+            })
+            .then(res => res.json())
+            .then(data => {
+                allStocks = data;       // 서버에서 받은 전체 데이터
+                filteredStocks = data;  // 초기 필터 상세
+
+                renderTable();
+                updateStatusCounts();
+                updateStatusButtonStyles();
+
+                document.getElementById('recordCount').textContent = data.length + '건';
+            })
+            .catch(err => {
+                console.error('조회 실패', err);
+            });
         }
 
         function resetFilters() {
             document.getElementById('filterSearch').value = '';
             document.getElementById('filterCategory').value = '전체';
-            document.getElementById('filterStatusDropdown').value = '전체';
+            updateStockItemNames();
+            document.getElementById('filterItemName').value = '전체';
             currentStatusFilter = '전체';
-            updateStatusButtonStyles();
-            applyFilters();
+            
+            applyFilters(); // 다시 서버 조회
         }
 
         function renderTable() {
@@ -379,7 +421,6 @@ if (loginUser == null) {
             }
 
             document.getElementById('emptyState').classList.add('hidden');
-            document.getElementById('recordCount').textContent = filteredStocks.length + '건';
 
             filteredStocks.forEach(stock => {
                 const statusLabel = stock.status === 'AVAILABLE' ? '사용 가능' : stock.status === 'HOLD' ? '재고 없음' : '폐기됨';
@@ -388,8 +429,8 @@ if (loginUser == null) {
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-gray-100 hover:bg-gray-50';
                 tr.innerHTML = '<td class="py-4 px-6 text-sm text-gray-900 font-mono">' + stock.stockNo + '</td>' +
-                    '<td class="py-4 px-6 text-sm font-medium text-gray-900">' + stock.materialName + '</td>' +
                     '<td class="py-4 px-6 text-sm text-gray-600"><span class="px-2 py-0.5 rounded bg-gray-100">' + stock.category + '</span></td>' +
+                    '<td class="py-4 px-6 text-sm font-medium text-gray-900">' + stock.materialName + '</td>' +
                     '<td class="py-4 px-6 text-right text-sm font-semibold text-gray-900">' + stock.currentQty + stock.unit + '</td>' +
                     '<td class="py-4 px-6 text-sm text-gray-600">' + stock.receivedAt + '</td>' +
                     '<td class="py-4 px-6 text-center"><span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ' + statusClass + '">' + statusLabel + '</span></td>' +
@@ -451,11 +492,7 @@ if (loginUser == null) {
         });
 
         window.addEventListener('DOMContentLoaded', function() {
-            allStocks = mockStocks.slice();
-            filteredStocks = allStocks.slice();
-            updateStatusCounts();
-            updateStatusButtonStyles();
-            renderTable();
+            applyFilters(); // 처음도 서버에서 받아오기
         });
     </script>
 </body>

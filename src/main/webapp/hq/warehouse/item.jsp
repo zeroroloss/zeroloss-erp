@@ -93,7 +93,7 @@ if (loginUser == null) {
                 <!-- 헤더 + 액션 버튼 -->
                 <div class="flex items-center justify-between mb-6">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-900">물류창고 내 품목 <span id="totalItemsCount" class="text-2xl font-normal text-gray-500">0개</span></h2>
+                        <h2 class="text-3xl font-bold text-gray-900">물류창고 내 품목</h2>
                         <p class="text-gray-500 mt-1">전체 품목 마스터를 관리하세요</p>
                     </div>
                     <button onclick="handleNewItem()" class="flex items-center gap-2 px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors">
@@ -106,8 +106,8 @@ if (loginUser == null) {
                 <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">카테고리 선택</label>
-                            <select id="filterCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" onchange="updateItemNames(); filterItems();">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
+                            <select id="filterCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" onchange="updateItemNames();">
                                 <option value="전체">전체</option>
                                 <option value="단백질">단백질</option>
                                 <option value="야채">야채</option>
@@ -120,8 +120,8 @@ if (loginUser == null) {
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">재료명 선택</label>
-                            <select id="filterItemName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" onchange="filterItems();">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">재료명</label>
+                            <select id="filterItemName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                                 <option value="전체">전체</option>
                             </select>
                         </div>
@@ -130,7 +130,7 @@ if (loginUser == null) {
                             <label class="block text-sm font-medium text-gray-700 mb-2">품목 검색</label>
                             <div class="relative">
                                 <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                                <input type="text" id="searchQuery" placeholder="품목명 또는 품목코드 입력..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" onkeyup="filterItems();">
+                                <input type="text" id="searchQuery" placeholder="품목명 또는 품목코드 입력..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                             </div>
                         </div>
                     </div>
@@ -145,18 +145,28 @@ if (loginUser == null) {
                     </div>
                 </div>
 
+					
+
                 <!-- 품목 테이블 -->
                 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                        <h3 class="font-semibold text-lg text-gray-900">물류창고 내 품목 리스트</h3>
+                   	<div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                        <div>
+                        	<h3 class="font-semibold text-lg text-gray-900">물류창고 내 품목 리스트 </h3>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="text-right">
+                                <span id="totalItemsCount" class="text-xl font-bold text-green-700">0개</span>
+                            </div>
+                        </div>
                     </div>
+                    
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead class="bg-gray-50 border-b border-gray-200">
                                 <tr>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목코드</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
+                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">재고 코드</th>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">카테고리</th>
+                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
                                     <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">단위당 가격</th>
                                     <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">안전 재고</th>
                                     <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">관리</th>
@@ -434,7 +444,7 @@ if (loginUser == null) {
                 const priceFormatted = item.unitPrice.toLocaleString();
                 const safetyStockFormatted = item.safetyStock + item.unit;
 
-                tr.innerHTML = '<td class="py-4 px-6 font-mono text-sm text-gray-600">' + item.itemCode + '</td><td class="py-4 px-6 font-medium text-gray-900">' + item.itemName + '</td><td class="py-4 px-6"><span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">' + item.category + '</span></td><td class="py-4 px-6 text-right text-gray-900">₩' + priceFormatted + '</td><td class="py-4 px-6 text-right font-semibold text-gray-900">' + safetyStockFormatted + '</td><td class="py-4 px-6 text-center"><button class="inline-flex items-center gap-1 px-3 py-1 text-[#00853D] hover:text-[#006B2F] hover:bg-green-50 rounded-lg transition-colors" onclick="event.stopPropagation(); editItem(event);" data-item-id="' + item.id + '"><i class="fas fa-edit w-4 h-4"></i>수정</button></td>';
+                tr.innerHTML = '<td class="py-4 px-6 font-mono text-sm text-gray-600">' + item.itemCode + '</td><td class="py-4 px-6"><span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">' + item.category + '</span></td><td class="py-4 px-6 font-medium text-gray-900">' + item.itemName + '</td><td class="py-4 px-6 text-right text-gray-900">₩' + priceFormatted + '</td><td class="py-4 px-6 text-right font-semibold text-gray-900">' + safetyStockFormatted + '</td><td class="py-4 px-6 text-center"><button class="inline-flex items-center gap-1 px-3 py-1 text-[#00853D] hover:text-[#006B2F] hover:bg-green-50 rounded-lg transition-colors" onclick="event.stopPropagation(); editItem(event);" data-item-id="' + item.id + '"><i class="fas fa-edit w-4 h-4"></i>수정</button></td>';
 
                 tbody.appendChild(tr);
             });
@@ -444,8 +454,7 @@ if (loginUser == null) {
 
         // 통계 업데이트
         function updateStats() {
-            const total = items.length;
-            document.getElementById('totalItemsCount').textContent = total + '개';
+            document.getElementById('totalItemsCount').textContent = '조회 건수: ' + filteredItems.length + '개';
         }
 
         // 필터 초기화

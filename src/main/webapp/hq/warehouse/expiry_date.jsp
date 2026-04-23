@@ -103,17 +103,11 @@ if (loginUser == null) {
 
                 <!-- 필터 -->
                 <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- 품목명 검색 -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">품목명 검색</label>
-                            <input type="text" id="filterItemName" placeholder="품목명 입력" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                        </div>
-
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <!-- 카테고리 필터 -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
-                            <select id="filterCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                            <select id="filterCategory" onchange="updateExpiryItemNames()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                                 <option value="전체">전체</option>
                                 <option value="육류">육류</option>
                                 <option value="채소">채소</option>
@@ -124,16 +118,28 @@ if (loginUser == null) {
                             </select>
                         </div>
 
-                        <!-- 상태 필터 -->
+                        <!-- 품목명 필터 -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">상태</label>
-                            <select id="filterStatus" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">품목명</label>
+                            <select id="filterItemName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                                 <option value="전체">전체</option>
-                                <option value="urgent">긴급</option>
-                                <option value="warning">경고</option>
-                                <option value="normal">정상</option>
                             </select>
                         </div>
+
+                        <!-- 검색 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">검색</label>
+                            <input type="text" id="searchQuery" placeholder="재고 코드, 카테고리, 품목 검색" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="applyFilters()" class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
+                            조회하기
+                        </button>
+                        <button onclick="resetFilters()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
+                            초기화
+                        </button>
                     </div>
                 </div>
 
@@ -158,7 +164,7 @@ if (loginUser == null) {
                 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
                         <div>
-                            <h3 class="font-semibold text-lg text-gray-900">유통기한 임박 품목 리스트</h3>
+                            <h3 class="font-semibold text-lg text-gray-900">유통기한 임박 재고 리스트</h3>
                             <p class="text-sm text-gray-500 mt-1">체크박스를 선택하여 일괄 처리하세요</p>
                         </div>
                         <div class="flex items-center gap-4">
@@ -178,9 +184,9 @@ if (loginUser == null) {
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900 w-12">
                                         <input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll()" class="w-4 h-4 rounded border-gray-300">
                                     </th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목코드</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
+                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">재고 코드</th>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">카테고리</th>
+                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
                                     <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">수량</th>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">입고일</th>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">유통기한</th>
@@ -303,23 +309,61 @@ if (loginUser == null) {
         // 백드롭 클릭 시 사이드바 닫기
         document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
 
+        // 품목명 필터 옵션 업데이트
+        function updateExpiryItemNames() {
+            const selectedCategory = document.getElementById('filterCategory').value;
+            const itemNameSelect = document.getElementById('filterItemName');
+            const uniqueNames = ['전체'];
+
+            expiryItems.forEach(item => {
+                if (selectedCategory === '전체' || item.category === selectedCategory) {
+                    if (!uniqueNames.includes(item.itemName)) {
+                        uniqueNames.push(item.itemName);
+                    }
+                }
+            });
+
+            const previousValue = itemNameSelect.value;
+            itemNameSelect.innerHTML = '';
+            uniqueNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                itemNameSelect.appendChild(option);
+            });
+
+            if (uniqueNames.includes(previousValue)) {
+                itemNameSelect.value = previousValue;
+            }
+        }
+
         // 필터된 항목 가져오기
         function getFilteredItems() {
-            const itemNameFilter = document.getElementById('filterItemName').value.trim().toLowerCase();
             const categoryFilter = document.getElementById('filterCategory').value;
-            const statusFilter = document.getElementById('filterStatus').value;
+            const itemNameFilter = document.getElementById('filterItemName').value;
+            const searchQuery = document.getElementById('searchQuery').value.trim().toLowerCase();
             
             return expiryItems.filter(item => {
-                const matchesItemName = !itemNameFilter || item.itemName.toLowerCase().includes(itemNameFilter) || item.itemCode.toLowerCase().includes(itemNameFilter);
                 const matchesCategory = categoryFilter === '전체' || item.category === categoryFilter;
-                
-                let matchesStatus = statusFilter === '전체';
-                if (!matchesStatus) {
-                    matchesStatus = item.status === statusFilter;
-                }
-                
-                return matchesItemName && matchesCategory && matchesStatus;
+                const matchesItemName = itemNameFilter === '전체' || item.itemName === itemNameFilter;
+                const matchesSearch = !searchQuery || item.itemCode.toLowerCase().includes(searchQuery) || item.category.toLowerCase().includes(searchQuery) || item.itemName.toLowerCase().includes(searchQuery);
+                return matchesCategory && matchesItemName && matchesSearch;
             });
+        }
+
+        function applyFilters() {
+            selectedItems = [];
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateActionBar();
+            renderTable();
+        }
+
+        function resetFilters() {
+            document.getElementById('filterCategory').value = '전체';
+            updateExpiryItemNames();
+            document.getElementById('filterItemName').value = '전체';
+            document.getElementById('searchQuery').value = '';
+            applyFilters();
         }
 
         // 테이블 렌더링
@@ -363,7 +407,7 @@ if (loginUser == null) {
 
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-gray-100 hover:bg-gray-50 ' + rowClass;
-                tr.innerHTML = '<td class="py-4 px-6"><input type="checkbox" class="item-checkbox w-4 h-4 rounded border-gray-300" data-item-id="' + item.id + '" onchange="updateSelection()"></td><td class="py-4 px-6 font-mono text-sm text-gray-600">' + item.itemCode + '</td><td class="py-4 px-6 font-medium text-gray-900">' + item.itemName + '</td><td class="py-4 px-6"><span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">' + item.category + '</span></td><td class="py-4 px-6 text-right font-semibold text-gray-900">' + item.quantity + item.unit + '</td><td class="py-4 px-6 text-gray-700 text-sm"><div class="flex items-center gap-2"><i class="fas fa-calendar w-4 h-4 text-gray-400"></i>' + item.receivedDate + '</div></td><td class="py-4 px-6 font-medium text-gray-900"><div class="flex items-center gap-2"><i class="fas fa-calendar w-4 h-4"></i>' + item.expiryDate + '</div></td><td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ' + dBadgeClass + '"><i class="fas fa-clock w-4 h-4"></i>D-' + item.daysLeft + '</span></td><td class="py-4 px-6 text-right font-semibold text-gray-900">₩' + item.totalValue.toLocaleString() + '</td><td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ' + statusBadgeClass + '">' + statusIcon + statusText + '</span></td>';
+                tr.innerHTML = '<td class="py-4 px-6"><input type="checkbox" class="item-checkbox w-4 h-4 rounded border-gray-300" data-item-id="' + item.id + '" onchange="updateSelection()"></td><td class="py-4 px-6 font-mono text-sm text-gray-600">' + item.itemCode + '</td><td class="py-4 px-6"><span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">' + item.category + '</span></td><td class="py-4 px-6 font-medium text-gray-900">' + item.itemName + '</td><td class="py-4 px-6 text-right font-semibold text-gray-900">' + item.quantity + item.unit + '</td><td class="py-4 px-6 text-gray-700 text-sm"><div class="flex items-center gap-2"><i class="fas fa-calendar w-4 h-4 text-gray-400"></i>' + item.receivedDate + '</div></td><td class="py-4 px-6 font-medium text-gray-900"><div class="flex items-center gap-2"><i class="fas fa-calendar w-4 h-4"></i>' + item.expiryDate + '</div></td><td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ' + dBadgeClass + '"><i class="fas fa-clock w-4 h-4"></i>D-' + item.daysLeft + '</span></td><td class="py-4 px-6 text-right font-semibold text-gray-900">₩' + item.totalValue.toLocaleString() + '</td><td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ' + statusBadgeClass + '">' + statusIcon + statusText + '</span></td>';
                 tbody.appendChild(tr);
             });
 
@@ -428,28 +472,6 @@ if (loginUser == null) {
             renderTable();
         }
 
-        // 필터 변경 이벤트
-        document.getElementById('filterItemName').addEventListener('input', () => {
-            selectedItems = [];
-            document.getElementById('selectAllCheckbox').checked = false;
-            updateActionBar();
-            renderTable();
-        });
-
-        document.getElementById('filterCategory').addEventListener('change', () => {
-            selectedItems = [];
-            document.getElementById('selectAllCheckbox').checked = false;
-            updateActionBar();
-            renderTable();
-        });
-
-        document.getElementById('filterStatus').addEventListener('change', () => {
-            selectedItems = [];
-            document.getElementById('selectAllCheckbox').checked = false;
-            updateActionBar();
-            renderTable();
-        });
-
         // 모달 외부 클릭 시 닫기
         document.getElementById('disposalModal').addEventListener('click', function(e) {
             if (e.target === this) {
@@ -469,6 +491,7 @@ if (loginUser == null) {
         // 초기 로드
         window.addEventListener('DOMContentLoaded', function() {
             expiryItems = mockExpiryItems.slice();
+            updateExpiryItemNames();
             renderTable();
         });
     </script>
