@@ -1,80 +1,38 @@
 package dto;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 public class InquiryDTO {
-	private Integer inquiryId;
-	private Integer branchCode;
-	private String title;
-	private String content;
-	private String status;
-	private LocalDateTime createdAt;
+    private int inquiryId;
+    private int branchCode;
+    private String branchName; // JOIN을 통해 가져올 지점명
+    private String title;
+    private String content;
+    private String category;
+    private String urgency;
+    private String status;
+    private String createdAt;
+    private List<InquiryReplyDTO> replies; // 답변 목록
 
-	public InquiryDTO() {
-		super();
-	}
-
-	public InquiryDTO(Integer inquiryId, Integer branchCode, String title, String content, String status, LocalDateTime createdAt) {
-		super();
-		this.inquiryId = inquiryId;
-		this.branchCode = branchCode;
-		this.title = title;
-		this.content = content;
-		this.status = status;
-		this.createdAt = createdAt;
-	}
-
-	public Integer getInquiryId() {
-		return inquiryId;
-	}
-
-	public void setInquiryId(Integer inquiryId) {
-		this.inquiryId = inquiryId;
-	}
-
-	public Integer getBranchCode() {
-		return branchCode;
-	}
-
-	public void setBranchCode(Integer branchCode) {
-		this.branchCode = branchCode;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getContent() {
-		return content;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	@Override
-	public String toString() {
-		return "InquiryDTO [inquiryId=" + inquiryId + ", branchCode=" + branchCode + ", title=" + title + ", content=" + content + ", status=" + status + ", createdAt=" + createdAt + "]";
-	}
+    // Getters and Setters
+    public int getInquiryId() { return inquiryId; }
+    public void setInquiryId(int inquiryId) { this.inquiryId = inquiryId; }
+    public int getBranchCode() { return branchCode; }
+    public void setBranchCode(int branchCode) { this.branchCode = branchCode; }
+    public String getBranchName() { return branchName; }
+    public void setBranchName(String branchName) { this.branchName = branchName; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getContent() { return content; }
+    public void setContent(String content) { this.content = content; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+    public String getUrgency() { return urgency; }
+    public void setUrgency(String urgency) { this.urgency = urgency; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public List<InquiryReplyDTO> getReplies() { return replies; }
+    public void setReplies(List<InquiryReplyDTO> replies) { this.replies = replies; }
 }
-

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.branch.InquiryMapper">
+
+    <resultMap id="inquiryResultMap" type="dto.InquiryDTO">
+        <id property="inquiryId" column="inquiry_id"/>
+        <result property="branchCode" column="branch_code"/>
+        <result property="branchName" column="branch_name"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="category" column="category"/>
+        <result property="urgency" column="urgency"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at_formatted"/>
+        <collection property="replies" ofType="dto.InquiryReplyDTO" resultMap="replyResultMap"/>
+    </resultMap>
+
+    <resultMap id="replyResultMap" type="dto.InquiryReplyDTO">
+        <id property="replyId" column="reply_id"/>
+        <result property="inquiryId" column="inquiry_id"/>
+        <result property="authorId" column="author_id"/>
+        <result property="authorName" column="author_name"/>
+        <result property="authorAffiliation" column="reply_author_affiliation"/> <result property="content" column="reply_content"/>
+        <result property="createdAt" column="reply_created_at_formatted"/>
+    </resultMap>
+
+    <select id="selectInquiries" parameterType="map" resultMap="inquiryResultMap">
+        SELECT
+        i.inquiry_id, i.branch_code, i.title, i.content, i.category, i.urgency, i.status,
+        DATE_FORMAT(i.created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted,
+        b.name AS branch_name,
+        r.reply_id, r.author_id, a.emp_no, e.name AS author_name,
+        rb.name AS reply_author_affiliation, r.content AS reply_content,
+        DATE_FORMAT(r.created_at, '%Y-%m-%d %H:%i:%s') AS reply_created_at_formatted
+        FROM inquiry i
+        JOIN branch b ON i.branch_code = b.branch_code
+        LEFT JOIN inquiry_reply r ON i.inquiry_id = r.inquiry_id
+        LEFT JOIN account a ON r.author_id = a.account_id
+        LEFT JOIN employee e ON a.emp_no = e.emp_no
+        LEFT JOIN branch rb ON a.branch_code = rb.branch_code
+        <where>
+            <if test="branchCode != null and branchCode > 0">
+                i.branch_code = #{branchCode}
+            </if>
+            <if test="category != null and category != 'all'">
+                AND i.category = #{category}
+            </if>
+            <if test="status != null and status != 'all'">
+                AND i.status = #{status}
+            </if>
+        </where>
+        ORDER BY i.created_at DESC, r.created_at ASC
+    </select>
+
+    <select id="selectInquiryById" parameterType="int" resultMap="inquiryResultMap">
+        SELECT
+            i.inquiry_id, i.branch_code, i.title, i.content, i.category, i.urgency, i.status,
+            DATE_FORMAT(i.created_at, '%Y-%m-%d %H:%i:%s') AS created_at_formatted,
+            b.name AS branch_name,
+            r.reply_id, r.author_id, a.emp_no, e.name AS author_name,
+            rb.name AS reply_author_affiliation, r.content AS reply_content,
+            DATE_FORMAT(r.created_at, '%Y-%m-%d %H:%i:%s') AS reply_created_at_formatted
+        FROM inquiry i
+                 JOIN branch b ON i.branch_code = b.branch_code
+                 LEFT JOIN inquiry_reply r ON i.inquiry_id = r.inquiry_id
+                 LEFT JOIN account a ON r.author_id = a.account_id
+                 LEFT JOIN employee e ON a.emp_no = e.emp_no
+                 LEFT JOIN branch rb ON a.branch_code = rb.branch_code WHERE i.inquiry_id = #{inquiryId}
+        ORDER BY r.created_at ASC
+    </select>
+
+    <insert id="createInquiry" parameterType="dto.InquiryDTO" useGeneratedKeys="true" keyProperty="inquiryId">
+        INSERT INTO inquiry (branch_code, title, content, category, urgency, status)
+        VALUES (#{branchCode}, #{title}, #{content}, #{category}, #{urgency}, '대기 중')
+    </insert>
+
+    <update id="updateInquiry" parameterType="dto.InquiryDTO">
+        UPDATE inquiry
+        SET title = #{title}, content = #{content}, category = #{category}, urgency = #{urgency}
+        WHERE inquiry_id = #{inquiryId}
+    </update>
+
+    <delete id="deleteInquiry" parameterType="int">
+        DELETE FROM inquiry WHERE inquiry_id = #{inquiryId}
+    </delete>
+
+    <insert id="createReply" parameterType="dto.InquiryReplyDTO">
+        INSERT INTO inquiry_reply (inquiry_id, author_id, content)
+        VALUES (#{inquiryId}, #{authorId}, #{content})
+    </insert>
+
+    <update id="updateInquiryStatus" parameterType="map">
+        UPDATE inquiry SET status = #{status} WHERE inquiry_id = #{inquiryId}
+    </update>
+
+</mapper>

@@ -41,7 +41,7 @@ boolean hrScheduleActive = uri.contains("/branch/hr/schedule/") || uri.contains(
 
 boolean supportGroup = uri.contains("/branch/support/");
 boolean noticeActive = uri.contains("/branch/support/branch-notices.jsp");
-boolean inquiryActive = uri.contains("/branch/support/inquiry/");
+boolean inquiryActive = uri.contains("/branch/support/branch-inquiries.jsp");
 %>
 <div id="sidebarBackdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
 
@@ -171,7 +171,7 @@ boolean inquiryActive = uri.contains("/branch/support/inquiry/");
         </button>
         <div class="submenu <%= supportGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
             <a href="<%= request.getContextPath() %>/branch/support/branch-notices.jsp" class="block px-4 py-2 rounded-lg text-sm <%= noticeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">공지사항</a>
-            <a href="<%= request.getContextPath() %>/branch/support/inquiry/main.jsp" class="block px-4 py-2 rounded-lg text-sm <%= inquiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">문의사항</a>
+            <a href="<%= request.getContextPath() %>/branch/support/branch-inquiries.jsp" class="block px-4 py-2 rounded-lg text-sm <%= inquiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">문의사항</a>
         </div>
     </nav>
     <!-- 로그아웃 -->
