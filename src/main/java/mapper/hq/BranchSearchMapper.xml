@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.hq.BranchSearchMapper">
+
+    <select id="searchBranches" resultType="dto.HqBranchSearchDTO">
+        SELECT
+        b.branch_code AS id,
+        b.name,
+        r.name AS region,
+        b.address,
+        b.phone,
+        b.status,
+        e.name AS managerName,
+        e.phone AS managerPhone,
+        e.email AS managerEmail,
+        (SELECT COUNT(*) FROM employee WHERE branch_code = b.branch_code) AS employeeCount
+        FROM branch b
+        LEFT JOIN region r ON b.region_code = r.region_code
+        LEFT JOIN employee e ON b.branch_code = e.branch_code AND e.position_code = 'POS_MGR'
+        <where>
+            b.branch_code != 1
+            <if test="region != null and region != '' and region != '전체'">
+                AND r.name = #{region}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                b.name LIKE CONCAT('%', #{keyword}, '%') OR
+                b.address LIKE CONCAT('%', #{keyword}, '%') OR
+                e.name LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY b.created_at DESC
+    </select>
+
+    <select id="getMaxBranchCode" resultType="java.lang.Integer">
+        SELECT MAX(branch_code)
+        FROM branch
+        WHERE region_code = #{regionCode}
+    </select>
+
+    <insert id="createBranch" parameterType="dto.HqBranchSearchDTO">
+        INSERT INTO branch (branch_code, region_code, name, address, phone, status)
+        VALUES (#{id}, #{regionCode}, #{name}, #{address}, #{phone}, #{status})
+    </insert>
+
+    <update id="updateBranch" parameterType="dto.HqBranchSearchDTO">
+        UPDATE branch
+        SET region_code = #{regionCode},
+            name = #{name},
+            address = #{address},
+            phone = #{phone},
+            status = #{status}
+        WHERE branch_code = #{id}
+    </update>
+
+    <delete id="deleteBranch" parameterType="string">
+        DELETE FROM branch WHERE branch_code = #{id}
+    </delete>
+
+</mapper>
