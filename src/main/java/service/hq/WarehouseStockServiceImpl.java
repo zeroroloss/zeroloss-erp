@@ -55,7 +55,6 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
 			detail.setMovements(
 				Optional.ofNullable(movements).orElseGet(ArrayList::new)
 			);
-			System.out.println(detail.getMovements());
 			return detail;
 		}
 	}

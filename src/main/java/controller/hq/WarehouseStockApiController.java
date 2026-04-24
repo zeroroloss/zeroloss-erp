@@ -36,7 +36,6 @@ public class WarehouseStockApiController extends HttpServlet {
 	@Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-    	System.out.println("?");
         response.setContentType("application/json; charset=UTF-8");
 
         try {
@@ -50,10 +49,8 @@ public class WarehouseStockApiController extends HttpServlet {
             if (pathInfo != null && pathInfo.length() > 1) {
 
                 String stockNo = pathInfo.substring(1);
-                System.out.println(new Exception().getStackTrace()[0] + "재고 상세 조회 stockNo = " + stockNo);
 
                 WarehouseStockDetailDTO detail = service.findStockDetailByStockNo(stockNo);
-                System.out.println(stockNo + ") 재고 변동 이력 =" + detail.getMovements());
                 if (detail == null) {
                     sendResponse(response, 404, Map.of(
                             "status", "error",
@@ -77,9 +74,6 @@ public class WarehouseStockApiController extends HttpServlet {
             String itemName = request.getParameter("itemName");
             String keyword = request.getParameter("keyword");
 
-            System.out.println("[WarehouseStockApiController] 요청 파라미터 - category: "
-                    + categoryName + ", item: " + itemName + ", keyword: " + keyword);
-
             // 파라미터 정규화
             if ("전체".equals(categoryName)) categoryName = null;
             if ("전체".equals(itemName)) itemName = null;
@@ -94,9 +88,6 @@ public class WarehouseStockApiController extends HttpServlet {
             searchDTO.setItemName(itemName);
             searchDTO.setKeyword(keyword);
             List<WarehouseStockListDTO> list = service.searchList(searchDTO);
-
-            System.out.println("[WarehouseStockApiController] 조회 성공 - 건수: "
-                    + (list == null ? 0 : list.size()));
 
             sendResponse(response, 200, Map.of(
 	        	    "status", "success",
