@@ -1,4 +1,4 @@
-package controller.hq;
+package controller.hq.warehouse;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,6 +29,7 @@ public class WarehouseStockApiController extends HttpServlet {
     private final Gson gson = new Gson();
 
     public WarehouseStockApiController() {
+        super();
         service = new WarehouseStockServiceImpl();
     }
 
@@ -119,9 +120,7 @@ public class WarehouseStockApiController extends HttpServlet {
         }
     }
 
-    /**
-     * 공통 JSON 응답 처리
-     */
+    // 공통 JSON 응답 처리
     private void sendResponse(HttpServletResponse response, int status, Object body)
             throws IOException {
 

@@ -1,4 +1,4 @@
-package controller.hq;
+package controller.hq.warehouse;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -7,17 +7,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/hq/warehouse/item")
-public class WarehouseItemController extends HttpServlet {
+@WebServlet("/hq/warehouse/expiry_date")
+public class WarehouseExpiryDateController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
-	public WarehouseItemController() {
+	public WarehouseExpiryDateController() {
         super();
     }
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		request.getRequestDispatcher("/hq/warehouse/item.jsp").forward(request, response);
+		request.getRequestDispatcher("/hq/warehouse/expiry_date.jsp").forward(request, response);
 	}
 
 	@Override
