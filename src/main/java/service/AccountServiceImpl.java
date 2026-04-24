@@ -1,5 +1,7 @@
 package service;
 
+import java.util.List;
+
 import dao.AccountDao;
 import dao.AccountDaoImpl;
 import dto.AccountDTO;
@@ -25,5 +27,28 @@ public class AccountServiceImpl implements AccountService {
 		    accountDao.updateLastLoginAt(acc.getAccountId());
 		    return acc;
 		}
-//	}
+
+		@Override
+		public Integer selectAccountCnt() throws Exception {
+			Integer cnt = accountDao.selectAccountCnt();
+			return cnt;
+		}
+
+		@Override
+		public Integer selectAccountActiveCnt() throws Exception {
+			Integer cnt = accountDao.selectAccountActiveCnt();
+			return cnt;
+		}
+
+		@Override
+		public Integer selectAccountInactiveCnt() throws Exception {
+			Integer cnt = accountDao.selectAccountInactiveCnt();
+			return cnt;
+		}
+		
+		@Override
+		public List<AccountDTO> searchAccountList(AccountDTO account) throws Exception {
+			List<AccountDTO> acc = accountDao.selectAccountList(account);
+			return acc;
+		}
 }

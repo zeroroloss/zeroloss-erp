@@ -4,8 +4,8 @@
 
 <mapper namespace="mapper.account">
 	<insert id="insertAccount" parameterType="dto.AccountDTO">
-		insert into account(emp_no,branch_code,hq_id,role_id,login_id,password,status)
-		values(#{empNo},#{branchCode},#{hqId},#{roleId},#{loginId},#{password},#{status})
+		insert into account(emp_no,branch_code,role_id,login_id,password,status)
+		values(#{empNo},#{branchCode},#{roleId},#{loginId},#{password},#{status})
 	</insert>
 	
 	<select id="selectAccount" parameterType="String" resultType="dto.AccountDTO">
@@ -23,4 +23,46 @@
 	<update id="updateLastLoginAt" parameterType="int">
 		update account set last_login_at = now() where account_id = #{value}
 	</update>
+	
+	<select id="selectAccountCnt" resultType="Integer">
+		select count(account_id) as totalAccount from account
+	</select>
+	
+	<select id="selectAccountActiveCnt" resultType="Integer">
+		select count(account_id) as activeAccount from account where status = 'ACTIVE'
+	</select>
+	
+	<select id="selectAccountInactiveCnt" resultType="Integer">
+		select count(account_id) as inactiveAccount from account where status = 'INACTIVE'
+	</select>
+	
+	<select id="selectAccountList" parameterType="dto.AccountDTO" resultType="dto.AccountDTO">
+		select a.*, e.name as user_name, r.role_name, b.name as branch_name from account a 
+		left join employee e on a.emp_no = e.emp_no 
+		left join branch b on a.branch_code = b.branch_code
+		left join role r on a.role_id = r.role_id
+		<where>
+        <if test="branchName != null and branchName != ''">
+		    AND b.name LIKE CONCAT('%', #{branchName}, '%')
+		</if>
+
+        <if test="userName != null and userName != ''">
+            AND e.name LIKE CONCAT('%', #{userName}, '%')
+        </if>
+
+        <if test="loginId != null and loginId != ''">
+            AND a.login_id LIKE CONCAT('%', #{loginId}, '%')
+        </if>
+    	</where>
+    	ORDER BY a.account_id DESC
+	</select>
+	
+	<update id="updateAccountStatus" parameterType="dto.AccountDTO">
+		update account set status = #{status} when account_id = #{accountId}
+	</update>
+	
+	<update id="updateAccount" parameterType="dto.AccountDTO">
+		
+	</update>
+	
 </mapper>

@@ -27,6 +27,7 @@
 	<mappers>
 		<mapper resource="mapper/AccountMapper.xml"/>
 		<mapper resource="mapper/BranchMapper.xml"/>
+		<mapper resource="mapper/hq/BranchOptionMapper.xml"/>
 		<mapper resource="mapper/hq/ReceipeMapper.xml"/>
 		<mapper resource="mapper/hq/WarehouseStockMapper.xml"/>
         <mapper resource="mapper/hq/BranchSearchMapper.xml"/>

@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 
 import dto.BranchDTO;
+import dto.hq.hr.BranchOptionDTO;
 import util.MyBatisSqlSessionFactory;
 
 public class BranchDaoImpl implements BranchDao {
@@ -37,11 +38,11 @@ public class BranchDaoImpl implements BranchDao {
 	}
 
 	@Override
-	public List<String> selectBranchNameList() throws Exception {
+	public List<BranchOptionDTO> selectBranchNameList() throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
-		List<String> branchNameList = null;
+		List<BranchOptionDTO> branchNameList = null;
 		try {
-			branchNameList = sqlSession.selectList("mapper.branch.selectBranchNameList");
+			branchNameList = sqlSession.selectList("mapper.branchoption.selectBranchNameList");
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -51,4 +52,18 @@ public class BranchDaoImpl implements BranchDao {
 		return branchNameList;
 	}
 
+	@Override
+	public List<BranchDTO> selectBranchList() throws Exception {
+		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
+		List<BranchDTO> branchList = null;
+		try {
+			branchList = sqlSession.selectList("mapper.branch.selectBranchNameList");
+		} catch(Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			sqlSession.close();
+		}
+		return branchList;
+	}
 }

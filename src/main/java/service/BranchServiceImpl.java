@@ -4,6 +4,8 @@ import java.util.List;
 
 import dao.BranchDao;
 import dao.BranchDaoImpl;
+import dto.BranchDTO;
+import dto.hq.hr.BranchOptionDTO;
 
 public class BranchServiceImpl implements BranchService {
 	private BranchDao branchDao;
@@ -13,9 +15,15 @@ public class BranchServiceImpl implements BranchService {
 	}
 
 	@Override
-	public List<String> searchBranchName() throws Exception {
-		List<String> branchName = branchDao.selectBranchNameList();
+	public List<BranchOptionDTO> searchBranchName() throws Exception {
+		List<BranchOptionDTO> branchName = branchDao.selectBranchNameList();
 		return branchName;
+	}
+
+	@Override
+	public List<BranchDTO> searchBranchList() throws Exception {
+		List<BranchDTO> branchList = branchDao.selectBranchList();
+		return branchList;
 	}
 
 }

@@ -2,7 +2,10 @@ package service;
 
 import java.util.List;
 
+import dto.BranchDTO;
+import dto.hq.hr.BranchOptionDTO;
+
 public interface BranchService {
-	List<String> searchBranchName() throws Exception;
-	
+	List<BranchOptionDTO> searchBranchName() throws Exception;
+	List<BranchDTO> searchBranchList() throws Exception;
 }
