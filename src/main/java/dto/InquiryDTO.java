@@ -5,16 +5,16 @@ import java.util.List;
 public class InquiryDTO {
     private int inquiryId;
     private int branchCode;
-    private String branchName; // JOIN을 통해 가져올 지점명
+    private String branchName;
     private String title;
     private String content;
     private String category;
     private String urgency;
     private String status;
     private String createdAt;
-    private List<InquiryReplyDTO> replies; // 답변 목록
+    private String updatedAt;
+    private List<InquiryReplyDTO> replies;
 
-    // Getters and Setters
     public int getInquiryId() { return inquiryId; }
     public void setInquiryId(int inquiryId) { this.inquiryId = inquiryId; }
     public int getBranchCode() { return branchCode; }
@@ -33,6 +33,8 @@ public class InquiryDTO {
     public void setStatus(String status) { this.status = status; }
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public String getUpdatedAt() { return updatedAt; } // 🟢 Getter
+    public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; } // 🟢 Setter
     public List<InquiryReplyDTO> getReplies() { return replies; }
     public void setReplies(List<InquiryReplyDTO> replies) { this.replies = replies; }
 }

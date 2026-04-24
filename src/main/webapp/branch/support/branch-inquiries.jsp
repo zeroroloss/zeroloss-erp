@@ -134,18 +134,10 @@
     </div>
 </div>
 
-<%-- 서버 세션 정보를 자바스크립트 변수로 안전하게 전달 (sidebar와의 변수명 충돌 방지) --%>
-<%
-    dto.AccountDTO currentUser = (dto.AccountDTO) session.getAttribute("loginUser");
-    int currentUserId = (currentUser != null) ? currentUser.getAccountId() : 1;
-    // 현재 로그인한 유저의 지점 코드 (본사는 보통 1로 세팅됨)
-    int currentBranchCode = (currentUser != null) ? currentUser.getBranchCode() : 1;
-%>
-
 <script>
     const API_URL = '<%= request.getContextPath() %>/branch/support/branch-inquiries-data';
-    const CURRENT_USER_ID = <%= currentUserId %>;
-    const CURRENT_BRANCH_CODE = <%= currentBranchCode %>;
+    const CURRENT_USER_ID = <%= (loginUser != null) ? loginUser.getAccountId() : 0 %>;
+    const CURRENT_BRANCH_CODE = <%= (loginUser != null) ? loginUser.getBranchCode() : 0 %>;
 
     let allInquiries = [];
     let editingInquiryId = null;
@@ -297,21 +289,19 @@
         repliesContainer.innerHTML = `<h3 class=\"font-bold text-gray-800 border-b pb-2\">답변 (\${validReplies.length})</h3>`;
 
         validReplies.forEach(reply => {
-            // 본사 소속 여부에 따라 배경색을 명확하게 분리
             const isHq = reply.authorAffiliation === '본사' || reply.authorAffiliation === '전체';
             const bgColor = isHq ? 'bg-blue-50 border-l-4 border-blue-500' : 'bg-gray-100';
 
             repliesContainer.innerHTML += `
                 <div class=\"\${bgColor} p-4 rounded-lg shadow-sm mb-3\">
                     <div class=\"flex justify-between text-xs mb-2\">
-                        <span class=\"font-bold\">\${reply.authorName} (\${reply.authorAffiliation})</span>
+                        <span class=\"font-bold\">\${reply.authorName} (\${reply.authorAffiliation || '소속 정보 없음'})</span>
                         <span class=\"text-gray-400\">\${reply.createdAt}</span>
                     </div>
                     <p class=\"text-gray-800 text-sm whitespace-pre-wrap\">\${reply.content}</p>
                 </div>`;
         });
 
-        // 🟢 권한 로직 처리: 본사 계정이거나 현재 접속한 지점의 글일 때만 작성창 활성화
         const canReply = (CURRENT_BRANCH_CODE === 1 || CURRENT_BRANCH_CODE === inquiry.branchCode);
         const replyTextarea = document.getElementById('replyContent');
         const replyActionContainer = document.getElementById('replyActionContainer');
@@ -325,7 +315,7 @@
             replyTextarea.disabled = true;
             replyTextarea.placeholder = "타 지점의 문의사항에는 답변을 작성할 수 없습니다.";
             replyTextarea.classList.add('bg-gray-100', 'cursor-not-allowed');
-            replyActionContainer.innerHTML = ''; // 버튼 완전히 숨김
+            replyActionContainer.innerHTML = '';
         }
 
         document.getElementById('replyContent').value = '';

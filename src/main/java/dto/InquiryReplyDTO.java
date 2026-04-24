@@ -9,7 +9,6 @@ public class InquiryReplyDTO {
     private String content;
     private String createdAt;
 
-    // Getters and Setters
     public int getReplyId() { return replyId; }
     public void setReplyId(int replyId) { this.replyId = replyId; }
     public int getInquiryId() { return inquiryId; }
@@ -19,7 +18,7 @@ public class InquiryReplyDTO {
     public String getAuthorName() { return authorName; }
     public void setAuthorName(String authorName) { this.authorName = authorName; }
     public String getAuthorAffiliation() { return authorAffiliation; }
-    public void setAuthorAffiliation(String authorAffiliation) { this.authorAffiliation = authorAffiliation; } // 🟢 Setter
+    public void setAuthorAffiliation(String authorAffiliation) { this.authorAffiliation = authorAffiliation; }
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
     public String getCreatedAt() { return createdAt; }
