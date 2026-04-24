@@ -18,6 +18,7 @@ public class MyBatisSqlSessionFactory {
     static {
         try {
             // MyBatis 설정 파일 경로
+//            String resource = "mybatis-config.xml";
             String resource = "resource/mybatis-config.xml";
 
             // 설정 파일을 InputStream으로 읽어옴
