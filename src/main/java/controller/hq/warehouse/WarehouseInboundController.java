@@ -29,6 +29,7 @@ public class WarehouseInboundController extends HttpServlet {
         service = new WarehouseStockServiceImpl();
     }
 
+	// 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json; charset=UTF-8");
@@ -44,14 +45,13 @@ public class WarehouseInboundController extends HttpServlet {
 	    }
 	    System.out.println("WarehouseInboundController doGet)" + "categoryMaterialMap = " + categoryMaterialMap);
 	    
-	    request.setAttribute("supplierNameList", supplierNameList);
-	    request.setAttribute("categoryMaterialMap", categoryMaterialMap);
-		
-		
+	    request.setAttribute("supplierNameList", gson.toJson(supplierNameList));
+	    request.setAttribute("categoryMaterialMap", gson.toJson(categoryMaterialMap));
 		
 		request.getRequestDispatcher("/hq/warehouse/inbound.jsp").forward(request, response);
 	}
 
+	// 신규 입고 등록 폼 POST 요청 시 호출된다.
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 	}

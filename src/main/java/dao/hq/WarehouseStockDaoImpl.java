@@ -1,10 +1,12 @@
 package dao.hq;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
 import dto.hq.warehouse.CategoryMaterialDTO;
+import dto.hq.warehouse.InboundRecordDTO;
 import dto.hq.warehouse.WarehouseStockDetailDTO;
 import dto.hq.warehouse.WarehouseStockListDTO;
 import dto.hq.warehouse.WarehouseStockMovementDTO;
@@ -35,7 +37,20 @@ public class WarehouseStockDaoImpl implements WarehouseStockDao {
 		return sqlSession.selectList("mapper.hq.warehouseStock.selectMovementsByStockNo", stockNo);
 	}
 	
+
+	@Override
+	public List<String> findAllSuppliers(SqlSession sqlSession) {
+		return sqlSession.selectList("mapper.hq.warehouseStock.findAllSuppliers");
+	}
 	
-	
+	@Override
+	public List<InboundRecordDTO> findInboundRecords(SqlSession ss, Map<String, Object> params) {
+	    return ss.selectList("HqWarehouseMapper.findInboundRecords", params);
+	}
+
+	@Override
+	public int insertInbound(SqlSession ss, Map<String, Object> params) {
+	    return ss.insert("HqWarehouseMapper.insertInbound", params);
+	}
 }
 

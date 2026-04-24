@@ -1,0 +1,112 @@
+package controller.hq.warehouse;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.gson.Gson;
+
+import dto.hq.warehouse.InboundRecordDTO;
+import dto.hq.warehouse.InboundRequestDTO;
+import service.hq.WarehouseStockService;
+import service.hq.WarehouseStockServiceImpl;
+@WebServlet("/api/hq/warehouse/inbound")
+public class WarehouseInboundApiController extends HttpServlet {
+
+    private final WarehouseStockService service;
+    private final Gson gson = new Gson();
+
+    public WarehouseInboundApiController() {
+        service = new WarehouseStockServiceImpl();
+    }
+
+    // 입고 이력 조회
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        String supplierName = request.getParameter("supplier");
+        String category     = request.getParameter("category");
+        String itemName     = request.getParameter("itemName");
+        String startDate    = request.getParameter("startDate");
+        String endDate      = request.getParameter("endDate");
+
+        // null 방어
+        if (supplierName == null) supplierName = "전체";
+        if (category     == null) category     = "전체";
+        if (itemName     == null) itemName     = "전체";
+
+        // 날짜 기본값: 당일
+        String today = new java.text.SimpleDateFormat("yyyy-MM-dd")
+                           .format(new java.util.Date());
+        if (startDate == null || startDate.isEmpty()) startDate = today;
+        if (endDate   == null || endDate.isEmpty())   endDate   = today;
+
+        try {
+            List<InboundRecordDTO> data = service.getInboundRecords(
+                    supplierName, category, itemName, startDate, endDate);
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("status", "success");
+            result.put("data",   data);
+            sendResponse(response, 200, result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> err = new HashMap<>();
+            err.put("status",  "error");
+            err.put("message", e.getMessage());
+            sendResponse(response, 500, err);
+        }
+    }
+
+    // 신규 입고 등록
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+
+        try {
+            InboundRequestDTO dto = gson.fromJson(request.getReader(), InboundRequestDTO.class);
+
+            // 세션에서 empId 가져오기 (없으면 임시값 1)
+            Integer empId = (Integer) request.getSession().getAttribute("empId");
+            if (empId == null) empId = 1;
+
+            boolean ok = service.registerInbound(dto, empId);
+
+            Map<String, Object> result = new HashMap<>();
+            if (ok) {
+                result.put("status",  "success");
+                result.put("message", "입고 등록이 완료되었습니다.");
+                sendResponse(response, 200, result);
+            } else {
+                result.put("status",  "error");
+                result.put("message", "입고 등록에 실패했습니다.");
+                sendResponse(response, 500, result);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> err = new HashMap<>();
+            err.put("status",  "error");
+            err.put("message", e.getMessage());
+            sendResponse(response, 500, err);
+        }
+    }
+
+    private void sendResponse(HttpServletResponse response, int status, Object body)
+            throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json; charset=UTF-8");
+        response.getWriter().write(gson.toJson(body));
+    }
+}

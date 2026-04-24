@@ -110,5 +110,69 @@
 		
 		ORDER BY changed_at DESC
 	</select>
+	
+<!-- 공급사 조회 -->
+	<select id="findAllSuppliers" resultType = "string">
+		SELECT supplier_name 
+		FROM supplier
+		ORDER BY supplier_name
+	</select>
 
+<!-- 입고 이력 조회 -->
+<select id="findInboundRecords" parameterType="map" resultType="dto.hq.InboundRecordDTO">
+    SELECT
+        i.inbound_no    AS inboundNo,
+        s.supplier_name AS supplierName,
+        mg.group_name   AS category,
+        m.material_name AS materialName,
+        m.unit          AS unit,
+        i.quantity      AS quantity,
+        i.unit_price    AS unitPrice,
+        (i.quantity * i.unit_price) AS totalPrice,
+        i.expiry_date   AS expiryDate,
+        DATE_FORMAT(i.inbound_at, '%Y-%m-%d %H:%i') AS inboundAt,
+        e.emp_name      AS handler
+    FROM inbound i
+    JOIN suppliers  s  ON i.supplier_id  = s.supplier_id
+    JOIN materials  m  ON i.material_id  = m.material_id
+    JOIN mat_groups mg ON m.group_id     = mg.group_id
+    JOIN employees  e  ON i.emp_id       = e.emp_id
+    <where>
+        <if test="supplierName != null and supplierName != '전체'">
+            AND s.supplier_name = #{supplierName}
+        </if>
+        <if test="category != null and category != '전체'">
+            AND mg.group_name = #{category}
+        </if>
+        <if test="itemName != null and itemName != '전체'">
+            AND m.material_name = #{itemName}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND DATE(i.inbound_at) >= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE(i.inbound_at) &lt;= #{endDate}
+        </if>
+    </where>
+    ORDER BY i.inbound_at DESC
+</select>
+
+<!-- 신규 입고 등록 -->
+<insert id="insertInbound" parameterType="map">
+    INSERT INTO inbound (
+        supplier_id, material_id, quantity,
+        unit_price, expiry_date, emp_id, inbound_at
+    )
+    SELECT
+        s.supplier_id,
+        m.material_id,
+        #{quantity},
+        #{unitPrice},
+        #{expiryDate},
+        #{empId},
+        NOW()
+    FROM suppliers s
+    JOIN materials m ON m.material_name = #{itemName}
+    WHERE s.supplier_name = #{supplier}
+</insert>
 </mapper>
