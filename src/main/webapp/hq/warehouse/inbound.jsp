@@ -34,7 +34,7 @@
 
                 <!-- 필터 -->
                 <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
                         <!-- 공급사 선택 -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">공급사 선택</label>
@@ -79,20 +79,20 @@
                             </select>
                         </div>
 
-                        <!-- 시작 날짜 -->
+                        <!-- 일자 범위 -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">시작 날짜</label>
-                            <input type="date" id="filterStartDate" value="2026-03-01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                        </div>
-
-                        <!-- 종료 날짜 -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">종료 날짜</label>
-                            <input type="date" id="filterEndDate" value="2026-04-05" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">일자 범위</label>
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                                <input type="date" id="filterStartDate" value="2026-03-01"
+                                        class="w-full min-w-0 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                                <span class="text-gray-500 hidden sm:inline">~</span>
+                                <input type="date" id="filterEndDate" value="2026-04-05"
+                                        class="w-full min-w-0 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 mt-4">
                         <button onclick="applyFilters()" class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
                             조회하기
                         </button>

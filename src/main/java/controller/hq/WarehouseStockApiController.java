@@ -1,7 +1,9 @@
 package controller.hq;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,97 +12,130 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
-import dto.hq.warehouse.WarehouseStockResultDTO;
+import dto.hq.warehouse.WarehouseStockDetailDTO;
+import dto.hq.warehouse.WarehouseStockListDTO;
 import dto.hq.warehouse.WarehouseStockSearchDTO;
 import service.hq.WarehouseStockService;
 import service.hq.WarehouseStockServiceImpl;
 
-@WebServlet("/api/hq/warehouse/stock")
+// /api/hq/warehouse/stock?...        // 재고 리스트 조회
+// /api/hq/warehouse/stock/{stockNo}  // 특정 재고 상세 조회
+@WebServlet("/api/hq/warehouse/stock/*")
 public class WarehouseStockApiController extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    
+
     private final WarehouseStockService service;
-       
+    private final Gson gson = new Gson();
+
     public WarehouseStockApiController() {
-        super();
         service = new WarehouseStockServiceImpl();
     }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+    @SuppressWarnings("unused")
+	@Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+    	System.out.println("?");
         response.setContentType("application/json; charset=UTF-8");
-        
+
         try {
+
+            String pathInfo = request.getPathInfo();
+
+            /* =========================
+               1. 상세 조회 (stockNo)
+               /api/hq/warehouse/stock/{stockNo}
+            ========================== */
+            if (pathInfo != null && pathInfo.length() > 1) {
+
+                String stockNo = pathInfo.substring(1);
+                System.out.println(new Exception().getStackTrace()[0] + "재고 상세 조회 stockNo = " + stockNo);
+
+                WarehouseStockDetailDTO detail = service.findStockDetailByStockNo(stockNo);
+                System.out.println(stockNo + ") 재고 변동 이력 =" + detail.getMovements());
+                if (detail == null) {
+                    sendResponse(response, 404, Map.of(
+                            "status", "error",
+                            "message", "해당 재고가 없습니다"
+                    ));
+                    return;
+                }
+
+                sendResponse(response, 200, Map.of(
+                        "status", "success",
+                        "data", detail
+                ));
+                return;
+            }
+
+            /* =========================
+               2. 리스트 조회
+               /api/hq/warehouse/stock?categoryName=...
+            ========================== */
             String categoryName = request.getParameter("categoryName");
             String itemName = request.getParameter("itemName");
             String keyword = request.getParameter("keyword");
 
-            System.out.println("[WarehouseStockApiController] 요청 파라미터 - category: " + categoryName 
-                + ", item: " + itemName + ", keyword: " + keyword);
+            System.out.println("[WarehouseStockApiController] 요청 파라미터 - category: "
+                    + categoryName + ", item: " + itemName + ", keyword: " + keyword);
 
             // 파라미터 정규화
             if ("전체".equals(categoryName)) categoryName = null;
             if ("전체".equals(itemName)) itemName = null;
+
             if (keyword != null) {
                 keyword = keyword.trim();
                 if (keyword.isEmpty()) keyword = null;
             }
 
-            // 서비스 호출
-            List<WarehouseStockResultDTO> list = service.searchList(
-                new WarehouseStockSearchDTO(categoryName, itemName, keyword));
+            WarehouseStockSearchDTO searchDTO = new WarehouseStockSearchDTO();
+            searchDTO.setCategoryName(categoryName);
+            searchDTO.setItemName(itemName);
+            searchDTO.setKeyword(keyword);
+            List<WarehouseStockListDTO> list = service.searchList(searchDTO);
 
-            System.out.println("[WarehouseStockApiController] 조회 성공 - 건수: " 
-                + (list == null ? 0 : list.size()));
+            System.out.println("[WarehouseStockApiController] 조회 성공 - 건수: "
+                    + (list == null ? 0 : list.size()));
 
-            // 성공 응답
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.getWriter().write(new Gson().toJson(list != null ? list : new java.util.ArrayList<>()));
+            sendResponse(response, 200, Map.of(
+	        	    "status", "success",
+	        	    "data", list != null ? list : new ArrayList<>()
+	        	));
 
         } catch (IllegalArgumentException e) {
-            // 잘못된 요청 파라미터
-            System.err.println("[WarehouseStockApiController] 400 Bad Request - " + e.getMessage());
-            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, 
-                "잘못된 요청 파라미터입니다: " + e.getMessage());
+        	e.printStackTrace();
+            sendResponse(response, 400, Map.of(
+                    "status", "error",
+                    "message", "잘못된 요청입니다: " + e.getMessage()
+            ));
 
         } catch (NullPointerException e) {
-            // 필수 데이터 누락
-            System.err.println("[WarehouseStockApiController] 400 Bad Request - " + e.getMessage());
-            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, 
-                "필수 데이터가 누락되었습니다.");
+        	e.printStackTrace();
+            sendResponse(response, 400, Map.of(
+                    "status", "error",
+                    "message", "필수 데이터 누락"
+            ));
 
         } catch (Exception e) {
-            // 기타 서버 에러
-            System.err.println("[WarehouseStockApiController] 500 Internal Server Error");
+
             e.printStackTrace();
-            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
-                "서버 오류가 발생했습니다: " + e.getMessage());
+
+            sendResponse(response, 500, Map.of(
+                    "status", "error",
+                    "message", "서버 오류: " + e.getMessage()
+            ));
         }
     }
 
     /**
-     * JSON 형식의 에러 응답 전송
+     * 공통 JSON 응답 처리
      */
-    private void sendErrorResponse(HttpServletResponse response, int statusCode, String errorMessage) 
+    private void sendResponse(HttpServletResponse response, int status, Object body)
             throws IOException {
-        response.setStatus(statusCode);
+
+        response.setStatus(status);
         response.setContentType("application/json; charset=UTF-8");
-        
-        JsonObject errorObj = new JsonObject();
-        errorObj.addProperty("status", "error");
-        errorObj.addProperty("statusCode", statusCode);
-        errorObj.addProperty("message", errorMessage);
-        
-        if (statusCode == HttpServletResponse.SC_BAD_REQUEST) {
-            errorObj.addProperty("errorType", "BAD_REQUEST");
-        } else if (statusCode == HttpServletResponse.SC_INTERNAL_SERVER_ERROR) {
-            errorObj.addProperty("errorType", "INTERNAL_SERVER_ERROR");
-        }
-        
-        response.getWriter().write(errorObj.toString());
+        response.getWriter().write(gson.toJson(body));
     }
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.ibatis.session.SqlSession;
 import util.MyBatisSqlSessionFactory;
@@ -11,7 +12,9 @@ import util.MyBatisSqlSessionFactory;
 import dao.hq.WarehouseStockDao;
 import dao.hq.WarehouseStockDaoImpl;
 import dto.hq.warehouse.CategoryMaterialDTO;
-import dto.hq.warehouse.WarehouseStockResultDTO;
+import dto.hq.warehouse.WarehouseStockDetailDTO;
+import dto.hq.warehouse.WarehouseStockListDTO;
+import dto.hq.warehouse.WarehouseStockMovementDTO;
 import dto.hq.warehouse.WarehouseStockSearchDTO;
 
 public class WarehouseStockServiceImpl implements WarehouseStockService {
@@ -23,24 +26,37 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
 	}
 
 	@Override
-	public List<WarehouseStockResultDTO> searchList(WarehouseStockSearchDTO searchDTO) {
+	public List<WarehouseStockListDTO> searchList(WarehouseStockSearchDTO searchDTO) {
 		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-			return dao.searchList(sqlSession, searchDTO);
+			return dao.findStockList(sqlSession, searchDTO);
 		}
 	}
 
 	@Override
 	public Map<String, List<String>> getCategoryMaterialMap() {
 		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-			List<CategoryMaterialDTO> list = dao.selectCategoryMaterials(sqlSession);
+			List<CategoryMaterialDTO> list = dao.findAllCategoryMaterials(sqlSession);
 			
 			Map<String, List<String>> map = new LinkedHashMap<>();
-			for (CategoryMaterialDTO dto : list) {
+			for (CategoryMaterialDTO dto : list)
 				map.computeIfAbsent(dto.getGroupName(), k -> new ArrayList<>())
 					.add(dto.getMaterialName());
-			}
-			
 			return map;
+		}
+	}
+
+	@Override
+	public WarehouseStockDetailDTO findStockDetailByStockNo(String stockNo) {
+		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+			// 재고의 정보 + 재고 변동 리스트
+			WarehouseStockDetailDTO detail = dao.findStockDetailByStockNo(sqlSession, stockNo);
+			List<WarehouseStockMovementDTO> movements = dao.findMovementsByStockNo(sqlSession, stockNo);
+			System.out.println(movements);
+			detail.setMovements(
+				Optional.ofNullable(movements).orElseGet(ArrayList::new)
+			);
+			System.out.println(detail.getMovements());
+			return detail;
 		}
 	}
 }

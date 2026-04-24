@@ -1,6 +1,6 @@
 package dto.hq.warehouse;
 
-public class WarehouseStockResultDTO {
+public class WarehouseStockListDTO {
     private String stockNo;
     private String category;
     private String materialCode;

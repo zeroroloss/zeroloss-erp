@@ -5,13 +5,6 @@ public class WarehouseStockSearchDTO {
 	private String itemName;
 	private String keyword; // 검색어
 	
-	public WarehouseStockSearchDTO(String categoryName, String itemName, String keyword) {
-		super();
-		this.categoryName = categoryName;
-		this.itemName = itemName;
-		this.keyword = keyword;
-	}
-
 	public String getCategoryName() {
 		return categoryName;
 	}
