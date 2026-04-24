@@ -200,7 +200,7 @@
     }
 
     async function fetchMainCategories() {
-        const response = await fetch(ctx + '/RecipeMangementController?action=categories');
+        const response = await fetch(ctx + '/RecipeManagementController?action=categories');
         mainCategories = await response.json();
         renderCategoryFilters();
         let html = '<option value="">메인 카테고리 선택</option>';
@@ -218,7 +218,7 @@
             subSelect.disabled = true;
             return;
         }
-        const response = await fetch(ctx + `/RecipeMangementController?action=subcategories&mainCategoryId=\${mainCategoryId}`);
+        const response = await fetch(ctx + `/RecipeManagementController?action=subcategories&mainCategoryId=\${mainCategoryId}`);
         const subCats = await response.json();
         let html = '<option value="">서브 카테고리 선택</option>';
         subCats.forEach(sub => {
@@ -229,12 +229,12 @@
     }
 
     async function fetchMaterials() {
-        const response = await fetch(ctx + '/RecipeMangementController?action=materials');
+        const response = await fetch(ctx + '/RecipeManagementController?action=materials');
         materialList = await response.json();
     }
 
     async function fetchRecipes() {
-        const response = await fetch(ctx + '/RecipeMangementController?action=list');
+        const response = await fetch(ctx + '/RecipeManagementController?action=list');
         currentRecipes = await response.json();
         applyFilters();
     }
@@ -328,7 +328,7 @@
             return;
         }
 
-        fetch(ctx + `/RecipeMangementController?action=subcategories&mainCategoryId=\${selectedCat.categoryId}`)
+        fetch(ctx + `/RecipeManagementController?action=subcategories&mainCategoryId=\${selectedCat.categoryId}`)
             .then(res => res.json())
             .then(subCats => {
                 if (subCats.length === 0) {
@@ -417,7 +417,7 @@
 
     async function viewRecipe(recipeId) {
         try {
-            const response = await fetch(ctx + `/RecipeMangementController?action=detail&id=\${recipeId}`);
+            const response = await fetch(ctx + `/RecipeManagementController?action=detail&id=\${recipeId}`);
             const r = await response.json();
             selectedRecipeForView = r;
 
@@ -531,7 +531,7 @@
         }
 
         try {
-            const res = await fetch(ctx + '/RecipeMangementController?action=save', {
+            const res = await fetch(ctx + '/RecipeManagementController?action=save', {
                 method: 'POST',
                 body: formData
             });
@@ -552,7 +552,7 @@
     async function deleteRecipeFromView() {
         if (!confirm('삭제하시겠습니까?')) return;
         try {
-            const res = await fetch(ctx + `/RecipeMangementController?action=delete&id=\${selectedRecipeForView.id}`, { method: 'POST' });
+            const res = await fetch(ctx + `/RecipeManagementController?action=delete&id=\${selectedRecipeForView.id}`, { method: 'POST' });
             if ((await res.json()).success) {
                 alert('삭제 완료');
                 closeModals();

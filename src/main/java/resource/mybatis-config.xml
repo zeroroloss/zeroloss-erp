@@ -12,6 +12,7 @@
 			<transactionManager type="JDBC"/>
 			<dataSource type="POOLED">
 				<property name="driver" value="org.mariadb.jdbc.Driver"/>
+<!--				<property name="url" value="jdbc:mariadb://192.168.0.248:3306/zeroloss"/>-->
 				<property name="url" value="jdbc:mariadb://localhost:3306/zeroloss"/>
 				<property name="username" value="root"/>
 				<property name="password" value="7564"/>
@@ -25,7 +26,10 @@
 	
 	<mappers>
 		<mapper resource="mapper/AccountMapper.xml"/>
+		<mapper resource="mapper/BranchMapper.xml"/>
 		<mapper resource="mapper/hq/ReceipeMapper.xml"/>
 		<mapper resource="mapper/hq/WarehouseStockMapper.xml"/>
+        <mapper resource="mapper/hq/BranchSearchMapper.xml"/>
+        <mapper resource="mapper/hq/NoticeMapper.xml"/>
 	</mappers>
 </configuration>

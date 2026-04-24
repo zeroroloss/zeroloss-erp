@@ -1,4 +1,4 @@
-package dto;
+package dto.hq.hr;
 
 public class RoleDTO {
 	private Integer roleId;

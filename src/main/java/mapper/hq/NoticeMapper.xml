@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.hq.NoticeMapper">
+
+    <select id="selectNotices" resultType="dto.NoticeDTO">
+        SELECT
+            n.notice_id AS noticeId,
+            n.author_id AS authorId,
+            e.name AS authorName,
+            n.title,
+            n.content,
+            n.type,
+            DATE_FORMAT(n.last_date, '%Y-%m-%dT%H:%i:%s') AS lastDate,
+            DATE_FORMAT(n.created_at, '%Y-%m-%dT%H:%i:%s') AS createdAt,
+            n.view_count AS viewCount,
+            n.is_pinned AS isPinned
+        FROM
+            notice n
+                JOIN
+            account a ON n.author_id = a.account_id
+                JOIN
+            employee e ON a.emp_no = e.emp_no
+        ORDER BY
+            n.is_pinned DESC, n.created_at DESC
+    </select>
+
+    <insert id="createNotice" parameterType="dto.NoticeDTO">
+        INSERT INTO notice (author_id, title, content, type, is_pinned, created_at, last_date, view_count)
+        VALUES (#{authorId}, #{title}, #{content}, #{type}, #{isPinned}, #{createdAt}, #{lastDate}, 0)
+    </insert>
+
+    <update id="updateNotice" parameterType="dto.NoticeDTO">
+        UPDATE notice
+        SET title = #{title},
+            content = #{content},
+            type = #{type},
+            is_pinned = #{isPinned},
+            last_date = #{lastDate}
+        WHERE notice_id = #{noticeId} AND author_id = #{authorId}
+    </update>
+
+    <delete id="deleteNotice" parameterType="int">
+        DELETE FROM notice WHERE notice_id = #{noticeId}
+    </delete>
+
+    <update id="incrementViewCount" parameterType="int">
+        UPDATE notice SET view_count = view_count + 1 WHERE notice_id = #{noticeId}
+    </update>
+
+</mapper>

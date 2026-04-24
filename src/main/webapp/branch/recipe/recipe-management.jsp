@@ -104,13 +104,13 @@
     }
 
     async function fetchMainCategories() {
-        const response = await fetch(ctx + '/RecipeMangementController?action=categories');
+        const response = await fetch(ctx + '/RecipeManagementController?action=categories');
         mainCategories = await response.json();
         renderCategoryFilters();
     }
 
     async function fetchRecipes() {
-        const response = await fetch(ctx + '/RecipeMangementController?action=list');
+        const response = await fetch(ctx + '/RecipeManagementController?action=list');
         currentRecipes = await response.json();
         applyFilters();
     }
@@ -149,7 +149,7 @@
             return;
         }
 
-        fetch(ctx + `/RecipeMangementController?action=subcategories&mainCategoryId=\${selectedCat.categoryId}`)
+        fetch(ctx + `/RecipeManagementController?action=subcategories&mainCategoryId=\${selectedCat.categoryId}`)
             .then(res => res.json())
             .then(subCats => {
                 if (subCats.length === 0) {
@@ -236,7 +236,7 @@
 
     async function viewRecipe(recipeId) {
         try {
-            const response = await fetch(ctx + `/RecipeMangementController?action=detail&id=\${recipeId}`);
+            const response = await fetch(ctx + `/RecipeManagementController?action=detail&id=\${recipeId}`);
             const r = await response.json();
             selectedRecipeForView = r;
 

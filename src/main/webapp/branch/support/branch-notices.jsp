@@ -1,10 +1,10 @@
-﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>공지사항 - ZERO LOSS 본사 관리 시스템</title>
+    <title>본사 공지사항 - ZERO LOSS 지점 관리 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -15,20 +15,16 @@
     </style>
 </head>
 <body class="bg-gray-50">
-<%@ include file="/hq/common/sidebar.jsp" %>
+<%@ include file="/branch/common/layout/sidebar.jsp" %>
 
 <div class="lg:pl-72">
     <main class="p-6">
         <div class="space-y-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">공지사항</h1>
-                    <p class="text-gray-500 mt-2">전체 지점에 공지사항을 작성하고 관리할 수 있습니다.</p>
+                    <h1 class="text-3xl font-bold text-gray-900">본사 공지사항</h1>
+                    <p class="text-gray-500 mt-2">본사에서 전달하는 공지사항을 확인할 수 있습니다.</p>
                 </div>
-                <button onclick="openCreateModal()" class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2 rounded-lg hover:bg-[#006B2F] transition-colors">
-                    <i class="fas fa-plus w-4 h-4"></i>
-                    <span>공지사항 작성</span>
-                </button>
             </div>
 
             <div class="bg-white rounded-lg border border-gray-200 p-6">
@@ -84,51 +80,14 @@
         <div class="p-6">
             <p id="viewNoticeContent" class="whitespace-pre-wrap text-gray-700"></p>
         </div>
-        <div id="viewModalFooter" class="border-t border-gray-200 p-6 flex justify-end gap-3"></div>
-    </div>
-</div>
-
-<div id="createModal" class="fixed inset-0 bg-black bg-opacity-50 z-40 modal-hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-            <h2 id="modalTitle" class="text-xl font-bold text-gray-900">공지사항 작성</h2>
-            <button onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times w-6 h-6"></i></button>
-        </div>
-        <div class="p-6 space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">제목</label>
-                <input type="text" id="noticeTitle" placeholder="공지사항 제목을 입력하세요" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00853D]">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">유형</label>
-                <select id="noticeType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00853D]">
-                    <option value="일반 공지">일반 공지</option>
-                    <option value="긴급 공지">긴급 공지</option>
-                    <option value="위생 가이드">위생 가이드</option>
-                    <option value="운영 지침">운영 지침</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">내용</label>
-                <textarea id="noticeContent" placeholder="공지사항 내용을 입력하세요" rows="10" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00853D] font-sans"></textarea>
-            </div>
-            <div class="flex items-center gap-2">
-                <input type="checkbox" id="isPinned" class="w-4 h-4 border-gray-300 rounded">
-                <label for="isPinned" class="text-sm font-medium text-gray-700">상단 고정</label>
-            </div>
-        </div>
-        <div class="border-t border-gray-200 p-6 flex justify-end gap-3">
-            <button onclick="closeCreateModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">취소</button>
-            <button onclick="saveNotice()" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F]">저장</button>
+        <div id="viewModalFooter" class="border-t border-gray-200 p-6 flex justify-end gap-3">
+             <button onclick="closeViewModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">닫기</button>
         </div>
     </div>
 </div>
 
 <script>
     const ctx = "<%= request.getContextPath() %>";
-    const CURRENT_USER_ID = 1; // 가상의 로그인 유저 (권한 체크용)
-    let editingNoticeId = null;
-
     let allNotices = [];
     let currentPage = 1;
     const itemsPerPage = 8;
@@ -138,7 +97,8 @@
 
     async function initializeNotices() {
         try {
-            const response = await fetch(ctx + '/hq/support/headquarters-notices-data');
+            // 🟢 직영점용 데이터 URL로 변경
+            const response = await fetch(ctx + '/branch/support/branch-notices-data');
             allNotices = await response.json();
             renderNotices();
         } catch (error) {
@@ -179,14 +139,11 @@
         const noticesList = document.getElementById('noticesList');
 
         if (currentNotices.length === 0) {
-            noticesList.innerHTML = '<div class="bg-white rounded-lg border border-gray-200 p-12 text-center"><p class="text-gray-500">검색 결과가 없습니다.</p></div>';
-            // ... (생략)
+            noticesList.innerHTML = '<div class="bg-white rounded-lg border border-gray-200 p-12 text-center"><p class="text-gray-500">표시할 공지사항이 없습니다.</p></div>';
         } else {
             noticesList.innerHTML = currentNotices.map(notice => {
                 const pinHtml = notice.isPinned ? '<i class="fas fa-thumbtack text-purple-600 mr-2"></i>' : '';
                 const typeClass = getTypeColor(notice.type);
-
-                // 🟢 수정된 날짜(lastDate)가 있으면 그걸 쓰고, 없으면 생성일(createdAt)을 사용!
                 const displayDate = notice.lastDate ? notice.lastDate : notice.createdAt;
 
                 return `<div class="bg-white rounded-lg border border-gray-200 p-6 notice-item cursor-pointer hover:shadow-lg transition-shadow" onclick="viewNotice(\${notice.noticeId})">
@@ -248,99 +205,16 @@
         typeSpan.innerText = notice.type;
         document.getElementById('viewNoticePin').classList.toggle('hidden', !notice.isPinned);
 
-        // 조회수 서버 통신 증가
-        await fetch(ctx + '/hq/support/headquarters-notices-data?action=view&id=' + noticeId, { method: 'POST' });
-        notice.viewCount++; // 로컬 변수 즉시 증가
+        // 🟢 직영점용 데이터 URL로 변경
+        await fetch(ctx + '/branch/support/branch-notices-data?action=view&id=' + noticeId, { method: 'POST' });
+        notice.viewCount++;
         document.getElementById('viewNoticeViews').innerText = notice.viewCount;
-        renderNotices(); // 배경 리스트도 업데이트
-
-        // 본인(author_id) 여부에 따른 동적 버튼 생성
-        const footer = document.getElementById('viewModalFooter');
-        if (notice.authorId === CURRENT_USER_ID) {
-            footer.innerHTML = `
-                    <button onclick="closeViewModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">닫기</button>
-                    <button onclick="openEditModal(\${noticeId})" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">수정</button>
-                    <button onclick="deleteNotice(\${noticeId})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">삭제</button>
-                `;
-        } else {
-            footer.innerHTML = `<button onclick="closeViewModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">닫기</button>`;
-        }
+        renderNotices();
 
         document.getElementById('viewModal').classList.remove('modal-hidden');
     }
 
     function closeViewModal() { document.getElementById('viewModal').classList.add('modal-hidden'); }
-
-    function openCreateModal() {
-        editingNoticeId = null;
-        document.getElementById('modalTitle').innerText = '공지사항 작성';
-        document.getElementById('noticeTitle').value = '';
-        document.getElementById('noticeType').value = '일반 공지';
-        document.getElementById('noticeContent').value = '';
-        document.getElementById('isPinned').checked = false;
-        document.getElementById('createModal').classList.remove('modal-hidden');
-    }
-
-    function openEditModal(noticeId) {
-        const notice = allNotices.find(n => n.noticeId === noticeId);
-        if (!notice) return;
-
-        editingNoticeId = noticeId;
-        document.getElementById('modalTitle').innerText = '공지사항 수정';
-        document.getElementById('noticeTitle').value = notice.title;
-        document.getElementById('noticeType').value = notice.type;
-        document.getElementById('noticeContent').value = notice.content;
-        document.getElementById('isPinned').checked = notice.isPinned;
-
-        closeViewModal();
-        document.getElementById('createModal').classList.remove('modal-hidden');
-    }
-
-    function closeCreateModal() { document.getElementById('createModal').classList.add('modal-hidden'); }
-
-    async function saveNotice() {
-        const noticeData = {
-            noticeId: editingNoticeId,
-            title: document.getElementById('noticeTitle').value.trim(),
-            type: document.getElementById('noticeType').value,
-            content: document.getElementById('noticeContent').value.trim(),
-            isPinned: document.getElementById('isPinned').checked
-        };
-
-        if (!noticeData.title || !noticeData.content) return alert('제목과 내용을 입력해주세요.');
-
-        const action = editingNoticeId ? 'update' : 'create';
-
-        try {
-            const response = await fetch(ctx + '/hq/support/headquarters-notices-data?action=' + action, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(noticeData)
-            });
-            if (response.ok) {
-                alert(editingNoticeId ? '공지사항이 수정되었습니다.' : '공지사항이 저장되었습니다.');
-                closeCreateModal();
-                initializeNotices();
-            } else {
-                alert('저장에 실패했습니다.');
-            }
-        } catch (error) { alert('오류가 발생했습니다.'); }
-    }
-
-    async function deleteNotice(noticeId) {
-        if (!confirm('정말 이 공지사항을 삭제하시겠습니까?')) return;
-
-        try {
-            const response = await fetch(ctx + '/hq/support/headquarters-notices-data?action=delete&id=' + noticeId, { method: 'POST' });
-            if(response.ok) {
-                alert('삭제되었습니다.');
-                closeViewModal();
-                initializeNotices();
-            } else {
-                alert('삭제에 실패했습니다.');
-            }
-        } catch (error) { alert('오류가 발생했습니다.'); }
-    }
 
     function toggleMenu(button) {
         const submenu = button.nextElementSibling;
