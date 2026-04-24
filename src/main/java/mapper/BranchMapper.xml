@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.branch">
+	<insert id="insertBranch" parameterType="dto.BranchDTO">
+		insert into branch(branch_code,region_code,name,address,phone,status)
+		values(#{branchCode},#{regionCode},#{name},#{address},#{phone},#{status})
+	</insert>
+	
+	<select id="selectBranch" parameterType="Integer" resultType="dto.BranchDTO">
+		select branch_code as branchCode, region_code as regionCode, name, address, phone, status, created_at as createdAt from branch where branch_code=#{value}
+	</select>
+	
+	<select id="selectBranchNameList" resultType="String">
+		select name from branch where status='ACTIVE' order by branch_code
+	</select>
+</mapper>

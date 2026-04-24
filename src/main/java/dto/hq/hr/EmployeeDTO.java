@@ -1,4 +1,4 @@
-package dto;
+package dto.hq.hr;
 
 import java.time.LocalDate;
 

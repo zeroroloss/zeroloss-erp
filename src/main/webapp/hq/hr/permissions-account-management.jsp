@@ -1,4 +1,5 @@
 ﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -82,31 +83,25 @@
                         <div class="space-y-4">
 
                             <!-- 필터 -->
-                            <div class="flex flex-wrap gap-6">
-                                <!-- 소속 매장 필터 -->
-                                <div>
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <i class="fas fa-filter w-5 h-5 text-gray-500"></i>
-                                        <label class="text-sm font-medium text-gray-700">소속 매장:</label>
-                                    </div>
-                                    <div id="branchFilterContainer" class="flex gap-2 flex-wrap">
-                                        <!-- 동적으로 생성됨 -->
-                                    </div>
-                                </div>
-
-                                <!-- 역할 필터 -->
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700 mb-2 block">역할:</label>
-                                    <div id="roleFilterContainer" class="flex gap-2 flex-wrap">
-                                        <!-- 동적으로 생성됨 -->
-                                    </div>
-                                </div>
-	                            <!-- 검색 -->
-	                            <div class="relative">
-	                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"></i>
-	                                <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="이름, 아이디, 소속 매장으로 검색..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-	                            </div>
-                            </div>
+                            <div class="relative flex items-center justify-between gap-6">
+							    <!-- 왼쪽: 소속 매장 필터 -->
+							    <div class="flex items-center gap-2">
+							        <i class="fas fa-filter w-5 h-5 text-gray-500"></i>
+							        <label class="text-base font-medium text-gray-700">지점:</label>
+							
+							        <div id="branchFilterContainer" class="flex gap-2 flex-wrap">
+							            <!-- 동적으로 생성됨 -->
+							        </div>
+							    </div>
+							
+							    <!-- 오른쪽: 검색 + 조회 버튼 -->
+							    <div class="flex items-center gap-2 ml-auto">
+							        <div class="relative w-80">
+							            <i class="fas fa-search absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+							            <input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="이름, 아이디, 소속 매장으로 검색..."class="w-full pl-10 pr-10 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent"></div>
+							        <button type="button" onclick="applyFilters()" class="px-5 py-1.5 bg-[#00853D] text-white rounded-lg font-medium hover:bg-[#006B31]">조회</button>
+							    </div>
+							</div>
                         </div>
                     </div>
 
@@ -165,21 +160,10 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">소속 매장</label>
                     <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
                         <option value="">선택하세요</option>
-                        <option>본사</option>
-                        <option>강남점</option>
-                        <option>신촌점</option>
-                        <option>홍대점</option>
-                        <option>건대점</option>
-                        <option>이태원점</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
-                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
-                        <option value="">선택하세요</option>
-                        <option>본사관리자</option>
-                        <option>지점장</option>
+                        
+                        <c:forEach var="branchName" items="${branchNameList }">
+                        	<option value="${branchName }">${branchName}</option>
+                        </c:forEach>
                     </select>
                 </div>
 
@@ -381,7 +365,7 @@
             var container = document.getElementById('branchFilterContainer');
             container.innerHTML = branches.map(function(branch) {
                 var isSelected = selectedBranch === branch;
-                return '<button onclick="setBranch(\'' + branch + '\')" class="px-3 py-1 rounded-lg text-xs transition-colors whitespace-nowrap ' + 
+                return '<button onclick="setBranch(\'' + branch + '\')" class="px-3 py-1 rounded-lg text-xm transition-colors whitespace-nowrap ' + 
                     (isSelected ? 'bg-[#00853D] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200') + '">' + branch + '</button>';
             }).join('');
         }

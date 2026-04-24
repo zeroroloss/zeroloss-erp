@@ -1,4 +1,4 @@
-package dto;
+package dto.hq.hr;
 
 public class PositionDTO {
 	private String positionCode;

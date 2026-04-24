@@ -50,11 +50,27 @@
 
             <!-- 액션 버튼 -->
             <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8">
-                <button onclick="location.reload()" class="flex items-center justify-center gap-2 bg-[#00853D] text-white px-8 py-3 rounded-lg hover:bg-[#006B2F] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            <%
+			    String errorUrl = (String) request.getAttribute("errorUrl");
+			    if (errorUrl == null) {
+			        errorUrl = request.getContextPath() + "/main/home.jsp";
+			    }
+			%>
+			            
+                <button onclick="location.href='<%= request.getAttribute("errorUrl")%>')" class="flex items-center justify-center gap-2 bg-[#00853D] text-white px-8 py-3 rounded-lg hover:bg-[#006B2F] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                     <i class="fas fa-sync text-lg"></i>
                     새로고침
                 </button>
-                <a href="index.jsp" class="flex items-center justify-center gap-2 bg-white text-[#00853D] px-8 py-3 rounded-lg border-2 border-[#00853D] hover:bg-[#00853D] hover:text-white transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <%
+				    String cp = request.getContextPath();
+				    Object branchNameObj = session.getAttribute("branchName");
+				
+				    String homeUrl = "본사".equals(branchNameObj)
+				            ? cp + "/hq/main/home.jsp"
+				            : cp + "/branch/main/home.jsp";
+				%>
+                <a href="<%= homeUrl %>" 
+                	class="flex items-center justify-center gap-2 bg-white text-[#00853D] px-8 py-3 rounded-lg border-2 border-[#00853D] hover:bg-[#00853D] hover:text-white transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                     <i class="fas fa-home text-lg"></i>
                     홈으로 돌아가기
                 </a>
