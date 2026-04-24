@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@WebServlet("/RecipeMangementController")
+@WebServlet("/RecipeManagementController")
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024, // 1MB
         maxFileSize = 1024 * 1024 * 10,      // 10MB
         maxRequestSize = 1024 * 1024 * 15   // 15MB
 )
-public class RecipeMangementController extends HttpServlet {
+public class RecipeManagementController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final RecipeService recipeService = new RecipeServiceImpl();
     private final Gson gson = new Gson();
@@ -125,3 +125,4 @@ public class RecipeMangementController extends HttpServlet {
         return result;
     }
 }
+
