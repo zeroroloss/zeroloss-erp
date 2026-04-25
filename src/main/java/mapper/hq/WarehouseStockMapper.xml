@@ -119,7 +119,7 @@
 	</select>
 
 <!-- 입고 이력 조회 -->
-<select id="findInboundRecords" parameterType="map" resultType="dto.hq.warehouse.InboundRecordDTO">
+<select id="findInboundRecords" resultType="dto.hq.warehouse.InboundRecordDTO">
     SELECT
         i.hq_inbound_id    AS inboundId,
         s.supplier_name AS supplierName,
@@ -164,38 +164,21 @@
 </select>
 
 <!-- 신규 입고 등록 -->
-<insert id="insertInbound" useGeneratedKeys="true" keyProperty="hqInboundId">
+
+<insert id="insertInbound">
     INSERT INTO hq_inbound (
         supplier_id, received_at, material_code, qty, expiry_date
     )
-    VALUES (
-        (SELECT supplier_id FROM supplier WHERE supplier_name = #{supplier}),
-        NOW(),
-        (SELECT material_code FROM material WHERE material_name = #{itemName}),
-        #{quantity},
-        #{expiryDate}
-    )
-</insert>
-
-<!-- warehouse_stock 생성 -->
-<insert id="insertWarehouseStock">
-    INSERT INTO warehouse_stock (
-        stock_no,
-        material_code,
-        hq_inbound_id,
-        qty,
-        received_at,
-        expiry_date
-    )
+    
     SELECT
-        #{stockNo},
-        m.material_code,
-        #{inboundId},
-        #{quantity},
+        s.supplier_id,
         NOW(),
+        m.material_code,
+        #{quantity},
         #{expiryDate}
-    FROM material m
-    WHERE m.material_name = #{itemName}
+    FROM supplier s
+    JOIN material m ON m.material_name = #{itemName}
+    WHERE s.supplier_name = #{supplier}
 </insert>
 
 <!-- 재고 이력 삽입 -->

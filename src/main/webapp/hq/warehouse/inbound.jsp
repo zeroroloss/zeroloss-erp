@@ -415,7 +415,7 @@ String priceJson = gson.toJson(materialPriceMap);
 	    const quantity = parseInt(document.getElementById('formQuantity').value);
 	    const expiry   = document.getElementById('formExpiryDate').value;
 	
-	    // 필수값 검사 (한 번에 처리)
+	    // 🔥 필수값 검사 (한 번에 처리)
 	    const validations = [
 	        [supplier, '공급사를 선택해주세요.'],
 	        [category, '카테고리를 선택해주세요.'],
