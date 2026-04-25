@@ -16,6 +16,7 @@ import dto.hq.SupplierDTO;
 import dto.hq.warehouse.CategoryMaterialDTO;
 import dto.hq.warehouse.InboundRecordDTO;
 import dto.hq.warehouse.InboundRequestDTO;
+import dto.hq.warehouse.InboundSearchDTO;
 import dto.hq.warehouse.WarehouseStockDetailDTO;
 import dto.hq.warehouse.WarehouseStockListDTO;
 import dto.hq.warehouse.WarehouseStockMovementDTO;
@@ -71,39 +72,29 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
 	}
 	
 	@Override
-	public List<InboundRecordDTO> getInboundRecords(
-	        String supplierName, String category,
-	        String itemName, String startDate, String endDate) {
-
-	    try (SqlSession ss = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-	        Map<String, Object> params = new HashMap<>();
-	        params.put("supplierName", supplierName);
-	        params.put("category",     category);
-	        params.put("itemName",     itemName);
-	        params.put("startDate",    startDate);
-	        params.put("endDate",      endDate);
-	        return dao.findInboundRecords(ss, params);
+	public List<InboundRecordDTO> findInboundRecords(InboundSearchDTO searchDTO) {
+	    try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+	        return dao.findInboundRecords(sqlSession, searchDTO);
 	    }
 	}
 
 	@Override
-	public boolean registerInbound(InboundRequestDTO dto, int empId) {
-	    try (SqlSession ss = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-	        Map<String, Object> params = new HashMap<>();
-	        params.put("supplier",   dto.getSupplier());
-	        params.put("itemName",   dto.getItemName());
-	        params.put("quantity",   dto.getQuantity());
-	        params.put("unitPrice",  dto.getUnitPrice());
-	        params.put("expiryDate", dto.getExpiryDate());
-	        params.put("empId",      empId);
-
-	        int rows = dao.insertInbound(ss, params);
+	public Map<String, Integer> getMaterialPriceMap() {
+		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+	        return dao.getMaterialPriceMap(sqlSession);
+	    }
+	}
+	@Override
+	public boolean registerInbound(InboundRequestDTO dto) {
+	    try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+	        int rows = dao.insertInbound(sqlSession, dto);
 	        if (rows > 0) {
-	            ss.commit();
+	        	sqlSession.commit();
 	            return true;
 	        }
 	        return false;
 	    }
 	}
+
 
 }

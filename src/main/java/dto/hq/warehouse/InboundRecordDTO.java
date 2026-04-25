@@ -3,15 +3,14 @@ package dto.hq.warehouse;
 public class InboundRecordDTO {
     private String inboundNo;     // 입고번호
     private String supplierName;  // 공급사명
-    private String category;      // 카테고리
-    private String materialName;  // 품목명
+    private String categoryName;      // 카테고리
+    private String itemName;  	  // 품목명
     private String unit;          // 단위
     private int    quantity;      // 수량
     private int    unitPrice;     // 단가
     private int    totalPrice;    // 합계
     private String expiryDate;    // 유통기한
-    private String inboundAt;     // 입고일시
-    private String handler;       // 담당자
+    private String receivedAt;     // 입고일시
 	public String getInboundNo() {
 		return inboundNo;
 	}
@@ -25,16 +24,16 @@ public class InboundRecordDTO {
 		this.supplierName = supplierName;
 	}
 	public String getCategory() {
-		return category;
+		return categoryName;
 	}
 	public void setCategory(String category) {
-		this.category = category;
+		this.categoryName = category;
 	}
 	public String getMaterialName() {
-		return materialName;
+		return itemName;
 	}
 	public void setMaterialName(String materialName) {
-		this.materialName = materialName;
+		this.itemName = materialName;
 	}
 	public String getUnit() {
 		return unit;
@@ -67,16 +66,10 @@ public class InboundRecordDTO {
 		this.expiryDate = expiryDate;
 	}
 	public String getInboundAt() {
-		return inboundAt;
+		return receivedAt;
 	}
 	public void setInboundAt(String inboundAt) {
-		this.inboundAt = inboundAt;
-	}
-	public String getHandler() {
-		return handler;
-	}
-	public void setHandler(String handler) {
-		this.handler = handler;
+		this.receivedAt = inboundAt;
 	}
 
     

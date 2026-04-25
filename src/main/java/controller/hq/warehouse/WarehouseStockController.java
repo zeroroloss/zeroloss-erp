@@ -30,7 +30,6 @@ public class WarehouseStockController extends HttpServlet {
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json; charset=UTF-8");
 
 	    Map<String, List<String>> categoryMaterialMap = service.getCategoryMaterialMap();
 	    if (categoryMaterialMap == null) {
@@ -38,9 +37,8 @@ public class WarehouseStockController extends HttpServlet {
 	    }
 	    
 	    // Gson/Jackson 등 프로젝트 표준 사용
-	    request.setAttribute("categoryMaterialMapJson", gson.toJson(categoryMaterialMap));
+	    request.setAttribute("categoryMaterialMap", categoryMaterialMap);
 
 	    request.getRequestDispatcher("/hq/warehouse/stock.jsp").forward(request, response);
 	}
-    
 }

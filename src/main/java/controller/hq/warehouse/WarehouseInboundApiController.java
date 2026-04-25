@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 
 import dto.hq.warehouse.InboundRecordDTO;
 import dto.hq.warehouse.InboundRequestDTO;
+import dto.hq.warehouse.InboundSearchDTO;
 import service.hq.WarehouseStockService;
 import service.hq.WarehouseStockServiceImpl;
 @WebServlet("/api/hq/warehouse/inbound")
@@ -33,14 +34,14 @@ public class WarehouseInboundApiController extends HttpServlet {
             throws ServletException, IOException {
 
         String supplierName = request.getParameter("supplier");
-        String category     = request.getParameter("category");
+        String categoryName = request.getParameter("categoryName");
         String itemName     = request.getParameter("itemName");
         String startDate    = request.getParameter("startDate");
         String endDate      = request.getParameter("endDate");
 
         // null 방어
         if (supplierName == null) supplierName = "전체";
-        if (category     == null) category     = "전체";
+        if (categoryName == null) categoryName = "전체";
         if (itemName     == null) itemName     = "전체";
 
         // 날짜 기본값: 당일
@@ -50,8 +51,14 @@ public class WarehouseInboundApiController extends HttpServlet {
         if (endDate   == null || endDate.isEmpty())   endDate   = today;
 
         try {
-            List<InboundRecordDTO> data = service.getInboundRecords(
-                    supplierName, category, itemName, startDate, endDate);
+        	InboundSearchDTO searchDTO = new InboundSearchDTO();
+        	searchDTO.setSupplierName(supplierName);
+        	searchDTO.setCategoryName(categoryName);
+        	searchDTO.setItemName(itemName);
+        	searchDTO.setStartDate(startDate);
+        	searchDTO.setEndDate(endDate);
+        	
+            List<InboundRecordDTO> data = service.findInboundRecords(searchDTO);
 
             Map<String, Object> result = new HashMap<>();
             result.put("status", "success");
@@ -77,11 +84,7 @@ public class WarehouseInboundApiController extends HttpServlet {
         try {
             InboundRequestDTO dto = gson.fromJson(request.getReader(), InboundRequestDTO.class);
 
-            // 세션에서 empId 가져오기 (없으면 임시값 1)
-            Integer empId = (Integer) request.getSession().getAttribute("empId");
-            if (empId == null) empId = 1;
-
-            boolean ok = service.registerInbound(dto, empId);
+            boolean ok = service.registerInbound(dto);
 
             Map<String, Object> result = new HashMap<>();
             if (ok) {

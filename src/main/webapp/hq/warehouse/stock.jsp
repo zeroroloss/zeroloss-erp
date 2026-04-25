@@ -11,7 +11,7 @@
 .sidebar-open .sidebar { transform: translateX(0); }
 </style>
 <script>
-	const categoryMaterialMap = JSON.parse('${categoryMaterialMapJson}');
+	const categoryMaterialMap = <%= new com.google.gson.Gson().toJson(request.getAttribute("categoryMaterialMap")) %>;
 </script>
 </head>
 <body class="bg-gray-50">

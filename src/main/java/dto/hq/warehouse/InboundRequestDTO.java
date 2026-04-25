@@ -7,6 +7,7 @@ public class InboundRequestDTO {
     private int    quantity;
     private int    unitPrice;
     private String expiryDate;
+    
 	public String getSupplier() {
 		return supplier;
 	}

@@ -5,6 +5,7 @@ import java.util.Map;
 
 import dto.hq.warehouse.InboundRecordDTO;
 import dto.hq.warehouse.InboundRequestDTO;
+import dto.hq.warehouse.InboundSearchDTO;
 import dto.hq.warehouse.WarehouseStockDetailDTO;
 import dto.hq.warehouse.WarehouseStockListDTO;
 import dto.hq.warehouse.WarehouseStockSearchDTO;
@@ -17,7 +18,7 @@ public interface WarehouseStockService {
 	List<String> findSupplierNames();
 	
 	// 입고
-	List<InboundRecordDTO> getInboundRecords(String supplierName, String category,
-            String itemName, String startDate, String endDate);
-	boolean registerInbound(InboundRequestDTO dto, int empId);
+	List<InboundRecordDTO> findInboundRecords(InboundSearchDTO searchDTO);
+	Map<String, Integer> getMaterialPriceMap();
+	boolean registerInbound(InboundRequestDTO dto);
 }

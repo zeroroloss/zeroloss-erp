@@ -119,60 +119,64 @@
 	</select>
 
 <!-- 입고 이력 조회 -->
-<select id="findInboundRecords" parameterType="map" resultType="dto.hq.warehouse.InboundRecordDTO">
+<select id="findInboundRecords" resultType="dto.hq.warehouse.InboundRecordDTO">
     SELECT
-        i.inbound_no    AS inboundNo,
+        i.hq_inbound_id    AS inboundId,
         s.supplier_name AS supplierName,
-        mg.group_name   AS category,
-        m.material_name AS materialName,
+        mg.group_name   AS categoryName,
+        m.material_name AS itemName,
         m.unit          AS unit,
-        i.quantity      AS quantity,
-        i.unit_price    AS unitPrice,
-        (i.quantity * i.unit_price) AS totalPrice,
+        i.qty      		AS quantity,
+        m.material_price    AS unitPrice,
+        (i.qty * m.material_price) AS totalPrice,
         i.expiry_date   AS expiryDate,
-        DATE_FORMAT(i.inbound_at, '%Y-%m-%d %H:%i') AS inboundAt,
-        e.emp_name      AS handler
-    FROM inbound i
-    JOIN suppliers  s  ON i.supplier_id  = s.supplier_id
-    JOIN materials  m  ON i.material_id  = m.material_id
-    JOIN mat_groups mg ON m.group_id     = mg.group_id
-    JOIN employees  e  ON i.emp_id       = e.emp_id
+        DATE_FORMAT(i.received_at, '%Y-%m-%d %H:%i') AS receivedAt
+    FROM hq_inbound i
+    JOIN supplier  s  ON i.supplier_id  = s.supplier_id
+    JOIN material  m  ON i.material_code  = m.material_code
+    JOIN material_group mg ON m.material_group_id     = mg.material_group_id
     <where>
         <if test="supplierName != null and supplierName != '전체'">
             AND s.supplier_name = #{supplierName}
         </if>
-        <if test="category != null and category != '전체'">
-            AND mg.group_name = #{category}
+        <if test="categoryName != null and categoryName != '전체'">
+            AND mg.group_name = #{categoryName}
         </if>
         <if test="itemName != null and itemName != '전체'">
             AND m.material_name = #{itemName}
         </if>
         <if test="startDate != null and startDate != ''">
-            AND DATE(i.inbound_at) >= #{startDate}
+            AND DATE(i.received_at) >= #{startDate}
         </if>
         <if test="endDate != null and endDate != ''">
-            AND DATE(i.inbound_at) &lt;= #{endDate}
+            AND DATE(i.received_at) &lt;= #{endDate}
         </if>
     </where>
-    ORDER BY i.inbound_at DESC
+    ORDER BY i.received_at DESC
+</select>
+
+<!-- material_name → material_price -->
+<select id="selectMaterialPriceMap" resultType="map">
+    SELECT 
+        material_name AS materialName,
+        material_price AS materialPrice
+    FROM material
 </select>
 
 <!-- 신규 입고 등록 -->
-<insert id="insertInbound" parameterType="map">
-    INSERT INTO inbound (
-        supplier_id, material_id, quantity,
-        unit_price, expiry_date, emp_id, inbound_at
+<insert id="insertInbound">
+    INSERT INTO hq_inbound (
+        supplier_id, received_at, material_code, qty, expiry_date
     )
+    
     SELECT
         s.supplier_id,
-        m.material_id,
+        NOW(),
+        m.material_code,
         #{quantity},
-        #{unitPrice},
-        #{expiryDate},
-        #{empId},
-        NOW()
-    FROM suppliers s
-    JOIN materials m ON m.material_name = #{itemName}
+        #{expiryDate}
+    FROM supplier s
+    JOIN material m ON m.material_name = #{itemName}
     WHERE s.supplier_name = #{supplier}
 </insert>
 </mapper>

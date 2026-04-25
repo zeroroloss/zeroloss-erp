@@ -7,6 +7,8 @@ import org.apache.ibatis.session.SqlSession;
 
 import dto.hq.warehouse.CategoryMaterialDTO;
 import dto.hq.warehouse.InboundRecordDTO;
+import dto.hq.warehouse.InboundRequestDTO;
+import dto.hq.warehouse.InboundSearchDTO;
 import dto.hq.warehouse.WarehouseStockDetailDTO;
 import dto.hq.warehouse.WarehouseStockListDTO;
 import dto.hq.warehouse.WarehouseStockMovementDTO;
@@ -21,6 +23,7 @@ public interface WarehouseStockDao {
 	
 	// 입고
 	List<String> findAllSuppliers(SqlSession sqlSession);
-	int insertInbound(SqlSession ss, Map<String, Object> params);
-	List<InboundRecordDTO> findInboundRecords(SqlSession ss, Map<String, Object> params);
+	int insertInbound(SqlSession sqlSession, InboundRequestDTO inboundReqDTO);
+	List<InboundRecordDTO> findInboundRecords(SqlSession sqlSession, InboundSearchDTO searchDTO);
+	Map<String, Integer> getMaterialPriceMap(SqlSession sqlSession);
 }
