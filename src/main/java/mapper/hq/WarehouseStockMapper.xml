@@ -119,7 +119,7 @@
 	</select>
 
 <!-- 입고 이력 조회 -->
-<select id="findInboundRecords" parameterType="map" resultType="dto.hq.InboundRecordDTO">
+<select id="findInboundRecords" parameterType="map" resultType="dto.hq.warehouse.InboundRecordDTO">
     SELECT
         i.inbound_no    AS inboundNo,
         s.supplier_name AS supplierName,
