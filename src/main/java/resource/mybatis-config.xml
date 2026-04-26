@@ -32,5 +32,6 @@
         <mapper resource="mapper/hq/BranchSearchMapper.xml"/>
         <mapper resource="mapper/hq/NoticeMapper.xml"/>
 		<mapper resource="mapper/branch/InquiryMapper.xml"/>
+		<mapper resource="mapper/branch/placeOrderMapper.xml"/>
 	</mappers>
 </configuration>

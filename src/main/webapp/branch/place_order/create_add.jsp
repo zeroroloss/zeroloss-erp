@@ -78,7 +78,7 @@
                     <h1 class="title">발주 품목 추가</h1>
                     <p class="subtitle">발주할 품목을 선택하세요</p>
                 </div>
-                <a class="close-x" href="/branch/purchase_order/create.jsp" aria-label="닫기">×</a>
+                <a class="close-x" href="<%= request.getContextPath() %>/branch/place_order/create.jsp" aria-label="닫기">×</a>
             </div>
             <div class="search-wrap">
                 <span class="search-icon">⌕</span>
@@ -146,7 +146,7 @@
                         <div class="code">품목코드: BREAD-001</div>
                         <div class="meta"><span><strong>현재: 180개</strong></span><span class="safe">안전: 150개</span></div>
                     </div>
-                    <a class="btn-add on" href="/branch/purchase_order/create.jsp">추가</a>
+                    <a class="btn-add on" href="<%= request.getContextPath() %>/branch/place_order/create.jsp">추가</a>
                 </div>
 
                 <div class="item" data-item-added="false">
@@ -155,7 +155,7 @@
                         <div class="code">품목코드: DAIRY-002</div>
                         <div class="meta"><span><strong>현재: 35장</strong></span><span class="safe">안전: 25장</span></div>
                     </div>
-                    <a class="btn-add on" href="/branch/purchase_order/create.jsp">추가</a>
+                    <a class="btn-add on" href="<%= request.getContextPath() %>/branch/place_order/create.jsp">추가</a>
                 </div>
 
                 <div class="item" data-item-added="false">
@@ -164,7 +164,7 @@
                         <div class="code">품목코드: SAUCE-001</div>
                         <div class="meta"><span><strong>현재: 20L</strong></span><span class="safe">안전: 15L</span></div>
                     </div>
-                    <a class="btn-add on" href="/branch/purchase_order/create.jsp">추가</a>
+                    <a class="btn-add on" href="<%= request.getContextPath() %>/branch/place_order/create.jsp">추가</a>
                 </div>
 
                 <div class="item" data-item-added="false">
@@ -173,7 +173,7 @@
                         <div class="code">품목코드: VEG-003</div>
                         <div class="meta"><span><strong>현재: 18kg</strong></span><span class="safe">안전: 15kg</span></div>
                     </div>
-                    <a class="btn-add on" href="/branch/purchase_order/create.jsp">추가</a>
+                    <a class="btn-add on" href="<%= request.getContextPath() %>/branch/place_order/create.jsp">추가</a>
                 </div>
 
                 <div class="item" data-item-added="false">
@@ -182,7 +182,7 @@
                         <div class="code">품목코드: VEG-004</div>
                         <div class="meta"><span><strong>현재: 25kg</strong></span><span class="safe">안전: 20kg</span></div>
                     </div>
-                    <a class="btn-add on" href="/branch/purchase_order/create.jsp">추가</a>
+                    <a class="btn-add on" href="<%= request.getContextPath() %>/branch/place_order/create.jsp">추가</a>
                 </div>
 
                 <div class="item" data-item-added="false">
@@ -191,7 +191,7 @@
                         <div class="code">품목코드: SAUCE-002</div>
                         <div class="meta"><span><strong>현재: 12병</strong></span><span class="safe">안전: 10병</span></div>
                     </div>
-                    <a class="btn-add on" href="/branch/purchase_order/create.jsp">추가</a>
+                    <a class="btn-add on" href="<%= request.getContextPath() %>/branch/place_order/create.jsp">추가</a>
                 </div>
 
                 <div class="item" data-item-added="false">
@@ -200,7 +200,7 @@
                         <div class="code">품목코드: SAUCE-003</div>
                         <div class="meta"><span><strong>현재: 10병</strong></span><span class="safe">안전: 8병</span></div>
                     </div>
-                    <a class="btn-add on" href="/branch/purchase_order/create.jsp">추가</a>
+                    <a class="btn-add on" href="<%= request.getContextPath() %>/branch/place_order/create.jsp">추가</a>
                 </div>
 
                 <div class="item">
@@ -209,13 +209,13 @@
                         <div class="code">품목코드: MEAT-002</div>
                         <div class="meta"><span><strong>현재: 22팩</strong></span><span class="safe">안전: 20팩</span></div>
                     </div>
-                    <a class="btn-add on" href="/branch/purchase_order/create.jsp">추가</a>
+                    <a class="btn-add on" href="<%= request.getContextPath() %>/branch/place_order/create.jsp">추가</a>
                 </div>
             </div>
         </div>
 
         <div class="modal-foot">
-            <a class="btn-close" href="/branch/purchase_order/create.jsp">닫기</a>
+            <a class="btn-close" href="<%= request.getContextPath() %>/branch/place_order/create.jsp">닫기</a>
         </div>
     </div>
 </div>

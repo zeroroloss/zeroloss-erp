@@ -69,7 +69,7 @@
                 <h1 class="title">발주서 상세 정보</h1>
                 <div class="order-no">PO-2026-0329-001</div>
             </div>
-            <a class="close" href="<%= request.getContextPath() %>/branch/purchase_order/history1.jsp" aria-label="닫기">×</a>
+            <a class="close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp#sent" aria-label="닫기">×</a>
         </div>
 
         <div class="summary">
@@ -110,8 +110,8 @@
         </div>
 
         <div class="actions">
-            <a class="btn btn-cancel" href="<%= request.getContextPath() %>/branch/purchase_order/cancel_request.jsp">취소 요청</a>
-            <a class="btn btn-close" href="<%= request.getContextPath() %>/branch/purchase_order/history1.jsp">닫기</a>
+            <a class="btn btn-cancel" href="<%= request.getContextPath() %>/branch/place_order/cancel_request.jsp">취소 요청</a>
+            <a class="btn btn-close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp#sent">닫기</a>
         </div>
     </section>
 </div>
