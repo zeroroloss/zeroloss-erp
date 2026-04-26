@@ -1,8 +1,10 @@
 package dao.hq;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.ibatis.session.SqlSession;
 
@@ -69,6 +71,36 @@ public class WarehouseStockDaoImpl implements WarehouseStockDao {
 	    }
 
 	    return resultMap;
+	}
+	
+	@Override
+	public String insertWarehouseStock(SqlSession session, InboundRequestDTO dto, int inboundId) {
+
+		String stockNo = "STK-" + String.format("%04d", inboundId);
+		
+	    Map<String, Object> param = new HashMap<>();
+	    param.put("stockNo", stockNo);
+	    param.put("itemName", dto.getItemName());
+	    param.put("quantity", dto.getQuantity());
+	    param.put("expiryDate", dto.getExpiryDate());
+	    param.put("inboundId", inboundId);
+
+	    int rows = session.insert(
+	        "mapper.hq.warehouseStock.insertWarehouseStock",
+	        param
+	    );
+	    
+	    return rows > 0 ? stockNo : null;
+	}
+	
+	@Override
+	public int insertStockHistory(SqlSession session, String stockNo, InboundRequestDTO dto) {
+
+	    Map<String, Object> param = new HashMap<>();
+	    param.put("stockNo", stockNo);
+	    param.put("quantity", dto.getQuantity());
+
+	    return session.insert("mapper.hq.warehouseStock.insertStockHistory", param);
 	}
 }
 

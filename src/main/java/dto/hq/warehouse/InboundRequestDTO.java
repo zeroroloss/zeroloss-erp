@@ -1,13 +1,20 @@
 package dto.hq.warehouse;
 
 public class InboundRequestDTO {
+	private int hqInboundId;
     private String supplier;
-    private String category;
+    private String categoryName;
     private String itemName;
     private int    quantity;
     private int    unitPrice;
     private String expiryDate;
     
+	public int getHqInboundId() {
+		return hqInboundId;
+	}
+	public void setHqInboundId(int hqInboundId) {
+		this.hqInboundId = hqInboundId;
+	}
 	public String getSupplier() {
 		return supplier;
 	}
@@ -15,10 +22,10 @@ public class InboundRequestDTO {
 		this.supplier = supplier;
 	}
 	public String getCategory() {
-		return category;
+		return categoryName;
 	}
-	public void setCategory(String category) {
-		this.category = category;
+	public void setCategory(String categoryName) {
+		this.categoryName = categoryName;
 	}
 	public String getItemName() {
 		return itemName;

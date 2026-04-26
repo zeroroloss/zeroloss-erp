@@ -20,5 +20,5 @@ public interface WarehouseStockService {
 	// 입고
 	List<InboundRecordDTO> findInboundRecords(InboundSearchDTO searchDTO);
 	Map<String, Integer> getMaterialPriceMap();
-	boolean registerInbound(InboundRequestDTO dto);
+	boolean processInbound(InboundRequestDTO dto);
 }

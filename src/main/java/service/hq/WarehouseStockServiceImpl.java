@@ -84,14 +84,48 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
 	        return dao.getMaterialPriceMap(sqlSession);
 	    }
 	}
+	
 	@Override
-	public boolean registerInbound(InboundRequestDTO dto) {
-	    try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-	        int rows = dao.insertInbound(sqlSession, dto);
-	        if (rows > 0) {
-	        	sqlSession.commit();
-	            return true;
+	public boolean processInbound(InboundRequestDTO dto) {
+		// false -> auto commit X
+	    try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false)) {
+	        
+	    	// 1. 입고 이력 + PK 자동 세팅
+	    	int inboundRows = dao.insertInbound(sqlSession, dto);
+
+	        if (inboundRows == 0) {
+	            sqlSession.rollback();
+	            return false;
 	        }
+
+	        Integer inboundId = dto.getHqInboundId();
+	        System.out.println("inboundId = " + inboundId);
+	        if (inboundId == null) {
+	            sqlSession.rollback();
+	            throw new RuntimeException("inboundId 생성 실패");
+	        }
+	    	
+	        // 2. 재고 등록 + stockNo 즉시 반환
+	        String stockNo = dao.insertWarehouseStock(sqlSession, dto, inboundId);
+
+	        if (stockNo == null) {
+	            sqlSession.rollback();
+	            return false;
+	        }
+	        
+	        // 3. 재고 이력
+	        int historyRows = dao.insertStockHistory(sqlSession, stockNo, dto);
+
+	        if (historyRows == 0) {
+	            sqlSession.rollback();
+	            return false;
+	        }
+
+	        sqlSession.commit();
+	        return true;
+	    	
+	    } catch (Exception e) {
+	        e.printStackTrace();
 	        return false;
 	    }
 	}
