@@ -9,6 +9,8 @@ import java.util.UUID;
 import org.apache.ibatis.session.SqlSession;
 
 import dto.hq.warehouse.CategoryMaterialDTO;
+import dto.hq.warehouse.ExpiryItemDTO;
+import dto.hq.warehouse.ExpirySearchDTO;
 import dto.hq.warehouse.InboundRecordDTO;
 import dto.hq.warehouse.InboundRequestDTO;
 import dto.hq.warehouse.InboundSearchDTO;
@@ -103,4 +105,26 @@ public class WarehouseStockDaoImpl implements WarehouseStockDao {
 
 	    return session.insert("mapper.hq.warehouseStock.insertStockHistory", param);
 	}
+
+	@Override
+	public List<ExpiryItemDTO> findExpiryItems(SqlSession sqlSession, ExpirySearchDTO searchDTO) {
+		return sqlSession.selectList("mapper.hq.warehouseStock.selectExpiryItems", searchDTO);
+	}
+
+	@Override
+	public int updateStockStatusToDisposed(SqlSession sqlSession, String stockNo) {
+		Map<String, Object> param = new HashMap<>();
+		param.put("stockNo", stockNo);
+		param.put("status", "DISPOSED");
+		return sqlSession.update("mapper.hq.warehouseStock.updateStockStatus", param);
+	}
+
+	@Override
+	public int insertDisposalHistory(SqlSession sqlSession, String stockNo) {
+		Map<String, Object> param = new HashMap<>();
+		param.put("stockNo", stockNo);
+		param.put("changeType", "DISPOSAL");
+		return sqlSession.insert("mapper.hq.warehouseStock.insertDisposalHistory", param);
+	}
 }
+

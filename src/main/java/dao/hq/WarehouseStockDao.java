@@ -6,6 +6,8 @@ import java.util.Map;
 import org.apache.ibatis.session.SqlSession;
 
 import dto.hq.warehouse.CategoryMaterialDTO;
+import dto.hq.warehouse.ExpiryItemDTO;
+import dto.hq.warehouse.ExpirySearchDTO;
 import dto.hq.warehouse.InboundRecordDTO;
 import dto.hq.warehouse.InboundRequestDTO;
 import dto.hq.warehouse.InboundSearchDTO;
@@ -29,4 +31,9 @@ public interface WarehouseStockDao {
 
 	String insertWarehouseStock(SqlSession session, InboundRequestDTO dto, int inboundId);
 	int insertStockHistory(SqlSession session, String stockNo, InboundRequestDTO dto);
+	
+	// 유통기한 조회 및 폐기 처리
+	List<ExpiryItemDTO> findExpiryItems(SqlSession sqlSession, ExpirySearchDTO searchDTO);
+	int updateStockStatusToDisposed(SqlSession sqlSession, String stockNo);
+	int insertDisposalHistory(SqlSession sqlSession, String stockNo);
 }

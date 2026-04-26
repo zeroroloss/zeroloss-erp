@@ -3,6 +3,8 @@ package service.hq;
 import java.util.List;
 import java.util.Map;
 
+import dto.hq.warehouse.ExpiryItemDTO;
+import dto.hq.warehouse.ExpirySearchDTO;
 import dto.hq.warehouse.InboundRecordDTO;
 import dto.hq.warehouse.InboundRequestDTO;
 import dto.hq.warehouse.InboundSearchDTO;
@@ -21,4 +23,8 @@ public interface WarehouseStockService {
 	List<InboundRecordDTO> findInboundRecords(InboundSearchDTO searchDTO);
 	Map<String, Integer> getMaterialPriceMap();
 	boolean processInbound(InboundRequestDTO dto);
+	
+	// 유통기한 조회
+	List<ExpiryItemDTO> findExpiryItems(ExpirySearchDTO searchDTO);
+	boolean processDisposal(List<String> stockNos);
 }

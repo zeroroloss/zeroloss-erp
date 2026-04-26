@@ -14,6 +14,8 @@ import dao.hq.WarehouseStockDao;
 import dao.hq.WarehouseStockDaoImpl;
 import dto.hq.SupplierDTO;
 import dto.hq.warehouse.CategoryMaterialDTO;
+import dto.hq.warehouse.ExpiryItemDTO;
+import dto.hq.warehouse.ExpirySearchDTO;
 import dto.hq.warehouse.InboundRecordDTO;
 import dto.hq.warehouse.InboundRequestDTO;
 import dto.hq.warehouse.InboundSearchDTO;
@@ -130,5 +132,45 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
 	    }
 	}
 
+	@Override
+	public List<ExpiryItemDTO> findExpiryItems(ExpirySearchDTO searchDTO) {
+		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+			List<ExpiryItemDTO> items = dao.findExpiryItems(sqlSession, searchDTO);
+			return items != null ? items : new ArrayList<>();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ArrayList<>();
+		}
+	}
 
+	@Override
+	public boolean processDisposal(List<String> stockNos) {
+		// false -> auto commit X
+		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false)) {
+			
+			// 폐기할 각 재고에 대해 처리
+			for (String stockNo : stockNos) {
+				// 1. warehouse_stock 상태 업데이트 (DISPOSED)
+				int updateRows = dao.updateStockStatusToDisposed(sqlSession, stockNo);
+				if (updateRows == 0) {
+					sqlSession.rollback();
+					return false;
+				}
+				
+				// 2. warehouse_stock_change_history 기록 (DISPOSAL)
+				int historyRows = dao.insertDisposalHistory(sqlSession, stockNo);
+				if (historyRows == 0) {
+					sqlSession.rollback();
+					return false;
+				}
+			}
+			
+			sqlSession.commit();
+			return true;
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }
