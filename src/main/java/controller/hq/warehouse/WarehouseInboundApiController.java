@@ -83,18 +83,19 @@ public class WarehouseInboundApiController extends HttpServlet {
 
         try {
             InboundRequestDTO dto = gson.fromJson(request.getReader(), InboundRequestDTO.class);
-
-            boolean ok = service.registerInbound(dto);
+            if (dto == null) {
+                throw new IllegalArgumentException("요청 데이터가 비어있습니다.");
+            }
+            boolean ok = service.processInbound(dto);
 
             Map<String, Object> result = new HashMap<>();
             if (ok) {
-                result.put("status",  "success");
-                result.put("message", "입고 등록이 완료되었습니다.");
+                result.put("status", "success");
                 sendResponse(response, 200, result);
             } else {
-                result.put("status",  "error");
-                result.put("message", "입고 등록에 실패했습니다.");
-                sendResponse(response, 500, result);
+                result.put("status", "fail");
+                result.put("message", "입고 처리 실패");
+                sendResponse(response, 400, result);
             }
 
         } catch (Exception e) {
