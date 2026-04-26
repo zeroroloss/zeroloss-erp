@@ -25,7 +25,11 @@
         .tab.active { border-color:var(--green); color:var(--green); background:#ecf8f1; }
         .filter-inputs { display:flex; align-items:center; gap:10px; }
         .filter-inputs input, .filter-inputs select { height:38px; min-width:180px; border-radius:12px; border:1px solid #d1d5db; background:#fff; color:#1f2937; padding:0 13px; font-size:13px; }
-        .search { margin-left:auto; height:38px; border-radius:12px; border:1px solid var(--green); background:var(--green); color:#fff; padding:0 18px; font-size:14px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+
+        .btn-group { margin-left:auto; display:flex; gap:8px; }
+        .btn { height:38px; border-radius:12px; padding:0 18px; font-size:14px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; border:1px solid transparent; }
+        .btn-search { background:var(--green); color:#fff; border-color:var(--green); }
+        .btn-reset { background:#f3f4f6; color:#374151; border-color:#e5e7eb; }
 
         .summary-title { margin:24px 0 12px; font-size:23px; letter-spacing:-0.2px; }
         .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
@@ -83,7 +87,10 @@
                     <div class="filter-inputs is-hidden" data-input="menu">
                          <input type="date" id="menu-date" value="2026-04-19">
                     </div>
-                    <button class="search" id="searchButton" type="button"><i class="fas fa-search mr-2"></i>검색</button>
+                    <div class="btn-group">
+                        <button class="btn btn-search" id="searchButton" type="button"><i class="fas fa-search mr-2"></i>검색</button>
+                        <button class="btn btn-reset" id="resetButton" type="button"><i class="fas fa-redo mr-2"></i>초기화</button>
+                    </div>
                 </div>
             </section>
 
@@ -123,6 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const tabContents = document.querySelectorAll('.tab-content');
     const inputGroups = document.querySelectorAll('.filter-inputs');
     const searchButton = document.getElementById('searchButton');
+    const resetButton = document.getElementById('resetButton');
 
     let activeTab = 'daily';
     const charts = {};
@@ -155,6 +163,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     searchButton.addEventListener('click', fetchData);
+    resetButton.addEventListener('click', () => {
+        // 각 탭의 입력 필드를 기본값으로 리셋하는 로직 추가
+        console.log('Resetting filters');
+        fetchData();
+    });
 
     function fetchData() {
         console.log(`Fetching data for: ${activeTab}`);
@@ -167,7 +180,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function renderDailyData() {
-        // 백엔드 연동 시 이 부분에 API 호출 및 데이터 처리 로직 추가
         createOrUpdateChart('daily-chart', 'bar', {
             labels: [], datasets: [{ label: '일별 매출', data: [], backgroundColor: 'rgba(0, 133, 61, 0.7)' }]
         }, {});
@@ -196,7 +208,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function loadMainSummary() {
-        // 백엔드 연동 시 이 부분에 API 호출 및 데이터 처리 로직 추가
         document.getElementById('summary-sales').textContent = '₩0';
         document.getElementById('summary-orders').textContent = '0건';
         document.getElementById('summary-avg-price').textContent = '₩0';
