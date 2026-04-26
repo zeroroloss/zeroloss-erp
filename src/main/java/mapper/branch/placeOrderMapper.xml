@@ -3,31 +3,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mapper.branch.placeOrderMapper">
 
-    <sql id="statusLabelCase">
-        CASE p.status
-            WHEN 'PENDING' THEN '전송'
-            WHEN 'APPROVED' THEN '승인'
-            WHEN 'REJECTED' THEN '반려'
-            ELSE '전송'
-        END
-    </sql>
-
-    <sql id="detailUrlExpression">
-        CONCAT(COALESCE(#{contextPath}, ''), '/branch/place_order/',
-               CASE p.status
-                   WHEN 'APPROVED' THEN 'approval_detail.jsp'
-                   WHEN 'REJECTED' THEN 'rejection_detail.jsp'
-                   ELSE 'request_detail.jsp'
-               END)
-    </sql>
-
-    <sql id="cancelUrlExpression">
-        CASE WHEN p.status = 'PENDING'
-             THEN CONCAT(COALESCE(#{contextPath}, ''), '/branch/place_order/cancel_request.jsp')
-             ELSE NULL
-        END
-    </sql>
-
     <resultMap id="placeOrderDetailResultMap" type="dto.branch.place_order.PlaceOrderDetailDTO">
         <id property="poDetailId" column="po_detail_id" />
         <result property="poId" column="po_id" />
@@ -71,10 +46,28 @@
             p.total_amount,
             p.reject_reason,
             p.status AS status_code,
-            <include refid="statusLabelCase"/> AS status,
-            <include refid="statusLabelCase"/> AS status_key,
-            <include refid="detailUrlExpression"/> AS detail_url,
-            <include refid="cancelUrlExpression"/> AS cancel_url
+            CASE p.status
+                WHEN 'PENDING' THEN '전송'
+                WHEN 'APPROVED' THEN '승인'
+                WHEN 'REJECTED' THEN '반려'
+                ELSE '전송'
+            END AS status,
+            CASE p.status
+                WHEN 'PENDING' THEN '전송'
+                WHEN 'APPROVED' THEN '승인'
+                WHEN 'REJECTED' THEN '반려'
+                ELSE '전송'
+            END AS status_key,
+            CONCAT(#{contextPath}, '/branch/place_order/',
+                   CASE p.status
+                       WHEN 'APPROVED' THEN 'approval_detail.jsp'
+                       WHEN 'REJECTED' THEN 'rejection_detail.jsp'
+                       ELSE 'request_detail.jsp'
+                   END) AS detail_url,
+            CASE WHEN p.status = 'PENDING'
+                 THEN CONCAT(#{contextPath}, '/branch/place_order/cancel_request.jsp')
+                 ELSE NULL
+            END AS cancel_url
         FROM place_order p
         JOIN branch b ON b.branch_code = p.branch_code
         LEFT JOIN place_order_detail pod ON pod.po_id = p.po_id
@@ -86,7 +79,14 @@
             AND DATE(p.request_date) &lt;= #{endDate}
         </if>
         <if test="status != null and status != '' and status != '전체'">
-            AND (<include refid="statusLabelCase"/>) = #{status}
+            AND (
+                CASE p.status
+                    WHEN 'PENDING' THEN '전송'
+                    WHEN 'APPROVED' THEN '승인'
+                    WHEN 'REJECTED' THEN '반려'
+                    ELSE '전송'
+                END
+            ) = #{status}
         </if>
         GROUP BY p.po_id, p.po_no, p.branch_code, b.name, p.request_date, p.total_material_cnt, p.total_amount, p.reject_reason, p.status
         ORDER BY p.request_date DESC, p.po_id DESC
@@ -106,10 +106,20 @@
             p.total_amount,
             p.reject_reason,
             p.status AS status_code,
-            <include refid="statusLabelCase"/> AS status,
-            <include refid="statusLabelCase"/> AS status_key,
+            CASE p.status
+                WHEN 'PENDING' THEN '전송'
+                WHEN 'APPROVED' THEN '승인'
+                WHEN 'REJECTED' THEN '반려'
+                ELSE '전송'
+            END AS status,
+            CASE p.status
+                WHEN 'PENDING' THEN '전송'
+                WHEN 'APPROVED' THEN '승인'
+                WHEN 'REJECTED' THEN '반려'
+                ELSE '전송'
+            END AS status_key,
             NULL AS detail_url,
-            NULL AS cancel_url
+            CASE WHEN p.status = 'PENDING' THEN NULL ELSE NULL END AS cancel_url
         FROM place_order p
         JOIN branch b ON b.branch_code = p.branch_code
         WHERE p.po_no = #{value}

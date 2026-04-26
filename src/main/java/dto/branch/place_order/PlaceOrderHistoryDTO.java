@@ -1,0 +1,160 @@
+package dto.branch.place_order;
+
+import java.util.List;
+
+public class PlaceOrderHistoryDTO {
+
+    private Integer poId;
+    private String poNo;
+    private String orderId;
+    private Integer branchCode;
+    private String branchName;
+    private String createdAt;
+    private Integer itemCount;
+    private Integer totalQty;
+    private Integer totalMaterialCnt;
+    private Integer totalAmount;
+    private String status;
+    private String statusKey;
+    private String statusCode;
+    private String rejectReason;
+    private String detailUrl;
+    private String cancelUrl;
+    private List<PlaceOrderDetailDTO> details;
+
+    public Integer getPoId() {
+        return poId;
+    }
+
+    public void setPoId(Integer poId) {
+        this.poId = poId;
+    }
+
+    public String getPoNo() {
+        return poNo;
+    }
+
+    public void setPoNo(String poNo) {
+        this.poNo = poNo;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
+    public Integer getBranchCode() {
+        return branchCode;
+    }
+
+    public void setBranchCode(Integer branchCode) {
+        this.branchCode = branchCode;
+    }
+
+    public String getBranchName() {
+        return branchName;
+    }
+
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Integer getItemCount() {
+        return itemCount;
+    }
+
+    public void setItemCount(Integer itemCount) {
+        this.itemCount = itemCount;
+    }
+
+    public Integer getTotalQty() {
+        return totalQty;
+    }
+
+    public void setTotalQty(Integer totalQty) {
+        this.totalQty = totalQty;
+    }
+
+    public Integer getTotalMaterialCnt() {
+        return totalMaterialCnt;
+    }
+
+    public void setTotalMaterialCnt(Integer totalMaterialCnt) {
+        this.totalMaterialCnt = totalMaterialCnt;
+    }
+
+    public Integer getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(Integer totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatusKey() {
+        return statusKey;
+    }
+
+    public void setStatusKey(String statusKey) {
+        this.statusKey = statusKey;
+    }
+
+    public String getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode;
+    }
+
+    public String getRejectReason() {
+        return rejectReason;
+    }
+
+    public void setRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
+    }
+
+    public String getDetailUrl() {
+        return detailUrl;
+    }
+
+    public void setDetailUrl(String detailUrl) {
+        this.detailUrl = detailUrl;
+    }
+
+    public String getCancelUrl() {
+        return cancelUrl;
+    }
+
+    public void setCancelUrl(String cancelUrl) {
+        this.cancelUrl = cancelUrl;
+    }
+
+    public List<PlaceOrderDetailDTO> getDetails() {
+        return details;
+    }
+
+    public void setDetails(List<PlaceOrderDetailDTO> details) {
+        this.details = details;
+    }
+}

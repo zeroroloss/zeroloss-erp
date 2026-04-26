@@ -96,6 +96,7 @@
             <p class="page-sub">자동 생성된 발주서를 확인하고 품목을 추가하거나 수정하세요</p>
         </div>
         <div class="head-actions">
+            <a class="btn" href="<%= request.getContextPath() %>/branch/place_order/history.jsp">💾 초안 저장</a>
             <a class="btn btn-primary" href="<%= request.getContextPath() %>/branch/place_order/send.jsp">✈ 본사 전송</a>
         </div>
     </div>
