@@ -1,4 +1,9 @@
+<%@ page import="java.util.List" %>
+<%@ page import="dto.BranchDTO" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%
+    List<BranchDTO> branches = (List<BranchDTO>) request.getAttribute("branches");
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -44,6 +49,14 @@
                         <input type="text" id="searchInput" placeholder="제목 또는 내용으로 검색..." class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00853D]">
                     </div>
                     <div class="flex gap-2">
+                        <select id="branchFilter" class="w-full lg:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00853D]">
+                            <option value="all">전체 지점</option>
+                            <% if (branches != null) {
+                                for (BranchDTO branch : branches) { %>
+                                    <option value="<%= branch.getBranchCode() %>"><%= branch.getName() %></option>
+                            <%  }
+                               } %>
+                        </select>
                         <select id="categoryFilter" class="w-full lg:w-40 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00853D]">
                             <option value="all">전체 유형</option>
                             <option value="설비 문의">설비 문의</option>
@@ -146,18 +159,23 @@
     const itemsPerPage = 5;
 
     document.addEventListener('DOMContentLoaded', () => {
+        // 페이지 로딩 시, 현재 로그인된 지점으로 필터 기본값 설정
+        document.getElementById('branchFilter').value = CURRENT_BRANCH_CODE;
+
         loadInquiries();
-        document.getElementById('searchInput').addEventListener('keyup', () => { currentPage = 1; renderInquiries(); });
+        document.getElementById('searchInput').addEventListener('keyup', () => { currentPage = 1; loadInquiries(); });
+        document.getElementById('branchFilter').addEventListener('change', () => { currentPage = 1; loadInquiries(); });
         document.getElementById('categoryFilter').addEventListener('change', () => { currentPage = 1; loadInquiries(); });
         document.getElementById('statusFilter').addEventListener('change', () => { currentPage = 1; loadInquiries(); });
     });
 
     async function loadInquiries() {
         const searchTerm = document.getElementById('searchInput').value;
+        const branchCode = document.getElementById('branchFilter').value;
         const category = document.getElementById('categoryFilter').value;
         const status = document.getElementById('statusFilter').value;
         try {
-            const url = API_URL + '?searchTerm=' + encodeURIComponent(searchTerm) + '&category=' + encodeURIComponent(category) + '&status=' + encodeURIComponent(status);
+            const url = `\${API_URL}?searchTerm=\${encodeURIComponent(searchTerm)}&branchCode=\${branchCode}&category=\${encodeURIComponent(category)}&status=\${encodeURIComponent(status)}`;
             const response = await fetch(url);
             allInquiries = await response.json();
             renderInquiries();
@@ -293,7 +311,7 @@
             const bgColor = isHq ? 'bg-blue-50 border-l-4 border-blue-500' : 'bg-gray-100';
 
             repliesContainer.innerHTML += `
-                <div class=\"\${bgColor} p-4 rounded-lg shadow-sm mb-3\">
+                <div class="\${bgColor} p-4 rounded-lg shadow-sm mb-3">
                     <div class=\"flex justify-between text-xs mb-2\">
                         <span class=\"font-bold\">\${reply.authorName} (\${reply.authorAffiliation || '소속 정보 없음'})</span>
                         <span class=\"text-gray-400\">\${reply.createdAt}</span>

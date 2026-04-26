@@ -19,7 +19,10 @@ public class InquiryServiceImpl implements InquiryService {
     @Override
     public List<InquiryDTO> getInquiries(int branchCode, Map<String, String> filters) {
         Map<String, Object> params = new HashMap<>(filters);
-        params.put("branchCode", branchCode);
+        // branchCode가 0이면 모든 지점의 문의를 조회하도록 DAO에 전달
+        if (branchCode != 0) {
+            params.put("branchCode", branchCode);
+        }
         return inquiryDAO.selectInquiries(params);
     }
 
@@ -51,6 +54,19 @@ public class InquiryServiceImpl implements InquiryService {
         Map<String, Object> params = new HashMap<>();
         params.put("inquiryId", reply.getInquiryId());
         params.put("status", "답변 완료");
+        params.put("updatedAt", LocalDateTime.now().format(FORMATTER));
+        inquiryDAO.updateInquiryStatus(params);
+    }
+
+    @Override
+    public void createReplyAndUpdateStatus(InquiryReplyDTO reply, String newStatus) {
+        // 1. 답변 생성
+        inquiryDAO.createReply(reply);
+
+        // 2. 문의 상태 및 최종 수정 시간 업데이트
+        Map<String, Object> params = new HashMap<>();
+        params.put("inquiryId", reply.getInquiryId());
+        params.put("status", newStatus);
         params.put("updatedAt", LocalDateTime.now().format(FORMATTER));
         inquiryDAO.updateInquiryStatus(params);
     }

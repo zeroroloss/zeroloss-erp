@@ -34,16 +34,22 @@
             (SELECT COUNT(*) FROM inquiry_reply ir WHERE ir.inquiry_id = i.inquiry_id) as reply_count
         FROM inquiry i
         JOIN branch b ON i.branch_code = b.branch_code
-        WHERE i.branch_code = #{branchCode}
-        <if test="category != null and category != 'all'">
-            AND i.category = #{category}
-        </if>
-        <if test="status != null and status != 'all'">
-            AND i.status = #{status}
-        </if>
-        <if test="searchTerm != null and searchTerm != ''">
-            AND (i.title LIKE CONCAT('%', #{searchTerm}, '%') OR i.content LIKE CONCAT('%', #{searchTerm}, '%'))
-        </if>
+        <where>
+            <if test="branchCode != null and branchCode != 0">
+                AND i.branch_code = #{branchCode}
+            </if>
+            <if test="category != null and category != 'all'">
+                AND i.category = #{category}
+            </if>
+            <if test="status != null and status != 'all'">
+                AND i.status = #{status}
+            </if>
+            <if test="searchTerm != null and searchTerm != ''">
+                AND (i.title LIKE CONCAT('%', #{searchTerm}, '%')
+                     OR i.content LIKE CONCAT('%', #{searchTerm}, '%')
+                     OR b.name LIKE CONCAT('%', #{searchTerm}, '%'))
+            </if>
+        </where>
         ORDER BY i.created_at DESC
     </select>
 
@@ -67,12 +73,12 @@
 
     <insert id="createInquiry" parameterType="dto.InquiryDTO" useGeneratedKeys="true" keyProperty="inquiryId">
         INSERT INTO inquiry (branch_code, title, content, category, urgency, status, created_at, updated_at)
-        VALUES (#{branchCode}, #{title}, #{content}, #{category}, #{urgency}, '대기 중', #{createdAt}, #{updatedAt})
+        VALUES (#{branchCode}, #{title}, #{content}, #{category}, #{urgency}, '대기 중', NOW(), NOW())
     </insert>
 
     <update id="updateInquiry" parameterType="dto.InquiryDTO">
         UPDATE inquiry
-        SET title = #{title}, content = #{content}, category = #{category}, urgency = #{urgency}, updated_at = #{updatedAt}
+        SET title = #{title}, content = #{content}, category = #{category}, urgency = #{urgency}, updated_at = NOW()
         WHERE inquiry_id = #{inquiryId}
     </update>
 
@@ -82,11 +88,11 @@
 
     <insert id="createReply" parameterType="dto.InquiryReplyDTO">
         INSERT INTO inquiry_reply (inquiry_id, author_id, content, created_at)
-        VALUES (#{inquiryId}, #{authorId}, #{content}, #{createdAt})
+        VALUES (#{inquiryId}, #{authorId}, #{content}, NOW())
     </insert>
 
     <update id="updateInquiryStatus" parameterType="map">
-        UPDATE inquiry SET status = #{status}, updated_at = #{updatedAt} WHERE inquiry_id = #{inquiryId}
+        UPDATE inquiry SET status = #{status}, updated_at = NOW() WHERE inquiry_id = #{inquiryId}
     </update>
 
 </mapper>

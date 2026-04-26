@@ -12,4 +12,5 @@ public interface InquiryService {
     void updateInquiry(InquiryDTO inquiry);
     void deleteInquiry(int inquiryId);
     void createReply(InquiryReplyDTO reply);
+    void createReplyAndUpdateStatus(InquiryReplyDTO reply, String newStatus);
 }

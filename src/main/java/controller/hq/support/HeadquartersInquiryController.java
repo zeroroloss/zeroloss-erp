@@ -1,6 +1,7 @@
-package controller.branch.support;
+package controller.hq.support;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import dto.AccountDTO;
 import dto.InquiryDTO;
 import dto.InquiryReplyDTO;
@@ -22,13 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@WebServlet("/branch/support/branch-inquiries-data")
-public class BranchInquiryController extends HttpServlet {
+@WebServlet("/hq/support/headquarters-inquiries-data")
+public class HeadquartersInquiryController extends HttpServlet {
 
     private final InquiryService inquiryService = new InquiryServiceImpl();
     private final Gson gson = GsonFactory.getGson();
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
 
     private AccountDTO getLoginUser(HttpServletRequest req) {
         HttpSession session = req.getSession();
@@ -40,7 +40,6 @@ public class BranchInquiryController extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
 
-        AccountDTO loginUser = getLoginUser(req);
         String inquiryId = req.getParameter("id");
 
         try {
@@ -54,14 +53,13 @@ public class BranchInquiryController extends HttpServlet {
                 filters.put("searchTerm", req.getParameter("searchTerm"));
 
                 String branchCodeStr = req.getParameter("branchCode");
-                int branchCode;
-
+                int branchCode = 0; // 기본값은 전체 조회
                 if (branchCodeStr != null && !branchCodeStr.equals("all")) {
-                    branchCode = Integer.parseInt(branchCodeStr);
-                } else if ("all".equals(branchCodeStr)) {
-                    branchCode = 0; // 0은 전체 조회를 의미
-                } else {
-                    branchCode = (loginUser != null) ? loginUser.getBranchCode() : 0;
+                    try {
+                        branchCode = Integer.parseInt(branchCodeStr);
+                    } catch (NumberFormatException e) {
+                        // branchCode가 숫자가 아닌 경우, 기본값 0 유지
+                    }
                 }
 
                 List<InquiryDTO> inquiries = inquiryService.getInquiries(branchCode, filters);
@@ -80,6 +78,7 @@ public class BranchInquiryController extends HttpServlet {
         AccountDTO loginUser = getLoginUser(req);
         if (loginUser == null) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write("{\"message\": \"로그인이 필요합니다.\"}");
             return;
         }
 
@@ -88,40 +87,23 @@ public class BranchInquiryController extends HttpServlet {
         String now = LocalDateTime.now().format(FORMATTER);
 
         try {
-            switch (action) {
-                case "create":
-                    InquiryDTO newInquiry = gson.fromJson(requestBody, InquiryDTO.class);
-                    newInquiry.setBranchCode(loginUser.getBranchCode());
-                    newInquiry.setCreatedAt(now);
-                    newInquiry.setUpdatedAt(now);
-                    inquiryService.createInquiry(newInquiry);
-                    resp.setStatus(HttpServletResponse.SC_CREATED);
-                    break;
+            if ("createReply".equals(action)) {
+                JsonObject jsonObject = gson.fromJson(requestBody, JsonObject.class);
+                int inquiryId = jsonObject.get("inquiryId").getAsInt();
+                String content = jsonObject.get("content").getAsString();
+                String newStatus = jsonObject.get("newStatus").getAsString();
 
-                case "update":
-                    InquiryDTO inquiryToUpdate = gson.fromJson(requestBody, InquiryDTO.class);
-                    inquiryToUpdate.setUpdatedAt(now);
-                    inquiryService.updateInquiry(inquiryToUpdate);
-                    resp.setStatus(HttpServletResponse.SC_OK);
-                    break;
+                InquiryReplyDTO newReply = new InquiryReplyDTO();
+                newReply.setInquiryId(inquiryId);
+                newReply.setContent(content);
+                newReply.setAuthorId(loginUser.getAccountId());
+                newReply.setCreatedAt(now);
 
-                case "delete":
-                    int inquiryIdToDelete = Integer.parseInt(req.getParameter("id"));
-                    inquiryService.deleteInquiry(inquiryIdToDelete);
-                    resp.setStatus(HttpServletResponse.SC_OK);
-                    break;
-
-                case "createReply":
-                    InquiryReplyDTO newReply = gson.fromJson(requestBody, InquiryReplyDTO.class);
-                    newReply.setAuthorId(loginUser.getAccountId());
-                    newReply.setCreatedAt(now);
-                    inquiryService.createReply(newReply);
-                    resp.setStatus(HttpServletResponse.SC_CREATED);
-                    break;
-
-                default:
-                    resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                    break;
+                inquiryService.createReplyAndUpdateStatus(newReply, newStatus);
+                resp.setStatus(HttpServletResponse.SC_CREATED);
+            } else {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().write("{\"message\": \"지원하지 않는 요청입니다.\"}");
             }
         } catch (Exception e) {
             handleException(resp, e);
@@ -131,6 +113,6 @@ public class BranchInquiryController extends HttpServlet {
     private void handleException(HttpServletResponse resp, Exception e) throws IOException {
         e.printStackTrace();
         resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-        resp.getWriter().write("{\"message\": \"An error occurred: " + e.getMessage() + "\"}");
+        resp.getWriter().write("{\"message\": \"오류가 발생했습니다: " + e.getMessage() + "\"}");
     }
 }
