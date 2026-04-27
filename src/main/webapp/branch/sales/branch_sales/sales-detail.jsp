@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
 
     <%-- 공통 레이아웃 헤더 포함 --%>
     <%@ include file="/branch/common/layout/layout_head.jsp" %>
@@ -46,6 +47,7 @@
         .tab-content { margin-top:18px; display:none; }
         .tab-content.active { display:block; }
         .chart-wrap{border:1px solid #d9dee5;border-radius:16px;padding:20px; background:#fff;}
+        .period-summary { margin-bottom: 16px; text-align: center; font-size: 1.1rem; font-weight: 500; color: #374151; }
         .chart-title{font-size:22px;font-weight:700;margin-bottom:14px;}
         .result-card{margin-top:18px;border:1px solid #d9dee5;border-radius:16px;overflow:hidden; background:#fff;}
         .result-head{padding:18px 20px;font-size:20px;font-weight:700;border-bottom:1px solid #e5e7eb;}
@@ -125,8 +127,25 @@
             </div>
 
             <div id="period-content" class="tab-content">
-                <div class="chart-wrap"><canvas id="period-chart"></canvas></div>
-                <div class="result-card"><div class="result-head">기간별 매출 상세</div><table><thead><tr><th>날짜</th><th>매출액</th><th>주문수</th><th>평균 객단가</th></tr></thead><tbody id="period-table"></tbody></table></div>
+                <div class="chart-wrap">
+                    <div id="period-summary" class="period-summary"></div>
+                    <canvas id="period-chart"></canvas>
+                </div>
+                <div class="result-card">
+                    <div class="result-head">기간별 매출 상세</div>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>일자</th>
+                            <th>요일</th>
+                            <th>매출액</th>
+                            <th>주문 건수</th>
+                            <th>누적 매출</th>
+                        </tr>
+                        </thead>
+                        <tbody id="period-table"></tbody>
+                    </table>
+                </div>
             </div>
             <div id="hourly-content" class="tab-content">
                 <div class="chart-wrap"><canvas id="hourly-chart"></canvas></div>
@@ -208,7 +227,7 @@
                     fetchDailyData();
                     break;
                 case 'period':
-                    // fetchPeriodData();
+                    fetchPeriodData();
                     break;
                 case 'hourly':
                     // fetchHourlyData();
@@ -233,6 +252,21 @@
                 .catch(error => console.error('Error fetching daily sales:', error));
         }
 
+        function fetchPeriodData() {
+            const startDate = document.getElementById('period-start').value;
+            const endDate = document.getElementById('period-end').value;
+            const contextPath = window.__ZEROLOSS_CP || '';
+            const url = contextPath + '/branch/sales/period?startDate=' + startDate + '&endDate=' + endDate;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    renderPeriodChart(data);
+                    renderPeriodTable(data);
+                })
+                .catch(error => console.error('Error fetching period sales:', error));
+        }
+
         function renderDailyChart(data) {
             const labels = data.map(d => d.saleDate.substring(5));
             const salesData = data.map(d => d.totalSales);
@@ -247,8 +281,8 @@
                             type: 'line',
                             label: '매출액',
                             data: salesData,
-                            borderColor: '#11894a',
-                            backgroundColor: '#11894a',
+                            borderColor: 'var(--green)',
+                            backgroundColor: 'var(--green)',
                             yAxisID: 'y-sales',
                             tension: 0.1
                         },
@@ -256,7 +290,7 @@
                             type: 'bar',
                             label: '주문 건수',
                             data: ordersData,
-                            backgroundColor: 'rgba(17, 137, 74, 0.2)',
+                            backgroundColor: 'rgba(0, 133, 61, 0.2)',
                             yAxisID: 'y-orders'
                         }
                     ]
@@ -289,7 +323,6 @@
 
             data.forEach(item => {
                 const row = document.createElement('tr');
-                // JavaScript Date 객체는 "YYYY-MM-DD" 형식을 정확하게 파싱합니다.
                 const date = new Date(item.saleDate);
                 const dayOfWeek = dayNames[date.getDay()];
                 const isWeekend = date.getDay() === 0 || date.getDay() === 6;
@@ -298,7 +331,88 @@
                     row.classList.add('weekend-row');
                 }
 
-                // EL 충돌을 피하기 위해 백틱(`) 대신 문자열 연결(+)을 사용합니다.
+                row.innerHTML =
+                    '<td>' + item.saleDate + '</td>' +
+                    '<td>' + dayOfWeek + '</td>' +
+                    '<td>₩' + formatCurrency(item.totalSales) + '</td>' +
+                    '<td>' + item.totalOrders + '건</td>' +
+                    '<td>₩' + formatCurrency(item.cumulativeSales) + '</td>';
+                tableBody.appendChild(row);
+            });
+        }
+
+        function renderPeriodChart(data) {
+            if (!data || data.length === 0) {
+                document.getElementById('period-summary').textContent = '해당 기간에 매출 데이터가 없습니다.';
+                createOrUpdateChart('period-chart', {type: 'bar', data: {labels:[], datasets:[]}});
+                return;
+            }
+
+            const labels = data.map(d => d.saleDate.substring(5));
+            const salesData = data.map(d => d.totalSales);
+
+            const totalSales = data.reduce((sum, item) => sum + item.totalSales, 0);
+            const avgSales = totalSales / data.length;
+
+            const summaryEl = document.getElementById('period-summary');
+            summaryEl.textContent = '선택한 기간(' + data.length + '일) 동안 총 매출: ₩' + new Intl.NumberFormat('ko-KR').format(totalSales);
+
+            const chartType = data.length > 15 ? 'line' : 'bar';
+
+            const chartConfig = {
+                type: chartType,
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '매출액',
+                        data: salesData,
+                        borderColor: 'var(--green)',
+                        backgroundColor: chartType === 'line' ? 'transparent' : 'rgba(0, 133, 61, 0.7)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    plugins: {
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    yMin: avgSales,
+                                    yMax: avgSales,
+                                    borderColor: 'rgb(255, 99, 132)',
+                                    borderWidth: 2,
+                                    borderDash: [5, 5],
+                                    label: {
+                                        content: '일평균: ₩' + new Intl.NumberFormat('ko-KR').format(Math.round(avgSales)),
+                                        enabled: true,
+                                        position: 'end'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            createOrUpdateChart('period-chart', chartConfig);
+        }
+
+        function renderPeriodTable(data) {
+            const tableBody = document.getElementById('period-table');
+            tableBody.innerHTML = '';
+
+            const formatCurrency = (amount) => new Intl.NumberFormat('ko-KR').format(amount);
+            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                const date = new Date(item.saleDate);
+                const dayOfWeek = dayNames[date.getDay()];
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+
+                if (isWeekend) {
+                    row.classList.add('weekend-row');
+                }
+
                 row.innerHTML =
                     '<td>' + item.saleDate + '</td>' +
                     '<td>' + dayOfWeek + '</td>' +

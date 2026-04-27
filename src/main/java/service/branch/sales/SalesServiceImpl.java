@@ -24,13 +24,16 @@ public class SalesServiceImpl implements SalesService {
 
     @Override
     public List<DailySalesDTO> getDailySales(int branchCode, LocalDate targetDate) {
-        // 기준 날짜로부터 6일 전 날짜를 시작일로 설정 (총 7일간의 데이터)
         LocalDate startDate = targetDate.minusDays(6);
         LocalDate endDate = targetDate;
 
         System.out.println("[Log] SalesService - getDailySales 호출, branchCode: " + branchCode + ", 조회 기간: " + startDate + " ~ " + endDate);
+        return salesDAO.getDailySales(branchCode, startDate, endDate);
+    }
 
-        // DAO를 통해 해당 기간의 매출 데이터를 조회
+    @Override
+    public List<DailySalesDTO> getPeriodSales(int branchCode, LocalDate startDate, LocalDate endDate) {
+        System.out.println("[Log] SalesService - getPeriodSales 호출, branchCode: " + branchCode + ", 조회 기간: " + startDate + " ~ " + endDate);
         return salesDAO.getDailySales(branchCode, startDate, endDate);
     }
 }

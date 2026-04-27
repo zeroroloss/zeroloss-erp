@@ -26,4 +26,13 @@ public interface SalesService {
      * @return 7일간의 DailySalesDTO 객체 리스트
      */
     List<DailySalesDTO> getDailySales(int branchCode, LocalDate targetDate);
+
+    /**
+     * 사용자가 지정한 기간 동안의 일별 매출 데이터를 조회합니다.
+     * @param branchCode 조회할 직영점의 코드
+     * @param startDate  조회 시작일
+     * @param endDate    조회 종료일
+     * @return DailySalesDTO 객체 리스트
+     */
+    List<DailySalesDTO> getPeriodSales(int branchCode, LocalDate startDate, LocalDate endDate);
 }
