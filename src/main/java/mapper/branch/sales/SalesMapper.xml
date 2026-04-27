@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    Mapper XML
+    - 직영점 매출 관련 데이터베이스 쿼리를 정의하는 파일
+-->
+<mapper namespace="mapper.branch.sales.SalesMapper">
+
+    <!--
+        ID: getSalesSummary
+        - 오늘의 매출 요약 데이터를 조회하는 쿼리
+    -->
+    <select id="getSalesSummary" resultType="dto.branch.sales.SalesSummaryDTO" parameterType="int">
+        SELECT
+            (SELECT IFNULL(SUM(total_amount), 0)
+             FROM orders
+             WHERE order_date = CURDATE()
+               AND status IN ('PAID', 'PREPARING', 'PICKED_UP')
+               AND branch_code = #{branchCode}) AS todaySales,
+
+            (SELECT COUNT(*)
+             FROM orders
+             WHERE order_date = CURDATE()
+               AND status IN ('PAID', 'PREPARING', 'PICKED_UP')
+               AND branch_code = #{branchCode}) AS todayOrders,
+
+            (SELECT r.name
+             FROM order_menu om
+                      JOIN orders o ON om.order_id = o.order_id
+                      JOIN recipe r ON om.recipe_code = r.recipe_code
+             WHERE o.order_date = CURDATE()
+               AND o.status IN ('PAID', 'PREPARING', 'PICKED_UP')
+               AND o.branch_code = #{branchCode}
+             GROUP BY r.recipe_code, r.name
+             ORDER BY SUM(om.qty) DESC
+                                                   LIMIT 1) AS topMenu,
+
+            (SELECT IFNULL(SUM(total_amount), 0)
+             FROM orders
+             WHERE order_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+               AND status IN ('PAID', 'PREPARING', 'PICKED_UP')
+               AND branch_code = #{branchCode}) AS monthlySales
+    </select>
+
+    <!--
+        ID: getDailySales
+        - 지정된 기간의 일별 매출과 '누적 매출'을 함께 조회
+    -->
+    <select id="getDailySales" resultType="dto.branch.sales.DailySalesDTO" parameterType="map">
+        WITH DailySummaries AS (
+            SELECT
+                order_date,
+                SUM(total_amount) AS dailyTotalSales,
+                COUNT(*) AS dailyTotalOrders
+            FROM
+                orders
+            WHERE
+                branch_code = #{branchCode}
+              AND status IN ('PAID', 'PREPARING', 'PICKED_UP')
+              AND order_date BETWEEN #{startDate} AND #{endDate}
+            GROUP BY
+                order_date
+        )
+        SELECT
+            ds.order_date AS saleDate,
+            ds.dailyTotalSales AS totalSales,
+            ds.dailyTotalOrders AS totalOrders,
+            SUM(ds.dailyTotalSales) OVER (ORDER BY ds.order_date) AS cumulativeSales
+        FROM
+            DailySummaries ds
+        ORDER BY
+            ds.order_date ASC;
+    </select>
+
+</mapper>

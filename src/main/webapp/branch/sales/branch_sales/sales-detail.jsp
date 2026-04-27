@@ -1,0 +1,352 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매출 조회</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <%-- 공통 레이아웃 헤더 포함 --%>
+    <%@ include file="/branch/common/layout/layout_head.jsp" %>
+
+    <style>
+        /* 페이지 전용 스타일 */
+        .head h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; }
+        .head p { color: #6b7280; }
+        .search-panel { margin-top:24px; border:1px solid var(--line); border-radius:18px; background:#fff; box-shadow:0 1px 2px rgba(15,23,42,0.05); padding:18px; display: flex; align-items: center; justify-content: space-between; }
+        .filters { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+        .tabs { display:flex; align-items:center; gap:10px; }
+        .tabs::after { content:""; width:1px; height:42px; background:#d1d5db; margin-left:4px; }
+        .tab { height:38px; border-radius:12px; border:1px solid #d1d5db; background:#f9fafb; color:#374151; font-size:14px; font-weight:700; padding:0 16px; cursor:pointer; }
+        .tab.active { border-color:var(--green); color:var(--green); background:#ecf8f1; }
+        .filter-inputs { display:flex; align-items:center; gap:10px; }
+        .filter-inputs input, .filter-inputs select { height:38px; min-width:180px; border-radius:12px; border:1px solid #d1d5db; background:#fff; color:#1f2937; padding:0 13px; font-size:13px; }
+
+        .btn-group { display:flex; gap:8px; }
+        .btn { height:38px; border-radius:12px; padding:0 18px; font-size:14px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; border:1px solid transparent; }
+        .btn-search { background:var(--green); color:#fff; border-color:var(--green); }
+        .btn-reset { background:#f3f4f6; color:#374151; border-color:#e5e7eb; }
+
+        .summary-title { margin:24px 0 12px; font-size:23px; letter-spacing:-0.2px; }
+        .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+        .stat { border:1px solid var(--line); border-radius:16px; background:#fff; padding:20px 22px; box-shadow:0 1px 2px rgba(15,23,42,0.04); }
+        .stat .meta { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+        .stat em { font-style:normal; color:#6b7280; font-size:14px; }
+        .stat strong { display:block; margin-top:8px; font-size:26px; letter-spacing:-0.2px; }
+        .icon-chip { width:40px; height:40px; border-radius:10px; display:grid; place-items:center; font-size:18px; }
+        .chip-money { background:#e7f4ec; color:#11894a; }
+        .chip-order { background:#f8f0da; color:#c08b00; }
+        .chip-trend { background:#e8edf6; color:#2563eb; }
+        .chip-menu { background:#eaf3ec; color:#b07a00; }
+
+        .tab-content { margin-top:18px; display:none; }
+        .tab-content.active { display:block; }
+        .chart-wrap{border:1px solid #d9dee5;border-radius:16px;padding:20px; background:#fff;}
+        .chart-title{font-size:22px;font-weight:700;margin-bottom:14px;}
+        .result-card{margin-top:18px;border:1px solid #d9dee5;border-radius:16px;overflow:hidden; background:#fff;}
+        .result-head{padding:18px 20px;font-size:20px;font-weight:700;border-bottom:1px solid #e5e7eb;}
+        table{width:100%;border-collapse:collapse;} th,td{padding:14px 18px;border-bottom:1px solid #e5e7eb;font-size:15px;text-align:right;} th{background:#f9fafb;color:#6b7280;font-weight:700;} th:first-child,td:first-child{text-align:left;} th:nth-child(2),td:nth-child(2){text-align:left;}
+        .weekend-row { color: #2563eb; font-weight: 500; }
+        .pager{display:flex;justify-content:center;align-items:center;padding:16px 20px;font-size:14px;color:#6b7280;}
+        .pages{display:flex;gap:8px;align-items:center;} .p{width:34px;height:34px;border:1px solid #d1d5db;border-radius:12px;background:#fff;color:#374151;display:grid;place-items:center;font-size:14px;font-weight:700; cursor:pointer;} .p.active{background:var(--green);color:#fff;border-color:var(--green);}
+        .is-hidden { display:none !important; }
+    </style>
+</head>
+<body>
+<div class="zl-app">
+    <%@ include file="/branch/common/layout/sidebar.jsp" %>
+    <div class="zl-content">
+        <%@ include file="/branch/common/layout/topbar.jsp" %>
+        <main class="p-6">
+            <header class="head">
+                <h1 class="text-3xl font-bold">매출 조회</h1>
+                <p>일별, 기간별, 시간대별, 메뉴별 매출 데이터를 조회하고 분석합니다.</p>
+            </header>
+
+            <section class="search-panel">
+                <div class="filters">
+                    <div class="tabs" role="tablist">
+                        <button class="tab active" type="button" data-tab="daily">일별</button>
+                        <button class="tab" type="button" data-tab="period">기간별</button>
+                        <button class="tab" type="button" data-tab="hourly">시간대별</button>
+                        <button class="tab" type="button" data-tab="menu">메뉴별</button>
+                    </div>
+                    <div class="filter-inputs" data-input="daily">
+                        <input type="date" id="daily-date">
+                    </div>
+                    <div class="filter-inputs is-hidden" data-input="period">
+                        <input type="date" id="period-start">
+                        <input type="date" id="period-end">
+                    </div>
+                    <div class="filter-inputs is-hidden" data-input="hourly">
+                        <input type="date" id="hourly-date">
+                    </div>
+                    <div class="filter-inputs is-hidden" data-input="menu">
+                        <input type="date" id="menu-date">
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-search" id="searchButton" type="button"><i class="fas fa-search mr-2"></i>검색</button>
+                    <button class="btn btn-reset" id="resetButton" type="button"><i class="fas fa-redo mr-2"></i>초기화</button>
+                </div>
+            </section>
+
+            <div id="main-summary" class="tab-content active">
+                <h2 class="summary-title">오늘의 매출 요약</h2>
+                <section class="stats">
+                    <article class="stat"><div class="meta"><em>총 매출</em><span class="icon-chip chip-money"><i class="fas fa-won-sign"></i></span></div><strong id="summary-sales">₩0</strong></article>
+                    <article class="stat"><div class="meta"><em>총 주문수</em><span class="icon-chip chip-order"><i class="fas fa-receipt"></i></span></div><strong id="summary-orders">0건</strong></article>
+                    <article class="stat"><div class="meta"><em>인기 메뉴</em><span class="icon-chip chip-menu"><i class="fas fa-star"></i></span></div><strong id="summary-top-menu">-</strong></article>
+                    <article class="stat"><div class="meta"><em>이번달 총 매출</em><span class="icon-chip chip-trend"><i class="fas fa-calendar-check"></i></span></div><strong id="summary-monthly-sales">₩0</strong></article>
+                </section>
+            </div>
+
+            <div id="daily-content" class="tab-content">
+                <div class="chart-wrap"><canvas id="daily-chart"></canvas></div>
+                <div class="result-card">
+                    <div class="result-head">일별 매출 상세</div>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>일자</th>
+                            <th>요일</th>
+                            <th>매출액</th>
+                            <th>주문 건수</th>
+                            <th>누적 매출</th>
+                        </tr>
+                        </thead>
+                        <tbody id="daily-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="period-content" class="tab-content">
+                <div class="chart-wrap"><canvas id="period-chart"></canvas></div>
+                <div class="result-card"><div class="result-head">기간별 매출 상세</div><table><thead><tr><th>날짜</th><th>매출액</th><th>주문수</th><th>평균 객단가</th></tr></thead><tbody id="period-table"></tbody></table></div>
+            </div>
+            <div id="hourly-content" class="tab-content">
+                <div class="chart-wrap"><canvas id="hourly-chart"></canvas></div>
+                <div class="result-card"><div class="result-head">시간대별 매출 상세</div><table><thead><tr><th>시간대</th><th>매출액</th><th>주문수</th><th>평균 객단가</th></tr></thead><tbody id="hourly-table"></tbody></table></div>
+            </div>
+            <div id="menu-content" class="tab-content">
+                <div class="chart-wrap"><canvas id="menu-chart"></canvas></div>
+                <div class="result-card"><div class="result-head">메뉴별 매출 상세</div><table><thead><tr><th>메뉴명</th><th>판매량</th><th>매출액</th><th>매출 비중</th></tr></thead><tbody id="menu-table"></tbody></table></div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const inputGroups = document.querySelectorAll('.filter-inputs');
+        const searchButton = document.getElementById('searchButton');
+        const resetButton = document.getElementById('resetButton');
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('daily-date').value = today;
+        document.getElementById('period-end').value = today;
+        document.getElementById('hourly-date').value = today;
+        document.getElementById('menu-date').value = today;
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        document.getElementById('period-start').value = oneMonthAgo.toISOString().split('T')[0];
+
+        const charts = {};
+
+        function createOrUpdateChart(canvasId, config) {
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
+            }
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            charts[canvasId] = new Chart(ctx, config);
+        }
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const selectedTab = e.currentTarget.dataset.tab;
+                tabs.forEach(t => t.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                inputGroups.forEach(input => {
+                    input.classList.toggle('is-hidden', input.dataset.input !== selectedTab);
+                });
+            });
+        });
+
+        searchButton.addEventListener('click', fetchData);
+        resetButton.addEventListener('click', () => {
+            location.reload();
+        });
+
+        function fetchData() {
+            const activeTabEl = document.querySelector('.tabs .tab.active');
+            let activeTab = 'daily';
+            if (activeTabEl && activeTabEl.dataset.tab) {
+                activeTab = activeTabEl.dataset.tab;
+            }
+
+            document.getElementById('main-summary').style.display = 'none';
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            const activeContentId = activeTab + '-content';
+            const activeContent = document.getElementById(activeContentId);
+
+            if (activeContent) {
+                activeContent.classList.add('active');
+            } else {
+                console.error("Element with ID '" + activeContentId + "' not found!");
+                return;
+            }
+
+            switch(activeTab) {
+                case 'daily':
+                    fetchDailyData();
+                    break;
+                case 'period':
+                    // fetchPeriodData();
+                    break;
+                case 'hourly':
+                    // fetchHourlyData();
+                    break;
+                case 'menu':
+                    // fetchMenuData();
+                    break;
+            }
+        }
+
+        function fetchDailyData() {
+            const targetDate = document.getElementById('daily-date').value;
+            const contextPath = window.__ZEROLOSS_CP || '';
+            const url = contextPath + '/branch/sales/daily?date=' + targetDate;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    renderDailyChart(data);
+                    renderDailyTable(data);
+                })
+                .catch(error => console.error('Error fetching daily sales:', error));
+        }
+
+        function renderDailyChart(data) {
+            const labels = data.map(d => d.saleDate.substring(5));
+            const salesData = data.map(d => d.totalSales);
+            const ordersData = data.map(d => d.totalOrders);
+
+            const chartConfig = {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: '매출액',
+                            data: salesData,
+                            borderColor: '#11894a',
+                            backgroundColor: '#11894a',
+                            yAxisID: 'y-sales',
+                            tension: 0.1
+                        },
+                        {
+                            type: 'bar',
+                            label: '주문 건수',
+                            data: ordersData,
+                            backgroundColor: 'rgba(17, 137, 74, 0.2)',
+                            yAxisID: 'y-orders'
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        'y-sales': {
+                            type: 'linear',
+                            position: 'left',
+                            title: { display: true, text: '매출액 (원)' }
+                        },
+                        'y-orders': {
+                            type: 'linear',
+                            position: 'right',
+                            title: { display: true, text: '주문 건수' },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            };
+            createOrUpdateChart('daily-chart', chartConfig);
+        }
+
+        function renderDailyTable(data) {
+            const tableBody = document.getElementById('daily-table');
+            tableBody.innerHTML = '';
+
+            const formatCurrency = (amount) => new Intl.NumberFormat('ko-KR').format(amount);
+            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                // JavaScript Date 객체는 "YYYY-MM-DD" 형식을 정확하게 파싱합니다.
+                const date = new Date(item.saleDate);
+                const dayOfWeek = dayNames[date.getDay()];
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+
+                if (isWeekend) {
+                    row.classList.add('weekend-row');
+                }
+
+                // EL 충돌을 피하기 위해 백틱(`) 대신 문자열 연결(+)을 사용합니다.
+                row.innerHTML =
+                    '<td>' + item.saleDate + '</td>' +
+                    '<td>' + dayOfWeek + '</td>' +
+                    '<td>₩' + formatCurrency(item.totalSales) + '</td>' +
+                    '<td>' + item.totalOrders + '건</td>' +
+                    '<td>₩' + formatCurrency(item.cumulativeSales) + '</td>';
+                tableBody.appendChild(row);
+            });
+        }
+
+        function loadMainSummary() {
+            const contextPath = window.__ZEROLOSS_CP || '';
+            const requestUrl = contextPath + '/branch/sales/summary';
+
+            fetch(requestUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    const formatCurrency = (amount) => new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(amount);
+                    document.getElementById('summary-sales').textContent = formatCurrency(data.todaySales);
+                    document.getElementById('summary-orders').textContent = data.todayOrders + '건';
+                    document.getElementById('summary-top-menu').textContent = data.topMenu || '-';
+                    document.getElementById('summary-monthly-sales').textContent = formatCurrency(data.monthlySales);
+                })
+                .catch(error => {
+                    console.error('Error fetching sales summary:', error);
+                    document.getElementById('summary-sales').textContent = '데이터 로딩 실패';
+                    document.getElementById('summary-orders').textContent = '데이터 로딩 실패';
+                    document.getElementById('summary-top-menu').textContent = '데이터 로딩 실패';
+                    document.getElementById('summary-monthly-sales').textContent = '데이터 로딩 실패';
+                });
+        }
+
+        function initializePage() {
+            loadMainSummary();
+            document.getElementById('main-summary').style.display = 'block';
+            document.getElementById('main-summary').classList.add('active');
+            tabContents.forEach(content => {
+                if (content.id !== 'main-summary') {
+                    content.classList.remove('active');
+                }
+            });
+        }
+
+        initializePage();
+    });
+</script>
+</body>
+</html>
