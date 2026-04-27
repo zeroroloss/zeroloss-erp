@@ -11,30 +11,19 @@ import util.MyBatisSqlSessionFactory;
 public class BranchDaoImpl implements BranchDao {
 	@Override
 	public void insertBranch(BranchDTO branch) throws Exception {
-		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
-		try {
-			sqlSession.insert("mapper.branch.insertBranch", branch);
+		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+			sqlSession.insert("mapper.BranchMapper.insertBranch", branch);
 			sqlSession.commit();
 		} catch(Exception e) {
 			e.printStackTrace();
-			sqlSession.rollback();
-		} finally {
-			sqlSession.close();
 		}
 	}
 
 	@Override
 	public BranchDTO selectBranch(Integer branchCode) throws Exception {
-		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
-		BranchDTO branch = null;
-		try {
-			branch = sqlSession.selectOne("mapper.branch.selectBranch", branchCode);
-		} catch(Exception e) {
-			e.printStackTrace();
-		} finally {
-			sqlSession.close();
+		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+			return sqlSession.selectOne("mapper.BranchMapper.selectBranch", branchCode);
 		}
-		return branch;
 	}
 
 	@Override
@@ -65,5 +54,12 @@ public class BranchDaoImpl implements BranchDao {
 			sqlSession.close();
 		}
 		return branchList;
+	}
+
+	@Override
+	public List<BranchDTO> selectAllBranches() {
+		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+			return sqlSession.selectList("mapper.BranchMapper.selectAllBranches");
+		}
 	}
 }

@@ -10,4 +10,5 @@ public interface BranchDao {
 	BranchDTO selectBranch(Integer branchCode) throws Exception;
 	List<BranchDTO> selectBranchList() throws Exception;
 	List<BranchOptionDTO> selectBranchNameList() throws Exception;
+	List<BranchDTO> selectAllBranches();
 }

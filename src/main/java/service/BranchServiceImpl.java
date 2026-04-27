@@ -21,9 +21,13 @@ public class BranchServiceImpl implements BranchService {
 	}
 
 	@Override
-	public List<BranchDTO> searchBranchList() throws Exception {
-		List<BranchDTO> branchList = branchDao.selectBranchList();
-		return branchList;
+	public List<BranchDTO> getAllBranches() {
+		return branchDao.selectAllBranches();
 	}
 
+	@Override
+	public List<BranchDTO> searchBranchList() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

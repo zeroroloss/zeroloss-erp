@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="mapper.branch">
+<mapper namespace="mapper.BranchMapper">
 	<insert id="insertBranch" parameterType="dto.BranchDTO">
 		insert into branch(branch_code,region_code,name,address,phone,status)
 		values(#{branchCode},#{regionCode},#{name},#{address},#{phone},#{status})
@@ -10,5 +10,9 @@
 	
 	<select id="selectBranch" parameterType="Integer" resultType="dto.BranchDTO">
 		select branch_code as branchCode, region_code as regionCode, name, address, phone, status, created_at as createdAt from branch where branch_code=#{value}
+	</select>
+	
+	<select id="selectAllBranches" resultType="dto.BranchDTO">
+		SELECT branch_code as branchCode, name FROM branch WHERE branch_code != 1 ORDER BY branch_code
 	</select>
 </mapper>
