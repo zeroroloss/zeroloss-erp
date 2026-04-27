@@ -1,4 +1,4 @@
-package service.hq;
+package service.hq.warehouse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +12,6 @@ import util.MyBatisSqlSessionFactory;
 
 import dao.hq.WarehouseStockDao;
 import dao.hq.WarehouseStockDaoImpl;
-import dto.hq.SupplierDTO;
 import dto.hq.warehouse.CategoryMaterialDTO;
 import dto.hq.warehouse.ExpiryItemDTO;
 import dto.hq.warehouse.ExpirySearchDTO;

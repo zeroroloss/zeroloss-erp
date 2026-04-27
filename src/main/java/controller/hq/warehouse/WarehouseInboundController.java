@@ -15,8 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 
 import dto.hq.warehouse.InboundRequestDTO;
-import service.hq.WarehouseStockService;
-import service.hq.WarehouseStockServiceImpl;
+import service.hq.warehouse.WarehouseStockService;
+import service.hq.warehouse.WarehouseStockServiceImpl;
 
 @WebServlet("/hq/warehouse/inbound")
 public class WarehouseInboundController extends HttpServlet {

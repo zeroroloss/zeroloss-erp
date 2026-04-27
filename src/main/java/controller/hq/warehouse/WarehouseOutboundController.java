@@ -1,4 +1,4 @@
-package controller.hq;
+package controller.hq.warehouse;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
@@ -7,20 +7,24 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/hq/warehouse/inbound")
-public class WarehouseInboundController extends HttpServlet {
+@WebServlet("/hq/warehouse/outbound")
+public class WarehouseOutboundController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
-	public WarehouseInboundController() {
+	public WarehouseOutboundController() {
         super();
     }
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		request.getRequestDispatcher("/hq/warehouse/inbound.jsp").forward(request, response);
+		request.getRequestDispatcher("/hq/warehouse/outbound.jsp").forward(request, response);
+
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 	}
+
+	
+
 }

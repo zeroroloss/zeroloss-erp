@@ -1,4 +1,4 @@
-package controller.hq;
+package controller.hq.warehouse;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
