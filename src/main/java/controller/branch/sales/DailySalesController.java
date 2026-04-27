@@ -44,7 +44,6 @@ public class DailySalesController extends HttpServlet {
         HttpSession session = request.getSession();
         AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
 
-        // 🟢 임시 로그인 제거: 세션에 유저 정보가 없으면 401 에러 반환
         if (loginUser == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
@@ -64,7 +63,6 @@ public class DailySalesController extends HttpServlet {
                 targetDate = LocalDate.parse(dateParam);
             }
 
-            // 🟢 현재 로그인된 지점의 코드를 사용하여 데이터 조회
             int branchCode = loginUser.getBranchCode();
             List<DailySalesDTO> dailySales = salesService.getDailySales(branchCode, targetDate);
 

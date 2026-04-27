@@ -26,7 +26,6 @@ public class SalesSummaryController extends HttpServlet {
         HttpSession session = request.getSession();
         AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
 
-        // 🟢 임시 로그인 제거 및 세션 체크
         if (loginUser == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
@@ -36,7 +35,6 @@ public class SalesSummaryController extends HttpServlet {
         }
 
         try {
-            // 🟢 세션의 branchCode를 사용하여 요약 데이터 조회
             int branchCode = loginUser.getBranchCode();
             SalesSummaryDTO summary = salesService.getSalesSummary(branchCode);
 
