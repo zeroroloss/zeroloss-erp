@@ -32,13 +32,7 @@ public class BranchInquiryController extends HttpServlet {
 
     private AccountDTO getLoginUser(HttpServletRequest req) {
         HttpSession session = req.getSession();
-        AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
-        if (loginUser == null) {
-            loginUser = new AccountDTO();
-            loginUser.setAccountId(1);
-            loginUser.setBranchCode(1); 
-        }
-        return loginUser;
+        return (AccountDTO) session.getAttribute("loginUser");
     }
 
     @Override
@@ -59,7 +53,18 @@ public class BranchInquiryController extends HttpServlet {
                 filters.put("status", req.getParameter("status"));
                 filters.put("searchTerm", req.getParameter("searchTerm"));
 
-                List<InquiryDTO> inquiries = inquiryService.getInquiries(loginUser.getBranchCode(), filters);
+                String branchCodeStr = req.getParameter("branchCode");
+                int branchCode;
+
+                if (branchCodeStr != null && !branchCodeStr.equals("all")) {
+                    branchCode = Integer.parseInt(branchCodeStr);
+                } else if ("all".equals(branchCodeStr)) {
+                    branchCode = 0; // 0은 전체 조회를 의미
+                } else {
+                    branchCode = (loginUser != null) ? loginUser.getBranchCode() : 0;
+                }
+
+                List<InquiryDTO> inquiries = inquiryService.getInquiries(branchCode, filters);
                 resp.getWriter().write(gson.toJson(inquiries));
             }
         } catch (Exception e) {
@@ -73,6 +78,11 @@ public class BranchInquiryController extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
 
         AccountDTO loginUser = getLoginUser(req);
+        if (loginUser == null) {
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
         String action = req.getParameter("action");
         String requestBody = req.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
         String now = LocalDateTime.now().format(FORMATTER);

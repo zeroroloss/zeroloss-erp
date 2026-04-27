@@ -10,4 +10,9 @@ public interface AccountService {
 	Integer selectAccountActiveCnt() throws Exception;
 	Integer selectAccountInactiveCnt() throws Exception;
 	List<AccountDTO> searchAccountList(AccountDTO account) throws Exception;
+	void addAccount(AccountDTO account) throws Exception;
+	AccountDTO selectEmployeeByEmpNo(int empNo) throws Exception;
+	AccountDTO selectAccountByEmpNo(int empNo) throws Exception;
+	void toggleAccountStatus(int accountId) throws Exception;
+	void modifyAccount(AccountDTO account) throws Exception;
 }

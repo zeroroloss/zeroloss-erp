@@ -51,4 +51,30 @@ public class AccountServiceImpl implements AccountService {
 			List<AccountDTO> acc = accountDao.selectAccountList(account);
 			return acc;
 		}
+
+		@Override
+		public void addAccount(AccountDTO account) throws Exception {
+			accountDao.insertAccount(account);
+		}
+
+		@Override
+		public AccountDTO selectEmployeeByEmpNo(int empNo) throws Exception {
+			return accountDao.selectEmployeeByEmpNo(empNo);
+		}
+
+		@Override
+		public AccountDTO selectAccountByEmpNo(int empNo) throws Exception {
+			return accountDao.selectAccountByEmpNo(empNo);
+		}
+
+		@Override
+		public void toggleAccountStatus(int accountId) throws Exception {
+			accountDao.toggleAccountStatus(accountId);
+			
+		}
+
+		@Override
+		public void modifyAccount(AccountDTO account) throws Exception {
+			accountDao.updateAccount(account);
+		}
 }

@@ -57,12 +57,24 @@
     	ORDER BY a.account_id DESC
 	</select>
 	
-	<update id="updateAccountStatus" parameterType="dto.AccountDTO">
-		update account set status = #{status} when account_id = #{accountId}
+	<select id="selectEmployeeByEmpNo" parameterType="int" resultType="dto.AccountDTO">
+	    SELECT emp_no AS empNo FROM employee WHERE emp_no = #{value}
+	</select>
+	
+	<select id="selectAccountByEmpNo" parameterType="int" resultType="dto.AccountDTO">
+	    SELECT emp_no AS empNo FROM account WHERE emp_no = #{value}
+	</select>
+	
+	<update id="toggleAccountStatus" parameterType="Integer">
+		update account set status = CASE
+        WHEN status = 'ACTIVE' THEN 'INACTIVE'
+        ELSE 'ACTIVE'
+        END where account_id = #{value}
 	</update>
 	
 	<update id="updateAccount" parameterType="dto.AccountDTO">
-		
+		UPDATE account SET role_id = #{roleId}, branch_code = #{branchCode}
+    	WHERE account_id = #{accountId}
 	</update>
 	
 </mapper>

@@ -1,8 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.*"%>
-<%
-Map<String, List<String>> categoryMaterialMap = (Map<String, List<String>>) request.getAttribute("categoryMaterialMap");
-%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -15,7 +11,7 @@ Map<String, List<String>> categoryMaterialMap = (Map<String, List<String>>) requ
 .sidebar-open .sidebar { transform: translateX(0); }
 </style>
 <script>
-    const categoryMaterialMap = <%=request.getAttribute("categoryMaterialJson") == null ? "{}" : request.getAttribute("categoryMaterialJson")%>;
+	const categoryMaterialMap = <%= new com.google.gson.Gson().toJson(request.getAttribute("categoryMaterialMap")) %>;
 </script>
 </head>
 <body class="bg-gray-50">
@@ -38,17 +34,8 @@ Map<String, List<String>> categoryMaterialMap = (Map<String, List<String>>) requ
                     <label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
                     <select id="filterCategory" onchange="updateStockItemNames()"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                        <option value="전체">전체</option>
-                        <%
-                        if (categoryMaterialMap != null) {
-                            for (String category : categoryMaterialMap.keySet()) {
-                        %>
-                        <option value="<%=category%>"><%=category%></option>
-                        <%
-                            }
-                        }
-                        %>
-                    </select>
+					    <option value="전체">전체</option>
+					</select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">품목명</label>
@@ -242,6 +229,20 @@ Map<String, List<String>> categoryMaterialMap = (Map<String, List<String>>) requ
     // ============================================================
     // 필터 / 상태 관리
     // ============================================================
+    function initCategoryOptions() {
+        var select = document.getElementById('filterCategory');
+
+        // 기존 옵션 초기화 (전체만 유지)
+        select.innerHTML = '<option value="전체">전체</option>';
+
+        Object.keys(categoryMaterialMap || {}).forEach(function(category) {
+            var opt = document.createElement('option');
+            opt.value = category;
+            opt.textContent = category;
+            select.appendChild(opt);
+        });	
+	}
+    	
     function getStatusMeta(status) {
         return STATUS_CONFIG[status] || STATUS_CONFIG['default'];
     }
@@ -435,6 +436,7 @@ Map<String, List<String>> categoryMaterialMap = (Map<String, List<String>>) requ
     // 초기화
     // ============================================================
     window.addEventListener('DOMContentLoaded', function() {
+    	initCategoryOptions();
         updateStockItemNames();
         applyFilters();
     });

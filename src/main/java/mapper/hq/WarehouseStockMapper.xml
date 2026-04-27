@@ -110,5 +110,176 @@
 		
 		ORDER BY changed_at DESC
 	</select>
+	
+<!-- 공급사 조회 -->
+	<select id="findAllSuppliers" resultType = "string">
+		SELECT supplier_name 
+		FROM supplier
+		ORDER BY supplier_name
+	</select>
+
+<!-- 입고 이력 조회 -->
+<select id="findInboundRecords" resultType="dto.hq.warehouse.InboundRecordDTO">
+    SELECT
+        i.hq_inbound_id    AS inboundId,
+        s.supplier_name AS supplierName,
+        mg.group_name   AS categoryName,
+        m.material_name AS itemName,
+        m.unit          AS unit,
+        i.qty      		AS quantity,
+        m.material_price    AS unitPrice,
+        (i.qty * m.material_price) AS totalPrice,
+        i.expiry_date   AS expiryDate,
+        DATE_FORMAT(i.received_at, '%Y-%m-%d %H:%i') AS receivedAt
+    FROM hq_inbound i
+    JOIN supplier  s  ON i.supplier_id  = s.supplier_id
+    JOIN material  m  ON i.material_code  = m.material_code
+    JOIN material_group mg ON m.material_group_id     = mg.material_group_id
+    <where>
+        <if test="supplierName != null and supplierName != '전체'">
+            AND s.supplier_name = #{supplierName}
+        </if>
+        <if test="categoryName != null and categoryName != '전체'">
+            AND mg.group_name = #{categoryName}
+        </if>
+        <if test="itemName != null and itemName != '전체'">
+            AND m.material_name = #{itemName}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            AND DATE(i.received_at) >= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            AND DATE(i.received_at) &lt;= #{endDate}
+        </if>
+    </where>
+    ORDER BY i.received_at DESC
+</select>
+
+<!-- material_name → material_price -->
+<select id="selectMaterialPriceMap" resultType="map">
+    SELECT 
+        material_name AS materialName,
+        material_price AS materialPrice
+    FROM material
+</select>
+
+<!-- 신규 입고 등록 -->
+<insert id="insertInbound" useGeneratedKeys="true" keyProperty="hqInboundId">
+    INSERT INTO hq_inbound (
+        supplier_id, received_at, material_code, qty, expiry_date
+    )
+    VALUES (
+        (SELECT supplier_id FROM supplier WHERE supplier_name = #{supplier}),
+        NOW(),
+        (SELECT material_code FROM material WHERE material_name = #{itemName}),
+        #{quantity},
+        #{expiryDate}
+    )
+</insert>
+
+<!-- warehouse_stock 생성 -->
+<insert id="insertWarehouseStock">
+    INSERT INTO warehouse_stock (
+        stock_no,
+        material_code,
+        hq_inbound_id,
+        qty,
+        received_at,
+        expiry_date
+    )
+    SELECT
+        #{stockNo},
+        m.material_code,
+        #{inboundId},
+        #{quantity},
+        NOW(),
+        #{expiryDate}
+    FROM material m
+    WHERE m.material_name = #{itemName}
+</insert>
+
+<!-- 재고 이력 삽입 -->
+<insert id="insertStockHistory">
+
+    INSERT INTO warehouse_stock_change_history (
+        stock_no,
+        change_type,
+        change_amount,
+        after_qty
+    )
+    VALUES (
+        #{stockNo},
+        'INBOUND',
+        #{quantity},
+        #{quantity}
+    )
+</insert>
+
+<!-- 유통기한 임박 품목 조회 -->
+<select id="selectExpiryItems" resultType="dto.hq.warehouse.ExpiryItemDTO">
+    SELECT
+        ws.id AS id,
+        ws.stock_no AS stockNo,
+        ws.material_code AS itemCode,
+        mg.group_name AS category,
+        m.material_name AS itemName,
+        ws.qty AS quantity,
+        m.unit AS unit,
+        DATE_FORMAT(ws.received_at, '%Y-%m-%d') AS receivedDate,
+        DATE_FORMAT(ws.expiry_date, '%Y-%m-%d') AS expiryDate,
+        DATEDIFF(ws.expiry_date, CURDATE()) AS daysLeft,
+        m.material_price AS unitPrice,
+        (ws.qty * m.material_price) AS totalValue,
+        CASE 
+            WHEN DATEDIFF(ws.expiry_date, CURDATE()) &lt;= 1 THEN 'urgent'
+            WHEN DATEDIFF(ws.expiry_date, CURDATE()) &lt;= 3 THEN 'warning'
+            ELSE 'normal'
+        END AS status
+    FROM warehouse_stock ws
+    JOIN material m ON ws.material_code = m.material_code
+    JOIN material_group mg ON m.material_group_id = mg.material_group_id
+    <where>
+        ws.status = 'AVAILABLE'
+        AND ws.expiry_date &lt;= DATE_ADD(CURDATE(), INTERVAL 7 DAY)
+        <if test="category != null and category != ''">
+            AND mg.group_name = #{category}
+        </if>
+        <if test="itemName != null and itemName != ''">
+            AND m.material_name = #{itemName}
+        </if>
+        <if test="search != null and search != ''">
+            AND (
+                ws.stock_no LIKE CONCAT('%', #{search}, '%')
+                OR mg.group_name LIKE CONCAT('%', #{search}, '%')
+                OR m.material_name LIKE CONCAT('%', #{search}, '%')
+            )
+        </if>
+    </where>
+    ORDER BY ws.expiry_date ASC
+</select>
+
+<!-- warehouse_stock 상태 업데이트 (DISPOSED) -->
+<update id="updateStockStatus">
+    UPDATE warehouse_stock
+    SET status = #{status}
+    WHERE stock_no = #{stockNo}
+</update>
+
+<!-- 폐기 이력 삽입 -->
+<insert id="insertDisposalHistory">
+    INSERT INTO warehouse_stock_change_history (
+        stock_no,
+        change_type,
+        change_amount,
+        after_qty
+    )
+    SELECT
+        ws.stock_no,
+        #{changeType},
+        -ws.qty,
+        0
+    FROM warehouse_stock ws
+    WHERE ws.stock_no = #{stockNo}
+</insert>
 
 </mapper>

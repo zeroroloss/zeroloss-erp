@@ -20,4 +20,10 @@ public interface AccountDao {
 
 	// 계정 추가
 	void insertAccount(AccountDTO account) throws Exception;
+	AccountDTO selectEmployeeByEmpNo(int empNo) throws Exception;
+	AccountDTO selectAccountByEmpNo(int empNo) throws Exception;
+	void toggleAccountStatus(int accountId) throws Exception;
+	
+	// 계정 수정
+	void updateAccount(AccountDTO account) throws Exception;
 }

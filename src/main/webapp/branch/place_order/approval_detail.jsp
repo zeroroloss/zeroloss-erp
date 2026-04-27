@@ -54,7 +54,7 @@
                 <h1 class="title">발주서 상세 정보</h1>
                 <div class="order-no">PO-2026-0328-001</div>
             </div>
-            <a class="close" href="/branch/purchase_order/history2.jsp" aria-label="닫기">×</a>
+            <a class="close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp#approved" aria-label="닫기">×</a>
         </div>
 
         <div class="summary">
@@ -77,7 +77,7 @@
         </div>
 
         <div class="actions">
-            <a class="btn-close" href="/branch/purchase_order/history2.jsp">닫기</a>
+            <a class="btn-close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp#approved">닫기</a>
         </div>
     </section>
 </div>

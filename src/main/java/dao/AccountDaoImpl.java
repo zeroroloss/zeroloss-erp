@@ -115,4 +115,52 @@ public class AccountDaoImpl implements AccountDao {
 		}
 	}
 
+	@Override
+	public AccountDTO selectEmployeeByEmpNo(int empNo) throws Exception {
+	    try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+	        return sqlSession.selectOne("mapper.account.selectEmployeeByEmpNo", empNo);
+	    } catch(Exception e) {
+	    	e.printStackTrace();
+	    	throw e;
+	    } 
+	}
+
+	@Override
+	public AccountDTO selectAccountByEmpNo(int empNo) throws Exception {
+	    try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+	        return sqlSession.selectOne("mapper.account.selectAccountByEmpNo", empNo);
+	    } catch(Exception e) {
+	    	e.printStackTrace();
+	    	throw e;
+	    } 
+	}
+
+	@Override
+	public void toggleAccountStatus(int accountId) throws Exception {
+		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
+		try {
+			sqlSession.update("mapper.account.toggleAccountStatus", accountId);
+			sqlSession.commit();
+		} catch(Exception e) {
+			sqlSession.rollback();
+	    	throw e;
+	    } finally {
+	    	sqlSession.close();
+	    }
+	}
+
+	// 계정 수정
+	@Override
+	public void updateAccount(AccountDTO account) throws Exception {
+		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
+		try {
+			sqlSession.update("mapper.account.updateAccount", account);
+			sqlSession.commit();
+		} catch(Exception e) {
+			sqlSession.rollback();
+	    	throw e;
+	    } finally {
+	    	sqlSession.close();
+	    }
+	}
 }

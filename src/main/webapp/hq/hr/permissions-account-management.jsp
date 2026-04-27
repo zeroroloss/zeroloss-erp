@@ -119,7 +119,8 @@
                                     <!-- 동적으로 생성됨 -->
                                 </tbody>
                             </table>
-                        </div>
+    	                    </div>
+	                    <div id="pagination" class="flex justify-center items-center gap-2 p-4"></div>
                     </div>
                 </div>
             </main>
@@ -139,22 +140,22 @@
             <div class="p-6 space-y-4">
             	<div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">사번</label>
-                    <input type="text" name="empNo" placeholder="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
+                    <input type="text" id="empNo" name="empNo" placeholder="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">아이디</label>
-                    <input type="text" name="loginId" placeholder="user_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
+                    <input type="text" id="loginId" name="loginId" placeholder="user_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
-                    <input type="password" name="password" placeholder="••••••••" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
+                    <input type="password" id="password" name="password" placeholder="••••••••" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">소속 매장</label>
-                    <select name="branchCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
+                    <select name="branchCode" id ="branchCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
                         <option value="">선택하세요</option>
                         
                         <c:forEach var="branch" items="${branchNameList }">
@@ -162,9 +163,20 @@
                         </c:forEach>
                     </select>
                 </div>
+                
+                <div>
+				    <label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
+				    <select id="roleId" name="roleId"
+				            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+				        <option value="">선택하세요</option>
+				        <option value="1">본사 관리자</option>
+				        <option value="2">지점장</option>
+				        <option value="3">매니저</option>
+				    </select>
+				</div>
 
                 <div class="flex items-center gap-2">
-                    <input type="checkbox" id="isActiveAdd" checked class="w-4 h-4 text-[#00853D] border-gray-300 rounded focus:ring-[#00853D]">
+                    <input type="checkbox" name="status" id="isActiveAdd" checked class="w-4 h-4 text-[#00853D] border-gray-300 rounded focus:ring-[#00853D]">
                     <label for="isActiveAdd" class="text-sm text-gray-700">계정 활성화</label>
                 </div>
             </div>
@@ -173,7 +185,7 @@
                 <button onclick="closeAddModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
                     취소
                 </button>
-                <button onclick="saveAccount()" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+                <button type="button" onclick="saveAccount()" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
                     추가
                 </button>
             </div>
@@ -185,7 +197,7 @@
         <div class="bg-white rounded-lg max-w-sm w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
             <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
                 <h3 class="text-lg font-bold text-gray-900">권한 변경</h3>
-                <button onclick="editAccountModal(accountId)" class="text-gray-400 hover:text-gray-600">
+                <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
                     <i class="fas fa-times w-5 h-5"></i>
                 </button>
             </div>
@@ -197,19 +209,22 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">역할 변경</label>
-                    <select id="editRoleSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
-                        <option>본사관리자</option>
-                        <option>지점장</option>
-                    </select>
+                    <select id="editRoleId" name="editRoleId"
+				            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+				        <option value="">선택하세요</option>
+				        <option value="1">본사 관리자</option>
+				        <option value="2">지점장</option>
+				        <option value="3">매니저</option>
+				    </select>
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">소속 매장</label>
-                    <select id="editBranchSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
+                    <select name="editBranchCode" id ="editBranchCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
                         <option value="">선택하세요</option>
                         
-                        <c:forEach var="branchName" items="${branchNameList }">
-                        	<option value="${branch.branchCode }">${branch.branchName}</option>
+                        <c:forEach var="branch" items="${branchNameList }">
+                        	<option value="${branch.branchCode }" class="text-gray-900 bg-white">${branch.branchName}</option>
                         </c:forEach>
                     </select>
                 </div>
@@ -221,10 +236,10 @@
             </div>
 
             <div class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
-                <button onclick="closeEditModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
                     취소
                 </button>
-                <button onclick="updateAccount()" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+                <button type="button" onclick="updateAccount()" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
                     저장
                 </button>
             </div>
@@ -233,18 +248,26 @@
 
     <script>
         var selectedAccount = null;
+        var currentPage = 1;
+        var pageSize = 10;
         
         var accounts = [
             <c:forEach var="account" items="${accountList}" varStatus="status">
             {
+            	id: "${account.accountId}",
                 name: "${account.userName}",
                 username: "${account.loginId}",
                 branch: "${account.branchName}",
                 role: "${account.roleName}",
-                status: "${account.status}"
+                status: "${account.status}",
+                isActive: "${account.status}" === "ACTIVE",
+                createdDate: "${account.createdAt}",
+                lastLogin: "${account.lastLoginAt}"
             }<c:if test="${!status.last}">,</c:if>
             </c:forEach>
         ];
+
+        var searchTerm = document.getElementById("searchInput").value.toLowerCase();
         
         var filtered = accounts.filter(function(account) {
             var matchesSearch =
@@ -257,9 +280,7 @@
 
         // 초기화
         window.addEventListener('DOMContentLoaded', function() {
-            renderBranchFilters();
-            renderRoleFilters();
-            renderAccounts();
+            clearAccountTable();
             updateStats();
             setupSidebarToggle();
         });
@@ -326,20 +347,29 @@
                                    account.branch.toLowerCase().includes(searchTerm);
                 return matchesSearch;
             });
-            
-            //log 확인
-            console.log(filtered);
-
+           
             var tbody = document.getElementById('accountTableBody');
             if (filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">검색 결과가 없습니다.</td></tr>';
+                document.getElementById("pagination").innerHTML = "";
                 return;
             }
+            
+            var totalPages = Math.ceil(filtered.length/pageSize);
+            
+            if(currentPage > totalPages) {
+            	currentPage = totalPages;
+            }
+            
+            var start = (currentPage - 1) * pageSize;
+            var end = start + pageSize;
+            var pageList = filtered.slice(start, end);
 
-            tbody.innerHTML = filtered.map(function(account) {
+            tbody.innerHTML = pageList.map(function(account) {
+            	var isActive = account.status === "ACTIVE";
                 var roleColor = account.role === '본사 관리자' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
-                var statusColor = account.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
-                var statusText = account.isActive ? '활성' : '비활성';
+                var statusColor = isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+                var statusText = isActive ? '활성' : '비활성';
                 return '<tr class="hover:bg-gray-50">' +
                     '<td class="px-4 py-3 whitespace-nowrap">' +
                         '<div class="flex items-center gap-3">' +
@@ -372,6 +402,12 @@
                     '</td>' +
                 '</tr>';
             }).join('');
+            renderPagination(totalPages);
+        }
+        
+        function clearAccountTable() {
+            var tbody = document.getElementById('accountTableBody');
+            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">조회 버튼을 눌러 계정을 검색하세요.</td></tr>';
         }
 
         function updateStats() {
@@ -388,7 +424,38 @@
             if (!confirm("계정 상태를 변경하시겠습니까?")) {
                 return;
             }
-            location.href = "${pageContext.request.contextPath}/hq/account/status-toggle?accountId=" + accountId;
+            const params = new URLSearchParams();
+            params.append("action", "statusToggle");
+            params.append("accountId", accountId);
+
+            fetch("<%= request.getContextPath() %>/hq/hr/main", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                body: params.toString()
+            })
+            .then(response => response.json())
+            .then(data => {
+            	if (data.success) {
+	            	const account = accounts.find(a => String(a.id) === String(accountId));
+	
+	                if (account) {
+	                    account.status = account.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+	                    account.isActive = account.status === "ACTIVE";
+	                }
+	
+	                renderAccounts();
+	                updateStats();
+	
+	            } else {
+	                alert(data.message || "상태 변경에 실패했습니다.");
+	            }
+	        })
+	        .catch(error => {
+	            console.error(error);
+	            location.href = "<%= request.getContextPath() %>/common/500.jsp";
+	        });
         }
 
         function showAddModal() {
@@ -402,8 +469,51 @@
         }
 
         function saveAccount() {
-            alert('계정이 추가되었습니다.');
-            closeAddModal();
+            console.log("saveAccount 실행됨");
+
+            const empNo = document.getElementById("empNo");
+            const branchCode = document.getElementById("branchCode");
+            const roleId = document.getElementById("roleId");
+            const loginId = document.getElementById("loginId");
+            const password = document.getElementById("password");
+            const status = document.getElementById("isActiveAdd");
+
+            const params = new URLSearchParams();
+            params.append("action", "add");
+            params.append("empNo", empNo.value);
+            params.append("branchCode", branchCode.value);
+            params.append("roleId", roleId.value);
+            params.append("loginId", loginId.value);
+            params.append("password", password.value);
+            params.append("status", status.checked ? "ACTIVE" : "INACTIVE");
+
+            console.log(params.toString());
+
+            fetch("<%= request.getContextPath() %>/hq/hr/main", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                },
+                body: params.toString()
+            })
+            .then(response => response.text())
+            .then(text => {
+                console.log("서버 응답:", text);
+
+                const data = JSON.parse(text);
+
+                if (data.success) {
+                    alert("계정이 추가되었습니다.");
+                    closeAddModal();
+                    applyFilters();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                location.href = "<%= request.getContextPath() %>/common/500.jsp";
+            });
         }
 
         function editAccountModal(accountId) {
@@ -420,8 +530,8 @@
                         '<p>소속: ' + selectedAccount.branch + '</p>' +
                     '</div>';
                 document.getElementById('editAccountInfo').innerHTML = info;
-                document.getElementById('editRoleSelect').value = selectedAccount.role;
-                document.getElementById('editBranchSelect').value = selectedAccount.branch;
+                document.getElementById('editRoleId').value = selectedAccount.roleId;
+                document.getElementById('editBranchCode').value = selectedAccount.branchCode;
                 var modal = document.getElementById('editModal');
                 modal.classList.remove('modal-hidden');
             }
@@ -434,13 +544,86 @@
 
         function updateAccount() {
             if (selectedAccount) {
-                selectedAccount.role = document.getElementById('editRoleSelect').value;
-                selectedAccount.branch = document.getElementById('editBranchSelect').value;
-                alert('권한이 변경되었습니다.');
-                closeEditModal();
-                renderAccounts();
-                updateStats();
+            	const roleId = document.getElementById("editRoleId").value;
+                const branchCode = document.getElementById("editBranchCode").value;
+
+                if (!roleId) {
+                    alert("역할을 선택해주세요.");
+                    return;
+                }
+
+                if (!branchCode) {
+                    alert("소속 매장을 선택해주세요.");
+                    return;
+                }
+
+                const params = new URLSearchParams();
+                params.append("action", "update");
+                params.append("accountId", selectedAccount.id);
+                params.append("roleId", roleId);
+                params.append("branchCode", branchCode);
+
+                fetch("<%= request.getContextPath() %>/hq/hr/main", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                    },
+                    body: params.toString()
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("계정 정보가 수정되었습니다.");
+
+                        selectedAccount.roleId = roleId;
+                        selectedAccount.branchCode = branchCode;
+                        selectedAccount.role = document.getElementById("editRoleId").selectedOptions[0].text;
+                        selectedAccount.branch = document.getElementById("editBranchCode").selectedOptions[0].text;
+
+                        closeEditModal();
+                        renderAccounts();
+                    } else {
+                        alert(data.message || "계정 수정에 실패했습니다.");
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    location.href = "<%= request.getContextPath() %>/common/500.jsp";
+                });
             }
+        }
+        
+        // 페이징 처리
+        function renderPagination(totalPages) {
+            var pagination = document.getElementById("pagination");
+            var html = "";
+
+            html += '<button type="button" onclick="changePage(' + (currentPage - 1) + ')" ' +
+                    (currentPage === 1 ? 'disabled' : '') +
+                    ' class="px-3 py-1 border rounded disabled:opacity-40">이전</button>';
+
+            for (var i = 1; i <= totalPages; i++) {
+                html += '<button type="button" onclick="changePage(' + i + ')" ' +
+                        'class="px-3 py-1 border rounded ' +
+                        (i === currentPage ? 'bg-[#00853D] text-white' : 'bg-white text-gray-700') +
+                        '">' + i + '</button>';
+            }
+
+            html += '<button type="button" onclick="changePage(' + (currentPage + 1) + ')" ' +
+                    (currentPage === totalPages ? 'disabled' : '') +
+                    ' class="px-3 py-1 border rounded disabled:opacity-40">다음</button>';
+
+            pagination.innerHTML = html;
+        }
+        
+        function changePage(page) {
+            currentPage = page;
+            renderAccounts();
+        }
+
+        function applyFilters() {
+            currentPage = 1;
+            renderAccounts();
         }
     </script>
 </body>

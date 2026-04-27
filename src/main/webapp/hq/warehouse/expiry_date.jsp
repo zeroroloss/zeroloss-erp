@@ -1,4 +1,6 @@
 ﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.*"%>
+<%@ page import="com.google.gson.Gson"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -12,6 +14,14 @@
             transform: translateX(0);
         }
     </style>
+    <%
+        Map<String, List<String>> categoryMaterialMap = (Map<String, List<String>>) request.getAttribute("categoryMaterialMap");
+        Gson gson = new Gson();
+        String categoryJson = gson.toJson(categoryMaterialMap != null ? categoryMaterialMap : new HashMap<>());
+    %>
+    <script>
+        const categoryMaterialMap = <%=categoryJson%>;
+    </script>
 </head>
 <body class="bg-gray-50">
 	    <%@ include file="/hq/common/sidebar.jsp" %>
@@ -34,12 +44,15 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
                             <select id="filterCategory" onchange="updateExpiryItemNames()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                                 <option value="전체">전체</option>
-                                <option value="육류">육류</option>
-                                <option value="채소">채소</option>
-                                <option value="유제품">유제품</option>
-                                <option value="빵류">빵류</option>
-                                <option value="음료">음료</option>
-                                <option value="조미료">조미료</option>
+                                <%
+                                if (categoryMaterialMap != null) {
+                                    for (String category : categoryMaterialMap.keySet()) {
+                                %>
+                                <option value="<%=category%>"><%=category%></option>
+                                <%
+                                    }
+                                }
+                                %>
                             </select>
                         </div>
 
@@ -89,7 +102,7 @@
                 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
                         <div>
-                            <h3 class="font-semibold text-lg text-gray-900">유통기한 임박 재고 리스트</h3>
+                            <h3 class="font-semibold text-lg text-gray-900">유통기한 임박 재고 리스트 (7일 이하)</h3>
                             <p class="text-sm text-gray-500 mt-1">체크박스를 선택하여 일괄 처리하세요</p>
                         </div>
                         <div class="flex items-center gap-4">
@@ -170,27 +183,15 @@
     </div>
 
     <script>
+        // ============================================================
         // 전역 상태
+        // ============================================================
         let expiryItems = [];
         let selectedItems = [];
 
-        // Mock 데이터
-        const mockExpiryItems = [
-            { id: "we1", itemCode: "MEAT-001", itemName: "소고기 패티", category: "육류", quantity: 50, unit: "개", receivedDate: "2026-03-15", expiryDate: "2026-03-31", daysLeft: 2, unitPrice: 25000, totalValue: 1250000, status: "urgent" },
-            { id: "we1-2", itemCode: "MEAT-001", itemName: "소고기 패티", category: "육류", quantity: 35, unit: "개", receivedDate: "2026-03-14", expiryDate: "2026-03-30", daysLeft: 1, unitPrice: 25000, totalValue: 875000, status: "urgent" },
-            { id: "we2", itemCode: "DAIRY-002", itemName: "체다치즈", category: "유제품", quantity: 80, unit: "장", receivedDate: "2026-03-20", expiryDate: "2026-04-01", daysLeft: 3, unitPrice: 18000, totalValue: 1440000, status: "urgent" },
-            { id: "we2-2", itemCode: "DAIRY-002", itemName: "체다치즈", category: "유제품", quantity: 60, unit: "장", receivedDate: "2026-03-19", expiryDate: "2026-03-31", daysLeft: 2, unitPrice: 18000, totalValue: 1080000, status: "urgent" },
-            { id: "we3", itemCode: "DAIRY-001", itemName: "생크림", category: "유제품", quantity: 25, unit: "L", receivedDate: "2026-03-22", expiryDate: "2026-04-03", daysLeft: 5, unitPrice: 30000, totalValue: 750000, status: "warning" },
-            { id: "we3-2", itemCode: "DAIRY-001", itemName: "생크림", category: "유제품", quantity: 18, unit: "L", receivedDate: "2026-03-21", expiryDate: "2026-04-02", daysLeft: 4, unitPrice: 30000, totalValue: 540000, status: "warning" },
-            { id: "we4", itemCode: "VEG-002", itemName: "양상추", category: "채소", quantity: 30, unit: "kg", receivedDate: "2026-03-24", expiryDate: "2026-04-04", daysLeft: 6, unitPrice: 5000, totalValue: 150000, status: "warning" },
-            { id: "we4-2", itemCode: "VEG-002", itemName: "양상추", category: "채소", quantity: 22, unit: "kg", receivedDate: "2026-03-25", expiryDate: "2026-04-05", daysLeft: 7, unitPrice: 5000, totalValue: 110000, status: "warning" },
-            { id: "we5", itemCode: "VEG-003", itemName: "토마토", category: "채소", quantity: 45, unit: "kg", receivedDate: "2026-03-23", expiryDate: "2026-04-05", daysLeft: 7, unitPrice: 8000, totalValue: 360000, status: "warning" },
-            { id: "we5-2", itemCode: "VEG-003", itemName: "토마토", category: "채소", quantity: 38, unit: "kg", receivedDate: "2026-03-24", expiryDate: "2026-04-06", daysLeft: 8, unitPrice: 8000, totalValue: 304000, status: "normal" },
-            { id: "we6", itemCode: "BREAD-001", itemName: "버거빵", category: "빵류", quantity: 200, unit: "개", receivedDate: "2026-03-25", expiryDate: "2026-04-08", daysLeft: 10, unitPrice: 500, totalValue: 100000, status: "normal" },
-            { id: "we6-2", itemCode: "BREAD-001", itemName: "버거빵", category: "빵류", quantity: 150, unit: "개", receivedDate: "2026-03-26", expiryDate: "2026-04-09", daysLeft: 11, unitPrice: 500, totalValue: 75000, status: "normal" }
-        ];
-
-        // 사이드바 토글
+        // ============================================================
+        // 사이드바 / 메뉴 토글
+        // ============================================================
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebarBackdrop');
@@ -208,7 +209,6 @@
             }
         }
 
-        // 메뉴 토글
         function toggleMenu(button) {
             const submenu = button.nextElementSibling;
             const icon = button.querySelector('i:last-child');
@@ -220,49 +220,53 @@
             }
         }
 
-        // 사용자 메뉴 토글
         function toggleUserMenu() {
             document.getElementById('userMenu').classList.toggle('hidden');
         }
 
-        // 로그아웃
         function logout() {
             alert('로그아웃되었습니다.');
-            window.location.href = '<%= request.getContextPath() %>/common/login.jsp';
+            window.location.href = '<%=request.getContextPath()%>/common/login.jsp';
         }
 
-        // 백드롭 클릭 시 사이드바 닫기
         document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
 
-        // 품목명 필터 옵션 업데이트
+        document.addEventListener('click', function(e) {
+            const userMenu = document.getElementById('userMenu');
+            if (!e.target.closest('button[onclick="toggleUserMenu()"]') && 
+                !e.target.closest('#userMenu')) {
+                userMenu.classList.add('hidden');
+            }
+        });
+
+        // ============================================================
+        // 품목명 필터 옵션 업데이트 (카테고리별)
+        // ============================================================
         function updateExpiryItemNames() {
             const selectedCategory = document.getElementById('filterCategory').value;
             const itemNameSelect = document.getElementById('filterItemName');
-            const uniqueNames = ['전체'];
+            
+            // 서버 데이터에서 카테고리별 품목 가져오기
+            if (selectedCategory === '전체') {
+                itemNameSelect.innerHTML = '<option value="전체">전체</option>';
+                return;
+            }
 
-            expiryItems.forEach(item => {
-                if (selectedCategory === '전체' || item.category === selectedCategory) {
-                    if (!uniqueNames.includes(item.itemName)) {
-                        uniqueNames.push(item.itemName);
-                    }
-                }
-            });
-
-            const previousValue = itemNameSelect.value;
-            itemNameSelect.innerHTML = '';
-            uniqueNames.forEach(name => {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name;
-                itemNameSelect.appendChild(option);
-            });
-
-            if (uniqueNames.includes(previousValue)) {
-                itemNameSelect.value = previousValue;
+            itemNameSelect.innerHTML = '<option value="전체">전체</option>';
+            
+            if (categoryMaterialMap && categoryMaterialMap[selectedCategory]) {
+                categoryMaterialMap[selectedCategory].forEach(itemName => {
+                    const option = document.createElement('option');
+                    option.value = itemName;
+                    option.textContent = itemName;
+                    itemNameSelect.appendChild(option);
+                });
             }
         }
 
-        // 필터된 항목 가져오기
+        // ============================================================
+        // 필터된 항목 가져오기 (로컬 필터링)
+        // ============================================================
         function getFilteredItems() {
             const categoryFilter = document.getElementById('filterCategory').value;
             const itemNameFilter = document.getElementById('filterItemName').value;
@@ -271,16 +275,22 @@
             return expiryItems.filter(item => {
                 const matchesCategory = categoryFilter === '전체' || item.category === categoryFilter;
                 const matchesItemName = itemNameFilter === '전체' || item.itemName === itemNameFilter;
-                const matchesSearch = !searchQuery || item.itemCode.toLowerCase().includes(searchQuery) || item.category.toLowerCase().includes(searchQuery) || item.itemName.toLowerCase().includes(searchQuery);
+                const matchesSearch = !searchQuery || 
+                    (item.stockNo && item.stockNo.toLowerCase().includes(searchQuery)) || 
+                    (item.category && item.category.toLowerCase().includes(searchQuery)) || 
+                    (item.itemName && item.itemName.toLowerCase().includes(searchQuery));
                 return matchesCategory && matchesItemName && matchesSearch;
             });
         }
 
+        // ============================================================
+        // 필터 적용 / 초기화
+        // ============================================================
         function applyFilters() {
             selectedItems = [];
             document.getElementById('selectAllCheckbox').checked = false;
             updateActionBar();
-            renderTable();
+            loadExpiryData();
         }
 
         function resetFilters() {
@@ -291,11 +301,22 @@
             applyFilters();
         }
 
+        // ============================================================
         // 테이블 렌더링
+        // ============================================================
         function renderTable() {
+            // 로컬 필터링 (프론트엔드 검색)
             const filtered = getFilteredItems();
             const tbody = document.getElementById('expiryTableBody');
             tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="py-12 text-center text-gray-500">' +
+                    '<i class="fas fa-box w-12 h-12 mx-auto mb-3 text-gray-400"></i>' +
+                    '<p>조회 결과가 없습니다</p></td></tr>';
+                updateStats();
+                return;
+            }
 
             filtered.forEach(item => {
                 let rowClass = '';
@@ -332,23 +353,36 @@
 
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-gray-100 hover:bg-gray-50 ' + rowClass;
-                tr.innerHTML = '<td class="py-4 px-6"><input type="checkbox" class="item-checkbox w-4 h-4 rounded border-gray-300" data-item-id="' + item.id + '" onchange="updateSelection()"></td><td class="py-4 px-6 font-mono text-sm text-gray-600">' + item.itemCode + '</td><td class="py-4 px-6"><span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">' + item.category + '</span></td><td class="py-4 px-6 font-medium text-gray-900">' + item.itemName + '</td><td class="py-4 px-6 text-right font-semibold text-gray-900">' + item.quantity + item.unit + '</td><td class="py-4 px-6 text-gray-700 text-sm"><div class="flex items-center gap-2"><i class="fas fa-calendar w-4 h-4 text-gray-400"></i>' + item.receivedDate + '</div></td><td class="py-4 px-6 font-medium text-gray-900"><div class="flex items-center gap-2"><i class="fas fa-calendar w-4 h-4"></i>' + item.expiryDate + '</div></td><td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ' + dBadgeClass + '"><i class="fas fa-clock w-4 h-4"></i>D-' + item.daysLeft + '</span></td><td class="py-4 px-6 text-right font-semibold text-gray-900">₩' + item.totalValue.toLocaleString() + '</td><td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ' + statusBadgeClass + '">' + statusIcon + statusText + '</span></td>';
+                tr.innerHTML = '<td class="py-4 px-6"><input type="checkbox" class="item-checkbox w-4 h-4 rounded border-gray-300" data-item-id="' + item.id + '" data-stock-no="' + item.stockNo + '" onchange="updateSelection()"></td>' +
+                    '<td class="py-4 px-6 font-mono text-sm text-gray-600">' + (item.stockNo || item.itemCode || '-') + '</td>' +
+                    '<td class="py-4 px-6"><span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">' + item.category + '</span></td>' +
+                    '<td class="py-4 px-6 font-medium text-gray-900">' + item.itemName + '</td>' +
+                    '<td class="py-4 px-6 text-right font-semibold text-gray-900">' + item.quantity + (item.unit || '') + '</td>' +
+                    '<td class="py-4 px-6 text-gray-700 text-sm"><div class="flex items-center gap-2"><i class="fas fa-calendar w-4 h-4 text-gray-400"></i>' + item.receivedDate + '</div></td>' +
+                    '<td class="py-4 px-6 font-medium text-gray-900"><div class="flex items-center gap-2"><i class="fas fa-calendar w-4 h-4"></i>' + item.expiryDate + '</div></td>' +
+                    '<td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold ' + dBadgeClass + '"><i class="fas fa-clock w-4 h-4"></i>D-' + item.daysLeft + '</span></td>' +
+                    '<td class="py-4 px-6 text-right font-semibold text-gray-900">₩' + (item.totalValue ? item.totalValue.toLocaleString() : '0') + '</td>' +
+                    '<td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ' + statusBadgeClass + '">' + statusIcon + statusText + '</span></td>';
                 tbody.appendChild(tr);
             });
 
             updateStats();
         }
 
-        // 선택 항목 체크박스
+        // ============================================================
+        // 선택 항목 관리
+        // ============================================================
         function updateSelection() {
             selectedItems = [];
             document.querySelectorAll('.item-checkbox:checked').forEach(checkbox => {
-                selectedItems.push(checkbox.dataset.itemId);
+                selectedItems.push({
+                    id: checkbox.dataset.itemId,
+                    stockNo: checkbox.dataset.stockNo
+                });
             });
             updateActionBar();
         }
 
-        // 전체 선택
         function toggleSelectAll() {
             const isChecked = document.getElementById('selectAllCheckbox').checked;
             document.querySelectorAll('.item-checkbox').forEach(checkbox => {
@@ -357,7 +391,6 @@
             updateSelection();
         }
 
-        // 액션 바 업데이트
         function updateActionBar() {
             const actionBar = document.getElementById('actionBar');
             if (selectedItems.length > 0) {
@@ -368,7 +401,9 @@
             }
         }
 
+        // ============================================================
         // 통계 업데이트
+        // ============================================================
         function updateStats() {
             const filtered = getFilteredItems();
             const urgentCount = filtered.filter(i => i.status === 'urgent').length;
@@ -378,8 +413,14 @@
             document.getElementById('warningCount').textContent = warningCount + '개';
         }
 
+        // ============================================================
         // 폐기 처리 모달
+        // ============================================================
         function showDisposalModal() {
+            if (selectedItems.length === 0) {
+                alert('폐기할 품목을 선택해주세요.');
+                return;
+            }
             document.getElementById('disposalCountText').textContent = selectedItems.length + '개 품목';
             document.getElementById('disposalModal').classList.remove('hidden');
         }
@@ -388,36 +429,112 @@
             document.getElementById('disposalModal').classList.add('hidden');
         }
 
-        function confirmDisposal() {
-            expiryItems = expiryItems.filter(item => !selectedItems.includes(item.id));
-            selectedItems = [];
-            document.getElementById('disposalModal').classList.add('hidden');
-            document.getElementById('selectAllCheckbox').checked = false;
-            alert('폐기 처리가 완료되었습니다.');
-            renderTable();
+        async function confirmDisposal() {
+            try {
+                // stock_no 배열로 변환
+                const stockNos = selectedItems.map(item => item.stockNo);
+                
+                const response = await fetch('<%=request.getContextPath()%>/api/hq/warehouse/expiry_date/dispose', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ stockNos: stockNos })
+                });
+
+                const result = await response.json();
+                if (!response.ok || result.status !== 'success') {
+                    throw new Error(result.message || '폐기 처리 실패');
+                }
+
+                selectedItems = [];
+                document.getElementById('disposalModal').classList.add('hidden');
+                document.getElementById('selectAllCheckbox').checked = false;
+                alert('폐기 처리가 완료되었습니다.');
+                applyFilters();
+
+            } catch (err) {
+                alert('폐기 처리 중 오류가 발생했습니다: ' + err.message);
+            }
         }
 
-        // 모달 외부 클릭 시 닫기
         document.getElementById('disposalModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 cancelDisposal();
             }
         });
 
-        // 사용자 메뉴 외부 클릭 시 닫기
-        document.addEventListener('click', function(e) {
-            const userMenu = document.getElementById('userMenu');
-            if (!e.target.closest('button[onclick="toggleUserMenu()"]') && 
-                !e.target.closest('#userMenu')) {
-                userMenu.classList.add('hidden');
-            }
-        });
+        // ============================================================
+        // 데이터 로드 (GET API)
+        // ============================================================
+        async function loadExpiryData() {
+            try {
+                const category = document.getElementById('filterCategory').value;
+                const itemName = document.getElementById('filterItemName').value;
+                const search = document.getElementById('searchQuery').value;
 
+                const params = new URLSearchParams();
+                if (category !== '전체') params.append('category', category);
+                if (itemName !== '전체') params.append('itemName', itemName);
+                if (search.trim()) params.append('search', search);
+
+                const response = await fetch('<%=request.getContextPath()%>/api/hq/warehouse/expiry_date?' + params.toString());
+                
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.message || 'HTTP ' + response.status);
+                }
+
+                const result = await response.json();
+                if (!result || result.status !== 'success') {
+                    throw new Error((result && result.message) || '데이터 오류');
+                }
+
+                // API 응답 데이터 정규화
+                expiryItems = (result.data || []).map(item => ({
+                    id: item.id || item.warehouseStockId,
+                    stockNo: item.stockNo,
+                    itemCode: item.itemCode || item.stockNo,
+                    category: item.category || item.categoryName,
+                    itemName: item.itemName || item.materialName,
+                    quantity: item.quantity || item.qty,
+                    unit: item.unit,
+                    receivedDate: item.receivedDate || item.receivedAt,
+                    expiryDate: item.expiryDate,
+                    daysLeft: item.daysLeft,
+                    totalValue: item.totalValue || (item.quantity * (item.unitPrice || 0)),
+                    status: item.status
+                }));
+
+                updateExpiryItemNames();
+                renderTable();
+
+            } catch (err) {
+                console.error('데이터 로드 실패:', err);
+                expiryItems = [];
+                updateExpiryItemNames();
+                renderTable();
+                alert('데이터를 불러오는 중 오류가 발생했습니다: ' + err.message);
+            }
+        }
+
+        // ============================================================
         // 초기 로드
+        // ============================================================
         window.addEventListener('DOMContentLoaded', function() {
-            expiryItems = mockExpiryItems.slice();
-            updateExpiryItemNames();
-            renderTable();
+            // 카테고리 필터 옵션 초기화 (서버 데이터 기반)
+            const categorySelect = document.getElementById('filterCategory');
+            if (categoryMaterialMap && Object.keys(categoryMaterialMap).length > 0) {
+                Object.keys(categoryMaterialMap).forEach(category => {
+                    if (!Array.from(categorySelect.options).some(opt => opt.value === category)) {
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.textContent = category;
+                        categorySelect.appendChild(option);
+                    }
+                });
+            }
+            
+            // 초기 데이터 로드
+            loadExpiryData();
         });
     </script>
 </body>

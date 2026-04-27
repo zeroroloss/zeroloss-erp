@@ -76,8 +76,8 @@
         <div class="notice"><strong>안내:</strong> 전송 후 본사의 승인을 기다려야 합니다. 반려된 경우 수정 후 재전송이 가능합니다.</div>
 
         <div class="actions">
-            <a class="btn btn-cancel" href="<%= request.getContextPath() %>/branch/purchase_order/create.jsp">취소</a>
-            <a class="btn btn-send" href="<%= request.getContextPath() %>/branch/purchase_order/history1.jsp">전송</a>
+            <a class="btn btn-cancel" href="<%= request.getContextPath() %>/branch/place_order/create.jsp">취소</a>
+            <a class="btn btn-send" href="<%= request.getContextPath() %>/branch/place_order/history.jsp#sent">전송</a>
         </div>
     </div>
 </div>
