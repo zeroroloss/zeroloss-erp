@@ -77,7 +77,7 @@
 
         <div class="actions">
             <a class="btn btn-cancel" href="<%= request.getContextPath() %>/branch/place_order/create.jsp">취소</a>
-            <a class="btn btn-send" href="<%= request.getContextPath() %>/branch/place_order/history.jsp#sent">전송</a>
+            <a class="btn btn-send" href="<%= request.getContextPath() %>/branch/place_order/history.jsp">전송</a>
         </div>
     </div>
 </div>

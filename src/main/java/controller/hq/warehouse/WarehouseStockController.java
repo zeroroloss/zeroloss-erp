@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import service.hq.warehouse.WarehouseStockService;
 import service.hq.warehouse.WarehouseStockServiceImpl;
 
+
 @WebServlet("/hq/warehouse/stock")
 public class WarehouseStockController extends HttpServlet {
 	private static final long serialVersionUID = 1L;

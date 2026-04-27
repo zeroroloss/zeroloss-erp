@@ -1,8 +1,11 @@
 package dto.branch.place_order;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class PlaceOrderRequestDTO {
+public class PlaceOrderRequestDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private Integer poId;
     private String poNo;
@@ -75,5 +78,9 @@ public class PlaceOrderRequestDTO {
 
     public void setDetails(List<PlaceOrderRequestDetailDTO> details) {
         this.details = details;
+    }
+
+    public boolean hasDetails() {
+        return details != null && !details.isEmpty();
     }
 }

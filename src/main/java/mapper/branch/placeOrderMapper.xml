@@ -3,127 +3,114 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mapper.branch.placeOrderMapper">
 
-    <resultMap id="placeOrderDetailResultMap" type="dto.branch.place_order.PlaceOrderDetailDTO">
-        <id property="poDetailId" column="po_detail_id" />
-        <result property="poId" column="po_id" />
-        <result property="materialCode" column="material_code" />
-        <result property="materialName" column="material_name" />
-        <result property="requestedQty" column="requested_qty" />
-        <result property="approvedQty" column="approved_qty" />
-        <result property="remainingQty" column="remaining_qty" />
-    </resultMap>
+    <sql id="statusLabelCase">
+        CASE p.status
+            WHEN 'PENDING' THEN '전송'
+            WHEN 'APPROVED' THEN '승인'
+            WHEN 'REJECTED' THEN '반려'
+            ELSE '전송'
+        END
+    </sql>
 
-    <resultMap id="placeOrderHistoryResultMap" type="dto.branch.place_order.PlaceOrderHistoryDTO">
-        <id property="poId" column="po_id" />
-        <result property="poNo" column="po_no" />
-        <result property="orderId" column="order_id" />
-        <result property="branchCode" column="branch_code" />
-        <result property="branchName" column="branch_name" />
-        <result property="createdAt" column="created_at" />
-        <result property="itemCount" column="item_count" />
-        <result property="totalQty" column="total_qty" />
-        <result property="totalMaterialCnt" column="total_material_cnt" />
-        <result property="totalAmount" column="total_amount" />
-        <result property="status" column="status" />
-        <result property="statusKey" column="status_key" />
-        <result property="statusCode" column="status_code" />
-        <result property="rejectReason" column="reject_reason" />
-        <result property="detailUrl" column="detail_url" />
-        <result property="cancelUrl" column="cancel_url" />
-    </resultMap>
+    <sql id="detailUrlExpression">
+        CONCAT(COALESCE(#{contextPath}, ''), '/branch/place_order/',
+               CASE p.status
+                   WHEN 'APPROVED' THEN 'approval_detail.jsp'
+                   WHEN 'REJECTED' THEN 'rejection_detail.jsp'
+                   ELSE 'request_detail.jsp'
+               END)
+    </sql>
 
-    <select id="selectPlaceOrderHistory" parameterType="map" resultMap="placeOrderHistoryResultMap">
-        SELECT
-            p.po_id,
-            p.po_no,
-            p.po_no AS order_id,
-            p.branch_code,
-            b.name AS branch_name,
-            DATE_FORMAT(p.request_date, '%Y-%m-%d %H:%i') AS created_at,
-            COUNT(DISTINCT pod.po_detail_id) AS item_count,
-            COALESCE(CAST(SUM(pod.requested_qty) AS SIGNED), 0) AS total_qty,
-            p.total_material_cnt,
-            p.total_amount,
-            p.reject_reason,
-            p.status AS status_code,
-            CASE p.status
-                WHEN 'PENDING' THEN '전송'
-                WHEN 'APPROVED' THEN '승인'
-                WHEN 'REJECTED' THEN '반려'
-                ELSE '전송'
-            END AS status,
-            CASE p.status
-                WHEN 'PENDING' THEN '전송'
-                WHEN 'APPROVED' THEN '승인'
-                WHEN 'REJECTED' THEN '반려'
-                ELSE '전송'
-            END AS status_key,
-            CONCAT(#{contextPath}, '/branch/place_order/',
-                   CASE p.status
-                       WHEN 'APPROVED' THEN 'approval_detail.jsp'
-                       WHEN 'REJECTED' THEN 'rejection_detail.jsp'
-                       ELSE 'request_detail.jsp'
-                   END) AS detail_url,
-            CASE WHEN p.status = 'PENDING'
-                 THEN CONCAT(#{contextPath}, '/branch/place_order/cancel_request.jsp')
-                 ELSE NULL
-            END AS cancel_url
-        FROM place_order p
-        JOIN branch b ON b.branch_code = p.branch_code
-        LEFT JOIN place_order_detail pod ON pod.po_id = p.po_id
-        WHERE p.branch_code = #{branchCode}
-        <if test="startDate != null and startDate != ''">
-            AND DATE(p.request_date) &gt;= #{startDate}
-        </if>
-        <if test="endDate != null and endDate != ''">
-            AND DATE(p.request_date) &lt;= #{endDate}
-        </if>
-        <if test="status != null and status != '' and status != '전체'">
-            AND (
-                CASE p.status
-                    WHEN 'PENDING' THEN '전송'
-                    WHEN 'APPROVED' THEN '승인'
-                    WHEN 'REJECTED' THEN '반려'
-                    ELSE '전송'
-                END
-            ) = #{status}
-        </if>
-        GROUP BY p.po_id, p.po_no, p.branch_code, b.name, p.request_date, p.total_material_cnt, p.total_amount, p.reject_reason, p.status
-        ORDER BY p.request_date DESC, p.po_id DESC
-    </select>
+    <sql id="cancelUrlExpression">
+        CASE WHEN p.status = 'PENDING'
+             THEN CONCAT(COALESCE(#{contextPath}, ''), '/branch/place_order/cancel_request.jsp')
+             ELSE NULL
+        END
+    </sql>
 
-    <select id="selectPlaceOrderDetail" parameterType="String" resultMap="placeOrderHistoryResultMap">
-        SELECT
-            p.po_id,
-            p.po_no,
-            p.po_no AS order_id,
-            p.branch_code,
-            b.name AS branch_name,
-            DATE_FORMAT(p.request_date, '%Y-%m-%d %H:%i') AS created_at,
-            (SELECT COUNT(*) FROM place_order_detail d WHERE d.po_id = p.po_id) AS item_count,
-            COALESCE((SELECT CAST(SUM(d.requested_qty) AS SIGNED) FROM place_order_detail d WHERE d.po_id = p.po_id), 0) AS total_qty,
-            p.total_material_cnt,
-            p.total_amount,
-            p.reject_reason,
-            p.status AS status_code,
-            CASE p.status
-                WHEN 'PENDING' THEN '전송'
-                WHEN 'APPROVED' THEN '승인'
-                WHEN 'REJECTED' THEN '반려'
-                ELSE '전송'
-            END AS status,
-            CASE p.status
-                WHEN 'PENDING' THEN '전송'
-                WHEN 'APPROVED' THEN '승인'
-                WHEN 'REJECTED' THEN '반려'
-                ELSE '전송'
-            END AS status_key,
-            NULL AS detail_url,
-            CASE WHEN p.status = 'PENDING' THEN NULL ELSE NULL END AS cancel_url
-        FROM place_order p
-        JOIN branch b ON b.branch_code = p.branch_code
-        WHERE p.po_no = #{value}
-    </select>
+	<resultMap id="placeOrderDetailResultMap" type="dto.branch.place_order.PlaceOrderDetailDTO">
+	    <id property="poDetailId" column="po_detail_id" />
+	    <result property="poId" column="po_id" />
+	    <result property="materialCode" column="material_code" />
+	    <result property="materialName" column="material_name" />
+	    <result property="unit" column="unit" />    <!-- 추가 -->
+	    <result property="requestedQty" column="requested_qty" />
+	    <result property="approvedQty" column="approved_qty" />
+	    <result property="remainingQty" column="remaining_qty" />
+	</resultMap>
+
+	<resultMap id="placeOrderHistoryResultMap" type="dto.branch.place_order.PlaceOrderHistoryDTO">
+	    <id property="poId" column="po_id" />
+	    <result property="poNo" column="po_no" />
+	    <result property="branchCode" column="branch_code" />
+	    <result property="branchName" column="branch_name" />
+	    <result property="createdAt" column="created_at" />
+	    <result property="itemCount" column="item_count" />
+	    <result property="totalQty" column="total_qty" />
+	    <result property="totalMaterialCnt" column="total_material_cnt" />
+	    <result property="totalAmount" column="total_amount" />
+	    <result property="status" column="status" />
+	    <result property="statusCode" column="status_code" />
+	    <result property="rejectReason" column="reject_reason" />
+	    <result property="detailUrl" column="detail_url" />
+	    <result property="cancelUrl" column="cancel_url" />
+	</resultMap>
+
+    <!-- 공통 SELECT 컬럼 -->
+	<sql id="commonOrderColumns">
+	    p.po_id,
+	    p.po_no,
+	    p.branch_code,
+	    b.name AS branch_name,
+	    DATE_FORMAT(p.request_date, '%Y-%m-%d %H:%i') AS created_at,
+	    p.total_material_cnt,
+	    p.total_amount,
+	    p.reject_reason,
+	    p.status AS status_code,
+	    <include refid="statusLabelCase"/> AS status
+	</sql>
+		
+	<!-- 목록 조회 -->
+	<select id="selectPlaceOrderHistory" parameterType="map" resultMap="placeOrderHistoryResultMap">
+	    SELECT
+	        <include refid="commonOrderColumns"/>,
+	        COUNT(DISTINCT pod.po_detail_id) AS item_count,
+	        COALESCE(CAST(SUM(pod.requested_qty) AS SIGNED), 0) AS total_qty,
+	        <include refid="detailUrlExpression"/> AS detail_url,
+	        <include refid="cancelUrlExpression"/> AS cancel_url
+	    FROM place_order p
+	    JOIN branch b ON b.branch_code = p.branch_code
+	    LEFT JOIN place_order_detail pod ON pod.po_id = p.po_id
+	    WHERE p.branch_code = #{branchCode}
+	    <if test="startDate != null and startDate != ''">
+	        AND DATE(p.request_date) &gt;= #{startDate}
+	    </if>
+	    <if test="endDate != null and endDate != ''">
+	        AND DATE(p.request_date) &lt;= #{endDate}
+	    </if>
+	    <if test="status != null and status != '' and status != '전체'">
+	        AND (<include refid="statusLabelCase"/>) = #{status}
+	    </if>
+	    GROUP BY p.po_id, p.po_no, p.branch_code, b.name, p.request_date,
+	             p.total_material_cnt, p.total_amount, p.reject_reason, p.status
+	    ORDER BY p.request_date DESC, p.po_id DESC
+	</select>
+
+	<!-- 단건 상세 조회 -->
+	<select id="selectPlaceOrderDetail" parameterType="String" resultMap="placeOrderHistoryResultMap">
+	    SELECT
+	        <include refid="commonOrderColumns"/>,
+	        (SELECT COUNT(*) FROM place_order_detail d WHERE d.po_id = p.po_id) AS item_count,
+	        COALESCE(
+	            (SELECT CAST(SUM(d.requested_qty) AS SIGNED) FROM place_order_detail d WHERE d.po_id = p.po_id),
+	            0
+	        ) AS total_qty,
+	        NULL AS detail_url,
+	        NULL AS cancel_url
+	    FROM place_order p
+	    JOIN branch b ON b.branch_code = p.branch_code
+	    WHERE p.po_no = #{value}
+	</select>
 
     <select id="selectPlaceOrderDetails" parameterType="String" resultMap="placeOrderDetailResultMap">
         SELECT
@@ -131,9 +118,9 @@
             pod.po_id,
             pod.material_code,
             m.material_name,
+            m.unit,
             pod.requested_qty,
-            pod.approved_qty,
-            pod.remaining_qty
+            pod.approved_qty
         FROM place_order_detail pod
         JOIN material m ON m.material_code = pod.material_code
         JOIN place_order p ON p.po_id = pod.po_id

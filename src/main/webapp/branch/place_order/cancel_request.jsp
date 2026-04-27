@@ -68,8 +68,8 @@
         <div class="notice"><strong>안내:</strong> 취소 요청이 본사로 전송되며, 승인 시 해당 발주서는 취소됩니다.</div>
 
         <div class="actions">
-            <a class="btn btn-close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp#sent">닫기</a>
-            <a class="btn btn-submit" href="<%= request.getContextPath() %>/branch/place_order/history.jsp#sent">취소 요청</a>
+            <a class="btn btn-close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp">닫기</a>
+            <a class="btn btn-submit" href="<%= request.getContextPath() %>/branch/place_order/history.jsp">취소 요청</a>
         </div>
     </section>
 </div>
@@ -77,7 +77,7 @@
     (function () {
         function closePopupOrFallback() {
             if (window.parent && window.parent !== window) {
-                window.parent.postMessage({ type: 'close-purchase-popup' }, '*');
+                window.parent.postMessage({ type: 'close-place-order-popup' }, '*');
             }
         }
 

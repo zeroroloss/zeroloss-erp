@@ -4,9 +4,10 @@ import java.util.List;
 
 public class PlaceOrderHistoryDTO {
 
+    private static final long serialVersionUID = 1L;
+
     private Integer poId;
     private String poNo;
-    private String orderId;
     private Integer branchCode;
     private String branchName;
     private String createdAt;
@@ -15,11 +16,11 @@ public class PlaceOrderHistoryDTO {
     private Integer totalMaterialCnt;
     private Integer totalAmount;
     private String status;
-    private String statusKey;
     private String statusCode;
     private String rejectReason;
     private String detailUrl;
     private String cancelUrl;
+    // 발주 품목 상세
     private List<PlaceOrderDetailDTO> details;
 
     public Integer getPoId() {
@@ -36,14 +37,6 @@ public class PlaceOrderHistoryDTO {
 
     public void setPoNo(String poNo) {
         this.poNo = poNo;
-    }
-
-    public String getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
     }
 
     public Integer getBranchCode() {
@@ -110,14 +103,6 @@ public class PlaceOrderHistoryDTO {
         this.status = status;
     }
 
-    public String getStatusKey() {
-        return statusKey;
-    }
-
-    public void setStatusKey(String statusKey) {
-        this.statusKey = statusKey;
-    }
-
     public String getStatusCode() {
         return statusCode;
     }
@@ -156,5 +141,9 @@ public class PlaceOrderHistoryDTO {
 
     public void setDetails(List<PlaceOrderDetailDTO> details) {
         this.details = details;
+    }
+
+    public boolean hasDetails() {
+        return details != null && !details.isEmpty();
     }
 }

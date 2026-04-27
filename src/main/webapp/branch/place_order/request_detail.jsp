@@ -66,28 +66,28 @@
     <section class="modal" role="dialog" aria-modal="true" aria-label="발주서 상세 정보">
         <div class="head">
             <div>
-                <h1 class="title">발주서 상세 정보</h1>
-                <div class="order-no">PO-2026-0329-001</div>
+                <h1 class="title">발주서 상세 정보 - 전송</h1>
+                <div class="order-no" id="orderNo">-</div>
             </div>
-            <a class="close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp#sent" aria-label="닫기">×</a>
+            <a class="close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp" aria-label="닫기">×</a>
         </div>
 
         <div class="summary">
             <div>
                 <div class="label">작성 일시</div>
-                <div class="value">2026-03-29 10:30</div>
+                <div class="value" id="createdAt">-</div>
             </div>
             <div>
                 <div class="label">상태</div>
-                <span class="status">✈ 전송</span>
+                <span class="status" id="statusText">✈ 전송</span>
             </div>
             <div>
                 <div class="label">품목 수</div>
-                <div class="value">4개</div>
+                <div class="value" id="itemCount">0개</div>
             </div>
             <div>
                 <div class="label">총 요청 수량</div>
-                <div class="value blue">185</div>
+                <div class="value blue" id="totalQty">0</div>
             </div>
         </div>
 
@@ -100,26 +100,92 @@
                         <th class="right">요청 수량</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr><td>소고기 패티</td><td class="right qty">55개</td></tr>
-                    <tr><td>감자</td><td class="right qty">85kg</td></tr>
-                    <tr><td>생크림</td><td class="right qty">18L</td></tr>
-                    <tr><td>양상추</td><td class="right qty">27kg</td></tr>
-                </tbody>
+                <tbody id="detailBody"></tbody>
             </table>
         </div>
 
         <div class="actions">
-            <a class="btn btn-cancel" href="<%= request.getContextPath() %>/branch/place_order/cancel_request.jsp">취소 요청</a>
-            <a class="btn btn-close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp#sent">닫기</a>
+            <a class="btn btn-cancel" id="cancelBtn" href="<%= request.getContextPath() %>/branch/place_order/cancel_request.jsp">취소 요청</a>
+            <a class="btn btn-close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp">닫기</a>
         </div>
     </section>
 </div>
 <script>
     (function () {
+        var contextPath = '<%= request.getContextPath() %>';
+
+        function getPoNo() {
+            var params = new URLSearchParams(window.location.search);
+            return params.get('poNo') || '';
+        }
+
+        function toSafeText(value) {
+            return value == null ? '' : String(value);
+        }
+
+        function formatQty(value) {
+            if (value == null || value === '') return '0';
+            var num = Number(value);
+            if (isNaN(num)) return String(value);
+            return Number.isInteger(num) ? String(num) : String(num);
+        }
+
+        function renderDetailRows(details) {
+            var tbody = document.getElementById('detailBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            if (!Array.isArray(details) || details.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="2" class="center">상세 품목이 없습니다.</td></tr>';
+                return;
+            }
+
+            details.forEach(function (detail) {
+                var name = toSafeText(detail.materialName || detail.materialCode || '-');
+                var qty = formatQty(detail.requestedQty);
+                // 단위
+                var unit = detail.unit || '';
+                tbody.insertAdjacentHTML(
+                    'beforeend',
+                    '<tr>' +
+                        '<td>' + name + '</td>' +
+                        '<td class="right qty">' + qty + (unit ? ' ' + unit : '') + '</td>' +
+                    '</tr>'
+                );
+            });
+        }
+
+        async function loadDetail() {
+            var poNo = getPoNo();
+            if (!poNo) {
+                renderDetailRows([]);
+                return;
+            }
+
+            // GET
+            // /api/branch/place_order?action=detail&poNo= 
+            // 발주 품목 상세 조회 (품목명, 요청수량, 물류창고 내 총 재고)
+            var response = await fetch(contextPath + '/api/branch/place_order?action=detail&poNo=' + encodeURIComponent(poNo));
+            var payload = await response.json();
+            var data = payload && payload.data ? payload.data : {};
+
+            document.getElementById('orderNo').textContent = toSafeText(data.poNo || poNo || '-');
+            document.getElementById('createdAt').textContent = toSafeText(data.createdAt || '-');
+            document.getElementById('statusText').textContent = '✈ ' + toSafeText(data.status || '전송');
+            document.getElementById('itemCount').textContent = String(data.itemCount != null ? data.itemCount : 0) + '개';
+            document.getElementById('totalQty').textContent = formatQty(data.totalQty);
+
+            var cancelBtn = document.getElementById('cancelBtn');
+            if (cancelBtn) {
+                cancelBtn.href = contextPath + '/branch/place_order/cancel_request.jsp?poNo=' + encodeURIComponent(poNo);
+            }
+
+            renderDetailRows(data.details || []);
+        }
+
         function closePopupOrFallback() {
             if (window.parent && window.parent !== window) {
-                window.parent.postMessage({ type: 'close-purchase-popup' }, '*');
+                window.parent.postMessage({ type: 'close-place-order-popup' }, '*');
             }
         }
 
@@ -130,6 +196,10 @@
                 closePopupOrFallback();
             });
         }
+
+        loadDetail().catch(function () {
+            renderDetailRows([]);
+        });
     })();
 </script>
 </body>

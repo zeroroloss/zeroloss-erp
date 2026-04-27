@@ -59,9 +59,9 @@
         .empty-state { display: none; padding: 34px 16px; text-align: center; color: #6b7280; }
         .empty-state.visible { display: block; }
 
-        .purchase-popup-overlay { position: fixed; inset: 0; z-index: 3000; background: rgba(0, 0, 0, 0.72); display: none; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box; }
-        .purchase-popup-overlay.active { display: flex; }
-        .purchase-popup-frame { width: min(980px, 100%); height: min(94vh, 920px); border: 0; border-radius: 14px; background: transparent; }
+        .place-order-popup-overlay { position: fixed; inset: 0; z-index: 3000; background: rgba(0, 0, 0, 0.72); display: none; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box; }
+        .place-order-popup-overlay.active { display: flex; }
+        .place-order-popup-frame { width: min(980px, 100%); height: min(94vh, 920px); border: 0; border-radius: 14px; background: transparent; }
 
         @media (max-width: 980px) {
             .page-title { font-size: 26px; }
@@ -84,6 +84,7 @@
     }
 %>
 <%
+	// 서버에서 전달된 발주 내역 리스트를 JSON으로 변환
     Object historyListAttr = request.getAttribute("placeOrderHistoryList");
     String historyJson = new com.google.gson.Gson().toJson(historyListAttr != null ? historyListAttr : java.util.Collections.emptyList());
 
@@ -135,10 +136,10 @@
 
     <div class="table-card">
         <div class="tabs">
-            <a class="tab-link active" href="#all" data-status="전체">전체 <span id="tabCountAll">0건</span></a>
-            <a class="tab-link sent" href="#sent" data-status="전송">전송 <span id="tabCountSent">0건</span></a>
-            <a class="tab-link approved" href="#approved" data-status="승인">승인 <span id="tabCountApproved">0건</span></a>
-            <a class="tab-link rejected" href="#rejected" data-status="반려">반려 <span id="tabCountRejected">0건</span></a>
+            <a class="tab-link active" href="#" data-status="전체">전체 <span id="tabCountAll">0건</span></a>
+            <a class="tab-link sent" href="#" data-status="전송">전송 <span id="tabCountSent">0건</span></a>
+            <a class="tab-link approved" href="#" data-status="승인">승인 <span id="tabCountApproved">0건</span></a>
+            <a class="tab-link rejected" href="#" data-status="반려">반려 <span id="tabCountRejected">0건</span></a>
         </div>
         <div class="table-wrap">
             <table>
@@ -161,14 +162,16 @@
 </main>
 </div>
 </div>
-<div id="purchasePopupOverlay" class="purchase-popup-overlay" aria-hidden="true">
-        <iframe id="purchasePopupFrame" class="purchase-popup-frame" title="발주 팝업"></iframe>
+<div id="placeOrderPopupOverlay" class="place-order-popup-overlay" aria-hidden="true">
+        <iframe id="placeOrderPopupFrame" class="place-order-popup-frame" title="발주 팝업"></iframe>
 </div>
 <script type="application/json" id="historyDataJson"><%= historyJson %></script>
 <script>
+
+	// 페이지 로딩 시 (JS 초기화 영역)
     (function () {
-        var overlay = document.getElementById('purchasePopupOverlay');
-        var frame = document.getElementById('purchasePopupFrame');
+        var overlay = document.getElementById('placeOrderPopupOverlay');
+        var frame = document.getElementById('placeOrderPopupFrame');
         var historyData = [];
         var historyDataElement = document.getElementById('historyDataJson');
 
@@ -179,8 +182,10 @@
                 historyData = [];
             }
         }
+        var contextPath = '<%= request.getContextPath() %>';
+
+        // 현재 선택된 탭 상태 (전체 / 전송 / 승인 / 반려)
         var currentStatusFilter = '전체';
-        var embeddedHistoryData = historyData.slice();
 
         function normalizeHistoryResponse(responseData) {
             if (Array.isArray(responseData)) {
@@ -194,33 +199,23 @@
             return [];
         }
 
-        function loadHistoryData() {
+        // 발주 내역 조회 API 호출 (GET)
+        // 백엔드: /api/branch/place_order?startDate=...&endDate=...
+        async function loadHistoryData() {
             var startDate = document.getElementById('filterStartDate').value;
             var endDate = document.getElementById('filterEndDate').value;
 
-            return fetch('<%= request.getContextPath() %>/api/branch/place_order?startDate=' + encodeURIComponent(startDate) + '&endDate=' + encodeURIComponent(endDate))
-                .then(function (response) {
-                    if (!response.ok) {
-                        throw new Error('history load failed');
-                    }
-                    return response.json();
-                })
-                .then(function (data) {
-                    historyData = normalizeHistoryResponse(data);
-                    renderHistoryTable();
-                })
-                .catch(function () {
-                    if (historyData.length === 0 && embeddedHistoryData.length > 0) {
-                        historyData = embeddedHistoryData.slice();
-                        renderHistoryTable();
-                    }
-                });
+            var response = await fetch('<%= request.getContextPath() %>/api/branch/place_order?startDate=' + encodeURIComponent(startDate) + '&endDate=' + encodeURIComponent(endDate));
+            var data = await response.json();
+            historyData = normalizeHistoryResponse(data);
+            renderHistoryTable();
         }
 
         function openPopup(url) {
             if (!overlay || !frame || !url) return;
-            frame.src = url;
-            overlay.classList.add('active');
+            // iframe에 URL 넣음
+            frame.src = url; 
+            overlay.classList.add('active'); // 팝업 띄움
             overlay.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
         }
@@ -242,6 +237,41 @@
             return record.statusKey || record.status || '전체';
         }
 
+        function resolveDetailUrl(record) {
+            if (record && record.detailUrl) {
+                return record.detailUrl;
+            }
+
+            var statusKey = getStatusKey(record);
+            if (statusKey === '승인') {
+                return contextPath + '/branch/place_order/approval_detail.jsp';
+            }
+            if (statusKey === '반려') {
+                return contextPath + '/branch/place_order/rejection_detail.jsp';
+            }
+            return contextPath + '/branch/place_order/request_detail.jsp';
+        }
+
+        function resolveCancelUrl(record) {
+            if (record && record.cancelUrl) {
+                return record.cancelUrl;
+            }
+
+            var statusKey = getStatusKey(record);
+            if (statusKey === '전송') {
+                return contextPath + '/branch/place_order/cancel_request.jsp';
+            }
+            return '';
+        }
+
+        function withPoNo(url, record) {
+            var poNo = (record && (record.poNo || record.orderId)) ? String(record.poNo || record.orderId) : '';
+            if (!url || !poNo) {
+                return url;
+            }
+            return url + (url.indexOf('?') >= 0 ? '&' : '?') + 'poNo=' + encodeURIComponent(poNo);
+        }
+
         function syncTabCounts(list) {
             var counts = { 전체: list.length, 전송: 0, 승인: 0, 반려: 0 };
 
@@ -256,16 +286,9 @@
             document.getElementById('tabCountRejected').textContent = counts.반려 + '건';
         }
 
-        function getActiveTabLabel() {
-            if (currentStatusFilter === '전송') return '전송';
-            if (currentStatusFilter === '승인') return '승인';
-            if (currentStatusFilter === '반려') return '반려';
-            return '전체';
-        }
-
         function updateActiveTab() {
             var tabs = document.querySelectorAll('.tab-link');
-            var activeStatus = getActiveTabLabel();
+            var activeStatus = currentStatusFilter;
 
             for (var i = 0; i < tabs.length; i += 1) {
                 var tab = tabs[i];
@@ -278,11 +301,13 @@
             }
         }
 
+        // 발주 내역 데이터에 날짜 + 상태 필터 적용하기
         function getFilteredHistoryList() {
             var startDate = new Date(document.getElementById('filterStartDate').value);
             var endDate = new Date(document.getElementById('filterEndDate').value);
             endDate.setHours(23, 59, 59, 999);
 
+            // isNaN 예외 처리
             if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
                 return historyData.slice();
             }
@@ -303,16 +328,16 @@
             var statusClass = statusKey === '전송' ? 'sent' : statusKey === '승인' ? 'approved' : 'rejected';
             var statusIcon = statusKey === '전송' ? '✈' : statusKey === '승인' ? '✓' : '⊗';
             var rowClass = statusKey === '반려' ? 'row-rejected' : '';
-            var detailUrl = record.detailUrl || '';
-            var cancelUrl = record.cancelUrl || '';
-            var actionHtml = '<a class="work view open-purchase-popup" href="' + detailUrl + '">◎ 상세</a>';
+            var detailUrl = withPoNo(resolveDetailUrl(record), record);
+            var cancelUrl = withPoNo(resolveCancelUrl(record), record);
+            var actionHtml = '<a class="work view open-place-order-popup" href="' + detailUrl + '">◎ 상세</a>';
 
             if (cancelUrl) {
-                actionHtml += '<a class="work cancel open-purchase-popup" href="' + cancelUrl + '">✕ 취소</a>';
+                actionHtml += '<a class="work cancel open-place-order-popup" href="' + cancelUrl + '">✕ 취소</a>';
             }
 
             return '<tr class="' + rowClass + '">' +
-                '<td><a class="mono-link open-purchase-popup" href="' + detailUrl + '">' + (record.orderId || record.poNo || '') + '</a></td>' +
+                '<td><a class="mono-link open-place-order-popup" href="' + detailUrl + '">' + (record.orderId || record.poNo || '') + '</a></td>' +
                 '<td>📅 ' + (record.createdAt || record.requestDate || record.releaseDate || record.date || '') + '</td>' +
                 '<td class="right value-strong">' + (record.itemCount != null ? record.itemCount : 0) + '개</td>' +
                 '<td class="right value-blue">' + (record.totalQty != null ? record.totalQty : 0) + '</td>' +
@@ -322,16 +347,17 @@
         }
 
         function bindPopupTriggers() {
-            var triggers = document.querySelectorAll('.open-purchase-popup');
+            var triggers = document.querySelectorAll('.open-place-order-popup');
 
             for (var i = 0; i < triggers.length; i += 1) {
                 triggers[i].addEventListener('click', function (event) {
-                    event.preventDefault();
+                    event.preventDefault(); //기본 이동 막음
                     openPopup(this.getAttribute('href'));
                 });
             }
         }
 
+        // 화면에 테이블 렌더링
         function renderHistoryTable() {
             var tbody = document.getElementById('historyTableBody');
             var emptyState = document.getElementById('emptyState');
@@ -354,59 +380,42 @@
             bindPopupTriggers();
         }
 
-        window.applyFilters = function () {
-            if (historyData.length === 0) {
-                loadHistoryData();
-                return;
-            }
-            renderHistoryTable();
+        // 조회 버튼 → 필터 적용
+        window.applyFilters = async function () {
+            await loadHistoryData();
         };
 
-        window.resetFilters = function () {
+        // 초기화 버튼 → 기본값 + 전체
+        window.resetFilters = async function () {
             document.getElementById('filterStartDate').value = '<%= escapeHtml(defaultStartDate) %>';
             document.getElementById('filterEndDate').value = '<%= escapeHtml(defaultEndDate) %>';
             currentStatusFilter = '전체';
-            window.location.hash = '#all';
-            if (historyData.length === 0) {
-                loadHistoryData();
-                return;
-            }
-            renderHistoryTable();
+            await loadHistoryData();
         };
 
+        // 폼 바깥 오버레이 클릭 시 -> closePopup
         if (overlay) {
             overlay.addEventListener('click', function (event) {
                 if (event.target === overlay) closePopup();
             });
         }
 
+        // 탭 버튼 클릭 시 -> 탭 전환
         var tabs = document.querySelectorAll('.tab-link');
         for (var j = 0; j < tabs.length; j += 1) {
             tabs[j].addEventListener('click', function (event) {
                 event.preventDefault();
                 currentStatusFilter = this.getAttribute('data-status') || '전체';
-                window.location.hash = this.getAttribute('href');
                 renderHistoryTable();
             });
         }
 
+        // iframe 내부에서 postMessage로 닫기 요청 받음
         window.addEventListener('message', function (event) {
-            if (event.data && event.data.type === 'close-purchase-popup') {
+            if (event.data && event.data.type === 'close-place-order-popup') {
                 closePopup();
             }
         });
-
-        window.addEventListener('hashchange', function () {
-            if (window.location.hash === '#sent') currentStatusFilter = '전송';
-            else if (window.location.hash === '#approved') currentStatusFilter = '승인';
-            else if (window.location.hash === '#rejected') currentStatusFilter = '반려';
-            else currentStatusFilter = '전체';
-            renderHistoryTable();
-        });
-
-        if (window.location.hash === '#sent') currentStatusFilter = '전송';
-        else if (window.location.hash === '#approved') currentStatusFilter = '승인';
-        else if (window.location.hash === '#rejected') currentStatusFilter = '반려';
 
         if (historyData.length === 0) {
             loadHistoryData();

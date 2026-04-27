@@ -45,7 +45,7 @@ public class PlaceOrderController extends HttpServlet {
             }
         }
 
-        List<PlaceOrderHistoryDTO> historyList = placeOrderService.getPlaceOrderHistory(
+        List<PlaceOrderHistoryDTO> historyList = placeOrderService.getPlaceOrderHistoryList(
                 loginUser.getBranchCode() != null ? loginUser.getBranchCode() : 1,
                 startDate,
                 endDate,

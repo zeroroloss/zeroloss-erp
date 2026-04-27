@@ -7,7 +7,7 @@ import dto.branch.place_order.PlaceOrderRequestDTO;
 
 public interface PlaceOrderService {
 
-    List<PlaceOrderHistoryDTO> getPlaceOrderHistory(int branchCode, String startDate, String endDate, String status);
+    List<PlaceOrderHistoryDTO> getPlaceOrderHistoryList(int branchCode, String startDate, String endDate, String status);
     PlaceOrderHistoryDTO getPlaceOrderDetail(String poNo);
     boolean createPlaceOrder(PlaceOrderRequestDTO requestDTO);
     boolean updatePlaceOrderStatus(String poNo, String status, String rejectReason);
