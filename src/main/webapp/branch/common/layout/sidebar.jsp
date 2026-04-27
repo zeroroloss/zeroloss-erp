@@ -145,7 +145,7 @@ boolean inquiryActive = uri.contains("/branch/support/branch-inquiries.jsp");
             <span class="text-sm">재고 교환/요청</span>
         </a>
 
-        <a href="<%= request.getContextPath() %>/branch/recipe/recipe-management.jsp" class="flex items-center gap-3 px-3 py-2.5 rounded-lg <%= recipeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
+        <a href="<%= request.getContextPath() %>/branch/recipe/recipe-management.jsp" class="flex items-center gap-3 px-3 py-2.5 rounded-lg <%= recipeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %> transition-colors">
             <i class="fas fa-book w-5 h-5"></i>
             <span class="text-sm">레시피 관리</span>
         </a>

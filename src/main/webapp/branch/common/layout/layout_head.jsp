@@ -2,6 +2,9 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
+:root {
+  --green: #00853D;
+}
 .zl-app { min-height: 100vh; background: #f3f4f6; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 16px; color: #111827; }
 .zl-sidebar { position: fixed; top: 0; left: 0; width: 256px; height: 100vh; background: #ffffff; border-right: 1px solid #e5e7eb; overflow-y: auto; z-index: 40; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); }
 .zl-brand { display: flex; align-items: center; gap: 12px; padding: 24px 20px 20px; border-bottom: 1px solid #eef2f7; }
