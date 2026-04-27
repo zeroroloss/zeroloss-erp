@@ -46,37 +46,26 @@
                     </div>
 
                     <!-- 필터 섹션 -->
-                    <div class="bg-white rounded-lg border border-gray-200 p-6">
-                        <div class="space-y-4">
+                    <div class="bg-white rounded-lg border border-gray-200 p-5">
+                        <div class="flex flex-col gap-4">
                             <!-- 검색 -->
-                            <div class="relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                                <input type="text" id="searchInput" placeholder="이름, 연락처, 이메일로 검색..." onkeyup="applyFilters()" class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                            </div>
-
-                            <!-- 필터 -->
-                            <div class="flex flex-wrap gap-6">
-                                <!-- 지점 필터 -->
-                                <div>
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <i class="fas fa-filter w-5 h-5 text-gray-500"></i>
-                                        <label class="text-sm font-medium text-gray-700">소속:</label>
-                                    </div>
-                                    <div id="branchFilters" class="flex flex-wrap gap-2">
-                                        <!-- 동적 생성 -->
-                                    </div>
-                                </div>
-
-                                <!-- 상태 필터 -->
-                                <div>
-                                    <label class="text-sm font-medium text-gray-700 mb-2 block">상태:</label>
-                                    <div id="statusFilters" class="flex flex-wrap gap-2">
-                                        <!-- 동적 생성 -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                            <div class="flex items-center justify-between gap-4">
+                            	<div>
+                            		<h3 class="text-sm font-semibold text-gray-800">직원 검색</h3>
+                            		<p class="text-xs text-gray-500 mt-1">사번, 소속, 이름, 직급, 직위 기준으로 검색할 수 있습니다.</p>
+                            	</div>
+                            	
+                            	<div class="flex items-center gap-2">
+					                <div class="relative w-80">
+					                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                            			<input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="검색어를 입력하세요"class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+					                </div>
+                            		<button type="button" onclick="applyFilters()" class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">조회</button>
+					                <button type="button" onclick="resetFilters()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">초기화</button>
+					            </div>
+					        </div>
+					    </div>
+					</div>
 
                     <!-- 직원 테이블 -->
                     <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -357,13 +346,10 @@
 
         // 통계 렌더링
         function renderStats() {
-            var totalEmployees = mockEmployees.filter(function(e) { return e.status === '재직'; }).length;
-            var totalBranches = new Set();
-            for (var i = 0; i < mockEmployees.length; i++) {
-                totalBranches.add(mockEmployees[i].branch);
-            }
-            var newEmployeesThisMonth = mockEmployees.filter(function(e) { return e.joinDate.indexOf('2024-03') === 0; }).length;
-
+            const totalEmp = ${totalEmp != null ? totalEmp : 0};
+            const totalBranch = ${totalBranch != null ? totalBranch : 0};
+            const newEmpCnt = ${newEmpCnt != null ? newEmpCnt : 0};
+            
             var html = '<div class="bg-white rounded-lg border border-gray-200 p-6">' +
                       '<div class="flex items-center gap-4">' +
                       '<div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">' +
@@ -371,7 +357,7 @@
                       '</div>' +
                       '<div>' +
                       '<p class="text-sm text-gray-500">총 재직 인원</p>' +
-                      '<p class="text-3xl font-bold text-gray-900 mt-1">' + totalEmployees + '</p>' +
+                      '<p class="text-3xl font-bold text-gray-900 mt-1" id="totalEmp">' + totalEmp + '</p>' +
                       '</div>' +
                       '</div>' +
                       '</div>' +
@@ -382,7 +368,7 @@
                       '</div>' +
                       '<div>' +
                       '<p class="text-sm text-gray-500">전체 소속</p>' +
-                      '<p class="text-3xl font-bold text-gray-900 mt-1">' + totalBranches.size + '</p>' +
+                      '<p class="text-3xl font-bold text-gray-900 mt-1" id="totalBranch">' + totalBranch + '</p>' +
                       '</div>' +
                       '</div>' +
                       '</div>' +
@@ -393,7 +379,7 @@
                       '</div>' +
                       '<div>' +
                       '<p class="text-sm text-gray-500">이번 달 신규</p>' +
-                      '<p class="text-3xl font-bold text-gray-900 mt-1">' + newEmployeesThisMonth + '</p>' +
+                      '<p class="text-3xl font-bold text-gray-900 mt-1" id="newEmpCnt">' + newEmpCnt + '</p>' +
                       '</div>' +
                       '</div>' +
                       '</div>';

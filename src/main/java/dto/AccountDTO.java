@@ -167,7 +167,6 @@ public class AccountDTO {
 	@Override
 	public String toString() {
 		return "AccountDTO [accountId=" + accountId + ", empNo=" + empNo + ", branchCode=" + branchCode + ", hqId="
-				+ hqId + ", roleId=" + roleId + ", loginId=" + loginId + ", password=" + password + ", status=" + status
 				+ ", createdAt=" + createdAt + ", lastLoginAt=" + lastLoginAt + ", userName=" + userName + ", roleName="
 				+ roleName + ", branchName=" + branchName + "]";
 	}

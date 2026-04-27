@@ -13,18 +13,35 @@ public class EmployeeDTO {
 	private String email;
 	private LocalDate hireDate;
 	private String status;
+	private String positionName;
+	private String gradeName;
 
 	public EmployeeDTO() {
 		super();
 	}
 
-	public EmployeeDTO(Integer empNo, Integer branchCode, String dept, String gradeCode, String positionCode, String name, String phone, String email, LocalDate hireDate, String status) {
+	public EmployeeDTO(Integer empNo, Integer branchCode, String dept, String gradeCode, String positionCode,
+			String name, String phone, String email, LocalDate hireDate, String status) {
 		super();
 		this.empNo = empNo;
 		this.branchCode = branchCode;
 		this.dept = dept;
 		this.gradeCode = gradeCode;
 		this.positionCode = positionCode;
+		this.name = name;
+		this.phone = phone;
+		this.email = email;
+		this.hireDate = hireDate;
+		this.status = status;
+	}
+
+	public EmployeeDTO(Integer empNo, Integer branchCode, String dept, String gradeCode, String name, String phone,
+			String email, LocalDate hireDate, String status) {
+		super();
+		this.empNo = empNo;
+		this.branchCode = branchCode;
+		this.dept = dept;
+		this.gradeCode = gradeCode;
 		this.name = name;
 		this.phone = phone;
 		this.email = email;
@@ -110,6 +127,22 @@ public class EmployeeDTO {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getPositionName() {
+		return positionName;
+	}
+
+	public void setPositionName(String positionName) {
+		this.positionName = positionName;
+	}
+
+	public String getGradeName() {
+		return gradeName;
+	}
+
+	public void setGradeName(String gradeName) {
+		this.gradeName = gradeName;
 	}
 
 	@Override

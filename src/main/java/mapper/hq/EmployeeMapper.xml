@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.employee">
+	<insert id="insertEmployee" parameterType="dto.hq.hr.EmployeeDTO">
+		insert into employee(branch_code, dept, grade_code, position_code, name, phone, email, hire_date, status)
+		values(#{branchCode},#{dept},#{gradeCode},#{positionCode},#{name},#{phone},#{email},#{hireDate},#{status})
+	</insert>
+	
+	<select id="selectEmployee" parameterType="Integer" resultType="dto.hq.hr.EmployeeDTO">
+		select * from employee where emp_no=#{value}
+	</select>
+	
+	<select id="searchEmployee" parameterType="Integer" resultType="dto.hq.hr.EmployeeDTO">
+		select e.*, p.position_name, g.grade_name from employee e
+		left join position p on e.position_code = p.position_code
+		left join grade g on e.grade_code = g.grade_code
+		where e.emp_no=#{value}
+	</select>
+	
+	<select id="selectEmpCnt" resultType="Integer">
+		select count(emp_no) as totalEmp from employee
+	</select>
+	
+	<select id="selectBranchCnt" resultType="Integer">
+		select count(branch_code) as totalBranch from employee group by branch_code
+	</select>
+	
+	<select id="selectNewEmpCnt" resultType="Integer">
+		select count(emp_no) as newEmp from employee WHERE hire_date BETWEEN CONCAT(YEAR(CURDATE()), '-01-01') AND CURDATE()
+	</select>
+	
+	<select id="selectEmployeeList" parameterType="dto.hq.hr.EmployeeDTO" resultType="dto.hq.hr.EmployeeDTO">
+		select e.*, p.position_name, g.grade_name from employee e
+		left join position p on e.position_code = p.position_code
+		left join grade g on e.grade_code = g.grade_code
+		<where>
+		<if test="empNo != null and empNo != ''">
+			and e.emp_no like CONCAT('%', #{empNo}, '%')
+		</if>
+		<if test="dept != null and dept != ''">
+			and e.dept like CONCAT('%', #{dept}, '%')
+		</if>
+		<if test="positionName != null and positionName != ''">
+			and p.position_name like CONCAT('%', #{positionName}, '%')
+		</if>
+		<if test="gradeName != null and gradeName != ''">
+			and g.grade_name like CONCAT('%', #{gradeName}, '%')
+		</if>
+		<if test="name != null and name != ''">
+			and e.name like CONCAT('%', #{name}, '%')
+		</if>
+		</where>
+	</select>
+	
+	<update id="updateEmployee">
+		UPDATE employee SET branch_code = #{branchCode}, dept = #{dept}, grade_code = #{gradeCode}, position_code = #{positionCode}, name = #{name}, phone = #{phone}, email = #{email}, hire_date = #{hireDate}, status = #{status} WHERE emp_no = #{empNo}
+	</update>
+</mapper>

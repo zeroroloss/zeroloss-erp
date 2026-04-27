@@ -52,12 +52,12 @@
             <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8">
             <%
 			    String errorUrl = (String) request.getAttribute("errorUrl");
-			    if (errorUrl == null) {
-			        errorUrl = request.getContextPath() + "/main/home.jsp";
+			    if (errorUrl == null || errorUrl.trim().isEmpty()) {
+			        errorUrl = request.getContextPath() + "/common/login.jsp";
 			    }
 			%>
 			            
-                <button onclick="location.href='<%= request.getAttribute("errorUrl")%>')" class="flex items-center justify-center gap-2 bg-[#00853D] text-white px-8 py-3 rounded-lg hover:bg-[#006B2F] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <button onclick="location.reload()" class="flex items-center justify-center gap-2 bg-[#00853D] text-white px-8 py-3 rounded-lg hover:bg-[#006B2F] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                     <i class="fas fa-sync text-lg"></i>
                     새로고침
                 </button>
