@@ -32,7 +32,6 @@
         .filter-inputs { display:flex; align-items:center; gap:10px; }
         .filter-inputs input, .filter-inputs select { height:38px; min-width:180px; border-radius:12px; border:1px solid #d1d5db; background:#fff; color:#1f2937; padding:0 13px; font-size:13px; }
 
-        /* New styles for date picker */
         .date-picker-wrap { position:relative; }
         .date-picker-wrap input { padding-left: 38px !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af' class='w-5 h-5'%3E%3Cpath fill-rule='evenodd' d='M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zM4.5 6.75A1.25 1.25 0 015.75 5.5h8.5A1.25 1.25 0 0115.5 6.75v8.5A1.25 1.25 0 0114.25 16.5h-8.5A1.25 1.25 0 014.5 15.25v-8.5zM7 10a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm-6 3a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z' clip-rule='evenodd' /%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 10px center; background-size: 20px; }
 
@@ -41,13 +40,13 @@
         .btn-search { background:var(--green); color:#fff; border-color:var(--green); }
         .btn-reset { background:#f3f4f6; color:#374151; border-color:#e5e7eb; }
 
-        .summary-title { margin:24px 0 12px; font-size:23px; letter-spacing:-0.2px; }
+        .summary-title { margin:24px 0 12px; font-size:20px; font-weight: 700; letter-spacing:-0.2px; }
         .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
-        .stat { border:1px solid var(--line); border-radius:16px; background:#fff; padding:20px 22px; box-shadow:0 1px 2px rgba(15,23,42,0.04); }
+        .stat { border:1px solid var(--line); border-radius:14px; background:#fff; padding:16px 18px; box-shadow:0 1px 2px rgba(15,23,42,0.04); }
         .stat .meta { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
-        .stat em { font-style:normal; color:#6b7280; font-size:14px; }
-        .stat strong { display:block; margin-top:8px; font-size:26px; letter-spacing:-0.2px; }
-        .icon-chip { width:40px; height:40px; border-radius:10px; display:grid; place-items:center; font-size:18px; }
+        .stat em { font-style:normal; color:#6b7280; font-size:13px; }
+        .stat strong { display:block; margin-top:6px; font-size:22px; letter-spacing:-0.2px; font-weight: 700; }
+        .icon-chip { width:36px; height:36px; border-radius:8px; display:grid; place-items:center; font-size:16px; }
         .chip-money { background:#e7f4ec; color:#11894a; }
         .chip-order { background:#f8f0da; color:#c08b00; }
         .chip-trend { background:#e8edf6; color:#2563eb; }
@@ -55,7 +54,7 @@
 
         .tab-content { margin-top:18px; display:none; }
         .tab-content.active { display:block; }
-        .chart-wrap{border:1px solid #d9dee5;border-radius:16px;padding:20px; background:#fff;}
+        .chart-wrap{border:1px solid #d9dee5;border-radius:16px;padding:20px; background:#fff; height: 450px; }
         .period-summary { margin-bottom: 16px; text-align: center; font-size: 1.1rem; font-weight: 500; color: #374151; }
         .chart-title{font-size:22px;font-weight:700;margin-bottom:14px;}
         .result-card{margin-top:18px;border:1px solid #d9dee5;border-radius:16px;overflow:hidden; background:#fff;}
@@ -353,7 +352,7 @@
                     }]
                 },
                 options: {
-                    indexAxis: 'y', // 가로 막대 그래프로 변경
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
@@ -486,6 +485,8 @@
                     ]
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     scales: {
                         'y-sales': { type: 'linear', position: 'left', title: { display: true, text: '매출액 (원)' } },
                         'y-orders': { type: 'linear', position: 'right', title: { display: true, text: '주문 건수' }, grid: { drawOnChartArea: false } }
@@ -531,6 +532,8 @@
                     datasets: [{ label: '매출액', data: salesData, borderColor: 'var(--green)', backgroundColor: chartType === 'line' ? 'transparent' : 'rgba(0, 133, 61, 0.7)', tension: 0.1 }]
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         annotation: {
                             annotations: {
