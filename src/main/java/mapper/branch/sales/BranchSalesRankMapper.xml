@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="BranchSalesRankMapper">
+
+    <resultMap id="rankResultMap" type="dto.RankDTO">
+        <result property="name" column="name"/>
+        <result property="meta" column="meta"/>
+        <result property="value" column="value"/>
+    </resultMap>
+
+    <select id="selectRankList" resultMap="rankResultMap" parameterType="map">
+        SELECT
+            <choose>
+                <when test="rankType == 'menu'">
+                    t3.name AS name,
+                    t4.name AS meta
+                </when>
+                <when test="rankType == 'daily'">
+                    DATE_FORMAT(t1.order_date, '%Y-%m-%d') AS name,
+                    CASE DAYOFWEEK(t1.order_date)
+                        WHEN 1 THEN '일요일'
+                        WHEN 2 THEN '월요일'
+                        WHEN 3 THEN '화요일'
+                        WHEN 4 THEN '수요일'
+                        WHEN 5 THEN '목요일'
+                        WHEN 6 THEN '금요일'
+                        WHEN 7 THEN '토요일'
+                    END AS meta
+                </when>
+                <when test="rankType == 'weekly'">
+                    CASE DAYOFWEEK(t1.order_date)
+                        WHEN 1 THEN '일요일'
+                        WHEN 2 THEN '월요일'
+                        WHEN 3 THEN '화요일'
+                        WHEN 4 THEN '수요일'
+                        WHEN 5 THEN '목요일'
+                        WHEN 6 THEN '금요일'
+                        WHEN 7 THEN '토요일'
+                    END AS name,
+                    '' AS meta
+                </when>
+                <when test="rankType == 'hourly'">
+                    CONCAT(HOUR(t1.created_at), '시') AS name,
+                    '' AS meta
+                </when>
+            </choose>
+            ,
+            <choose>
+                <when test="sort == 'sales'">
+                    SUM(t2.line_total_amount) AS value
+                </when>
+                <otherwise>
+                    SUM(t2.qty) AS value
+                </otherwise>
+            </choose>
+        FROM orders t1
+        JOIN order_menu t2 ON t1.order_id = t2.order_id
+        JOIN recipe t3 ON t2.recipe_code = t3.recipe_code
+        JOIN main_category t4 ON t3.category_id = t4.category_id
+        WHERE t1.branch_code = #{branchCode}
+          AND t1.order_date BETWEEN #{startDate} AND #{endDate}
+        GROUP BY
+            <choose>
+                <when test="rankType == 'menu'">
+                    t3.name, t4.name
+                </when>
+                <when test="rankType == 'daily'">
+                    DATE_FORMAT(t1.order_date, '%Y-%m-%d'), meta
+                </when>
+                <when test="rankType == 'weekly'">
+                    name
+                </when>
+                <when test="rankType == 'hourly'">
+                    HOUR(t1.created_at)
+                </when>
+            </choose>
+        ORDER BY value ${order}
+        LIMIT 10
+    </select>
+
+</mapper>

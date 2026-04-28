@@ -4,172 +4,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>매출 순위 - 메뉴별 랭킹</title>
+    <title>매출 순위</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <%-- flatpickr --%>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+
+    <%@ include file="/branch/common/layout/layout_head.jsp" %>
     <style>
-        :root { --green:#00853d; --line:#d1d5db; --bg:#f3f4f6; --text:#111827; --muted:#6b7280; --orange:#f97316; }
-        *{box-sizing:border-box;}
-        body{margin:0;background:var(--bg);font-family:"Noto Sans KR","Malgun Gothic",sans-serif;color:var(--text);}
-        .wrap{
-    width: 100%;max-width: none;margin: 0;padding:28px 24px 36px;}
-        .head h1{margin:0;font-size:32px;letter-spacing:-0.4px;}
-        .head p{margin:8px 0 0;font-size:15px;color:var(--muted);}
+        .head h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; }
+        .head p { color: #6b7280; }
+        .search-panel { margin-top:24px; border:1px solid var(--line); border-radius:18px; background:#fff; box-shadow:0 1px 2px rgba(15,23,42,0.05); padding:18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+        .filters { display:flex; flex-wrap:wrap; align-items:center; gap:16px; }
+        .filter-group { display:flex; align-items:center; gap: 8px; }
+        .filter-group .label { font-size:14px; color:#374151; font-weight:700; flex-shrink: 0; }
 
-        .filter-card{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-        .label{font-size:14px;color:#374151;font-weight:700;display:inline-flex;align-items:center;gap:6px;}
-        .select{height:38px;border:1px solid #cfd6dd;border-radius:10px;padding:0 12px;background:#fff;color:#374151;font-size:13px;}
-        .vline{width:1px;height:30px;background:#d1d5db;}
-        .sort-btn{height:38px;border:1px solid #d1d5db;border-radius:10px;padding:0 14px;background:#f9fafb;color:#374151;font-size:13px;font-weight:700;cursor:pointer;}
-        .sort-btn.active{border-color:var(--green);color:var(--green);background:#ecf8f1;}
+        .date-picker-wrap input { height:38px; min-width:140px; border-radius:12px; border:1px solid #d1d5db; background:#fff; color:#1f2937; padding:0 13px 0 38px; font-size:13px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af' class='w-5 h-5'%3E%3Cpath fill-rule='evenodd' d='M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zM4.5 6.75A1.25 1.25 0 015.75 5.5h8.5A1.25 1.25 0 0115.5 6.75v8.5A1.25 1.25 0 0114.25 16.5h-8.5A1.25 1.25 0 014.5 15.25v-8.5zM7 10a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm-6 3a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z' clip-rule='evenodd' /%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 10px center; background-size: 20px; }
 
-        .view-tabs{margin-top:14px;display:flex;gap:10px;}
-        .view-tab{height:40px;padding:0 18px;border-radius:12px;text-decoration:none;display:inline-flex;align-items:center;font-weight:700;font-size:14px;background:#e5e7eb;color:#374151;}
-        .view-tab.active{background:var(--green);color:#fff;}
+        .sort-btn { height:38px; border:1px solid #d1d5db; border-radius:12px; padding:0 14px; background:#f9fafb; color:#374151; font-size:13px; font-weight:700; cursor:pointer; }
+        .sort-btn.active { border-color:var(--green); color:var(--green); background:#ecf8f1; }
 
-        .grid{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-        .panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;}
-        .panel.orange{border-color:#f6c8a7;}
-        .panel-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-        .panel-title{font-size:24px;font-weight:800;letter-spacing:-0.2px;}
-        .badge{margin-left:auto;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;}
-        .badge.green{background:#dcfce7;color:#15803d;}
-        .badge.orange{background:#ffedd5;color:#c2410c;}
+        .rank-tabs { margin-top:24px; display:flex; gap:10px; border-bottom: 1px solid var(--line); }
+        .rank-tab { padding:0 4px 12px; text-decoration:none; display:inline-flex; align-items:center; font-weight:700; font-size:16px; color:var(--muted); border-bottom: 3px solid transparent; cursor: pointer; }
+        .rank-tab.active { color:var(--green); border-bottom-color: var(--green); }
 
-        .rank-list{display:flex;flex-direction:column;gap:6px;}
-        .rank-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;}
-        .panel.orange .rank-item{border-color:#f6c8a7;background:#fffdf9;}
-        .rank-no{width:24px;font-size:18px;font-weight:800;color:#16a34a;text-align:center;}
-        .panel.orange .rank-no{color:#ea580c;}
-        .item-main{flex:1;min-width:0;}
-        .item-name{font-size:20px;font-weight:800;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-        .item-meta{margin-top:1px;font-size:14px;color:var(--muted);}
-        .item-sales{font-size:22px;font-weight:800;white-space:nowrap;color:#111827;}
-        .panel.orange .item-sales{color:#ea580c;}
+        .grid { margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:24px; }
 
-        @media (max-width:1280px){
-            .head h1{font-size:32px;} .panel-title{font-size:22px;} .item-name{font-size:18px;} .item-meta{font-size:14px;} .item-sales{font-size:22px;}
-            .rank-no{font-size:18px;} .head p{font-size:16px;}
-        }
-        @media (max-width:960px){ .grid{grid-template-columns:1fr;} .wrap{padding:16px;} }
+        /* New Theme: Deep Green vs Gold */
+        .panel { background:#fff; border:1px solid #009223; border-radius:16px; }
+        .panel-head { display:flex; align-items:center; gap:8px; padding: 18px 20px; border-bottom: 1px solid #009223; }
+        .panel-title { font-size:20px; font-weight:700; }
+        .badge { margin-left:auto; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+        .badge.green { background:#e6f4ea; color:#009223; }
+        .rank-no { width:28px; font-size:18px; font-weight:800; color:#009223; text-align:center; flex-shrink: 0; }
+
+        .panel.orange { border-color: #FFA940; background-color: #FFF7E6; }
+        .panel.orange .panel-head { border-bottom-color: #FFA940; }
+        .badge.orange { background:#fff1de; color:#d97706; }
+        .panel.orange .rank-no { color: #d97706; }
+
+        .rank-list { display:flex; flex-direction:column; gap:6px; padding: 12px; }
+        .rank-item { display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px; }
+        .item-main { flex:1; min-width:0; }
+        .item-name { font-size:16px; font-weight:700; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .item-meta { margin-top:2px; font-size:13px; color:var(--muted); }
+        .item-value { font-size:18px; font-weight:700; white-space:nowrap; color:#111827; flex-shrink: 0; }
+
+        .no-data { text-align: center; padding: 60px 20px; color: var(--muted); }
+
+        @media (max-width:960px){ .grid{grid-template-columns:1fr;} }
     </style>
-<%@ include file="/branch/common/layout/layout_head.jsp" %>
 </head>
 <body>
 <div class="zl-app">
 <%@ include file="/branch/common/layout/sidebar.jsp" %>
 <div class="zl-content">
 <%@ include file="/branch/common/layout/topbar.jsp" %>
-<div class="wrap p-6">
+<main class="p-6">
     <header class="head">
         <h1>매출 순위</h1>
-        <p>강남지점 - 메뉴별, 시간대별 매출 랭킹을 확인하세요</p>
+        <p>설정된 기간의 메뉴, 일자, 요일, 시간대별 매출 순위를 분석합니다.</p>
     </header>
 
-    <section class="filter-card">
-        <span class="label">📅 기간:</span>
-        <select class="select" id="periodSelect">
-            <option>이번 달</option>
-            <option>지난 달</option>
-            <option>1분기</option>
-            <option>2분기</option>
-            <option>올해</option>
-        </select>
-        <span class="vline"></span>
-        <span class="label">↗ 정렬:</span>
-        <button class="sort-btn active" data-sort="sales" type="button">총매출액 순</button>
-        <button class="sort-btn" data-sort="orders" type="button">총 주문 건수 순</button>
-        <button class="sort-btn" data-sort="avgPrice" type="button">객단가 순</button>
+    <section class="search-panel">
+        <div class="filters">
+            <div class="filter-group">
+                <span class="label">조회기간:</span>
+                <div class="date-picker-wrap">
+                    <input type="text" id="period-start" placeholder="시작일">
+                </div>
+                <span class="text-gray-500">~</span>
+                <div class="date-picker-wrap">
+                    <input type="text" id="period-end" placeholder="종료일">
+                </div>
+            </div>
+            <div class="filter-group">
+                <span class="label">정렬기준:</span>
+                <button class="sort-btn active" data-sort="sales">매출액</button>
+                <button class="sort-btn" data-sort="quantity">판매 수량</button>
+            </div>
+        </div>
     </section>
 
-    <nav class="view-tabs" aria-label="랭킹 화면 전환">
-        <a class="view-tab active" href="/branch/sales/sales_rank/menu_rank.jsp">메뉴별 랭킹</a>
-        <a class="view-tab" href="/branch/sales/sales_rank/period_rank.jsp">일자/시간대별 랭킹</a>
+    <nav class="rank-tabs" aria-label="랭킹 종류">
+        <a class="rank-tab active" data-rank-type="menu">메뉴별</a>
+        <a class="rank-tab" data-rank-type="daily">일자별</a>
+        <a class="rank-tab" data-rank-type="weekly">요일별</a>
+        <a class="rank-tab" data-rank-type="hourly">시간대별</a>
     </nav>
 
     <section class="grid">
         <article class="panel">
             <div class="panel-head">
-                <div class="panel-title">베스트셀러 (효자 메뉴) TOP 10</div>
-                <span class="badge green">프로모션 추천</span>
+                <div class="panel-title" id="best-title"></div>
+                <span class="badge green">TOP 10</span>
             </div>
-            <div class="rank-list" id="bestList"></div>
+            <div class="rank-list" id="best-list">
+                <div class="no-data">조회된 데이터가 없습니다.</div>
+            </div>
         </article>
 
         <article class="panel orange">
             <div class="panel-head">
-                <div class="panel-title" style="color:#9a3412;">워스트셀러 (단종 고려) BOTTOM 10</div>
-                <span class="badge orange">주문 검토</span>
+                <div class="panel-title" id="worst-title"></div>
+                <span class="badge orange">WORST 10</span>
             </div>
-            <div class="rank-list" id="worstList"></div>
+            <div class="rank-list" id="worst-list">
+                <div class="no-data">조회된 데이터가 없습니다.</div>
+            </div>
         </article>
     </section>
-</div>
 </main>
 </div>
 </div>
 <script>
-(function () {
-    var bestMenus = [
-        { rank: 1, name: '이탈리안 비엠티', category: '샌드위치', sales: 3450000, orders: 245, avgPrice: 14082 },
-        { rank: 2, name: '로티세리 치킨', category: '샌드위치', sales: 2870000, orders: 215, avgPrice: 13349 },
-        { rank: 3, name: '터키 베이컨 아보카도', category: '샌드위치', sales: 2340000, orders: 172, avgPrice: 13605 },
-        { rank: 4, name: '써브웨이 클럽', category: '샌드위치', sales: 2030000, orders: 150, avgPrice: 13533 },
-        { rank: 5, name: '스파이시 이탈리안', category: '샌드위치', sales: 1780000, orders: 131, avgPrice: 13588 },
-        { rank: 6, name: '치킨 샐러드', category: '샐러드', sales: 1450000, orders: 116, avgPrice: 12500 },
-        { rank: 7, name: '터키 샐러드', category: '샐러드', sales: 1230000, orders: 101, avgPrice: 12178 },
-        { rank: 8, name: '참치 샐러드', category: '샐러드', sales: 1010000, orders: 85, avgPrice: 11882 },
-        { rank: 9, name: '쿠키 세트', category: '사이드', sales: 980000, orders: 195, avgPrice: 5026 },
-        { rank: 10, name: '음료 세트', category: '사이드', sales: 850000, orders: 213, avgPrice: 3991 }
-    ];
+document.addEventListener('DOMContentLoaded', function () {
+    flatpickr.localize(flatpickr.l10ns.ko);
 
-    var worstMenus = [
-        { rank: 41, name: '베지 디럭스', category: '샌드위치', sales: 85000, orders: 7, avgPrice: 12143 },
-        { rank: 42, name: '에그마요 샌드위치', category: '샌드위치', sales: 78000, orders: 6, avgPrice: 13000 },
-        { rank: 43, name: '할라피뇨 샌드위치', category: '샌드위치', sales: 68000, orders: 5, avgPrice: 13600 },
-        { rank: 44, name: '스테이크 샐러드', category: '샐러드', sales: 52000, orders: 4, avgPrice: 13000 },
-        { rank: 45, name: '새우 샐러드', category: '샐러드', sales: 38000, orders: 3, avgPrice: 12667 },
-        { rank: 46, name: '올리브 샌드위치', category: '샌드위치', sales: 26000, orders: 2, avgPrice: 13000 },
-        { rank: 47, name: '비프 샐러드', category: '샐러드', sales: 13000, orders: 1, avgPrice: 13000 },
-        { rank: 48, name: '피클 칩스', category: '사이드', sales: 9500, orders: 2, avgPrice: 4750 },
-        { rank: 49, name: '크림 수프', category: '사이드', sales: 5000, orders: 1, avgPrice: 5000 },
-        { rank: 50, name: '치아바타 샌드위치', category: '샌드위치', sales: 0, orders: 0, avgPrice: 0 }
-    ];
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    var bestList = document.getElementById('bestList');
-    var worstList = document.getElementById('worstList');
-    var sortButtons = Array.prototype.slice.call(document.querySelectorAll('.sort-btn'));
-
-    function won(n) { return '₩' + n.toLocaleString('ko-KR'); }
-
-    function renderList(container, list, isWorst) {
-        container.innerHTML = list.map(function (item) {
-            return '<div class="rank-item">' +
-                '<div class="rank-no">' + item.rank + '</div>' +
-                '<div class="item-main">' +
-                    '<div class="item-name">' + item.name + '</div>' +
-                    '<div class="item-meta">' + item.category + ' · ' + item.orders + '건' + (isWorst ? '만' : '') + ' 판매</div>' +
-                '</div>' +
-                '<div class="item-sales">' + won(item.sales) + '</div>' +
-            '</div>';
-        }).join('');
-    }
-
-    function sortBy(type) {
-        sortButtons.forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-sort') === type); });
-        var sortedBest = bestMenus.slice().sort(function (a, b) { return b[type] - a[type]; });
-        var sortedWorst = worstMenus.slice().sort(function (a, b) { return a[type] - b[type]; });
-        renderList(bestList, sortedBest, false);
-        renderList(worstList, sortedWorst, true);
-    }
-
-    sortButtons.forEach(function (btn) {
-        btn.addEventListener('click', function () { sortBy(btn.getAttribute('data-sort')); });
+    const periodStartPicker = flatpickr("#period-start", {
+        defaultDate: thirtyDaysAgo,
+        dateFormat: "Y-m-d",
+        onChange: function(selectedDates, dateStr, instance) { fetchData(); }
+    });
+    const periodEndPicker = flatpickr("#period-end", {
+        defaultDate: "today",
+        dateFormat: "Y-m-d",
+        onChange: function(selectedDates, dateStr, instance) { fetchData(); }
     });
 
-    sortBy('sales');
-})();
+    const sortButtons = document.querySelectorAll('.sort-btn');
+    const rankTabs = document.querySelectorAll('.rank-tab');
+
+    const bestList = document.getElementById('best-list');
+    const worstList = document.getElementById('worst-list');
+    const bestTitle = document.getElementById('best-title');
+    const worstTitle = document.getElementById('worst-title');
+
+    let currentSort = 'sales';
+    let currentRankType = 'menu';
+
+    function updateTitles() {
+        const sortText = currentSort === 'sales' ? '매출액' : '판매 수량';
+        const rankTypeText = {
+            menu: '메뉴',
+            daily: '일자',
+            weekly: '요일',
+            hourly: '시간대'
+        }[currentRankType];
+
+        bestTitle.textContent = `\${rankTypeText}별 \${sortText} TOP 10`;
+        worstTitle.textContent = `\${rankTypeText}별 \${sortText} WORST 10`;
+    }
+
+    function renderList(container, data) {
+        container.innerHTML = '';
+        if (!data || data.length === 0) {
+            container.innerHTML = '<div class="no-data">조회된 데이터가 없습니다.</div>';
+            return;
+        }
+
+        const formatValue = (value) => {
+            const numValue = Number(value);
+            return currentSort === 'sales'
+                ? `₩\${Math.round(numValue).toLocaleString('ko-KR')}`
+                : `\${numValue.toLocaleString('ko-KR')}개`;
+        };
+
+        const itemsHtml = data.map((item, index) => {
+            const rank = index + 1;
+            return `
+            <div class="rank-item">
+                <div class="rank-no">\${rank}</div>
+                <div class="item-main">
+                    <div class="item-name">\${item.name}</div>
+                    <div class="item-meta">\${item.meta || ''}</div>
+                </div>
+                <div class="item-value">\${formatValue(item.value)}</div>
+            </div>
+            `;
+        }).join('');
+        container.innerHTML = itemsHtml;
+    }
+
+    function fetchData() {
+        const startDate = periodStartPicker.input.value;
+        const endDate = periodEndPicker.input.value;
+        const contextPath = window.__ZEROLOSS_CP || '';
+
+        updateTitles();
+
+        bestList.innerHTML = '<div class="no-data">데이터를 불러오는 중...</div>';
+        worstList.innerHTML = '<div class="no-data">데이터를 불러오는 중...</div>';
+
+        const url = `\${contextPath}/branch/sales/rank?rankType=\${currentRankType}&sort=\${currentSort}&startDate=\${startDate}&endDate=\${endDate}`;
+
+        fetch(url)
+            .then(response => {
+                if (response.status === 401) {
+                    alert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
+                    window.location.href = contextPath + '/login';
+                    return Promise.reject('Unauthorized');
+                }
+                if (!response.ok) {
+                    throw new Error('데이터를 불러오는 데 실패했습니다.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                renderList(bestList, data.top10);
+                renderList(worstList, data.worst10);
+            })
+            .catch(error => {
+                console.error('Error fetching rank data:', error);
+                const errorMsg = `<div class="no-data">\${error.message}</div>`;
+                bestList.innerHTML = errorMsg;
+                worstList.innerHTML = errorMsg;
+            });
+    }
+
+    sortButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentSort = btn.dataset.sort;
+            sortButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            fetchData();
+        });
+    });
+
+    rankTabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentRankType = tab.dataset.rankType;
+            rankTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            fetchData();
+        });
+    });
+
+    // 초기 데이터 로드
+    fetchData();
+});
 </script>
 </body>
 </html>

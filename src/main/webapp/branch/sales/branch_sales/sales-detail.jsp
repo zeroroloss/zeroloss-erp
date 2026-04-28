@@ -11,6 +11,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
 
+    <%-- flatpickr --%>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+
     <%-- 공통 레이아웃 헤더 포함 --%>
     <%@ include file="/branch/common/layout/layout_head.jsp" %>
 
@@ -26,6 +31,10 @@
         .tab.active { border-color:var(--green); color:var(--green); background:#ecf8f1; }
         .filter-inputs { display:flex; align-items:center; gap:10px; }
         .filter-inputs input, .filter-inputs select { height:38px; min-width:180px; border-radius:12px; border:1px solid #d1d5db; background:#fff; color:#1f2937; padding:0 13px; font-size:13px; }
+
+        /* New styles for date picker */
+        .date-picker-wrap { position:relative; }
+        .date-picker-wrap input { padding-left: 38px !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af' class='w-5 h-5'%3E%3Cpath fill-rule='evenodd' d='M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zM4.5 6.75A1.25 1.25 0 015.75 5.5h8.5A1.25 1.25 0 0115.5 6.75v8.5A1.25 1.25 0 0114.25 16.5h-8.5A1.25 1.25 0 014.5 15.25v-8.5zM7 10a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm-6 3a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z' clip-rule='evenodd' /%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 10px center; background-size: 20px; }
 
         .btn-group { display:flex; gap:8px; }
         .btn { height:38px; border-radius:12px; padding:0 18px; font-size:14px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; border:1px solid transparent; }
@@ -78,17 +87,28 @@
                         <button class="tab" type="button" data-tab="menu">메뉴별</button>
                     </div>
                     <div class="filter-inputs" data-input="daily">
-                        <input type="date" id="daily-date">
+                        <div class="date-picker-wrap">
+                            <input type="text" id="daily-date" placeholder="날짜 선택">
+                        </div>
                     </div>
                     <div class="filter-inputs is-hidden" data-input="period">
-                        <input type="date" id="period-start">
-                        <input type="date" id="period-end">
+                        <div class="date-picker-wrap">
+                            <input type="text" id="period-start" placeholder="시작일 선택">
+                        </div>
+                        <span class="text-gray-500">~</span>
+                        <div class="date-picker-wrap">
+                            <input type="text" id="period-end" placeholder="종료일 선택">
+                        </div>
                     </div>
                     <div class="filter-inputs is-hidden" data-input="hourly">
-                        <input type="date" id="hourly-date">
+                        <div class="date-picker-wrap">
+                            <input type="text" id="hourly-date" placeholder="날짜 선택">
+                        </div>
                     </div>
                     <div class="filter-inputs is-hidden" data-input="menu">
-                        <input type="date" id="menu-date">
+                        <div class="date-picker-wrap">
+                            <input type="text" id="menu-date" placeholder="날짜 선택">
+                        </div>
                     </div>
                 </div>
                 <div class="btn-group">
@@ -167,14 +187,22 @@
         const searchButton = document.getElementById('searchButton');
         const resetButton = document.getElementById('resetButton');
 
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('daily-date').value = today;
-        document.getElementById('period-end').value = today;
-        document.getElementById('hourly-date').value = today;
-        document.getElementById('menu-date').value = today;
+        flatpickr.localize(flatpickr.l10ns.ko);
+
+        const commonDateConfig = {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+        };
+
+        flatpickr("#daily-date", {...commonDateConfig, defaultDate: "today"});
+        flatpickr("#hourly-date", {...commonDateConfig, defaultDate: "today"});
+        flatpickr("#menu-date", {...commonDateConfig, defaultDate: "today"});
+
         const oneMonthAgo = new Date();
         oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        document.getElementById('period-start').value = oneMonthAgo.toISOString().split('T')[0];
+
+        flatpickr("#period-start", {...commonDateConfig, defaultDate: oneMonthAgo});
+        flatpickr("#period-end", {...commonDateConfig, defaultDate: "today"});
 
         const charts = {};
 

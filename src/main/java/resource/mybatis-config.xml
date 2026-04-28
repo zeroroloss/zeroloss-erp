@@ -35,5 +35,6 @@
 		<mapper resource="mapper/branch/InquiryMapper.xml"/>
 		<mapper resource="mapper/branch/placeOrderMapper.xml"/>
 		<mapper resource="mapper/branch/sales/SalesMapper.xml"/>
+        <mapper resource="mapper/branch/sales/BranchSalesRankMapper.xml"/>
 	</mappers>
 </configuration>
