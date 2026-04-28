@@ -25,8 +25,8 @@
             <main class="p-6">
                 <!-- 헤더 -->
                 <div class="mb-6">
-                    <h2 class="text-3xl font-bold text-gray-900">지점 손실 관리</h2>
-                    <p class="text-gray-500 mt-1">유통기한 임박 상품 및 손실 기록을 관리하세요</p>
+                    <h2 class="text-3xl font-bold text-gray-900">지점 재고 리스크 현황</h2>
+                    <p class="text-gray-500 mt-1">유통기한 임박 품목 및 손실 기록 현황을 조회하세요</p>
                 </div>
 
                 <!-- 필터 -->

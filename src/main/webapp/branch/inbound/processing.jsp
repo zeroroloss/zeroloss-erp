@@ -12,8 +12,6 @@
         .page-head { padding: 18px 0 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
         .page-title { margin: 0; font-size: 30px; line-height: 1.15; font-weight: 800; letter-spacing: -0.03em; }
         .page-sub { margin: 8px 0 0; font-size: 15px; color: #6b7280; }
-        .history-link { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border: 1px solid #d6dae3; border-radius: 12px; background: #fff; color: #111827; font-weight: 700; text-decoration: none; }
-        .history-link:hover { background: #f9fafb; }
 
         .order-list { margin-top: 14px; display: grid; gap: 14px; }
         .order-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05); }
@@ -82,9 +80,8 @@
     <div class="page-head">
         <div>
             <h1 class="page-title">입고 처리</h1>
-            <p class="page-sub">입고 대기 중인 물품을 확인하고 입고를 확정합니다</p>
+            <p class="page-sub">본사로부터 받은 물품을 확인 후 입고를 확정합니다</p>
         </div>
-        <a class="history-link" href="<%= request.getContextPath() %>/branch/receipt/history.jsp">입고 이력</a>
     </div>
 
     <div class="order-list">

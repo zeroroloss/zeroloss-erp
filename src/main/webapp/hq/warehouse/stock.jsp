@@ -9,6 +9,16 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 .sidebar-open .sidebar { transform: translateX(0); }
+
+.tab-link {
+    transition: all 0.15s ease;
+}
+
+.tab-link.active {
+    background: #f3f6ff;
+    color: #2563eb !important;
+    box-shadow: inset 0 -2px 0 #4f7dff;
+}
 </style>
 <script>
 	const categoryMaterialMap = <%= new com.google.gson.Gson().toJson(request.getAttribute("categoryMaterialMap")) %>;
@@ -58,33 +68,29 @@
             </div>
         </div>
 
-        <!-- ===== 상태 필터 버튼 ===== -->
-        <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-            <div class="flex flex-wrap gap-3" id="statusFilterButtons">
-                <button type="button" data-status="전체" onclick="setStatusFilter('전체')"
-                    class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                    전체 <span id="countAll" class="text-xs text-gray-500">0건</span>
-                </button>
-                <button type="button" data-status="AVAILABLE" onclick="setStatusFilter('AVAILABLE')"
-                    class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-green-200 text-sm font-medium text-green-700 hover:bg-green-50">
-                    사용 가능 <span id="countAvailable" class="text-xs text-green-600">0건</span>
-                </button>
-                <button type="button" data-status="OUT_OF_STOCK" onclick="setStatusFilter('OUT_OF_STOCK')"
-                    class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-yellow-200 text-sm font-medium text-yellow-700 hover:bg-yellow-50">
-                    재고 없음 <span id="outOfStockCount" class="text-xs text-yellow-600">0건</span>
-                </button>
-                <button type="button" data-status="DISPOSED" onclick="setStatusFilter('DISPOSED')"
-                    class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 text-sm font-medium text-red-700 hover:bg-red-50">
-                    폐기됨 <span id="countDisposed" class="text-xs text-red-600">0건</span>
-                </button>
-            </div>
-        </div>
+        <!-- 탭 UI -->
+		<div class="bg-white rounded-lg border border-gray-200 mb-6 overflow-hidden">
+		    <div class="grid grid-cols-4 border-b border-gray-200">
+		        <a href="#" class="tab-link active text-center py-3 font-semibold text-gray-500" data-status="전체">
+		            전체 <span id="countAll">0건</span>
+		        </a>
+		        <a href="#" class="tab-link text-center py-3 font-semibold text-green-600" data-status="AVAILABLE">
+		            사용 가능 <span id="countAvailable">0건</span>
+		        </a>
+		        <a href="#" class="tab-link text-center py-3 font-semibold text-yellow-500" data-status="OUT_OF_STOCK">
+		            재고 없음 <span id="outOfStockCount">0건</span>
+		        </a>
+		        <a href="#" class="tab-link text-center py-3 font-semibold text-red-500" data-status="DISPOSED">
+		            폐기됨 <span id="countDisposed">0건</span>
+		        </a>
+		    </div>
+		</div>
 
         <!-- ===== 재고 테이블 ===== -->
         <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
             <div class="px-6 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
                 <h3 class="text-base font-semibold text-gray-900">본사 물류창고 재고 리스트</h3>
-                <p class="text-base text-gray-500">조회 건수 <span id="recordCount" class="font-semibold text-gray-700">0건</span></p>
+                <!-- <p class="text-base text-gray-500">조회 건수 <span id="recordCount" class="font-semibold text-gray-700">0건</span></p> -->
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full">
@@ -225,6 +231,7 @@
             document.getElementById('userMenu').classList.add('hidden');
         }
     });
+    
 
     // ============================================================
     // 필터 / 상태 관리
@@ -242,6 +249,29 @@
             select.appendChild(opt);
         });	
 	}
+
+    // 탭 클릭 이벤트
+    document.querySelectorAll('.tab-link').forEach(function(tab) {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            currentStatusFilter = this.getAttribute('data-status');
+
+            updateActiveTab();
+            applyFilters();
+        });
+    });
+    
+    // active 탭 처리 함수
+    function updateActiveTab() {
+        document.querySelectorAll('.tab-link').forEach(function(tab) {
+            if (tab.getAttribute('data-status') === currentStatusFilter) {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+    }
     	
     function getStatusMeta(status) {
         return STATUS_CONFIG[status] || STATUS_CONFIG['default'];
@@ -259,26 +289,6 @@
         });
     }
 
-    function setStatusFilter(status) {
-        currentStatusFilter = status;
-        updateStatusButtonStyles();
-        applyFilters();
-    }
-
-    function updateStatusButtonStyles() {
-        document.querySelectorAll('.status-filter-btn').forEach(function(btn) {
-            var status   = btn.getAttribute('data-status');
-            var isActive = (status == currentStatusFilter);
-            btn.className = 'status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium';
-            if (isActive) {
-                btn.className += (status == '전체')
-                    ? ' bg-gray-900 text-white border-gray-900'
-                    : ' ' + getStatusMeta(status).btnClass;
-            } else {
-                btn.className += ' border-gray-300 text-gray-700 hover:bg-gray-50';
-            }
-        });
-    }
 
     function updateStatusCounts() {
         var counts = { AVAILABLE: 0, OUT_OF_STOCK: 0, DISPOSED: 0 };
@@ -290,11 +300,14 @@
     }
 
     function resetFilters() {
-        document.getElementById('filterSearch').value   = '';
+        document.getElementById('filterSearch').value = '';
         document.getElementById('filterCategory').value = '전체';
         updateStockItemNames();
         document.getElementById('filterItemName').value = '전체';
+
         currentStatusFilter = '전체';
+
+        updateActiveTab();
         applyFilters();
     }
 
@@ -329,7 +342,8 @@
 
         renderTable();
         updateStatusCounts();
-        updateStatusButtonStyles();
+        updateActiveTab();
+        
         document.getElementById('recordCount').textContent = filteredStocks.length + '건';
     }
 
@@ -436,8 +450,10 @@
     // 초기화
     // ============================================================
     window.addEventListener('DOMContentLoaded', function() {
-    	initCategoryOptions();
+        initCategoryOptions();
         updateStockItemNames();
+
+        updateActiveTab();
         applyFilters();
     });
 </script>

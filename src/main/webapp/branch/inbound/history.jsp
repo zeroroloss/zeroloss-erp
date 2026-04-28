@@ -22,9 +22,6 @@
         .date-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9aa3af; font-size: 15px; width: 14px; height: 14px; display: block; }
         .range-sep { color: #9ca3af; font-weight: 700; }
         .status-select { width: 135px; height: 40px; box-sizing: border-box; padding: 0 12px; border: 1px solid #d6dae3; border-radius: 10px; background: #fff; font-size: 14px; }
-        .excel-btn { height: 40px; padding: 0 18px; border: 0; border-radius: 10px; background: #16a34a; color: #fff; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
-        .excel-icon { width: 14px; height: 14px; display: block; }
-        .excel-btn:hover { background: #15803d; }
 
         .summary { margin-top: 14px; background: #eef4ff; border: 1px solid #c7d7fe; border-radius: 14px; padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px; color: #1d4ed8; }
         .summary-left { display: flex; align-items: center; gap: 10px; font-weight: 700; }
@@ -68,7 +65,7 @@
 <%@ include file="/branch/common/layout/topbar.jsp" %>
 <div class="wrap p-6">
     <div class="page-head">
-        <h1 class="page-title">입고 이력</h1>
+        <h1 class="page-title">입고 내역</h1>
         <p class="page-sub">과거 입고 내역을 조회하고 관리합니다</p>
     </div>
 
@@ -92,7 +89,6 @@
             <option value="부분입고">부분입고</option>
             <option value="취소됨">취소됨</option>
         </select>
-        <button class="excel-btn" type="button"><img class="excel-icon" src="<%= request.getContextPath() %>/branch/icons/receipt/download.svg" alt="엑셀" />엑셀</button>
     </div>
 
     <div class="summary">

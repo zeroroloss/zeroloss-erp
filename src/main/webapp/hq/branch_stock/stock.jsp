@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지점재고 현황 - ZERO LOSS 본사 관리 시스템</title>
+    <title>지점 재고 현황 - ZERO LOSS 본사 관리 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -26,7 +26,7 @@
             <main class="p-6">
                 <!-- 헤더 -->
                 <div class="mb-6">
-                    <h2 class="text-3xl font-bold text-gray-900">지점재고 현황</h2>
+                    <h2 class="text-3xl font-bold text-gray-900">지점 재고 현황</h2>
                     <p class="text-gray-500 mt-1">모든 지점의 재고 현황을 조회하세요</p>
                 </div>
 

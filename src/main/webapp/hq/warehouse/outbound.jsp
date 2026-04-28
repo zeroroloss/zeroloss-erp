@@ -11,6 +11,16 @@
         .sidebar-open .sidebar {
             transform: translateX(0);
         }
+
+        .tab-link {
+            transition: all 0.15s ease;
+        }
+
+        .tab-link.active {
+            background: #f3f6ff;
+            color: #2563eb !important;
+            box-shadow: inset 0 -2px 0 #4f7dff;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -62,26 +72,30 @@
                     </div>
                 </div>
 
-                <!-- 상태 버튼 -->
-                <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-                    <div class="flex flex-wrap gap-3" id="statusFilterButtons">
-                        <button type="button" data-status="전체" onclick="setStatusFilter('전체')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                            전체 <span id="countAll" class="text-xs text-gray-500">0건</span>
-                        </button>
-                        <button type="button" data-status="출고대기" onclick="setStatusFilter('출고대기')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-200 bg-blue-50 text-sm font-medium text-blue-700">
-                            출고대기 <span id="countWaiting" class="text-xs text-blue-600">0건</span>
-                        </button>
-                        <button type="button" data-status="준비중" onclick="setStatusFilter('준비중')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-yellow-200 text-sm font-medium text-yellow-700 hover:bg-yellow-50">
-                            준비중 <span id="countPreparing" class="text-xs text-yellow-600">0건</span>
-                        </button>
-                        <button type="button" data-status="출고 완료" onclick="setStatusFilter('출고 완료')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-green-200 text-sm font-medium text-green-700 hover:bg-green-50">
-                            출고완료 <span id="countCompleted" class="text-xs text-green-600">0건</span>
-                        </button>
+                <!-- 탭 UI -->
+                <div class="bg-white rounded-lg border border-gray-200 mb-6 overflow-hidden">
+                    <div class="grid grid-cols-4 border-b border-gray-200">
+                        <a href="#" class="tab-link active text-center py-3 font-semibold text-gray-500" data-status="전체">
+                            전체 <span id="countAll">0건</span>
+                        </a>
+                        <a href="#" class="tab-link text-center py-3 font-semibold text-blue-500" data-status="출고대기">
+                            출고대기 <span id="countWaiting">0건</span>
+                        </a>
+                        <a href="#" class="tab-link text-center py-3 font-semibold text-yellow-500" data-status="준비중">
+                            준비중 <span id="countPreparing">0건</span>
+                        </a>
+                        <a href="#" class="tab-link text-center py-3 font-semibold text-green-600" data-status="출고 완료">
+                            출고완료 <span id="countCompleted">0건</span>
+                        </a>
                     </div>
                 </div>
 
                 <!-- 목록 -->
                 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+	                <div class="px-6 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+		                <h3 class="text-base font-semibold text-gray-900">출고 이력 리스트</h3>
+		                <!-- <p class="text-base text-gray-500">조회 건수 <span id="recordCount" class="font-semibold text-gray-700">0건</span></p> -->
+		            </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead class="bg-gray-50 border-b border-gray-200">
@@ -263,33 +277,6 @@
             })));
         }
 
-        function setStatusFilter(status) {
-            currentStatusFilter = status;
-            updateStatusButtonStyles();
-            renderReleaseTable();
-        }
-
-        function updateStatusButtonStyles() {
-            document.querySelectorAll('.status-filter-btn').forEach(button => {
-                const status = button.getAttribute('data-status');
-                button.classList.remove('bg-blue-50', 'bg-yellow-50', 'bg-green-50', 'border-blue-200', 'border-yellow-200', 'border-green-200', 'text-blue-700', 'text-yellow-700', 'text-green-700');
-                button.classList.remove('border-[#00853D]', 'bg-[#00853D]', 'text-white');
-                button.classList.add('border-gray-300', 'text-gray-700');
-
-                if (status === currentStatusFilter) {
-                    if (status === '전체') {
-                        button.classList.add('bg-gray-900', 'text-white', 'border-gray-900');
-                    } else if (status === '출고대기') {
-                        button.classList.add('bg-blue-50', 'border-blue-200', 'text-blue-700');
-                    } else if (status === '준비중') {
-                        button.classList.add('bg-yellow-50', 'border-yellow-200', 'text-yellow-700');
-                    } else if (status === '출고 완료') {
-                        button.classList.add('bg-green-50', 'border-green-200', 'text-green-700');
-                    }
-                }
-            });
-        }
-
         function getFilteredReleaseList() {
             const branch = document.getElementById('filterBranch').value;
             const startDate = new Date(document.getElementById('filterStartDate').value);
@@ -423,7 +410,8 @@
             document.getElementById('filterStartDate').value = '2026-03-01';
             document.getElementById('filterEndDate').value = '2026-04-05';
             currentStatusFilter = '전체';
-            updateStatusButtonStyles();
+
+            updateActiveTab();   // 변경
             renderReleaseTable();
         }
 
@@ -438,6 +426,29 @@
             document.getElementById('countPreparing').textContent = preparingCount + '건';
             document.getElementById('countCompleted').textContent = completedCount + '건';
         }
+
+        function updateActiveTab() {
+            document.querySelectorAll('.tab-link').forEach(tab => {
+                if (tab.getAttribute('data-status') === currentStatusFilter) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+        }
+
+        // 탭 클릭 시 해당 탭 상태로 업데이트
+        document.querySelectorAll('.tab-link').forEach(tab => {
+            tab.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                currentStatusFilter = this.getAttribute('data-status');
+
+                updateActiveTab();
+                renderReleaseTable();
+            });
+        });
+        
 
         // 모달 외부 클릭 시 닫기
         document.getElementById('detailModal').addEventListener('click', function(e) {
@@ -460,7 +471,7 @@
             releaseOrders = mockReleaseOrders.slice();
             releaseHistory = mockReleaseHistory.slice();
             updateStatusCounts();
-            updateStatusButtonStyles();
+            updateActiveTab();   // 추가
             renderReleaseTable();
         });
     </script>

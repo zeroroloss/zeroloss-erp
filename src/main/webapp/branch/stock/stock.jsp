@@ -14,8 +14,8 @@
 
         .stats { margin-top: 20px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
         .stat-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; }
-        .stat-label { font-size: 12px; color: #6b7280; }
-        .stat-value { margin-top: 6px; font-size: 24px; font-weight: 700; color: #111827; }
+        .stat-label { font-size: 16px; color: #111827; font-weight: 700;  /* 강조 */}
+        .stat-value { margin-top: 6px; font-size: 18px; font-weight: 700; color: #111827; }
 
         .controls { margin: 16px 0; display: flex; gap: 8px; flex-wrap: wrap; }
         .filter-group { display: flex; gap: 8px; }
@@ -97,9 +97,9 @@
     </div>
 
     <div class="stats">
-        <div class="stat-card"><div class="stat-label">유통기한 임박 (3일)</div><div class="stat-value" style="color:#dc2626;">2</div></div>
-        <div class="stat-card"><div class="stat-label">유통기한 경고 (7일)</div><div class="stat-value" style="color:#d97706;">3</div></div>
-        <div class="stat-card"><div class="stat-label">안전재고 미달</div><div class="stat-value" style="color:#b45309;">3</div></div>
+        <div class="stat-card"><div class="stat-label" style="color:#dc2626;">유통기한 임박 (3일)</div><div class="stat-value" style="color:#dc2626;">2</div></div>
+        <div class="stat-card"><div class="stat-label" style="color:#d97706;">유통기한 경고 (7일)</div><div class="stat-value" style="color:#d97706;">3</div></div>
+        <div class="stat-card"><div class="stat-label" style="color:#b45309;">안전재고 미달</div><div class="stat-value" style="color:#b45309;">3</div></div>
         <div class="stat-card"><div class="stat-label">전체 재고</div><div class="stat-value">10</div></div>
     </div>
 

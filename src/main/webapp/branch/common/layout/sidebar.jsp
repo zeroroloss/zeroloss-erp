@@ -18,11 +18,11 @@ boolean homeActive = uri.endsWith("/branch/main/home.jsp");
 
 boolean stockGroup = uri.contains("/branch/stock/");
 boolean stockStatusActive = uri.endsWith("/branch/stock/stock.jsp");
-boolean stockChangeActive = uri.contains("/branch/stock/stock_change");
+boolean stockChangeActive = uri.contains("/branch/stock/stock_change.jsp");
 
-boolean receiptGroup = uri.contains("/branch/receipt/");
-boolean receiptHistoryActive = uri.endsWith("/branch/receipt/history.jsp");
-boolean receiptProcessingActive = uri.endsWith("/branch/receipt/processing.jsp");
+boolean inboundGroup = uri.contains("/branch/inbound/");
+boolean inboundHistoryActive = uri.contains("/branch/inbound/history.jsp");
+boolean inboundProcessingActive = uri.contains("/branch/inbound/processing.jsp");
 
 boolean orderGroup = uri.contains("/branch/place_order/");
 boolean orderHistoryActive = uri.contains("/branch/place_order/history");
@@ -100,20 +100,20 @@ boolean inquiryActive = uri.contains("/branch/support/branch-inquiries.jsp");
             <i class="fas <%= stockGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
         </button>
         <div class="submenu <%= stockGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
-            <a href="<%= request.getContextPath() %>/branch/stock/stock.jsp" class="block px-4 py-2 rounded-lg text-sm <%= stockStatusActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">재고 현황</a>
-            <a href="<%= request.getContextPath() %>/branch/stock/stock_change.jsp" class="block px-4 py-2 rounded-lg text-sm <%= stockChangeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">재고 변동</a>
+            <a href="<%= request.getContextPath() %>/branch/stock/stock" class="block px-4 py-2 rounded-lg text-sm <%= stockStatusActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">재고 현황</a>
+            <a href="<%= request.getContextPath() %>/branch/stock/stock_change" class="block px-4 py-2 rounded-lg text-sm <%= stockChangeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">재고 변동</a>
         </div>
 
-        <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= receiptGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
+        <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= inboundGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
             <div class="flex items-center gap-3">
                 <i class="fas fa-box-open w-5 h-5"></i>
                 <span class="text-sm">입고 관리</span>
             </div>
-            <i class="fas <%= receiptGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
+            <i class="fas <%= inboundGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
         </button>
-        <div class="submenu <%= receiptGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
-            <a href="<%= request.getContextPath() %>/branch/receipt/history.jsp" class="block px-4 py-2 rounded-lg text-sm <%= receiptHistoryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">입고 이력</a>
-            <a href="<%= request.getContextPath() %>/branch/receipt/processing.jsp" class="block px-4 py-2 rounded-lg text-sm <%= receiptProcessingActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">입고 처리</a>
+        <div class="submenu <%= inboundGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
+            <a href="<%= request.getContextPath() %>/branch/inbound/history" class="block px-4 py-2 rounded-lg text-sm <%= inboundHistoryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">입고 내역</a>
+            <a href="<%= request.getContextPath() %>/branch/inbound/processing" class="block px-4 py-2 rounded-lg text-sm <%= inboundProcessingActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">입고 처리</a>
         </div>
 
         <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= orderGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
