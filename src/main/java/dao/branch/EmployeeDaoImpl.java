@@ -1,10 +1,10 @@
-package dao.hq;
+package dao.branch;
 
 import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 
-import dto.hq.hr.EmployeeDTO;
+import dto.branch.hr.EmployeeDTO;
 import util.MyBatisSqlSessionFactory;
 
 public class EmployeeDaoImpl implements EmployeeDao {
@@ -25,11 +25,11 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	}
 
 	@Override
-	public Integer selectBranchCnt() throws Exception {
+	public Integer selectHqEmpCnt() throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		Integer cnt = null;
 		try {
-			cnt = sqlSession.selectOne("mapper.employee.selectBranchCnt");
+			cnt = sqlSession.selectOne("mapper.employee.selectHqEmpCnt");
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -40,11 +40,11 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	}
 
 	@Override
-	public Integer selectNewEmpCnt() throws Exception {
+	public Integer selectPTMCnt() throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		Integer cnt = null;
 		try {
-			cnt = sqlSession.selectOne("mapper.employee.selectNewEmpCnt");
+			cnt = sqlSession.selectOne("mapper.employee.selectPTMCnt");
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -54,7 +54,6 @@ public class EmployeeDaoImpl implements EmployeeDao {
 		return cnt;
 	}
 
-	// 직원 리스트 조회
 	@Override
 	public List<EmployeeDTO> selectEmployeeList(EmployeeDTO employee) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
@@ -68,9 +67,8 @@ public class EmployeeDaoImpl implements EmployeeDao {
 			sqlSession.close();
 		}
 		return emp;
-	} 
+	}
 
-	// 본사 직원 추가
 	@Override
 	public void insertEmployee(EmployeeDTO employee) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
@@ -84,7 +82,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
 			sqlSession.close();
 		}
 	}
-	
+
 	@Override
 	public EmployeeDTO selectEmployee(Integer empNo) throws Exception {
 		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
@@ -96,9 +94,9 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	}
 
 	@Override
-	public EmployeeDTO selectEmployeeByPhone(String phone) throws Exception {
+	public EmployeeDTO selectEmployeeByPhone(EmployeeDTO employee) throws Exception {
 		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-			return sqlSession.selectOne("mapper.employee.selectEmployeeByPhone", phone);
+			return sqlSession.selectOne("mapper.employee.selectEmployeeByPhone", employee);
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -118,4 +116,5 @@ public class EmployeeDaoImpl implements EmployeeDao {
 			sqlSession.close();
 		}
 	}
+
 }

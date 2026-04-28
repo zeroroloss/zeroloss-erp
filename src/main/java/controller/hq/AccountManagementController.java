@@ -70,7 +70,7 @@ public class AccountManagementController extends HttpServlet {
 		try {
 			if("add".equals(action)) {
 				addAccount(request, response);
-			} else if (("update").equals(action)) {
+			} else if ("update".equals(action)) {
 				updateAccount(request, response);
 			} else if ("statusToggle".equals(action)) {
 				toggleAccountStatus(request, response);

@@ -1,4 +1,4 @@
-package dto.hq.hr;
+package dto.branch.hr;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -160,4 +160,5 @@ public class EmployeeDTO {
 		return "EmployeeDTO [empNo=" + empNo + ", branchCode=" + branchCode + ", dept=" + dept + ", gradeCode=" + gradeCode + ", positionCode=" + positionCode + ", name=" + name + ", phone=" + phone + ", email=" + email + ", hireDate=" + hireDate + ", status=" + status + "]";
 	}
 }
+
 

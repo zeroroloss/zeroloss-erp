@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.employee">
+	<insert id="insertEmployee" parameterType="dto.branch.hr.EmployeeDTO">
+		insert into employee(emp_no, branch_code, position_code, name, phone, email, hire_date, status)
+		values(#{empNo},#{branchCode},#{positionCode},#{name},#{phone},#{email},#{hireDate},#{status})
+	</insert>
+	
+	<select id="selectEmployee" parameterType="Integer" resultType="dto.branch.hr.EmployeeDTO">
+		select emp_no as empNo, branch_code as branchCode, position_code as positionCode, name, phone, email, hire_date as hireDate, status from employee where emp_no=#{empNo} and branch_code=#{branchCode}
+	</select>
+	
+	<select id="selectEmpCnt" parameterType="Integer" resultType="Integer">
+		select count(emp_no) as totalEmp from employee where branch_code=#{value}
+	</select>
+	
+	<select id="selectHqEmpCnt" parameterType="Integer" resultType="Integer">
+		select count(emp_no) as totalHqEmp from employee where branch_code=#{value} and position_code in ('POS_MGR', 'POS_SUP', 'POS_STF')
+	</select>
+	
+	<select id="selectPTMCnt" parameterType="Integer" resultType="Integer">
+		select count(emp_no) as ptmCnt from employee WHERE branch_code=#{value} and position_code='POS_PTM'
+	</select>
+	
+	<select id="selectEmployeeList" parameterType="Integer" resultType="dto.branch.hr.EmployeeDTO">
+		select e.emp_no as empNo, e.branch_code as branchCode, b.name as branchName, e.position_code as positionCode, e.name, e.phone, e.email, e.hire_date as hireDate, e.status, p.position_name as positionName from employee e
+		left join branch b on e.branch_code = b.branch_code
+		left join position p on e.position_code = p.position_code
+		where e.branch_code = #{value}
+	</select>
+	
+	<select id="selectEmployeeByPhone" parameterType="dto.branch.hr.EmployeeDTO" resultType="dto.branch.hr.EmployeeDTO">
+		select * FROM employee WHERE branch_code=#{branchCode} and phone = #{phone}
+	</select>
+	
+	<update id="updateEmployee" parameterType="dto.branch.hr.EmployeeDTO">
+		UPDATE employee SET branch_code = #{branchCode}, position_code = #{positionCode}, phone = #{phone}, email = #{email}, status = #{status} WHERE emp_no = #{empNo} and branch_code=#{branchCode}
+	</update>
+</mapper>

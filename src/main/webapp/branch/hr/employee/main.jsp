@@ -66,115 +66,357 @@
   </style>
   <%@ include file="/branch/common/layout/layout_head.jsp" %>
 </head>
-<body>
+<body class="bg-gray-50">
 <div class="zl-app">
   <%@ include file="/branch/common/layout/sidebar.jsp" %>
+
   <div class="zl-content">
     <%@ include file="/branch/common/layout/topbar.jsp" %>
-      <div class="wrap p-6">
-        <div class="head">
+
+    <main class="p-6">
+      <div class="space-y-6">
+
+        <!-- 페이지 헤더 -->
+        <div class="flex items-center justify-between">
           <div>
-            <h1 class="title">본사 및 지점별 직원 정보 통합 조회</h1>
-            <p class="sub">전체 직원 정보를 통합하여 관리하세요</p>
+            <h2 class="text-3xl font-bold text-gray-900">직원 정보 조회</h2>
+            <p class="text-gray-500 mt-1">전체 직원 정보를 통합하여 관리하세요</p>
           </div>
-          <button class="add-btn" id="openAddEmployeeModal" type="button"><img class="ico-18" src="<%= request.getContextPath() %>/branch/icons/hr/plus.svg" alt="추가" />신규 직원 등록</button>
+
+          <button
+            id="openAddEmployeeModal"
+            type="button"
+            class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
+            <i class="fas fa-user-plus w-5 h-5"></i>
+            <span>신규 직원 등록</span>
+          </button>
         </div>
 
-        <section class="stats">
-          <article class="card"><div class="icon-box b1"><img class="ico-18" src="<%= request.getContextPath() %>/branch/icons/hr/user.svg" alt="직원" /></div><div><div class="k">총 재직 인원</div><div class="v">0</div></div></article>
-          <article class="card"><div class="icon-box b2"><img class="ico-18" src="<%= request.getContextPath() %>/branch/icons/hr/building.svg" alt="소속" /></div><div><div class="k">전체 소속</div><div class="v">1</div></div></article>
-          <article class="card"><div class="icon-box b3"><img class="ico-18" src="<%= request.getContextPath() %>/branch/icons/hr/plus.svg" alt="신규" /></div><div><div class="k">이번 달 신규</div><div class="v">0</div></div></article>
-        </section>
+        <!-- 통계 카드 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        <section class="filters">
-          <div class="search-row">
-            <img class="ico" src="<%= request.getContextPath() %>/branch/icons/hr/search.svg" alt="검색" />
-            <input class="search-input" type="text" placeholder="이름, 연락처, 이메일로 검색..." />
+          <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-users w-6 h-6 text-green-600"></i>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">총 직원</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1" id="totalEmp">${totalEmp}</p>
+              </div>
+            </div>
           </div>
-          <div class="chip-row">
-            <img class="ico-18" src="<%= request.getContextPath() %>/branch/icons/hr/filter.svg" alt="필터" />
-            <strong>소속:</strong>
-            <button class="chip active" data-group="branch" type="button">전체</button>
-            <button class="chip" data-group="branch" type="button">강남지점</button>
-            <strong>상태:</strong>
-            <button class="chip active" data-group="status" type="button">전체</button>
-            <button class="chip" data-group="status" type="button">재직</button>
-            <button class="chip" data-group="status" type="button">휴직</button>
-            <button class="chip" data-group="status" type="button">퇴사</button>
-          </div>
-        </section>
 
-        <section class="table-wrap">
-          <table class="table">
-            <thead>
-              <tr><th>이름</th><th>소속</th><th>직급</th><th>연락처</th><th>상태</th><th>관리</th></tr>
-            </thead>
-            <tbody>
-              <tr><td class="empty" colspan="6"></td></tr>
-            </tbody>
-          </table>
-        </section>
+          <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-building w-6 h-6 text-blue-600"></i>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">본사 직원</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1" id="totalBranch">${totalBranch}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-lg border border-gray-200 p-4">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-user-plus w-6 h-6 text-yellow-600"></i>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">알바생</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1" id="newEmpCnt">${newEmpCnt}</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 필터 -->
+        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+          <div class="flex flex-col gap-4">
+
+            <div class="flex items-center justify-between gap-4">
+
+              <div>
+                <h3 class="text-sm font-semibold text-gray-800">직원 검색</h3>
+                <p class="text-xs text-gray-500 mt-1">사번, 이름, 역할 기준으로 검색할 수 있습니다.</p>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="relative w-80">
+                  <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+
+                  <input
+                    type="text"
+                    id="searchInput"
+                    onkeydown="if(event.key === 'Enter') applyFilters();"
+                    placeholder="검색어를 입력하세요"
+                    class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+                </div>
+
+                <button
+                  type="button"
+                  onclick="applyFilters()"
+                  class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">
+                  조회
+                </button>
+
+                <button
+                  type="button"
+                  onclick="resetFilters()"
+                  class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                  초기화
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- 직원 테이블 -->
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+
+          <div class="overflow-x-auto">
+            <table class="w-full">
+
+              <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">역할</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연락처</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
+                </tr>
+              </thead>
+
+              <tbody id="employeeTableBody" class="bg-white divide-y divide-gray-200">
+              </tbody>
+
+            </table>
+          </div>
+
+          <div id="pagination" class="flex justify-center items-center gap-2 p-4"></div>
+        </div>
+
       </div>
     </main>
   </div>
 </div>
 
-<div id="addEmployeeModal" class="modal-overlay" aria-hidden="true">
-  <button class="modal-close" type="button" aria-label="닫기" id="closeAddEmployeeModal">×</button>
-  <iframe class="modal-frame" src="about:blank" title="신규 직원 등록" id="addEmployeeFrame"></iframe>
-</div>
-
+<!-- main: 목록 조회 / 검색 / 페이징 / 공통 메뉴 -->
 <script>
-  (function () {
-    var openBtn = document.getElementById("openAddEmployeeModal");
-    var overlay = document.getElementById("addEmployeeModal");
-    var closeBtn = document.getElementById("closeAddEmployeeModal");
-    var frame = document.getElementById("addEmployeeFrame");
-    var pageUrl = "<%= request.getContextPath() %>/branch/hr/employee/add_employee.jsp";
+    var selectedEmployee = null;
+    var currentPage = 1;
+    var pageSize = 10;
 
-    function openModal() {
-      frame.src = pageUrl;
-      overlay.classList.add("open");
-      overlay.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
-    }
+    var employees = [
+        <c:forEach var="emp" items="${employeeList}" varStatus="st">
+        {
+            empNo: "${emp.empNo}",
+            name: "${emp.name}",
+            branchCode: "${emp.branchCode}",
+            branchName: "${emp.branchName}",
+            dept: "${emp.dept}",
+            gradeCode: "${emp.gradeCode}",
+            gradeName: "${emp.gradeName}",
+            positionCode: "${emp.positionCode}",
+            positionName: "${emp.positionName}",
+            phone: "${emp.phone}",
+            email: "${emp.email}",
+            hireDate: "${emp.hireDate}",
+            status: "${emp.status}"
+        }<c:if test="${!st.last}">,</c:if>
+        </c:forEach>
+    ];
 
-    function closeModal() {
-      overlay.classList.remove("open");
-      overlay.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
-      frame.src = "about:blank";
-    }
-
-    openBtn.addEventListener("click", openModal);
-    closeBtn.addEventListener("click", closeModal);
-    overlay.addEventListener("click", function (event) {
-      if (event.target === overlay) {
-        closeModal();
-      }
+    window.addEventListener("DOMContentLoaded", function() {
+        clearEmployeeTable();
+        setupSidebarToggle();
     });
 
-    window.addEventListener("message", function (event) {
-      if (event.data && event.data.type === "close-hr-modal") {
-        closeModal();
-      }
-    });
+    function setupSidebarToggle() {
+        var sidebarToggle = document.getElementById('mobileMenuBtn');
+        var sidebar = document.getElementById('sidebar');
+        var backdrop = document.getElementById('sidebarBackdrop');
 
-    var chips = document.querySelectorAll(".chip[data-group]");
-    chips.forEach(function (chip) {
-      chip.addEventListener("click", function () {
-        var group = chip.getAttribute("data-group");
-        if (!group) {
-          return;
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                toggleSidebar();
+            });
         }
-        var groupChips = document.querySelectorAll('.chip[data-group="' + group + '"]');
-        groupChips.forEach(function (btn) {
-          btn.classList.remove("active");
+
+        if (backdrop) {
+            backdrop.addEventListener('click', function() {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            });
+        }
+    }
+
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        var backdrop = document.getElementById('sidebarBackdrop');
+        sidebar.classList.toggle('-translate-x-full');
+        backdrop.classList.toggle('hidden');
+    }
+
+    function toggleUserMenu() {
+        document.getElementById('userMenu').classList.toggle('hidden');
+    }
+
+    function logout() {
+        alert('로그아웃되었습니다.');
+    }
+
+    function toggleMenu(button) {
+        var submenu = button.nextElementSibling;
+        if (submenu && submenu.classList.contains('submenu')) {
+            submenu.classList.toggle('hidden');
+            var arrow = button.querySelector('i:last-child');
+            arrow.classList.toggle('fa-chevron-right');
+            arrow.classList.toggle('fa-chevron-down');
+        }
+    }
+
+    function applyFilters() {
+        currentPage = 1;
+        renderEmployees();
+    }
+
+    function resetFilters() {
+        document.getElementById("searchInput").value = "";
+        currentPage = 1;
+        clearEmployeeTable();
+        document.getElementById("pagination").innerHTML = "";
+    }
+
+    function renderEmployees() {
+        var searchTerm = document.getElementById("searchInput").value.toLowerCase();
+
+        var filtered = employees.filter(function(employee) {
+            return (
+                String(employee.name || "").toLowerCase().includes(searchTerm) ||
+                String(employee.empNo || "").toLowerCase().includes(searchTerm) ||
+                String(employee.dept || "").toLowerCase().includes(searchTerm) ||
+                String(employee.branchName || "").toLowerCase().includes(searchTerm) ||
+                String(employee.positionName || "").toLowerCase().includes(searchTerm) ||
+                String(employee.gradeName || "").toLowerCase().includes(searchTerm)
+            );
         });
-        chip.classList.add("active");
-      });
-    });
-  })();
+
+        var tbody = document.getElementById('employeeTableBody');
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">검색 결과가 없습니다.</td></tr>';
+            document.getElementById("pagination").innerHTML = "";
+            return;
+        }
+
+        var totalPages = Math.ceil(filtered.length / pageSize);
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+
+        var start = (currentPage - 1) * pageSize;
+        var end = start + pageSize;
+        var pageList = filtered.slice(start, end);
+
+        tbody.innerHTML = pageList.map(function(emp) {
+            var statusText = '';
+            var statusClass = '';
+
+            if (emp.status === 'ACTIVE') {
+                statusText = '재직';
+                statusClass = 'bg-green-100 text-green-700';
+            } else if (emp.status === 'LEAVE') {
+                statusText = '휴직';
+                statusClass = 'bg-yellow-100 text-yellow-700';
+            } else if (emp.status === 'RESIGNED') {
+                statusText = '퇴사';
+                statusClass = 'bg-red-100 text-red-700';
+            } else {
+                statusText = emp.status || '-';
+                statusClass = 'bg-gray-100 text-gray-700';
+            }
+
+            return '<tr class="hover:bg-gray-50">' +
+                '<td class="px-4 py-3 whitespace-nowrap">' +
+                    '<div class="flex items-center gap-3">' +
+                        '<div class="w-8 h-8 rounded-full bg-[#00853D] flex items-center justify-center text-white font-semibold text-xs">' +
+                            (emp.name ? emp.name.charAt(0) : '-') +
+                        '</div>' +
+                        '<div>' +
+                            '<div class="font-medium text-gray-900 text-sm">' + (emp.name || '-') + '</div>' +
+                            '<div class="text-xs text-gray-500">사번: ' + (emp.empNo || '-') + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</td>' +
+
+                '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.dept || '-') + '</td>' +
+
+                '<td class="px-4 py-3 whitespace-nowrap">' +
+                    '<div class="text-sm text-gray-900">' + (emp.gradeName || '-') + '</div>' +
+                    '<div class="text-sm text-gray-900">' + (emp.positionName || '-') + '</div>' +
+                '</td>' +
+
+                '<td class="px-4 py-3 whitespace-nowrap">' +
+                    '<div class="text-sm text-gray-900">' + (emp.phone || '-') + '</div>' +
+                    '<div class="text-xs text-gray-500">' + (emp.email || '-') + '</div>' +
+                '</td>' +
+
+                '<td class="px-4 py-3 whitespace-nowrap">' +
+                    '<span class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full ' + statusClass + '">' +
+                        statusText +
+                    '</span>' +
+                '</td>' +
+
+                '<td class="px-4 py-3 whitespace-nowrap">' +
+                    '<button onclick="openEmployeeModal(\'' + emp.empNo + '\')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">' +
+                        '상세보기' +
+                    '</button>' +
+                '</td>' +
+            '</tr>';
+        }).join('');
+
+        renderPagination(totalPages);
+    }
+
+    function clearEmployeeTable() {
+        var tbody = document.getElementById('employeeTableBody');
+        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">조회 버튼을 눌러 직원을 검색하세요.</td></tr>';
+    }
+
+    function renderPagination(totalPages) {
+        var pagination = document.getElementById("pagination");
+        var html = "";
+
+        html += '<button type="button" onclick="changePage(' + (currentPage - 1) + ')" ' +
+                (currentPage === 1 ? 'disabled' : '') +
+                ' class="px-3 py-1 border rounded disabled:opacity-40">이전</button>';
+
+        for (var i = 1; i <= totalPages; i++) {
+            html += '<button type="button" onclick="changePage(' + i + ')" ' +
+                    'class="px-3 py-1 border rounded ' +
+                    (i === currentPage ? 'bg-[#00853D] text-white' : 'bg-white text-gray-700') +
+                    '">' + i + '</button>';
+        }
+
+        html += '<button type="button" onclick="changePage(' + (currentPage + 1) + ')" ' +
+                (currentPage === totalPages ? 'disabled' : '') +
+                ' class="px-3 py-1 border rounded disabled:opacity-40">다음</button>';
+
+        pagination.innerHTML = html;
+    }
+
+    function changePage(page) {
+        if (page < 1) return;
+
+        currentPage = page;
+        renderEmployees();
+    }
 </script>
 </body>
 </html>

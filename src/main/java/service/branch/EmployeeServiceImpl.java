@@ -1,10 +1,10 @@
-package service.hq;
+package service.branch;
 
 import java.util.List;
 
-import dao.hq.EmployeeDao;
-import dao.hq.EmployeeDaoImpl;
-import dto.hq.hr.EmployeeDTO;
+import dao.branch.EmployeeDao;
+import dao.branch.EmployeeDaoImpl;
+import dto.branch.hr.EmployeeDTO;
 
 public class EmployeeServiceImpl implements EmployeeService {
 	private EmployeeDao employeeDao;
@@ -20,14 +20,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public Integer selectBranchCnt() throws Exception {
-		Integer cnt = employeeDao.selectBranchCnt();
+	public Integer selectHqEmpCnt() throws Exception {
+		Integer cnt = employeeDao.selectHqEmpCnt();
 		return cnt;
 	}
 
 	@Override
-	public Integer selectNewEmpCnt() throws Exception {
-		Integer cnt = employeeDao.selectNewEmpCnt();
+	public Integer selectPTMCnt() throws Exception {
+		Integer cnt = employeeDao.selectPTMCnt();
 		return cnt;
 	}
 
@@ -41,20 +41,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 	public void addEmployee(EmployeeDTO employee) throws Exception {
 		employeeDao.insertEmployee(employee);
 	}
-	
+
 	@Override
 	public EmployeeDTO selectEmployee(Integer empNo) throws Exception {
 		return employeeDao.selectEmployee(empNo);
 	}
-	
+
 	@Override
-	public EmployeeDTO selectEmployeeByPhone(String phone) throws Exception {
-		return employeeDao.selectEmployeeByPhone(phone);
+	public EmployeeDTO selectEmployeeByPhone(EmployeeDTO employee) throws Exception {
+		return employeeDao.selectEmployeeByPhone(employee);
 	}
 
 	@Override
 	public void modifyEmployee(EmployeeDTO employee) throws Exception {
 		employeeDao.updateEmployee(employee);
 	}
-
 }
