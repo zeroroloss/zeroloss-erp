@@ -338,6 +338,7 @@
             const topData = data.slice(0, topN);
             const labels = topData.map(d => d.menuName);
             const salesData = topData.map(d => d.totalSales);
+            const maxSales = data.length > 0 ? Math.max(...salesData) : 0;
 
             const chartConfig = {
                 type: 'bar',
@@ -367,6 +368,7 @@
                     scales: {
                         x: {
                             beginAtZero: true,
+                            max: maxSales * 1.2,
                             title: {
                                 display: true,
                                 text: '매출액 (원)'
@@ -400,6 +402,8 @@
             const labels = data.map(d => d.hour + '시');
             const salesData = data.map(d => d.totalSales);
             const ordersData = data.map(d => d.totalOrders);
+            const maxSales = data.length > 0 ? Math.max(...salesData) : 0;
+            const maxOrders = data.length > 0 ? Math.max(...ordersData) : 0;
 
             const chartConfig = {
                 type: 'bar',
@@ -433,8 +437,8 @@
                         title: { display: true, text: document.getElementById('hourly-date').value + ' 시간대별 매출 및 주문 건수' }
                     },
                     scales: {
-                        'y-sales': { type: 'linear', position: 'left', title: { display: true, text: '매출액 (원)' }, beginAtZero: true },
-                        'y-orders': { type: 'linear', position: 'right', title: { display: true, text: '주문 건수' }, beginAtZero: true, grid: { drawOnChartArea: false } }
+                        'y-sales': { type: 'linear', position: 'left', title: { display: true, text: '매출액 (원)' }, beginAtZero: true, max: maxSales * 1.2 },
+                        'y-orders': { type: 'linear', position: 'right', title: { display: true, text: '주문 건수' }, beginAtZero: true, grid: { drawOnChartArea: false }, max: maxOrders * 1.2 }
                     }
                 }
             };
@@ -474,6 +478,8 @@
             const labels = data.map(d => d.saleDate.substring(5));
             const salesData = data.map(d => d.totalSales);
             const ordersData = data.map(d => d.totalOrders);
+            const maxSales = data.length > 0 ? Math.max(...salesData) : 0;
+            const maxOrders = data.length > 0 ? Math.max(...ordersData) : 0;
 
             const chartConfig = {
                 type: 'bar',
@@ -488,8 +494,8 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        'y-sales': { type: 'linear', position: 'left', title: { display: true, text: '매출액 (원)' } },
-                        'y-orders': { type: 'linear', position: 'right', title: { display: true, text: '주문 건수' }, grid: { drawOnChartArea: false } }
+                        'y-sales': { type: 'linear', position: 'left', title: { display: true, text: '매출액 (원)' }, max: maxSales * 1.2 },
+                        'y-orders': { type: 'linear', position: 'right', title: { display: true, text: '주문 건수' }, grid: { drawOnChartArea: false }, max: maxOrders * 1.2 }
                     }
                 }
             };
@@ -523,6 +529,8 @@
             const salesData = data.map(d => d.totalSales);
             const totalSales = data.reduce((sum, item) => sum + item.totalSales, 0);
             const avgSales = totalSales / data.length;
+            const maxSales = data.length > 0 ? Math.max(...salesData) : 0;
+
             document.getElementById('period-summary').textContent = `선택한 기간(\${data.length}일) 동안 총 매출: ₩\${new Intl.NumberFormat('ko-KR').format(totalSales)}`;
             const chartType = data.length > 15 ? 'line' : 'bar';
             const chartConfig = {
@@ -534,6 +542,11 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            max: maxSales * 1.2
+                        }
+                    },
                     plugins: {
                         annotation: {
                             annotations: {
