@@ -3,6 +3,7 @@ package controller.branch.sales;
 import com.google.gson.Gson;
 import dto.AccountDTO;
 import service.branch.sales.BranchSalesRankService;
+import service.branch.sales.BranchSalesRankServiceImpl;
 import dto.RankDTO;
 
 import javax.servlet.ServletException;
@@ -19,7 +20,7 @@ import java.util.Map;
 @WebServlet("/branch/sales/rank")
 public class BranchSalesRankController extends HttpServlet {
 
-    private final BranchSalesRankService salesRankService = new BranchSalesRankService();
+    private final BranchSalesRankService salesRankService = new BranchSalesRankServiceImpl();
     private final Gson gson = new Gson();
 
     @Override
