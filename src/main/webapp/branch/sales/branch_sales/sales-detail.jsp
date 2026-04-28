@@ -230,10 +230,10 @@
                     fetchPeriodData();
                     break;
                 case 'hourly':
-                    // fetchHourlyData();
+                    fetchHourlyData();
                     break;
                 case 'menu':
-                    // fetchMenuData();
+                    fetchMenuData(); // 메뉴별 데이터 호출 추가
                     break;
             }
         }
@@ -267,6 +267,182 @@
                 .catch(error => console.error('Error fetching period sales:', error));
         }
 
+        function fetchHourlyData() {
+            const targetDate = document.getElementById('hourly-date').value;
+            const contextPath = window.__ZEROLOSS_CP || '';
+            const url = contextPath + '/branch/sales/hourly?date=' + targetDate;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            alert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
+                            window.location.href = contextPath + '/login';
+                            return Promise.reject('Unauthorized');
+                        }
+                        throw new Error('Network response was not ok: ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    renderHourlyChart(data);
+                    renderHourlyTable(data);
+                })
+                .catch(error => console.error('Error fetching hourly sales:', error));
+        }
+
+        // --- 메뉴별 매출 조회 함수 추가 시작 ---
+        function fetchMenuData() {
+            const targetDate = document.getElementById('menu-date').value;
+            const contextPath = window.__ZEROLOSS_CP || '';
+            const url = contextPath + '/branch/sales/menu?date=' + targetDate;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    renderMenuChart(data);
+                    renderMenuTable(data);
+                })
+                .catch(error => console.error('Error fetching menu sales:', error));
+        }
+
+        function renderMenuChart(data) {
+            const topN = 10;
+            const topData = data.slice(0, topN);
+            const labels = topData.map(d => d.menuName);
+            const salesData = topData.map(d => d.totalSales);
+
+            const chartConfig = {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '매출액',
+                        data: salesData,
+                        backgroundColor: 'rgba(0, 133, 61, 0.7)',
+                        borderColor: 'var(--green)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // 가로 막대 그래프로 변경
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: `매출 상위 \${topN} 메뉴`
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '매출액 (원)'
+                            }
+                        }
+                    }
+                }
+            };
+            createOrUpdateChart('menu-chart', chartConfig);
+        }
+
+        function renderMenuTable(data) {
+            const tableBody = document.getElementById('menu-table');
+            tableBody.innerHTML = '';
+            const formatCurrency = (amount) => new Intl.NumberFormat('ko-KR').format(amount);
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>\${item.menuName}</td>
+                    <td>\${item.quantity}개</td>
+                    <td>₩\${formatCurrency(item.totalSales)}</td>
+                    <td>\${item.salesShare.toFixed(2)}%</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        // --- 메뉴별 매출 조회 함수 추가 끝 ---
+
+        function renderHourlyChart(data) {
+            const labels = data.map(d => d.hour + '시');
+            const salesData = data.map(d => d.totalSales);
+            const ordersData = data.map(d => d.totalOrders);
+
+            const chartConfig = {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: '매출액',
+                            data: salesData,
+                            backgroundColor: 'rgba(0, 133, 61, 0.7)',
+                            yAxisID: 'y-sales'
+                        },
+                        {
+                            type: 'line',
+                            label: '주문 건수',
+                            data: ordersData,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            fill: true,
+                            tension: 0.3,
+                            yAxisID: 'y-orders'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: document.getElementById('hourly-date').value + ' 시간대별 매출 및 주문 건수' }
+                    },
+                    scales: {
+                        'y-sales': { type: 'linear', position: 'left', title: { display: true, text: '매출액 (원)' }, beginAtZero: true },
+                        'y-orders': { type: 'linear', position: 'right', title: { display: true, text: '주문 건수' }, beginAtZero: true, grid: { drawOnChartArea: false } }
+                    }
+                }
+            };
+            createOrUpdateChart('hourly-chart', chartConfig);
+        }
+
+        function renderHourlyTable(data) {
+            const tableBody = document.getElementById('hourly-table');
+            tableBody.innerHTML = '';
+            const formatCurrency = (amount) => new Intl.NumberFormat('ko-KR').format(amount);
+            let maxSales = 0;
+            let peakHour = -1;
+
+            data.forEach(item => {
+                if (item.totalSales > maxSales) {
+                    maxSales = item.totalSales;
+                    peakHour = item.hour;
+                }
+            });
+
+            const fullHourlyData = Array.from({length: 24}, (_, i) => ({ hour: i, totalSales: 0, totalOrders: 0 }));
+            data.forEach(item => { fullHourlyData[item.hour] = item; });
+
+            fullHourlyData.forEach(item => {
+                const row = document.createElement('tr');
+                const avgOrderValue = item.totalOrders > 0 ? item.totalSales / item.totalOrders : 0;
+                if (item.hour === peakHour && maxSales > 0) {
+                    row.style.backgroundColor = '#ecf8f1';
+                    row.style.fontWeight = 'bold';
+                }
+                row.innerHTML = `<td>\${item.hour}시</td><td>₩\${formatCurrency(item.totalSales)}</td><td>\${item.totalOrders}건</td><td>₩\${formatCurrency(Math.round(avgOrderValue))}</td>`;
+                tableBody.appendChild(row);
+            });
+        }
+
         function renderDailyChart(data) {
             const labels = data.map(d => d.saleDate.substring(5));
             const salesData = data.map(d => d.totalSales);
@@ -277,37 +453,14 @@
                 data: {
                     labels: labels,
                     datasets: [
-                        {
-                            type: 'line',
-                            label: '매출액',
-                            data: salesData,
-                            borderColor: 'var(--green)',
-                            backgroundColor: 'var(--green)',
-                            yAxisID: 'y-sales',
-                            tension: 0.1
-                        },
-                        {
-                            type: 'bar',
-                            label: '주문 건수',
-                            data: ordersData,
-                            backgroundColor: 'rgba(0, 133, 61, 0.2)',
-                            yAxisID: 'y-orders'
-                        }
+                        { type: 'line', label: '매출액', data: salesData, borderColor: 'var(--green)', backgroundColor: 'var(--green)', yAxisID: 'y-sales', tension: 0.1 },
+                        { type: 'bar', label: '주문 건수', data: ordersData, backgroundColor: 'rgba(0, 133, 61, 0.2)', yAxisID: 'y-orders' }
                     ]
                 },
                 options: {
                     scales: {
-                        'y-sales': {
-                            type: 'linear',
-                            position: 'left',
-                            title: { display: true, text: '매출액 (원)' }
-                        },
-                        'y-orders': {
-                            type: 'linear',
-                            position: 'right',
-                            title: { display: true, text: '주문 건수' },
-                            grid: { drawOnChartArea: false }
-                        }
+                        'y-sales': { type: 'linear', position: 'left', title: { display: true, text: '매출액 (원)' } },
+                        'y-orders': { type: 'linear', position: 'right', title: { display: true, text: '주문 건수' }, grid: { drawOnChartArea: false } }
                     }
                 }
             };
@@ -317,7 +470,6 @@
         function renderDailyTable(data) {
             const tableBody = document.getElementById('daily-table');
             tableBody.innerHTML = '';
-
             const formatCurrency = (amount) => new Intl.NumberFormat('ko-KR').format(amount);
             const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
 
@@ -326,17 +478,8 @@
                 const date = new Date(item.saleDate);
                 const dayOfWeek = dayNames[date.getDay()];
                 const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-
-                if (isWeekend) {
-                    row.classList.add('weekend-row');
-                }
-
-                row.innerHTML =
-                    '<td>' + item.saleDate + '</td>' +
-                    '<td>' + dayOfWeek + '</td>' +
-                    '<td>₩' + formatCurrency(item.totalSales) + '</td>' +
-                    '<td>' + item.totalOrders + '건</td>' +
-                    '<td>₩' + formatCurrency(item.cumulativeSales) + '</td>';
+                if (isWeekend) row.classList.add('weekend-row');
+                row.innerHTML = `<td>\${item.saleDate}</td><td>\${dayOfWeek}</td><td>₩\${formatCurrency(item.totalSales)}</td><td>\${item.totalOrders}건</td><td>₩\${formatCurrency(item.cumulativeSales)}</td>`;
                 tableBody.appendChild(row);
             });
         }
@@ -347,47 +490,23 @@
                 createOrUpdateChart('period-chart', {type: 'bar', data: {labels:[], datasets:[]}});
                 return;
             }
-
             const labels = data.map(d => d.saleDate.substring(5));
             const salesData = data.map(d => d.totalSales);
-
             const totalSales = data.reduce((sum, item) => sum + item.totalSales, 0);
             const avgSales = totalSales / data.length;
-
-            const summaryEl = document.getElementById('period-summary');
-            summaryEl.textContent = '선택한 기간(' + data.length + '일) 동안 총 매출: ₩' + new Intl.NumberFormat('ko-KR').format(totalSales);
-
+            document.getElementById('period-summary').textContent = `선택한 기간(\${data.length}일) 동안 총 매출: ₩\${new Intl.NumberFormat('ko-KR').format(totalSales)}`;
             const chartType = data.length > 15 ? 'line' : 'bar';
-
             const chartConfig = {
                 type: chartType,
                 data: {
                     labels: labels,
-                    datasets: [{
-                        label: '매출액',
-                        data: salesData,
-                        borderColor: 'var(--green)',
-                        backgroundColor: chartType === 'line' ? 'transparent' : 'rgba(0, 133, 61, 0.7)',
-                        tension: 0.1
-                    }]
+                    datasets: [{ label: '매출액', data: salesData, borderColor: 'var(--green)', backgroundColor: chartType === 'line' ? 'transparent' : 'rgba(0, 133, 61, 0.7)', tension: 0.1 }]
                 },
                 options: {
                     plugins: {
                         annotation: {
                             annotations: {
-                                line1: {
-                                    type: 'line',
-                                    yMin: avgSales,
-                                    yMax: avgSales,
-                                    borderColor: 'rgb(255, 99, 132)',
-                                    borderWidth: 2,
-                                    borderDash: [5, 5],
-                                    label: {
-                                        content: '일평균: ₩' + new Intl.NumberFormat('ko-KR').format(Math.round(avgSales)),
-                                        enabled: true,
-                                        position: 'end'
-                                    }
-                                }
+                                line1: { type: 'line', yMin: avgSales, yMax: avgSales, borderColor: 'rgb(255, 99, 132)', borderWidth: 2, borderDash: [5, 5], label: { content: `일평균: ₩\${new Intl.NumberFormat('ko-KR').format(Math.round(avgSales))}`, enabled: true, position: 'end' } }
                             }
                         }
                     }
@@ -399,26 +518,14 @@
         function renderPeriodTable(data) {
             const tableBody = document.getElementById('period-table');
             tableBody.innerHTML = '';
-
             const formatCurrency = (amount) => new Intl.NumberFormat('ko-KR').format(amount);
             const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-
             data.forEach(item => {
                 const row = document.createElement('tr');
                 const date = new Date(item.saleDate);
                 const dayOfWeek = dayNames[date.getDay()];
-                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-
-                if (isWeekend) {
-                    row.classList.add('weekend-row');
-                }
-
-                row.innerHTML =
-                    '<td>' + item.saleDate + '</td>' +
-                    '<td>' + dayOfWeek + '</td>' +
-                    '<td>₩' + formatCurrency(item.totalSales) + '</td>' +
-                    '<td>' + item.totalOrders + '건</td>' +
-                    '<td>₩' + formatCurrency(item.cumulativeSales) + '</td>';
+                if (date.getDay() === 0 || date.getDay() === 6) row.classList.add('weekend-row');
+                row.innerHTML = `<td>\${item.saleDate}</td><td>\${dayOfWeek}</td><td>₩\${formatCurrency(item.totalSales)}</td><td>\${item.totalOrders}건</td><td>₩\${formatCurrency(item.cumulativeSales)}</td>`;
                 tableBody.appendChild(row);
             });
         }
@@ -426,7 +533,6 @@
         function loadMainSummary() {
             const contextPath = window.__ZEROLOSS_CP || '';
             const requestUrl = contextPath + '/branch/sales/summary';
-
             fetch(requestUrl)
                 .then(response => {
                     if (!response.ok) throw new Error('Network response was not ok');
@@ -441,10 +547,9 @@
                 })
                 .catch(error => {
                     console.error('Error fetching sales summary:', error);
-                    document.getElementById('summary-sales').textContent = '데이터 로딩 실패';
-                    document.getElementById('summary-orders').textContent = '데이터 로딩 실패';
-                    document.getElementById('summary-top-menu').textContent = '데이터 로딩 실패';
-                    document.getElementById('summary-monthly-sales').textContent = '데이터 로딩 실패';
+                    ['summary-sales', 'summary-orders', 'summary-top-menu', 'summary-monthly-sales'].forEach(id => {
+                        document.getElementById(id).textContent = '데이터 로딩 실패';
+                    });
                 });
         }
 

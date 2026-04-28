@@ -74,7 +74,6 @@ public class WarehouseStockDaoImpl implements WarehouseStockDao {
 
 	    return resultMap;
 	}
-
 	
 	@Override
 	public String insertWarehouseStock(SqlSession session, InboundRequestDTO dto, int inboundId) {

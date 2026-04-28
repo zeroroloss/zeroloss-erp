@@ -21,6 +21,16 @@
         .value.blue { color: #2563eb; }
         .status { margin-top: 6px; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: #fee2e2; color: #dc2626; font-size: 13px; font-weight: 700; }
 
+        .section-title { margin: 20px 0 10px; font-size: 18px; color: #111827; font-weight: 800; }
+        .table-wrap { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background: #fff; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid #e6ebf2; font-size: 14px; text-align: left; }
+        th { background: #f8fafc; color: #1f2937; font-weight: 800; }
+        td.right, th.right { text-align: right; }
+        .qty-approved { color: #6b7280; font-weight: 800; }
+        .qty-remaining { color: #dc2626; font-weight: 800; }
+        tbody tr:last-child td { border-bottom: 0; }
+
         .reason-box { margin-top: 18px; border: 1px solid #fecaca; border-radius: 12px; background: #fff1f2; padding: 14px; }
         .reason-title { display: flex; align-items: center; gap: 8px; margin: 0; color: #b91c1c; font-size: 18px; font-weight: 800; }
         .reason-text { margin: 8px 0 0 34px; color: #dc2626; font-size: 14px; }
@@ -34,6 +44,8 @@
             .label { font-size: 13px; }
             .value { font-size: 22px; }
             .status { font-size: 12px; height: 24px; }
+            .section-title { font-size: 20px; }
+            th, td { font-size: 13px; }
             .reason-title { font-size: 20px; }
             .reason-text { font-size: 13px; margin-left: 0; }
             .btn-close { font-size: 13px; height: 40px; }
@@ -47,6 +59,8 @@
             .label { font-size: 14px; }
             .value { font-size: 20px; }
             .status { font-size: 12px; }
+            .section-title { font-size: 17px; margin-top: 14px; }
+            th, td { font-size: 13px; padding: 9px; }
             .reason-title { font-size: 18px; }
             .reason-text { font-size: 14px; }
             .btn-close { font-size: 14px; height: 40px; }
@@ -59,46 +73,136 @@
     <section class="modal" role="dialog" aria-modal="true" aria-label="발주서 상세 정보">
         <div class="head">
             <div>
-                <h1 class="title">발주서 상세 정보</h1>
-                <div class="order-no">PO-2026-0327-002</div>
+                <h1 class="title">발주서 상세 정보 - 반려</h1>
+                <div class="order-no" id="orderNo">-</div>
             </div>
-            <a class="close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp#rejected" aria-label="닫기">×</a>
+            <a class="close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp" aria-label="닫기">×</a>
         </div>
 
         <div class="summary">
             <div>
                 <div class="label">작성 일시</div>
-                <div class="value">2026-03-27 11:00</div>
+                <div class="value" id="createdAt">-</div>
             </div>
             <div>
                 <div class="label">상태</div>
-                <span class="status">⊗ 반려</span>
+                <span class="status" id="statusText">⊗ 반려</span>
             </div>
             <div>
                 <div class="label">품목 수</div>
-                <div class="value">4개</div>
+                <div class="value" id="itemCount">0개</div>
             </div>
             <div>
                 <div class="label">총 요청 수량</div>
-                <div class="value blue">180</div>
+                <div class="value blue" id="totalQty">0</div>
             </div>
+        </div>
+
+        <h2 class="section-title">발주 품목 상세</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>품목명</th>
+                        <th class="right">요청 수량</th>
+                        <th class="right">승인 수량</th>
+                        <th class="right">미승인 수량</th>
+                    </tr>
+                </thead>
+                <tbody id="detailBody"></tbody>
+            </table>
         </div>
 
         <div class="reason-box">
             <h2 class="reason-title">❗ 반려 사유</h2>
-            <p class="reason-text">일부 품목의 요청 수량이 안전 재고의 3배를 초과합니다.</p>
+            <p class="reason-text" id="rejectReason">반려 사유가 없습니다.</p>
         </div>
 
         <div class="actions">
-            <a class="btn-close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp#rejected">닫기</a>
+            <a class="btn-close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp">닫기</a>
         </div>
     </section>
 </div>
 <script>
     (function () {
+        var contextPath = '<%= request.getContextPath() %>';
+
+        function getPoNo() {
+            var params = new URLSearchParams(window.location.search);
+            return params.get('poNo') || '';
+        }
+
+        function toSafeText(value) {
+            return value == null ? '' : String(value);
+        }
+
+        function escapeHtml(value) {
+            return toSafeText(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatQty(value) {
+            if (value == null || value === '') return '0';
+            var num = Number(value);
+            if (isNaN(num)) return String(value);
+            return Number.isInteger(num) ? String(num) : String(num);
+        }
+
+        function renderDetailRows(details) {
+            var tbody = document.getElementById('detailBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            if (!Array.isArray(details) || details.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="center">상세 품목이 없습니다.</td></tr>';
+                return;
+            }
+
+            details.forEach(function (detail) {
+                var name      = escapeHtml(detail.materialName || detail.materialCode || '-');
+                var unit      = escapeHtml(detail.unit || '');
+                var requested = escapeHtml(formatQty(detail.requestedQty)) + (unit ? ' ' + unit : '');
+                var approved  = escapeHtml(formatQty(detail.approvedQty))  + (unit ? ' ' + unit : '');
+                var remaining = escapeHtml(formatQty(detail.remainingQty)) + (unit ? ' ' + unit : '');
+
+                tbody.insertAdjacentHTML(
+                    'beforeend',
+                    '<tr>' +
+                        '<td>' + name + '</td>' +
+                        '<td class="right">' + requested + '</td>' +
+                        '<td class="right qty-approved">' + approved + '</td>' +
+                        '<td class="right qty-remaining">' + remaining + '</td>' +
+                    '</tr>'
+                );
+            });
+        }
+
+        async function loadDetail() {
+            var poNo = getPoNo();
+            if (!poNo) {
+                return;
+            }
+
+            var response = await fetch(contextPath + '/api/branch/place_order?action=detail&poNo=' + encodeURIComponent(poNo));
+            var payload = await response.json();
+            var data = payload && payload.data ? payload.data : {};
+
+            document.getElementById('orderNo').textContent = toSafeText(data.poNo || poNo || '-');
+            document.getElementById('createdAt').textContent = toSafeText(data.createdAt || '-');
+            document.getElementById('statusText').textContent = '⊗ ' + toSafeText(data.status || '반려');
+            document.getElementById('itemCount').textContent = String(data.itemCount != null ? data.itemCount : 0) + '개';
+            document.getElementById('totalQty').textContent = formatQty(data.totalQty);
+            document.getElementById('rejectReason').textContent = toSafeText(data.rejectReason || '반려 사유가 없습니다.');
+            renderDetailRows(data.details || []);
+        }
+
         function closePopupOrFallback() {
             if (window.parent && window.parent !== window) {
-                window.parent.postMessage({ type: 'close-purchase-popup' }, '*');
+                window.parent.postMessage({ type: 'close-place-order-popup' }, '*');
             }
         }
 
@@ -109,6 +213,11 @@
                 closePopupOrFallback();
             });
         }
+
+        loadDetail().catch(function () {
+            document.getElementById('orderNo').textContent = '-';
+            renderDetailRows([]);
+        });
     })();
 </script>
 </body>

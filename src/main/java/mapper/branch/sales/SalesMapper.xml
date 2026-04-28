@@ -18,13 +18,13 @@
             (SELECT IFNULL(SUM(total_amount), 0)
              FROM orders
              WHERE order_date = CURDATE()
-               AND status IN ('PAID', 'PREPARING', 'PICKED_UP')
+               AND status = 'PAID'
                AND branch_code = #{branchCode}) AS todaySales,
 
             (SELECT COUNT(*)
              FROM orders
              WHERE order_date = CURDATE()
-               AND status IN ('PAID', 'PREPARING', 'PICKED_UP')
+               AND status = 'PAID'
                AND branch_code = #{branchCode}) AS todayOrders,
 
             (SELECT r.name
@@ -32,7 +32,7 @@
                       JOIN orders o ON om.order_id = o.order_id
                       JOIN recipe r ON om.recipe_code = r.recipe_code
              WHERE o.order_date = CURDATE()
-               AND o.status IN ('PAID', 'PREPARING', 'PICKED_UP')
+               AND o.status = 'PAID'
                AND o.branch_code = #{branchCode}
              GROUP BY r.recipe_code, r.name
              ORDER BY SUM(om.qty) DESC
@@ -41,7 +41,7 @@
             (SELECT IFNULL(SUM(total_amount), 0)
              FROM orders
              WHERE order_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
-               AND status IN ('PAID', 'PREPARING', 'PICKED_UP')
+               AND status = 'PAID'
                AND branch_code = #{branchCode}) AS monthlySales
     </select>
 
@@ -59,7 +59,7 @@
                 orders
             WHERE
                 branch_code = #{branchCode}
-              AND status IN ('PAID', 'PREPARING', 'PICKED_UP')
+              AND status = 'PAID'
               AND order_date BETWEEN #{startDate} AND #{endDate}
             GROUP BY
                 order_date
@@ -73,6 +73,50 @@
             DailySummaries ds
         ORDER BY
             ds.order_date ASC;
+    </select>
+
+    <!--
+        ID: getHourlySales
+        - 특정 날짜의 시간대별 매출 데이터를 조회
+    -->
+    <select id="getHourlySales" resultType="dto.branch.sales.HourlySalesDTO" parameterType="map">
+        SELECT
+            HOUR(created_at) AS hour,
+            SUM(total_amount) AS totalSales,
+            COUNT(*) AS totalOrders
+        FROM
+            orders
+        WHERE
+            branch_code = #{branchCode}
+          AND status = 'PAID'
+          AND order_date = #{targetDate}
+        GROUP BY
+            HOUR(created_at)
+        ORDER BY
+            hour ASC;
+    </select>
+
+    <!--
+        ID: getMenuSales
+        - 특정 날짜의 메뉴별 매출 데이터를 조회
+    -->
+    <select id="getMenuSales" resultType="dto.branch.sales.MenuSalesDTO" parameterType="map">
+        SELECT
+            r.name AS menuName,
+            SUM(om.qty) AS quantity,
+            SUM(om.line_total_amount) AS totalSales
+        FROM
+            orders o
+                JOIN order_menu om ON o.order_id = om.order_id
+                JOIN recipe r ON om.recipe_code = r.recipe_code
+        WHERE
+            o.branch_code = #{branchCode}
+          AND o.status = 'PAID'
+          AND o.order_date = #{targetDate}
+        GROUP BY
+            r.name
+        ORDER BY
+            totalSales DESC;
     </select>
 
 </mapper>

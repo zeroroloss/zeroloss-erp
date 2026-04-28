@@ -2,7 +2,10 @@ package dto.branch.place_order;
 
 import java.math.BigDecimal;
 
+// 발주 품목 상세
 public class PlaceOrderDetailDTO {
+
+    private static final long serialVersionUID = 1L;
 
     private Integer poDetailId;
     private Integer poId;
@@ -11,6 +14,7 @@ public class PlaceOrderDetailDTO {
     private BigDecimal requestedQty;
     private BigDecimal approvedQty;
     private BigDecimal remainingQty;
+    private String unit; // 단위
 
     public Integer getPoDetailId() {
         return poDetailId;
@@ -66,5 +70,13 @@ public class PlaceOrderDetailDTO {
 
     public void setRemainingQty(BigDecimal remainingQty) {
         this.remainingQty = remainingQty;
+    }
+    
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 }

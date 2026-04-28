@@ -28,7 +28,6 @@ public interface WarehouseStockDao {
 	int insertInbound(SqlSession sqlSession, InboundRequestDTO inboundReqDTO);
 	List<InboundRecordDTO> findInboundRecords(SqlSession sqlSession, InboundSearchDTO searchDTO);
 	Map<String, Integer> getMaterialPriceMap(SqlSession sqlSession);
-
 	String insertWarehouseStock(SqlSession session, InboundRequestDTO dto, int inboundId);
 	int insertStockHistory(SqlSession session, String stockNo, InboundRequestDTO dto);
 	

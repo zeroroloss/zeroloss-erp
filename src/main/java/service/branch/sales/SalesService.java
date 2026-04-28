@@ -1,6 +1,8 @@
 package service.branch.sales;
 
 import dto.branch.sales.DailySalesDTO;
+import dto.branch.sales.HourlySalesDTO;
+import dto.branch.sales.MenuSalesDTO;
 import dto.branch.sales.SalesSummaryDTO;
 
 import java.time.LocalDate;
@@ -35,4 +37,20 @@ public interface SalesService {
      * @return DailySalesDTO 객체 리스트
      */
     List<DailySalesDTO> getPeriodSales(int branchCode, LocalDate startDate, LocalDate endDate);
+
+    /**
+     * 특정 날짜의 시간대별 매출 데이터를 조회합니다.
+     * @param branchCode 조회할 직영점의 코드
+     * @param targetDate 조회할 날짜
+     * @return HourlySalesDTO 객체 리스트
+     */
+    List<HourlySalesDTO> getHourlySales(int branchCode, LocalDate targetDate);
+
+    /**
+     * 특정 날짜의 메뉴별 매출 데이터를 조회하고, 매출 비중을 계산합니다.
+     * @param branchCode 조회할 직영점의 코드
+     * @param targetDate 조회할 날짜
+     * @return MenuSalesDTO 객체 리스트
+     */
+    List<MenuSalesDTO> getMenuSales(int branchCode, LocalDate targetDate);
 }

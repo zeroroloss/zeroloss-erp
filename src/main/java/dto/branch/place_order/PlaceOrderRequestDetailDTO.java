@@ -1,8 +1,11 @@
 package dto.branch.place_order;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class PlaceOrderRequestDetailDTO {
+public class PlaceOrderRequestDetailDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String materialCode;
     private BigDecimal requestedQty;
