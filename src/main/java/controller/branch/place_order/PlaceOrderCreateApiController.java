@@ -7,13 +7,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/branch/place_order/create")
-public class PlaceOrderCreateController extends HttpServlet {
+@WebServlet("/api/branch/place_order/create")
+public class PlaceOrderCreateApiController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	
        
-    public PlaceOrderCreateController() {
+    public PlaceOrderCreateApiController() {
         super();
     }
 

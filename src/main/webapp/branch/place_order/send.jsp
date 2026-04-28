@@ -76,10 +76,27 @@
         <div class="notice"><strong>안내:</strong> 전송 후 본사의 승인을 기다려야 합니다. 반려된 경우 수정 후 재전송이 가능합니다.</div>
 
         <div class="actions">
-            <a class="btn btn-cancel" href="<%= request.getContextPath() %>/branch/place_order/create.jsp">취소</a>
-            <a class="btn btn-send" href="<%= request.getContextPath() %>/branch/place_order/history.jsp">전송</a>
+			<a class="btn btn-cancel" href="#" onclick="closePopup()">취소</a>
+            <a class="btn btn-send" href="#" onclick="sendAndClose()">전송</a>
         </div>
     </div>
 </div>
+
+<script>
+function closePopup() {
+    window.parent.postMessage({ type: 'close-place-popup' }, '*');
+}
+
+function sendAndClose() {
+    // TODO: 실제 전송 API 호출 넣기
+
+    alert('전송되었습니다.');
+
+    window.parent.postMessage({ type: 'close-place-popup' }, '*');
+
+    // 페이지 리로드 이동
+    window.parent.location.href = '<%= request.getContextPath() %>/branch/place_order/create';
+}
+</script>
 </body>
 </html>
