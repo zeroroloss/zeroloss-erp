@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.hq.sales.HqSalesMapper">
+
+    <!--
+        ID: selectActiveBranches
+        - UI에 표시할 활성화된 직영점 목록을 조회하는 쿼리
+    -->
+    <select id="selectActiveBranches" resultType="dto.BranchDTO">
+        SELECT
+            branch_code,
+            name
+        FROM
+            branch
+        WHERE
+            status = 'ACTIVE'
+        ORDER BY
+            name ASC
+    </select>
+
+    <!--
+        ID: getDailySales
+        - 지정된 기간과 지점의 일별 매출과 '누적 매출'을 함께 조회
+        - branchCode가 'all'이 아니면 해당 지점만, 'all'이면 전체 지점의 매출을 합산
+    -->
+    <select id="getDailySales" resultType="dto.branch.sales.DailySalesDTO" parameterType="map">
+        WITH DailySummaries AS (
+            SELECT
+                order_date,
+                SUM(total_amount) AS dailyTotalSales,
+                COUNT(*) AS dailyTotalOrders
+            FROM
+                orders
+            WHERE
+                status = 'PAID'
+              AND order_date BETWEEN #{startDate} AND #{endDate}
+              <if test="branchCode != null and branchCode != 'all'">
+                AND branch_code = #{branchCode}
+              </if>
+            GROUP BY
+                order_date
+        )
+        SELECT
+            ds.order_date AS saleDate,
+            ds.dailyTotalSales AS totalSales,
+            ds.dailyTotalOrders AS totalOrders,
+            SUM(ds.dailyTotalSales) OVER (ORDER BY ds.order_date) AS cumulativeSales
+        FROM
+            DailySummaries ds
+        ORDER BY
+            ds.order_date ASC;
+    </select>
+
+    <!--
+        ID: getHourlySales
+        - 특정 날짜의 시간대별 매출 데이터를 조회
+    -->
+    <select id="getHourlySales" resultType="dto.branch.sales.HourlySalesDTO" parameterType="map">
+        SELECT
+            HOUR(created_at) AS hour,
+            SUM(total_amount) AS totalSales,
+            COUNT(*) AS totalOrders
+        FROM
+            orders
+        WHERE
+            status = 'PAID'
+          AND order_date = #{targetDate}
+          <if test="branchCode != null and branchCode != 'all'">
+            AND branch_code = #{branchCode}
+          </if>
+        GROUP BY
+            HOUR(created_at)
+        ORDER BY
+            hour ASC;
+    </select>
+
+    <!--
+        ID: getMenuSales
+        - 특정 날짜의 메뉴별 매출 데이터를 조회
+    -->
+    <select id="getMenuSales" resultType="dto.branch.sales.MenuSalesDTO" parameterType="map">
+        SELECT
+            r.name AS menuName,
+            SUM(om.qty) AS quantity,
+            SUM(om.line_total_amount) AS totalSales
+        FROM
+            orders o
+                JOIN order_menu om ON o.order_id = om.order_id
+                JOIN recipe r ON om.recipe_code = r.recipe_code
+        WHERE
+            o.status = 'PAID'
+          AND o.order_date = #{targetDate}
+          <if test="branchCode != null and branchCode != 'all'">
+            AND o.branch_code = #{branchCode}
+          </if>
+        GROUP BY
+            r.name
+        ORDER BY
+            totalSales DESC;
+    </select>
+
+</mapper>

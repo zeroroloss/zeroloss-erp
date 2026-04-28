@@ -4,377 +4,618 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>직영점 매출 조회 - ZERO LOSS 본사 관리 시스템</title>
+    <title>직영점 매출 조회 - ZERO LOSS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
+
+    <%-- flatpickr --%>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+
+    <%-- 직영점 layout_head.jsp 내용 하드코딩 시작 --%>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .sidebar-open .sidebar {
+        :root {
+          --green: #00853D;
+          --line: #e5e7eb;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .zl-app { min-height: 100vh; background: #f3f4f6; font-size: 16px; color: #111827; display: flex; }
+        .zl-sidebar { position: fixed; top: 0; left: 0; width: 288px; height: 100vh; background: #ffffff; border-right: 1px solid var(--line); overflow-y: auto; z-index: 40; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); }
+        .zl-content { flex-grow: 1; margin-left: 288px; display: flex; flex-direction: column; }
+        main { flex-grow: 1; }
+
+        @media (max-width: 1200px) {
+          .zl-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 50;
+          }
+          .sidebar-open .zl-sidebar {
             transform: translateX(0);
+          }
+          .zl-content {
+            margin-left: 0;
+          }
         }
     </style>
-</head>
-<body class="bg-gray-50">
-	    <%@ include file="/hq/common/sidebar.jsp" %>
-        <!-- 메인 콘텐츠 -->
-        <div class="lg:pl-72">
-
-            <!-- 페이지 콘텐츠 -->
-            <main class="p-6">
-                <!-- 메인 컨테이너 -->
-                <div class="space-y-6">
-                    
-                    <!-- 페이지 헤더 -->
-                    <div>
-                        <h2 class="text-3xl font-bold text-gray-900">매출 상세 조회</h2>
-                        <p class="text-gray-500 mt-1">다양한 조건으로 매출을 상세하게 분석하세요</p>
-                    </div>
-
-                    <!-- 필터 카드 -->
-                    <div class="bg-white rounded-lg border border-gray-200 p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <!-- 조회 유형 -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">조회 유형</label>
-                                <select id="viewType" onchange="handleViewTypeChange()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                    <option value="period">기간별</option>
-                                    <option value="branch">지점별</option>
-                                    <option value="menu">메뉴별</option>
-                                    <option value="hourly">시간대별</option>
-                                    <option value="daily">날짜별</option>
-                                </select>
-                            </div>
-
-                            <!-- 기간 -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">기간</label>
-                                <select id="dateRange" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                    <option value="today">오늘</option>
-                                    <option value="week">이번 주</option>
-                                    <option value="month" selected>이번 달</option>
-                                    <option value="quarter">이번 분기</option>
-                                    <option value="year">올해</option>
-                                    <option value="custom">직접 선택</option>
-                                </select>
-                            </div>
-
-                            <!-- 지점 -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">지점</label>
-                                <select id="branchFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                    <option value="all">전체 지점</option>
-                                    <option value="gangnam">강남지점</option>
-                                    <option value="seocho">서초지점</option>
-                                    <option value="songpa">송파지점</option>
-                                    <option value="jongno">종로지점</option>
-                                    <option value="mapo">마포지점</option>
-                                </select>
-                            </div>
-
-                            <!-- 메뉴 -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">메뉴</label>
-                                <select id="menuFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                    <option value="all">전체 메뉴</option>
-                                    <option value="burger1">시그니처 버거</option>
-                                    <option value="burger2">치즈 버거</option>
-                                    <option value="chicken1">치킨 샌드위치</option>
-                                    <option value="side1">감자튀김 세트</option>
-                                    <option value="drink1">아이스 아메리카노</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 flex gap-2">
-                            <button onclick="handleSearch()" class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors font-medium">
-                                <i class="fas fa-filter mr-2"></i>필터 적용
-                            </button>
-                            <button onclick="handleDownload()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium">
-                                <i class="fas fa-download mr-2"></i>엑셀 다운로드
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 요약 통계 카드 -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <div class="text-sm text-gray-500">총 매출</div>
-                            <div class="text-2xl font-bold mt-1">₩156,700,000</div>
-                            <div class="text-sm text-green-600 mt-1"><i class="fas fa-arrow-up mr-1"></i>12.3%</div>
-                        </div>
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <div class="text-sm text-gray-500">총 주문 건수</div>
-                            <div class="text-2xl font-bold mt-1">4,264건</div>
-                            <div class="text-sm text-green-600 mt-1"><i class="fas fa-arrow-up mr-1"></i>8.7%</div>
-                        </div>
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <div class="text-sm text-gray-500">평균 주문액</div>
-                            <div class="text-2xl font-bold mt-1">₩36,750</div>
-                            <div class="text-sm text-green-600 mt-1"><i class="fas fa-arrow-up mr-1"></i>3.2%</div>
-                        </div>
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <div class="text-sm text-gray-500">활성 지점 수</div>
-                            <div class="text-2xl font-bold mt-1">5개</div>
-                            <div class="text-sm text-gray-600 mt-1">전체 지점</div>
-                        </div>
-                    </div>
-
-                    <!-- 콘텐츠 영역 -->
-                    <div id="contentArea">
-                        <!-- 기간별 매출 (기본 뷰) -->
-                        <div class="bg-white rounded-lg border border-gray-200 p-6">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">기간별 매출 추이</h3>
-                            <div class="h-96 bg-gray-50 rounded-lg flex items-center justify-center mb-6">
-                                <div class="text-center">
-                                    <i class="fas fa-chart-line w-12 h-12 text-gray-400 mx-auto mb-2"></i>
-                                    <p class="text-gray-500">차트 영역 (Recharts 라이브러리 사용 시)</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상세 정보 -->
-                    <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-info-circle w-5 h-5 text-blue-600"></i>
-                            <p class="text-sm text-blue-900">
-                                <span class="font-semibold">직영점 매출 조회</span>는 다양한 조건으로 매출을 상세하게 분석합니다. 조회 유형(기간/지점/메뉴/시간대/날짜)과 기간을 선택하여 필요한 데이터를 조회하세요.
-                            </p>
-                        </div>
-                    </div>
-
-                </div>
-            </main>
-        </div>
-    </div>
-
     <script>
-        // Mock 데이터
-        const periodData = [
-            { period: "1주차", sales: 38500000, orders: 1045 },
-            { period: "2주차", sales: 41200000, orders: 1123 },
-            { period: "3주차", sales: 39800000, orders: 1087 },
-            { period: "4주차", sales: 42100000, orders: 1156 }
-        ];
+        window.__ZEROLOSS_CP = '<%= request.getContextPath() %>';
+        document.addEventListener('DOMContentLoaded', function () {
+          var cp = window.__ZEROLOSS_CP || '';
+          if (!cp) {
+            return;
+          }
+          // 본사(hq) 경로에 맞게 수정
+          document.querySelectorAll('a[href^="/hq/"]').forEach(function (link) {
+            var originalHref = link.getAttribute('href');
+            if(originalHref.startsWith(cp)) return;
+            link.href = cp + originalHref;
+          });
 
-        const branchData = [
-            { branch: "강남지점", sales: 45600000, orders: 1245, avgOrder: 36627 },
-            { branch: "서초지점", sales: 38900000, orders: 1087, avgOrder: 35793 },
-            { branch: "송파지점", sales: 42300000, orders: 1156, avgOrder: 36591 },
-            { branch: "종로지점", sales: 35200000, orders: 978, avgOrder: 35991 },
-            { branch: "마포지점", sales: 39800000, orders: 1098, avgOrder: 36248 }
-        ];
+          document.querySelectorAll('form[action^="/hq/"]').forEach(function (form) {
+            var originalAction = form.getAttribute('action');
+            if(originalAction.startsWith(cp)) return;
+            form.action = cp + originalAction;
+          });
+        });
+    </script>
+    <%-- 직영점 layout_head.jsp 내용 하드코딩 끝 --%>
 
-        const menuData = [
-            { name: "시그니처 버거", sales: 48500000, percentage: 31 },
-            { name: "치킨 샌드위치", sales: 32400000, percentage: 21 },
-            { name: "감자튀김 세트", sales: 28600000, percentage: 18 },
-            { name: "아이스 아메리카노", sales: 24800000, percentage: 16 },
-            { name: "콤보 세트", sales: 21500000, percentage: 14 }
-        ];
 
-        const hourlyData = [
-            { time: "06-09시", sales: 4200000, orders: 145 },
-            { time: "09-12시", sales: 12800000, orders: 378 },
-            { time: "12-15시", sales: 28500000, orders: 756 },
-            { time: "15-18시", sales: 16700000, orders: 445 },
-            { time: "18-21시", sales: 24300000, orders: 623 },
-            { time: "21-24시", sales: 9200000, orders: 234 }
-        ];
+    <style>
+        /* 페이지 전용 스타일 */
+        .head h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; }
+        .head p { color: #6b7280; }
+        .search-panel { margin-top:24px; border:1px solid var(--line); border-radius:18px; background:#fff; box-shadow:0 1px 2px rgba(15,23,42,0.05); padding:18px; display: flex; align-items: center; justify-content: space-between; }
+        .filters { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+        .tabs { display:flex; align-items:center; gap:10px; }
+        .tabs::after { content:""; width:1px; height:42px; background:#d1d5db; margin-left:4px; }
+        .tab { height:38px; border-radius:12px; border:1px solid #d1d5db; background:#f9fafb; color:#374151; font-size:14px; font-weight:700; padding:0 16px; cursor:pointer; }
+        .tab.active { border-color:var(--green); color:var(--green); background:#ecf8f1; }
+        .filter-inputs { display:flex; align-items:center; gap:10px; }
+        .filter-inputs input, .filter-inputs select { height:38px; min-width:180px; border-radius:12px; border:1px solid #d1d5db; background:#fff; color:#1f2937; padding:0 13px; font-size:13px; }
 
-        const dailyData = [
-            { date: "3/22", sales: 15200000, orders: 412 },
-            { date: "3/23", sales: 16800000, orders: 445 },
-            { date: "3/24", sales: 15900000, orders: 428 },
-            { date: "3/25", sales: 17500000, orders: 467 },
-            { date: "3/26", sales: 18200000, orders: 489 },
-            { date: "3/27", sales: 16900000, orders: 451 },
-            { date: "3/28", sales: 17100000, orders: 458 }
-        ];
+        .date-picker-wrap { position:relative; }
+        .date-picker-wrap input { padding-left: 38px !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af' class='w-5 h-5'%3E%3Cpath fill-rule='evenodd' d='M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zM4.5 6.75A1.25 1.25 0 015.75 5.5h8.5A1.25 1.25 0 0115.5 6.75v8.5A1.25 1.25 0 0114.25 16.5h-8.5A1.25 1.25 0 014.5 15.25v-8.5zM7 10a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm-6 3a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z' clip-rule='evenodd' /%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 10px center; background-size: 20px; }
 
-        // 조회 유형 변경
-        function handleViewTypeChange() {
-            const viewType = document.getElementById("viewType").value;
-            renderContent(viewType);
-        }
+        .btn-group { display:flex; gap:8px; }
+        .btn { height:38px; border-radius:12px; padding:0 18px; font-size:14px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; border:1px solid transparent; }
+        .btn-search { background:var(--green); color:#fff; border-color:var(--green); }
+        .btn-reset { background:#f3f4f6; color:#374151; border-color:#e5e7eb; }
 
-        // 콘텐츠 렌더링
-        function renderContent(viewType) {
-            const contentArea = document.getElementById("contentArea");
-            let html = "";
+        .tab-content { margin-top:18px; display:none; }
+        .tab-content.active { display:block; }
+        .chart-wrap{border:1px solid #d9dee5;border-radius:16px;padding:20px; background:#fff; height: 450px; }
+        .period-summary { margin-bottom: 16px; text-align: center; font-size: 1.1rem; font-weight: 500; color: #374151; }
+        .chart-title{font-size:22px;font-weight:700;margin-bottom:14px;}
+        .result-card{margin-top:18px;border:1px solid #d9dee5;border-radius:16px;overflow:hidden; background:#fff;}
+        .result-head{padding:18px 20px;font-size:20px;font-weight:700;border-bottom:1px solid #e5e7eb;}
+        table{width:100%;border-collapse:collapse;} th,td{padding:14px 18px;border-bottom:1px solid #e5e7eb;font-size:15px;text-align:right;} th{background:#f9fafb;color:#6b7280;font-weight:700;} th:first-child,td:first-child{text-align:left;} th:nth-child(2),td:nth-child(2){text-align:left;}
+        .weekend-row { color: #2563eb; font-weight: 500; }
+        .pager{display:flex;justify-content:center;align-items:center;padding:16px 20px;font-size:14px;color:#6b7280;}
+        .pages{display:flex;gap:8px;align-items:center;} .p{width:34px;height:34px;border:1px solid #d1d5db;border-radius:12px;background:#fff;color:#374151;display:grid;place-items:center;font-size:14px;font-weight:700; cursor:pointer;} .p.active{background:var(--green);color:#fff;border-color:var(--green);}
+        .is-hidden { display:none !important; }
+    </style>
+</head>
+<body>
+<div class="zl-app">
+    <%@ include file="/hq/common/sidebar.jsp" %>
+    <div class="zl-content">
+        <%-- <%@ include file="/hq/common/layout/topbar.jsp" %> --%>
+        <main class="p-6">
+            <header class="head">
+                <h1 class="text-3xl font-bold">직영점 매출 조회</h1>
+                <p>일별, 기간별, 시간대별, 메뉴별 매출 데이터를 조회하고 분석합니다.</p>
+            </header>
 
-            switch (viewType) {
-                case "period":
-                    html = renderPeriodView();
-                    break;
-                case "branch":
-                    html = renderBranchView();
-                    break;
-                case "menu":
-                    html = renderMenuView();
-                    break;
-                case "hourly":
-                    html = renderHourlyView();
-                    break;
-                case "daily":
-                    html = renderDailyView();
-                    break;
+            <section class="search-panel">
+                <div class="filters">
+                    <div class="tabs" role="tablist">
+                        <button class="tab active" type="button" data-tab="daily">일별</button>
+                        <button class="tab" type="button" data-tab="period">기간별</button>
+                        <button class="tab" type="button" data-tab="hourly">시간대별</button>
+                        <button class="tab" type="button" data-tab="menu">메뉴별</button>
+                    </div>
+                    <div class="filter-inputs">
+                        <select id="branch-selector">
+                            <option value="" disabled selected>직영점을 선택하세요</option>
+                        </select>
+                    </div>
+                    <div class="filter-inputs" data-input="daily">
+                        <div class="date-picker-wrap">
+                            <input type="text" id="daily-date" placeholder="날짜 선택">
+                        </div>
+                    </div>
+                    <div class="filter-inputs is-hidden" data-input="period">
+                        <div class="date-picker-wrap">
+                            <input type="text" id="period-start" placeholder="시작일 선택">
+                        </div>
+                        <span class="text-gray-500">~</span>
+                        <div class="date-picker-wrap">
+                            <input type="text" id="period-end" placeholder="종료일 선택">
+                        </div>
+                    </div>
+                    <div class="filter-inputs is-hidden" data-input="hourly">
+                        <div class="date-picker-wrap">
+                            <input type="text" id="hourly-date" placeholder="날짜 선택">
+                        </div>
+                    </div>
+                    <div class="filter-inputs is-hidden" data-input="menu">
+                        <div class="date-picker-wrap">
+                            <input type="text" id="menu-date" placeholder="날짜 선택">
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-search" id="searchButton" type="button"><i class="fas fa-search mr-2"></i>검색</button>
+                </div>
+            </section>
+
+            <div id="daily-content" class="tab-content">
+                <div class="chart-wrap"><canvas id="daily-chart"></canvas></div>
+                <div class="result-card">
+                    <div class="result-head">일별 매출 상세</div>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>일자</th>
+                            <th>요일</th>
+                            <th>매출액</th>
+                            <th>주문 건수</th>
+                            <th>누적 매출</th>
+                        </tr>
+                        </thead>
+                        <tbody id="daily-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="period-content" class="tab-content">
+                <div class="chart-wrap">
+                    <div id="period-summary" class="period-summary"></div>
+                    <canvas id="period-chart"></canvas>
+                </div>
+                <div class="result-card">
+                    <div class="result-head">기간별 매출 상세</div>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>일자</th>
+                            <th>요일</th>
+                            <th>매출액</th>
+                            <th>주문 건수</th>
+                            <th>누적 매출</th>
+                        </tr>
+                        </thead>
+                        <tbody id="period-table"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="hourly-content" class="tab-content">
+                <div class="chart-wrap"><canvas id="hourly-chart"></canvas></div>
+                <div class="result-card"><div class="result-head">시간대별 매출 상세</div><table><thead><tr><th>시간대</th><th>매출액</th><th>주문수</th><th>평균 객단가</th></tr></thead><tbody id="hourly-table"></tbody></table></div>
+            </div>
+            <div id="menu-content" class="tab-content">
+                <div class="chart-wrap"><canvas id="menu-chart"></canvas></div>
+                <div class="result-card"><div class="result-head">메뉴별 매출 상세</div><table><thead><tr><th>메뉴명</th><th>판매량</th><th>매출액</th><th>매출 비중</th></tr></thead><tbody id="menu-table"></tbody></table></div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const inputGroups = document.querySelectorAll('.filter-inputs[data-input]');
+        const searchButton = document.getElementById('searchButton');
+        const branchSelector = document.getElementById('branch-selector');
+
+        flatpickr.localize(flatpickr.l10ns.ko);
+
+        const commonDateConfig = {
+            dateFormat: "Y-m-d",
+            allowInput: true,
+        };
+
+        flatpickr("#daily-date", {...commonDateConfig, defaultDate: "today"});
+        flatpickr("#hourly-date", {...commonDateConfig, defaultDate: "today"});
+        flatpickr("#menu-date", {...commonDateConfig, defaultDate: "today"});
+
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+        flatpickr("#period-start", {...commonDateConfig, defaultDate: oneMonthAgo});
+        flatpickr("#period-end", {...commonDateConfig, defaultDate: "today"});
+
+        const charts = {};
+
+        function createOrUpdateChart(canvasId, config) {
+            if (charts[canvasId]) {
+                charts[canvasId].destroy();
             }
-
-            contentArea.innerHTML = html;
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            charts[canvasId] = new Chart(ctx, config);
         }
 
-        // 기간별 뷰
-        function renderPeriodView() {
-            let tableRows = "";
-            for (let i = 0; i < periodData.length; i++) {
-                const row = periodData[i];
-                tableRows += "<tr class=\"border-b border-gray-100 hover:bg-gray-50\">";
-                tableRows += "<td class=\"py-3 px-4\">" + row.period + "</td>";
-                tableRows += "<td class=\"py-3 px-4 text-right font-semibold\">₩" + row.sales.toLocaleString() + "</td>";
-                tableRows += "<td class=\"py-3 px-4 text-right\">" + row.orders.toLocaleString() + "건</td>";
-                tableRows += "</tr>";
-            }
-
-            return "<div class=\"bg-white rounded-lg border border-gray-200 p-6\"><h3 class=\"text-lg font-semibold text-gray-900 mb-4\">기간별 매출 추이</h3><div class=\"h-96 bg-gray-50 rounded-lg flex items-center justify-center mb-6\"><div class=\"text-center\"><i class=\"fas fa-chart-line w-12 h-12 text-gray-400 mx-auto mb-2\"></i><p class=\"text-gray-500\">꺾은선 차트 (기간별 매출액)</p></div></div><div class=\"overflow-x-auto\"><table class=\"w-full\"><thead><tr class=\"border-b border-gray-200 bg-gray-50\"><th class=\"text-left py-3 px-4 text-sm font-semibold\">기간</th><th class=\"text-right py-3 px-4 text-sm font-semibold\">매출액</th><th class=\"text-right py-3 px-4 text-sm font-semibold\">주문 건수</th></tr></thead><tbody>" + tableRows + "</tbody></table></div></div>";
+        // 지점 목록 로드 함수
+        function loadBranches() {
+            const contextPath = window.__ZEROLOSS_CP || '';
+            fetch(contextPath + '/hq/sales/branches')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(branch => {
+                        if (branch.name !== '본사') {
+                            const option = document.createElement('option');
+                            option.value = branch.branchCode;
+                            option.textContent = branch.name;
+                            branchSelector.appendChild(option);
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching branches:', error));
         }
 
-        // 지점별 뷰
-        function renderBranchView() {
-            let tableRows = "";
-            for (let i = 0; i < branchData.length; i++) {
-                const row = branchData[i];
-                tableRows += "<tr class=\"border-b border-gray-100 hover:bg-gray-50\">";
-                tableRows += "<td class=\"py-3 px-4 font-medium\">" + row.branch + "</td>";
-                tableRows += "<td class=\"py-3 px-4 text-right font-semibold\">₩" + row.sales.toLocaleString() + "</td>";
-                tableRows += "<td class=\"py-3 px-4 text-right\">" + row.orders.toLocaleString() + "건</td>";
-                tableRows += "<td class=\"py-3 px-4 text-right\">₩" + row.avgOrder.toLocaleString() + "</td>";
-                tableRows += "</tr>";
-            }
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const selectedTab = e.currentTarget.dataset.tab;
+                tabs.forEach(t => t.classList.remove('active'));
+                e.currentTarget.classList.add('active');
 
-            return "<div class=\"bg-white rounded-lg border border-gray-200 p-6\"><h3 class=\"text-lg font-semibold text-gray-900 mb-4\">지점별 매출 현황</h3><div class=\"h-96 bg-gray-50 rounded-lg flex items-center justify-center mb-6\"><div class=\"text-center\"><i class=\"fas fa-chart-bar w-12 h-12 text-gray-400 mx-auto mb-2\"></i><p class=\"text-gray-500\">막대 차트 (지점별 매출액)</p></div></div><div class=\"overflow-x-auto\"><table class=\"w-full\"><thead><tr class=\"border-b border-gray-200 bg-gray-50\"><th class=\"text-left py-3 px-4 text-sm font-semibold\">지점명</th><th class=\"text-right py-3 px-4 text-sm font-semibold\">총 매출</th><th class=\"text-right py-3 px-4 text-sm font-semibold\">주문 건수</th><th class=\"text-right py-3 px-4 text-sm font-semibold\">평균 주문액</th></tr></thead><tbody>" + tableRows + "</tbody></table></div></div>";
-        }
-
-        // 메뉴별 뷰
-        function renderMenuView() {
-            let tableRows = "";
-            let legendHtml = "";
-            for (let i = 0; i < menuData.length; i++) {
-                const row = menuData[i];
-                tableRows += "<tr class=\"border-b border-gray-100 hover:bg-gray-50\">";
-                tableRows += "<td class=\"py-3 px-4 font-medium\">" + row.name + "</td>";
-                tableRows += "<td class=\"py-3 px-4 text-right font-semibold\">₩" + row.sales.toLocaleString() + "</td>";
-                tableRows += "<td class=\"py-3 px-4\"><div class=\"w-full bg-gray-200 rounded-full h-2\"><div class=\"h-2 rounded-full bg-[#00853D]\" style=\"width:" + row.percentage + "%\"></div></div></td>";
-                tableRows += "<td class=\"py-3 px-4 text-right\">" + row.percentage + "%</td>";
-                tableRows += "</tr>";
-            }
-
-            return "<div class=\"grid grid-cols-1 lg:grid-cols-2 gap-6\"><div class=\"bg-white rounded-lg border border-gray-200 p-6\"><h3 class=\"text-lg font-semibold text-gray-900 mb-4\">메뉴별 매출 비중</h3><div class=\"h-96 bg-gray-50 rounded-lg flex items-center justify-center\"><div class=\"text-center\"><i class=\"fas fa-chart-pie w-12 h-12 text-gray-400 mx-auto mb-2\"></i><p class=\"text-gray-500\">원형 차트 (메뉴별 비율)</p></div></div></div><div class=\"bg-white rounded-lg border border-gray-200 p-6\"><h3 class=\"text-lg font-semibold text-gray-900 mb-4\">메뉴별 매출 상세</h3><div class=\"overflow-x-auto\"><table class=\"w-full\"><thead><tr class=\"border-b border-gray-200 bg-gray-50\"><th class=\"text-left py-3 px-4 text-sm font-semibold\">메뉴명</th><th class=\"text-right py-3 px-4 text-sm font-semibold\">매출액</th><th class=\"text-center py-3 px-4 text-sm font-semibold\">비중</th><th class=\"text-right py-3 px-4 text-sm font-semibold\">비율</th></tr></thead><tbody>" + tableRows + "</tbody></table></div></div></div>";
-        }
-
-        // 시간대별 뷰
-        function renderHourlyView() {
-            let tableRows = "";
-            let cardRows = "";
-            for (let i = 0; i < hourlyData.length; i++) {
-                const row = hourlyData[i];
-                tableRows += "<tr class=\"border-b border-gray-100 hover:bg-gray-50\">";
-                tableRows += "<td class=\"py-3 px-4 font-medium\">" + row.time + "</td>";
-                tableRows += "<td class=\"py-3 px-4 text-right font-semibold\">₩" + row.sales.toLocaleString() + "</td>";
-                tableRows += "<td class=\"py-3 px-4 text-right\">" + row.orders.toLocaleString() + "건</td>";
-                tableRows += "</tr>";
-
-                cardRows += "<div class=\"border border-gray-200 rounded-lg p-4\">";
-                cardRows += "<div class=\"text-sm text-gray-500\">" + row.time + "</div>";
-                cardRows += "<div class=\"text-xl font-bold mt-1\">₩" + (row.sales / 1000000).toFixed(1) + "M</div>";
-                cardRows += "<div class=\"text-sm text-gray-600 mt-1\">" + row.orders.toLocaleString() + "건</div>";
-                cardRows += "</div>";
-            }
-
-            return "<div class=\"bg-white rounded-lg border border-gray-200 p-6\"><h3 class=\"text-lg font-semibold text-gray-900 mb-4\">시간대별 매출 분석</h3><div class=\"h-96 bg-gray-50 rounded-lg flex items-center justify-center mb-6\"><div class=\"text-center\"><i class=\"fas fa-chart-bar w-12 h-12 text-gray-400 mx-auto mb-2\"></i><p class=\"text-gray-500\">막대 차트 (시간대별 매출액)</p></div></div><div class=\"grid grid-cols-2 md:grid-cols-3 gap-4 mb-6\">" + cardRows + "</div><div class=\"overflow-x-auto\"><table class=\"w-full\"><thead><tr class=\"border-b border-gray-200 bg-gray-50\"><th class=\"text-left py-3 px-4 text-sm font-semibold\">시간대</th><th class=\"text-right py-3 px-4 text-sm font-semibold\">매출액</th><th class=\"text-right py-3 px-4 text-sm font-semibold\">주문 건수</th></tr></thead><tbody>" + tableRows + "</tbody></table></div></div>";
-        }
-
-        // 날짜별 뷰
-        function renderDailyView() {
-            let tableRows = "";
-            for (let i = 0; i < dailyData.length; i++) {
-                const row = dailyData[i];
-                tableRows += "<tr class=\"border-b border-gray-100 hover:bg-gray-50\">";
-                tableRows += "<td class=\"py-3 px-4 font-medium\">" + row.date + "</td>";
-                tableRows += "<td class=\"py-3 px-4 text-right font-semibold\">₩" + row.sales.toLocaleString() + "</td>";
-                tableRows += "<td class=\"py-3 px-4 text-right\">" + row.orders.toLocaleString() + "건</td>";
-                tableRows += "</tr>";
-            }
-
-            return "<div class=\"bg-white rounded-lg border border-gray-200 p-6\"><h3 class=\"text-lg font-semibold text-gray-900 mb-4\">날짜별 매출 추이</h3><div class=\"h-96 bg-gray-50 rounded-lg flex items-center justify-center mb-6\"><div class=\"text-center\"><i class=\"fas fa-chart-line w-12 h-12 text-gray-400 mx-auto mb-2\"></i><p class=\"text-gray-500\">꺾은선 차트 (날짜별 매출액 + 주문수)</p></div></div><div class=\"overflow-x-auto\"><table class=\"w-full\"><thead><tr class=\"border-b border-gray-200 bg-gray-50\"><th class=\"text-left py-3 px-4 text-sm font-semibold\">날짜</th><th class=\"text-right py-3 px-4 text-sm font-semibold\">매출액</th><th class=\"text-right py-3 px-4 text-sm font-semibold\">주문 건수</th></tr></thead><tbody>" + tableRows + "</tbody></table></div></div>";
-        }
-
-        // 필터 적용
-        function handleSearch() {
-            alert("필터가 적용되었습니다.");
-        }
-
-        // 엑셀 다운로드
-        function handleDownload() {
-            alert("엑셀 다운로드가 시작되었습니다.");
-        }
-
-        // 사이드바 토글
-        function toggleSidebar() {
-            const sidebar = document.getElementById("sidebar");
-            const backdrop = document.getElementById("sidebarBackdrop");
-            
-            if (sidebar.classList.contains("-translate-x-full")) {
-                sidebar.classList.remove("-translate-x-full");
-                backdrop.classList.remove("hidden");
-            } else {
-                sidebar.classList.add("-translate-x-full");
-                backdrop.classList.add("hidden");
-            }
-        }
-
-        // 메뉴 토글
-        function toggleMenu(button) {
-            const submenu = button.nextElementSibling;
-            const chevron = button.querySelector("i.fa-chevron-right") || button.querySelector("i.fa-chevron-down");
-            
-            submenu.classList.toggle("hidden");
-            if (chevron) {
-                if (submenu.classList.contains("hidden")) {
-                    chevron.classList.remove("fa-chevron-down");
-                    chevron.classList.add("fa-chevron-right");
-                } else {
-                    chevron.classList.add("fa-chevron-down");
-                    chevron.classList.remove("fa-chevron-right");
-                }
-            }
-        }
-
-        // 사용자 메뉴 토글
-        function toggleUserMenu() {
-            const userMenu = document.getElementById("userMenu");
-            userMenu.classList.toggle("hidden");
-        }
-
-        // 사용자 메뉴 외부 클릭시 닫기
-        document.addEventListener("click", function(e) {
-            const userMenuBtn = document.getElementById("userMenuBtn");
-            const userMenu = document.getElementById("userMenu");
-            
-            if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
-                userMenu.classList.add("hidden");
-            }
+                // 데이터 표시 영역은 그대로 두고, 날짜 필터만 교체
+                inputGroups.forEach(input => {
+                    input.classList.toggle('is-hidden', input.dataset.input !== selectedTab);
+                });
+            });
         });
 
-        // 사이드바 배경 클릭시 닫기
-        document.getElementById("sidebarBackdrop").addEventListener("click", toggleSidebar);
+        searchButton.addEventListener('click', fetchData);
 
-        // 로그아웃 함수
-        function logout() {
-            alert("로그아웃 되었습니다.");
-            window.location.href = "<%= request.getContextPath() %>/common/login.jsp";
+        function fetchData() {
+            const activeTabEl = document.querySelector('.tabs .tab.active');
+            const activeTab = activeTabEl.dataset.tab;
+
+            const branchCode = document.getElementById('branch-selector').value;
+            if (!branchCode) {
+                alert('직영점을 먼저 선택해주세요.');
+                return;
+            }
+
+            tabContents.forEach(content => content.classList.remove('active'));
+            const activeContent = document.getElementById(activeTab + '-content');
+            if (activeContent) {
+                activeContent.classList.add('active');
+            }
+
+            console.log(`[검색] 탭: \${activeTab}, 지점: \${branchCode}`);
+
+            switch(activeTab) {
+                case 'daily':
+                    fetchDailyData();
+                    break;
+                case 'period':
+                    fetchPeriodData();
+                    break;
+                case 'hourly':
+                    fetchHourlyData();
+                    break;
+                case 'menu':
+                    fetchMenuData();
+                    break;
+            }
         }
-    </script>
+
+        function fetchDailyData() {
+            const branchCode = document.getElementById('branch-selector').value;
+            const targetDate = document.getElementById('daily-date').value;
+            const contextPath = window.__ZEROLOSS_CP || '';
+            const url = `${contextPath}/hq/sales/daily?branchCode=${branchCode}&date=${targetDate}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.error) { alert(data.error); return; }
+                    renderDailyChart(data);
+                    renderDailyTable(data);
+                })
+                .catch(error => console.error('Error fetching daily sales:', error));
+        }
+
+        function fetchPeriodData() {
+            const branchCode = document.getElementById('branch-selector').value;
+            const startDate = document.getElementById('period-start').value;
+            const endDate = document.getElementById('period-end').value;
+            const contextPath = window.__ZEROLOSS_CP || '';
+            const url = `${contextPath}/hq/sales/period?branchCode=${branchCode}&startDate=${startDate}&endDate=${endDate}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.error) { alert(data.error); return; }
+                    renderPeriodChart(data);
+                    renderPeriodTable(data);
+                })
+                .catch(error => console.error('Error fetching period sales:', error));
+        }
+
+        function fetchDailyData() {
+            const branchCode = document.getElementById('branch-selector').value;
+            const targetDate = document.getElementById('daily-date').value;
+            const contextPath = window.__ZEROLOSS_CP || '';
+            // JSP EL 충돌 방지를 위해 + 연산자로 문자열 결합
+            const url = contextPath + '/hq/sales/daily?branchCode=' + branchCode + '&date=' + targetDate;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.error) { alert(data.error); return; }
+                    renderDailyChart(data);
+                    renderDailyTable(data);
+                })
+                .catch(error => console.error('Error fetching daily sales:', error));
+        }
+
+        function fetchPeriodData() {
+            const branchCode = document.getElementById('branch-selector').value;
+            const startDate = document.getElementById('period-start').value;
+            const endDate = document.getElementById('period-end').value;
+            const contextPath = window.__ZEROLOSS_CP || '';
+            // JSP EL 충돌 방지를 위해 + 연산자로 문자열 결합
+            const url = contextPath + '/hq/sales/period?branchCode=' + branchCode + '&startDate=' + startDate + '&endDate=' + endDate;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.error) { alert(data.error); return; }
+                    renderPeriodChart(data);
+                    renderPeriodTable(data);
+                })
+                .catch(error => console.error('Error fetching period sales:', error));
+        }
+
+        function fetchHourlyData() {
+            const branchCode = document.getElementById('branch-selector').value;
+            const targetDate = document.getElementById('hourly-date').value;
+            const contextPath = window.__ZEROLOSS_CP || '';
+            // JSP EL 충돌 방지를 위해 + 연산자로 문자열 결합
+            const url = contextPath + '/hq/sales/hourly?branchCode=' + branchCode + '&date=' + targetDate;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.error) { alert(data.error); return; }
+                    renderHourlyChart(data);
+                    renderHourlyTable(data);
+                })
+                .catch(error => console.error('Error fetching hourly sales:', error));
+        }
+
+        function fetchMenuData() {
+            const branchCode = document.getElementById('branch-selector').value;
+            const targetDate = document.getElementById('menu-date').value;
+            const contextPath = window.__ZEROLOSS_CP || '';
+            // JSP EL 충돌 방지를 위해 + 연산자로 문자열 결합
+            const url = contextPath + '/hq/sales/menu?branchCode=' + branchCode + '&date=' + targetDate;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.error) { alert(data.error); return; }
+                    renderMenuChart(data);
+                    renderMenuTable(data);
+                })
+                .catch(error => console.error('Error fetching menu sales:', error));
+        }
+
+        function renderMenuChart(data) {
+            const topN = 10;
+            const topData = data.slice(0, topN);
+            const labels = topData.map(d => d.menuName);
+            const salesData = topData.map(d => d.totalSales);
+            const maxSales = data.length > 0 ? Math.max(...salesData) : 0;
+
+            const chartConfig = {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '매출액',
+                        data: salesData,
+                        backgroundColor: 'rgba(0, 133, 61, 0.7)',
+                        borderColor: 'var(--green)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: `매출 상위 \${topN} 메뉴` }
+                    },
+                    scales: {
+                        x: { beginAtZero: true, max: maxSales * 1.2, title: { display: true, text: '매출액 (원)' } }
+                    }
+                }
+            };
+            createOrUpdateChart('menu-chart', chartConfig);
+        }
+
+        function renderMenuTable(data) {
+            const tableBody = document.getElementById('menu-table');
+            tableBody.innerHTML = '';
+            const formatCurrency = (amount) => new Intl.NumberFormat('ko-KR').format(amount);
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>\${item.menuName}</td>
+                    <td>\${item.quantity}개</td>
+                    <td>₩\${formatCurrency(item.totalSales)}</td>
+                    <td>\${item.salesShare.toFixed(2)}%</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function renderHourlyChart(data) {
+            const labels = data.map(d => d.hour + '시');
+            const salesData = data.map(d => d.totalSales);
+            const ordersData = data.map(d => d.totalOrders);
+            const maxSales = data.length > 0 ? Math.max(...salesData) : 0;
+            const maxOrders = data.length > 0 ? Math.max(...ordersData) : 0;
+
+            const chartConfig = {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { type: 'bar', label: '매출액', data: salesData, backgroundColor: 'rgba(0, 133, 61, 0.7)', yAxisID: 'y-sales' },
+                        { type: 'line', label: '주문 건수', data: ordersData, borderColor: 'rgb(255, 99, 132)', backgroundColor: 'rgba(255, 99, 132, 0.2)', fill: true, tension: 0.3, yAxisID: 'y-orders' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'top' }, title: { display: true, text: document.getElementById('hourly-date').value + ' 시간대별 매출 및 주문 건수' } },
+                    scales: {
+                        'y-sales': { type: 'linear', position: 'left', title: { display: true, text: '매출액 (원)' }, beginAtZero: true, max: maxSales * 1.2 },
+                        'y-orders': { type: 'linear', position: 'right', title: { display: true, text: '주문 건수' }, beginAtZero: true, grid: { drawOnChartArea: false }, max: maxOrders * 1.2 }
+                    }
+                }
+            };
+            createOrUpdateChart('hourly-chart', chartConfig);
+        }
+
+        function renderHourlyTable(data) {
+            const tableBody = document.getElementById('hourly-table');
+            tableBody.innerHTML = '';
+            const formatCurrency = (amount) => new Intl.NumberFormat('ko-KR').format(amount);
+            let maxSales = 0;
+            let peakHour = -1;
+
+            data.forEach(item => { if (item.totalSales > maxSales) { maxSales = item.totalSales; peakHour = item.hour; } });
+
+            const fullHourlyData = Array.from({length: 24}, (_, i) => ({ hour: i, totalSales: 0, totalOrders: 0 }));
+            data.forEach(item => { fullHourlyData[item.hour] = item; });
+
+            fullHourlyData.forEach(item => {
+                const row = document.createElement('tr');
+                const avgOrderValue = item.totalOrders > 0 ? item.totalSales / item.totalOrders : 0;
+                if (item.hour === peakHour && maxSales > 0) { row.style.backgroundColor = '#ecf8f1'; row.style.fontWeight = 'bold'; }
+                row.innerHTML = `<td>\${item.hour}시</td><td>₩\${formatCurrency(item.totalSales)}</td><td>\${item.totalOrders}건</td><td>₩\${formatCurrency(Math.round(avgOrderValue))}</td>`;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function renderDailyChart(data) {
+            const labels = data.map(d => d.saleDate.substring(5));
+            const salesData = data.map(d => d.totalSales);
+            const ordersData = data.map(d => d.totalOrders);
+            const maxSales = data.length > 0 ? Math.max(...salesData) : 0;
+            const maxOrders = data.length > 0 ? Math.max(...ordersData) : 0;
+
+            const chartConfig = {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { type: 'line', label: '매출액', data: salesData, borderColor: 'var(--green)', backgroundColor: 'var(--green)', yAxisID: 'y-sales', tension: 0.1 },
+                        { type: 'bar', label: '주문 건수', data: ordersData, backgroundColor: 'rgba(0, 133, 61, 0.2)', yAxisID: 'y-orders' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        'y-sales': { type: 'linear', position: 'left', title: { display: true, text: '매출액 (원)' }, max: maxSales * 1.2 },
+                        'y-orders': { type: 'linear', position: 'right', title: { display: true, text: '주문 건수' }, grid: { drawOnChartArea: false }, max: maxOrders * 1.2 }
+                    }
+                }
+            };
+            createOrUpdateChart('daily-chart', chartConfig);
+        }
+
+        function renderDailyTable(data) {
+            const tableBody = document.getElementById('daily-table');
+            tableBody.innerHTML = '';
+            const formatCurrency = (amount) => new Intl.NumberFormat('ko-KR').format(amount);
+            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                const date = new Date(item.saleDate);
+                const dayOfWeek = dayNames[date.getDay()];
+                const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+                if (isWeekend) row.classList.add('weekend-row');
+                row.innerHTML = `<td>\${item.saleDate}</td><td>\${dayOfWeek}</td><td>₩\${formatCurrency(item.totalSales)}</td><td>\${item.totalOrders}건</td><td>₩\${formatCurrency(item.cumulativeSales)}</td>`;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function renderPeriodChart(data) {
+            if (!data || data.length === 0) {
+                document.getElementById('period-summary').textContent = '해당 기간에 매출 데이터가 없습니다.';
+                createOrUpdateChart('period-chart', {type: 'bar', data: {labels:[], datasets:[]}});
+                return;
+            }
+            const labels = data.map(d => d.saleDate.substring(5));
+            const salesData = data.map(d => d.totalSales);
+            const totalSales = data.reduce((sum, item) => sum + item.totalSales, 0);
+            const avgSales = totalSales / data.length;
+            const maxSales = data.length > 0 ? Math.max(...salesData) : 0;
+
+            document.getElementById('period-summary').textContent = `선택한 기간(\${data.length}일) 동안 총 매출: ₩\${new Intl.NumberFormat('ko-KR').format(totalSales)}`;
+            const chartType = data.length > 15 ? 'line' : 'bar';
+            const chartConfig = {
+                type: chartType,
+                data: {
+                    labels: labels,
+                    datasets: [{ label: '매출액', data: salesData, borderColor: 'var(--green)', backgroundColor: chartType === 'line' ? 'transparent' : 'rgba(0, 133, 61, 0.7)', tension: 0.1 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { max: maxSales * 1.2 } },
+                    plugins: {
+                        annotation: {
+                            annotations: {
+                                line1: { type: 'line', yMin: avgSales, yMax: avgSales, borderColor: 'rgb(255, 99, 132)', borderWidth: 2, borderDash: [5, 5], label: { content: `일평균: ₩\${new Intl.NumberFormat('ko-KR').format(Math.round(avgSales))}`, enabled: true, position: 'end' } }
+                            }
+                        }
+                    }
+                }
+            };
+            createOrUpdateChart('period-chart', chartConfig);
+        }
+
+        function renderPeriodTable(data) {
+            const tableBody = document.getElementById('period-table');
+            tableBody.innerHTML = '';
+            const formatCurrency = (amount) => new Intl.NumberFormat('ko-KR').format(amount);
+            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                const date = new Date(item.saleDate);
+                const dayOfWeek = dayNames[date.getDay()];
+                if (date.getDay() === 0 || date.getDay() === 6) row.classList.add('weekend-row');
+                row.innerHTML = `<td>\${item.saleDate}</td><td>\${dayOfWeek}</td><td>₩\${formatCurrency(item.totalSales)}</td><td>\${item.totalOrders}건</td><td>₩\${formatCurrency(item.cumulativeSales)}</td>`;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 페이지 초기화
+        loadBranches();
+    });
+</script>
 </body>
 </html>
-
-
