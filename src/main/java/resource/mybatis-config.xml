@@ -27,7 +27,7 @@
 	<mappers>
 		<mapper resource="mapper/AccountMapper.xml"/>
 		<mapper resource="mapper/BranchMapper.xml"/>
-		<mapper resource="mapper/hq/PlaceOrderItemLimitMapper.xml"/>
+		<mapper resource="mapper/hq/PlaceOrderQuantityLimitMapper.xml"/>
 		<mapper resource="mapper/hq/EmployeeMapper.xml"/>
 		<mapper resource="mapper/hq/BranchOptionMapper.xml"/>
 		<mapper resource="mapper/hq/ReceipeMapper.xml"/>
