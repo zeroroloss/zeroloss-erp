@@ -40,79 +40,141 @@
   </style>
 </head>
 <body>
-  <div class="overlay">
-    <section class="modal">
-      <header class="head">
-        <h1 class="title">신규 직원 등록</h1>
-        <button class="close-btn" type="button" aria-label="닫기" onclick="closePage();">
-          <img src="<%= request.getContextPath() %>/branch/icons/hr/x.svg" alt="닫기" />
-        </button>
-      </header>
+  <!-- 신규 직원 등록 모달 -->
+<div id="addModal"
+     class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+     onclick="if(event.target === this) closeAddModal()">
 
-      <div class="body">
-        <div class="grid">
-          <div class="field">
-            <label>이름</label>
-            <input class="input" type="text" placeholder="홍길동" />
-          </div>
-          <div class="field">
-            <label>사번</label>
-            <input class="input" type="text" placeholder="EMP-007" />
-          </div>
-          <div class="field">
-            <label>소속</label>
-            <select class="select"><option>본사</option><option>강남점</option><option>신촌점</option><option>홍대점</option></select>
-          </div>
-          <div class="field">
-            <label>부서</label>
-            <select class="select"><option>관리팀</option><option>영업팀</option><option>물류팀</option></select>
-          </div>
-          <div class="field">
-            <label>직급</label>
-            <select class="select"><option>아르바이트</option><option>직원</option><option>매니저</option><option>지점장</option><option>대리</option><option>과장</option><option>부장</option></select>
-          </div>
-          <div class="field">
-            <label>역할</label>
-            <select class="select"><option>지점매니저</option><option>지점장</option><option>본사관리자</option></select>
-          </div>
-          <div class="field">
-            <label>연락처</label>
-            <input class="input" type="tel" placeholder="010-0000-0000" />
-          </div>
-          <div class="field">
-            <label>이메일</label>
-            <input class="input" type="email" placeholder="example@zeroloss.com" />
-          </div>
-          <div class="field">
-            <label>입사일</label>
-            <input class="input" type="text" placeholder="연도-월-일" />
-          </div>
-          <div class="field">
-            <label>상태</label>
-            <select class="select"><option>재직</option><option>휴직</option><option>퇴사</option></select>
-          </div>
+    <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-xl"
+         onclick="event.stopPropagation()">
+
+        <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white z-10">
+            <h3 class="text-lg font-bold text-gray-900">신규 직원 등록</h3>
+            <button type="button" onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times w-5 h-5"></i>
+            </button>
         </div>
-      </div>
 
-      <footer class="foot">
-        <button class="btn" type="button" onclick="closePage();">취소</button>
-        <button class="btn primary" type="button">등록</button>
-      </footer>
-    </section>
-  </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-  <script>
-    function closePage() {
-      if (window.parent && window.parent !== window) {
-        window.parent.postMessage({ type: "close-hr-modal" }, "*");
-        return;
-      }
-      if (window.history.length > 1) {
-        window.history.back();
-        return;
-      }
-      window.location.href = (window.__ZEROLOSS_CP || '') + "/branch/hr/employee/main.jsp";
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
+                    <input type="text" id="name" name="name" placeholder="홍길동"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">사번</label>
+                    <input type="text" id="empNo" name="empNo" placeholder="21"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
+                    <select id="positionCode" name="positionCode"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+                        <option value="">선택 안 함</option>
+                        <option value="POS_MGR">점장</option>
+                        <option value="POS_SUP">매니저</option>
+                        <option value="POS_STF">직원</option>
+                        <option value="POS_PTM">알바</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+                    <input type="tel" id="phone" name="phone" placeholder="010-0000-0000"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                    <input type="email" id="email" name="email" placeholder="user@zeroloss.com"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">입사일</label>
+                    <input type="date" id="hireDate" name="hireDate"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">상태</label>
+                    <select id="status" name="status"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+                        <option value="ACTIVE">재직</option>
+                        <option value="LEAVE">휴직</option>
+                        <option value="RESIGNED">퇴사</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="border-t border-gray-200 px-6 py-4 flex justify-end gap-3 sticky bottom-0 bg-white">
+            <button type="button" onclick="closeAddModal()"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                취소
+            </button>
+            <button type="button" onclick="saveEmployee()"
+                    class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+                추가
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- add: 신규 직원 등록 모달 / 저장 -->
+<script>
+    function showAddModal() {
+        document.getElementById("addModal").classList.remove("modal-hidden");
     }
-  </script>
+
+    function closeAddModal() {
+        document.getElementById("addModal").classList.add("modal-hidden");
+    }
+
+    function saveEmployee() {
+        const params = new URLSearchParams();
+
+        params.append("action", "add");
+        params.append("empNo", document.getElementById("empNo").value);
+        params.append("name", document.getElementById("name").value);
+        params.append("branchCode", document.getElementById("branchCode").value);
+        params.append("dept", document.getElementById("dept").value);
+        params.append("gradeCode", document.getElementById("gradeCode").value);
+        params.append("positionCode", document.getElementById("positionCode").value);
+        params.append("phone", document.getElementById("phone").value);
+        params.append("email", document.getElementById("email").value);
+        params.append("hireDate", document.getElementById("hireDate").value);
+        params.append("status", document.getElementById("status").value);
+
+        fetch("<%= request.getContextPath() %>/hq/hr/employee", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: params.toString()
+        })
+        .then(response => response.text())
+        .then(text => {
+            const data = JSON.parse(text);
+
+            if (data.success) {
+                alert("직원이 등록되었습니다.");
+                closeAddModal();
+                location.reload();
+            } else {
+                alert(data.message || "직원 등록에 실패했습니다.");
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            location.href = "<%= request.getContextPath() %>/common/500.jsp";
+        });
+    }
+</script>
 </body>
 </html>

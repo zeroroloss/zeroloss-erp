@@ -1,15 +1,15 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ page import="dto.AccountDTO" %>
 <%
-response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-response.setHeader("Pragma", "no-cache");
-response.setDateHeader("Expires", 0);
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
 
-AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
-if (loginUser == null) {
-    response.sendRedirect(request.getContextPath() + "/common/login.jsp");
-    return;
-}
+    AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
+    if (loginUser == null) {
+        response.sendRedirect(request.getContextPath() + "/common/login.jsp");
+        return;
+    }
 %>
 <%
     String cp = request.getContextPath();
@@ -56,10 +56,8 @@ if (loginUser == null) {
     boolean employeeScheduleActive = uri.endsWith("/hq/hr/employee-schedule-management.jsp");
 %>
 
-<!-- 모바일 사이드바 배경 -->
 <div id="sidebarBackdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
 
-<!-- 사이드바 -->
 <aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 flex flex-col">
     <%
         Integer unreadCount = (Integer) request.getAttribute("unreadCount");
@@ -96,7 +94,7 @@ if (loginUser == null) {
             <button type="button" class="ml-auto p-2 rounded-lg hover:bg-gray-100 relative flex-shrink-0">
                 <i class="fas fa-bell text-gray-700 w-5 h-5"></i>
                 <% if (unreadCount > 0) { %>
-                    <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
+                <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
                         <%= unreadCount > 99 ? "99+" : unreadCount %>
                     </span>
                 <% } %>
@@ -157,9 +155,9 @@ if (loginUser == null) {
             <i class="fas <%= salesGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
         </button>
         <div class="submenu <%= salesGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
+            <a href="<%= cp %>/hq/sales/sales-headquarters.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesHeadquartersActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 매출 조회</a>
             <a href="<%= cp %>/hq/sales/sales-detail.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesDetailActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">직영점 매출 조회</a>
             <a href="<%= cp %>/hq/sales/sales-ranking.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesRankingActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">매출 순위</a>
-            <a href="<%= cp %>/hq/sales/sales-headquarters.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesHeadquartersActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 매출 조회</a>
         </div>
 
         <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= deliveryGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
@@ -201,16 +199,16 @@ if (loginUser == null) {
             <i class="fas <%= hrGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
         </button>
         <div class="submenu <%= hrGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
-            <a href="<%= cp %>/hq/hr/hr-employee-inquiry.jsp" class="block px-4 py-2 rounded-lg text-sm <%= hrInquiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사/지점 직원 통합 조회</a>
+            <a href="<%= cp %>/hq/hr/employee" class="block px-4 py-2 rounded-lg text-sm <%= hrInquiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사/지점 직원 통합 조회</a>
             <a href="<%= cp %>/hq/hr/main" class="block px-4 py-2 rounded-lg text-sm <%= permissionsActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">계정/권한 관리</a>
-            <a href="<%= cp %>/hq/hr/employee-schedule-management.jsp" class="block px-4 py-2 rounded-lg text-sm <%= employeeScheduleActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">직원 일정 관리</a>
+            <a href="<%= cp %>/hq/hr/schedule" class="block px-4 py-2 rounded-lg text-sm <%= employeeScheduleActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">직원 일정 관리</a>
         </div>
     </nav>
     <div class="mt-auto p-4 border-t border-gray-200 bg-white">
         <form action="${pageContext.request.contextPath}/logout" method="post">
             <button
-                type="submit"
-                class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all">
+                    type="submit"
+                    class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>로그아웃</span>
             </button>

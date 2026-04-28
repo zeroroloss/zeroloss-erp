@@ -4,19 +4,12 @@
 
 <mapper namespace="mapper.employee">
 	<insert id="insertEmployee" parameterType="dto.hq.hr.EmployeeDTO">
-		insert into employee(branch_code, dept, grade_code, position_code, name, phone, email, hire_date, status)
-		values(#{branchCode},#{dept},#{gradeCode},#{positionCode},#{name},#{phone},#{email},#{hireDate},#{status})
+		insert into employee(emp_no, branch_code, dept, grade_code, position_code, name, phone, email, hire_date, status)
+		values(#{empNo},#{branchCode},#{dept},#{gradeCode},#{positionCode},#{name},#{phone},#{email},#{hireDate},#{status})
 	</insert>
 	
 	<select id="selectEmployee" parameterType="Integer" resultType="dto.hq.hr.EmployeeDTO">
-		select * from employee where emp_no=#{value}
-	</select>
-	
-	<select id="searchEmployee" parameterType="Integer" resultType="dto.hq.hr.EmployeeDTO">
-		select e.*, p.position_name, g.grade_name from employee e
-		left join position p on e.position_code = p.position_code
-		left join grade g on e.grade_code = g.grade_code
-		where e.emp_no=#{value}
+		select emp_no as empNo, branch_code as branchCode, dept, grade_code as gradeCode, position_code as positionCode, name, phone, email, hire_date as hireDate, status from employee where emp_no=#{value}
 	</select>
 	
 	<select id="selectEmpCnt" resultType="Integer">
@@ -24,7 +17,7 @@
 	</select>
 	
 	<select id="selectBranchCnt" resultType="Integer">
-		select count(branch_code) as totalBranch from employee group by branch_code
+		select count(distinct branch_code) as totalBranch from employee
 	</select>
 	
 	<select id="selectNewEmpCnt" resultType="Integer">
@@ -32,11 +25,12 @@
 	</select>
 	
 	<select id="selectEmployeeList" parameterType="dto.hq.hr.EmployeeDTO" resultType="dto.hq.hr.EmployeeDTO">
-		select e.*, p.position_name, g.grade_name from employee e
+		select e.emp_no as empNo, e.branch_code as branchCode, b.name as branchName, e.dept, e.grade_code as gradeCode, e.position_code as positionCode, e.name, e.phone, e.email, e.hire_date as hireDate, e.status, p.position_name as positionName, g.grade_name as gradeName from employee e
+		left join branch b on e.branch_code = b.branch_code
 		left join position p on e.position_code = p.position_code
 		left join grade g on e.grade_code = g.grade_code
 		<where>
-		<if test="empNo != null and empNo != ''">
+		<if test="empNo != null">
 			and e.emp_no like CONCAT('%', #{empNo}, '%')
 		</if>
 		<if test="dept != null and dept != ''">
@@ -54,7 +48,11 @@
 		</where>
 	</select>
 	
-	<update id="updateEmployee">
-		UPDATE employee SET branch_code = #{branchCode}, dept = #{dept}, grade_code = #{gradeCode}, position_code = #{positionCode}, name = #{name}, phone = #{phone}, email = #{email}, hire_date = #{hireDate}, status = #{status} WHERE emp_no = #{empNo}
+	<select id="selectEmployeeByPhone" parameterType="String" resultType="dto.hq.hr.EmployeeDTO">
+		select * FROM employee WHERE phone = #{value}
+	</select>
+	
+	<update id="updateEmployee" parameterType="dto.hq.hr.EmployeeDTO">
+		UPDATE employee SET branch_code = #{branchCode}, dept = #{dept}, grade_code = #{gradeCode}, position_code = #{positionCode}, phone = #{phone}, email = #{email}, status = #{status} WHERE emp_no = #{empNo}
 	</update>
 </mapper>

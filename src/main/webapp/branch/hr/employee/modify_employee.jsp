@@ -37,41 +37,234 @@
   </style>
 </head>
 <body>
-  <div class="overlay">
-    <section class="modal">
-      <div class="head">
-        <h1>직원 정보 수정</h1>
-        <button class="close" type="button" aria-label="닫기" onclick="closePage();"><img src="<%= request.getContextPath() %>/branch/icons/hr/x.svg" alt="닫기" /></button>
-      </div>
-      <div class="body">
-        <div class="grid">
-          <div class="field"><label>이름</label><input class="input" type="text" value="김철수" /></div>
-          <div class="field"><label>사번</label><input class="input" type="text" value="EMP-001" /></div>
-          <div class="field"><label>소속</label><select class="select"><option>본사</option><option selected>강남점</option><option>신촌점</option></select></div>
-          <div class="field"><label>부서</label><select class="select"><option>영업팀</option><option>관리팀</option><option>물류팀</option></select></div>
-          <div class="field"><label>직급</label><select class="select"><option>직원</option><option>매니저</option><option>지점장</option></select></div>
-          <div class="field"><label>역할</label><select class="select"><option>지점매니저</option><option>지점장</option><option>본사관리자</option></select></div>
-          <div class="field"><label>연락처</label><input class="input" type="text" value="010-1234-5678" /></div>
-          <div class="field"><label>이메일</label><input class="input" type="text" value="kim@zeroloss.com" /></div>
-          <div class="field"><label>입사일</label><input class="input" type="text" value="2024-01-15" /></div>
-          <div class="field"><label>상태</label><select class="select"><option selected>재직</option><option>휴직</option><option>퇴사</option></select></div>
-        </div>
-      </div>
-      <div class="foot">
-        <button class="btn btn-cancel" type="button" onclick="closePage();">취소</button>
-        <button class="btn btn-save" type="button">저장</button>
-      </div>
-    </section>
-  </div>
+<!-- Edit Employee Modal -->
+<div id="editModal"
+     class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+     onclick="if(event.target === this) closeEditModal()">
 
-  <script>
-    function closePage() {
-      if (window.history.length > 1) {
-        window.history.back();
-        return;
-      }
-      window.location.href = (window.__ZEROLOSS_CP || '') + "/branch/hr/employee/main.jsp";
+    <div class="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-xl"
+         onclick="event.stopPropagation()">
+
+        <!-- 헤더 -->
+        <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white z-10">
+            <h3 class="text-lg font-bold text-gray-900">직원 상세 조회</h3>
+
+            <div class="flex items-center gap-3">
+                <button type="button"
+                        id="editModeBtn"
+                        onclick="changeToEditMode()"
+                        class="px-4 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B2F] transition-colors">
+                    수정
+                </button>
+
+                <button type="button"
+                        onclick="closeEditModal()"
+                        class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 본문 -->
+        <div class="p-6">
+            <input type="hidden" id="editEmpNo" name="editEmpNo">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
+                    <input type="text"
+                           id="editName"
+                           readonly
+                           class="view-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">사번</label>
+                    <input type="text"
+                           id="editEmpNoView"
+                           readonly
+                           class="view-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
+                    <select id="editPositionCode"
+                            name="editPositionCode"
+                            disabled
+                            class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+                        <option value="">선택 안 함</option>
+                        <option value="POS_MGR">점장</option>
+                        <option value="POS_SUP">매니저</option>
+                        <option value="POS_STF">직원</option>
+                        <option value="POS_PTM">알바</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+                    <input type="text"
+                           id="editPhone"
+                           name="editPhone"
+                           readonly
+                           class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+                    <input type="email"
+                           id="editEmail"
+                           name="editEmail"
+                           readonly
+                           class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">입사일</label>
+                    <input type="text"
+                           id="editHireDate"
+                           readonly
+                           class="view-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">상태</label>
+                    <select id="editStatus"
+                            name="editStatus"
+                            disabled
+                            class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+                        <option value="ACTIVE">재직</option>
+                        <option value="LEAVE">휴직</option>
+                        <option value="RESIGNED">퇴사</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 하단 버튼 -->
+        <div class="border-t border-gray-200 px-6 py-4 flex justify-end gap-3 sticky bottom-0 bg-white">
+            <button type="button"
+                    onclick="closeEditModal()"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 text-sm hover:bg-gray-50 transition-colors">
+                닫기
+            </button>
+
+            <button type="button"
+                    id="saveBtn"
+                    onclick="updateEmployee()"
+                    class="hidden px-4 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B2F] transition-colors">
+                저장
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- edit: 상세 조회 / 수정 모드 / 저장 -->
+<script>
+    function openEmployeeModal(empNo) {
+        selectedEmployee = employees.find(function(emp) {
+            return String(emp.empNo) === String(empNo);
+        });
+
+        if (!selectedEmployee) {
+            alert("직원 정보를 찾을 수 없습니다.");
+            return;
+        }
+
+        resetEditMode();
+
+        document.getElementById("editEmpNo").value = selectedEmployee.empNo;
+        document.getElementById("editEmpNoView").value = selectedEmployee.empNo;
+        document.getElementById("editName").value = selectedEmployee.name || "";
+        document.getElementById("editBranchCode").value = selectedEmployee.branchCode || "";
+        document.getElementById("editDept").value = selectedEmployee.dept || "";
+        document.getElementById("editGradeCode").value = selectedEmployee.gradeCode || "";
+        document.getElementById("editPositionCode").value = selectedEmployee.positionCode || "";
+        document.getElementById("editPhone").value = selectedEmployee.phone || "";
+        document.getElementById("editEmail").value = selectedEmployee.email || "";
+        document.getElementById("editHireDate").value = selectedEmployee.hireDate || "";
+        document.getElementById("editStatus").value = selectedEmployee.status || "ACTIVE";
+
+        document.getElementById("editModal").classList.remove("modal-hidden");
     }
-  </script>
+
+    function closeEditModal() {
+        document.getElementById('editModal').classList.add('modal-hidden');
+    }
+
+    function changeToEditMode() {
+        document.querySelector("#editModal h3").innerText = "직원 정보 수정";
+        document.getElementById("editModeBtn").classList.add("hidden");
+        document.getElementById("saveBtn").classList.remove("hidden");
+
+        document.querySelectorAll(".editable-field").forEach(function(field) {
+            if (field.tagName === "SELECT") {
+                field.disabled = false;
+            } else {
+                field.readOnly = false;
+            }
+
+            field.classList.remove("bg-gray-100", "text-gray-500", "cursor-not-allowed");
+            field.classList.add("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
+        });
+    }
+
+    function resetEditMode() {
+        document.querySelector("#editModal h3").innerText = "직원 상세 조회";
+        document.getElementById("editModeBtn").classList.remove("hidden");
+        document.getElementById("saveBtn").classList.add("hidden");
+
+        document.querySelectorAll(".editable-field").forEach(function(field) {
+            if (field.tagName === "SELECT") {
+                field.disabled = true;
+            } else {
+                field.readOnly = true;
+            }
+
+            field.classList.remove("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
+            field.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed");
+        });
+    }
+
+    function updateEmployee() {
+        if (!selectedEmployee) return;
+
+        const params = new URLSearchParams();
+
+        params.append("action", "update");
+        params.append("empNo", selectedEmployee.empNo);
+        params.append("branchCode", document.getElementById("editBranchCode").value);
+        params.append("dept", document.getElementById("editDept").value);
+        params.append("gradeCode", document.getElementById("editGradeCode").value);
+        params.append("positionCode", document.getElementById("editPositionCode").value);
+        params.append("phone", document.getElementById("editPhone").value);
+        params.append("email", document.getElementById("editEmail").value);
+        params.append("status", document.getElementById("editStatus").value);
+
+        fetch("<%= request.getContextPath() %>/hq/hr/employee", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: params.toString()
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("직원 정보가 수정되었습니다.");
+                closeEditModal();
+                location.reload();
+            } else {
+                alert(data.message || "직원 수정에 실패했습니다.");
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            location.href = "<%= request.getContextPath() %>/common/500.jsp";
+        });
+    }
+</script>
 </body>
 </html>

@@ -167,7 +167,7 @@
                 <div>
 				    <label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
 				    <select id="roleId" name="roleId"
-				            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+				            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
 				        <option value="">선택하세요</option>
 				        <option value="1">본사 관리자</option>
 				        <option value="2">지점장</option>
@@ -336,7 +336,9 @@
         
         function resetFilters() {
         	document.getElementById("searchInput").value="";
-        	applyFilters();
+        	currentPage = 1;
+            clearAccountTable();
+            document.getElementById("pagination").innerHTML = "";
         }
 
         function renderAccounts() {
@@ -410,16 +412,6 @@
             tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">조회 버튼을 눌러 계정을 검색하세요.</td></tr>';
         }
 
-        function updateStats() {
-            var total = accounts.length;
-            var active = accounts.filter(function(a) { return a.isActive; }).length;
-            var inactive = total - active;
-
-            document.getElementById('totalCount').textContent = total;
-            document.getElementById('activeCount').textContent = active;
-            document.getElementById('inactiveCount').textContent = inactive;
-        }
-
         function toggleActive(accountId) {
             if (!confirm("계정 상태를 변경하시겠습니까?")) {
                 return;
@@ -469,8 +461,6 @@
         }
 
         function saveAccount() {
-            console.log("saveAccount 실행됨");
-
             const empNo = document.getElementById("empNo");
             const branchCode = document.getElementById("branchCode");
             const roleId = document.getElementById("roleId");
