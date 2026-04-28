@@ -181,7 +181,7 @@
 					<p class="disposal-text">폐기 대상 품목과 등록 내역을 확인하고, 필요 시 폐기 등록 화면으로 이동할 수 있습니다.</p>
 				</div>
 				<div class="panel-actions" style="margin-top:0;">
-					<a class="btn btn-muted" href="<%= request.getContextPath() %>/branch/stock/disposal_registration.jsp">폐기 등록</a>
+					<button class="btn btn-primary" onclick="openDisposalModal()">폐기 등록</button>
 				</div>
 			</div>
 
@@ -498,6 +498,155 @@
 		await loadTabData('disposal');
 	};
 
+	// ============================================================
+	// 폐기 등록 모달
+	// ============================================================
+	window.openDisposalModal = function () {
+		document.getElementById('formStockCode').innerHTML = '<option value="">선택하세요</option>';
+		document.getElementById('formStockCode').value = '';
+		document.getElementById('itemNameDisplay').textContent = '-';
+		document.getElementById('categoryDisplay').textContent = '-';
+		document.getElementById('currentQtyDisplay').textContent = '-';
+		document.getElementById('formDisposalQty').value = '';
+		document.getElementById('formDisposalReason').value = '';
+		document.getElementById('formDisposalDetail').value = '';
+
+		// 현재 폐기 데이터에서 선택 가능한 재고 목록 구성
+		var stockOptions = [];
+		disposalData.forEach(function (record) {
+			var stockCode = getRecordValue(record, ['branchStockCode', 'stockCode', 'stockNo']);
+			if (stockCode && !stockOptions.find(function (opt) { return opt.code === stockCode; })) {
+				stockOptions.push({
+					code: stockCode,
+					itemName: getRecordValue(record, ['materialName', 'itemName', 'name', 'material']),
+					category: getRecordValue(record, ['categoryName', 'category', 'materialGroupName', 'materialGroup']),
+					currentQty: getRecordValue(record, ['disposalQty', 'quantity', 'amount', '0'])
+				});
+			}
+		});
+
+		// 이력 데이터에서도 추가
+		historyData.forEach(function (record) {
+			var stockCode = getRecordValue(record, ['branchStockCode', 'stockCode', 'stockNo']);
+			if (stockCode && !stockOptions.find(function (opt) { return opt.code === stockCode; })) {
+				stockOptions.push({
+					code: stockCode,
+					itemName: getRecordValue(record, ['materialName', 'itemName', 'name', 'material']),
+					category: getRecordValue(record, ['categoryName', 'category', 'materialGroupName', 'materialGroup']),
+					currentQty: getRecordValue(record, ['quantity', 'amount', 'currentQty', '0'])
+				});
+			}
+		});
+
+		var selectElem = document.getElementById('formStockCode');
+		stockOptions.forEach(function (opt) {
+			var optionElem = document.createElement('option');
+			optionElem.value = opt.code;
+			optionElem.textContent = opt.code + ' - ' + opt.itemName;
+			selectElem.appendChild(optionElem);
+		});
+
+		document.getElementById('disposalModal').style.display = 'flex';
+		document.getElementById('disposalModal').classList.remove('hidden');
+	};
+
+	window.closeDisposalModal = function () {
+		document.getElementById('disposalModal').style.display = 'none';
+		document.getElementById('disposalModal').classList.add('hidden');
+	};
+
+	// 재고번호 선택시 상세 정보 표시
+	document.addEventListener('change', function (e) {
+		if (e.target.id === 'formStockCode') {
+			var selectedCode = e.target.value;
+			var foundRecord = null;
+
+			// 현재 재고 데이터에서 검색
+			if (disposalData.length > 0) {
+				foundRecord = disposalData.find(function (record) {
+					return getRecordValue(record, ['branchStockCode', 'stockCode', 'stockNo']) === selectedCode;
+				});
+			}
+
+			// 없으면 이력 데이터에서 검색
+			if (!foundRecord && historyData.length > 0) {
+				foundRecord = historyData.find(function (record) {
+					return getRecordValue(record, ['branchStockCode', 'stockCode', 'stockNo']) === selectedCode;
+				});
+			}
+
+			if (foundRecord) {
+				document.getElementById('itemNameDisplay').textContent = getRecordValue(foundRecord, ['materialName', 'itemName', 'name', 'material']) || '-';
+				document.getElementById('categoryDisplay').textContent = getRecordValue(foundRecord, ['categoryName', 'category', 'materialGroupName', 'materialGroup']) || '-';
+				document.getElementById('currentQtyDisplay').textContent = getRecordValue(foundRecord, ['quantity', 'amount', 'currentQty', 'disposalQty']) || '-';
+			}
+		}
+	});
+
+	// 모달 배경 클릭으로 닫기
+	document.addEventListener('DOMContentLoaded', function () {
+		var modal = document.getElementById('disposalModal');
+		if (modal) {
+			modal.addEventListener('click', function (e) {
+				if (e.target === this) {
+					closeDisposalModal();
+				}
+			});
+		}
+	});
+
+	window.handleDisposalSubmit = function () {
+		var stockCode = document.getElementById('formStockCode').value;
+		var disposalQty = document.getElementById('formDisposalQty').value;
+		var reason = document.getElementById('formDisposalReason').value;
+		var detail = document.getElementById('formDisposalDetail').value;
+
+		if (!stockCode) {
+			alert('재고번호를 선택해주세요.');
+			return;
+		}
+		if (!disposalQty || parseInt(disposalQty) <= 0) {
+			alert('폐기 수량을 입력해주세요.');
+			return;
+		}
+		if (!reason) {
+			alert('폐기 사유를 선택해주세요.');
+			return;
+		}
+
+		// 실제 폐기 등록 API 호출 (백엔드 구현 필요)
+		var payload = {
+			branchStockCode: stockCode,
+			disposalQty: parseInt(disposalQty),
+			disposalReason: reason,
+			reasonDetail: detail
+		};
+
+		console.log('폐기 등록 요청:', payload);
+
+		// 예시: API 호출 (백엔드 엔드포인트 구성 필요)
+		// fetch(contextPath + '/api/branch/stock/disposal', {
+		//     method: 'POST',
+		//     headers: { 'Content-Type': 'application/json' },
+		//     body: JSON.stringify(payload)
+		// }).then(function (response) {
+		//     if (response.ok) {
+		//         alert('폐기 등록이 완료되었습니다.');
+		//         closeDisposalModal();
+		//         loadTabData('disposal');
+		//     } else {
+		//         alert('폐기 등록에 실패했습니다.');
+		//     }
+		// }).catch(function (error) {
+		//     alert('폐기 등록 중 오류가 발생했습니다.');
+		//     console.error(error);
+		// });
+
+		alert('폐기 등록이 완료되었습니다. (테스트 모드)');
+		closeDisposalModal();
+		loadTabData('disposal');
+	};
+
 	var tabLinks = document.querySelectorAll('.tab-link');
 	for (var i = 0; i < tabLinks.length; i += 1) {
 		tabLinks[i].addEventListener('click', function (event) {
@@ -535,5 +684,85 @@
 	}
 })();
 </script>
+
+<!-- ===== 폐기 등록 모달 ===== -->
+<div id="disposalModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 50; align-items: center; justify-content: center; padding: 16px;">
+	<div style="background: white; border-radius: 8px; max-width: 600px; width: 100%; padding: 24px; max-height: 90vh; overflow-y: auto;">
+
+		<!-- 모달 헤더 -->
+		<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+			<h3 style="margin: 0; font-size: 20px; font-weight: 700; color: #111827;">폐기 등록</h3>
+			<button onclick="closeDisposalModal()" style="background: none; border: none; font-size: 24px; color: #9ca3af; cursor: pointer; padding: 0; width: 24px; height: 24px;">
+				✕
+			</button>
+		</div>
+
+		<!-- 폐기 등록 폼 -->
+		<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+			<!-- 재고번호 -->
+			<div style="grid-column: span 2;">
+				<label style="display: block; font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 8px;">재고번호 *</label>
+				<select id="formStockCode" style="width: 100%; padding: 10px 14px; border: 1px solid #d5dae4; border-radius: 8px; font-size: 14px; color: #111827; background: white; box-sizing: border-box;">
+					<option value="">선택하세요</option>
+				</select>
+			</div>
+
+			<!-- 품목명 (자동 표시) -->
+			<div>
+				<label style="display: block; font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 8px;">품목명</label>
+				<div style="padding: 10px 14px; border: 1px solid #d5dae4; border-radius: 8px; background: #f9fafb; color: #6b7280; font-size: 14px;">
+					<p id="itemNameDisplay" style="margin: 0;">-</p>
+				</div>
+			</div>
+
+			<!-- 카테고리 (자동 표시) -->
+			<div>
+				<label style="display: block; font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 8px;">카테고리</label>
+				<div style="padding: 10px 14px; border: 1px solid #d5dae4; border-radius: 8px; background: #f9fafb; color: #6b7280; font-size: 14px;">
+					<p id="categoryDisplay" style="margin: 0;">-</p>
+				</div>
+			</div>
+
+			<!-- 폐기 수량 -->
+			<div>
+				<label style="display: block; font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 8px;">폐기 수량 *</label>
+				<input type="number" id="formDisposalQty" min="1" style="width: 100%; padding: 10px 14px; border: 1px solid #d5dae4; border-radius: 8px; font-size: 14px; color: #111827; background: white; box-sizing: border-box;">
+			</div>
+
+			<!-- 현재 수량 (자동 표시) -->
+			<div>
+				<label style="display: block; font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 8px;">현재 수량</label>
+				<div style="padding: 10px 14px; border: 1px solid #d5dae4; border-radius: 8px; background: #f9fafb; color: #6b7280; font-size: 14px;">
+					<p id="currentQtyDisplay" style="margin: 0;">-</p>
+				</div>
+			</div>
+
+			<!-- 폐기 사유 -->
+			<div style="grid-column: span 2;">
+				<label style="display: block; font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 8px;">폐기 사유 *</label>
+				<select id="formDisposalReason" style="width: 100%; padding: 10px 14px; border: 1px solid #d5dae4; border-radius: 8px; font-size: 14px; color: #111827; background: white; box-sizing: border-box;">
+					<option value="">선택하세요</option>
+					<option value="유통기한 만료">유통기한 만료</option>
+					<option value="품질 불량">품질 불량</option>
+					<option value="파손">파손</option>
+					<option value="기타">기타</option>
+				</select>
+			</div>
+
+			<!-- 폐기 사유 상세 -->
+			<div style="grid-column: span 2;">
+				<label style="display: block; font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 8px;">상세 내용</label>
+				<textarea id="formDisposalDetail" style="width: 100%; padding: 10px 14px; border: 1px solid #d5dae4; border-radius: 8px; font-size: 14px; color: #111827; background: white; box-sizing: border-box; min-height: 80px; resize: vertical; font-family: inherit;"></textarea>
+			</div>
+
+			<!-- 액션 버튼 -->
+			<div style="grid-column: span 2; display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px;">
+				<button type="button" onclick="closeDisposalModal()" style="padding: 10px 16px; background: #eef2f7; color: #374151; border: 0; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px;">취소</button>
+				<button type="button" onclick="handleDisposalSubmit()" style="padding: 10px 16px; background: #dc2626; color: white; border: 0; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px;">폐기 등록</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 </body>
 </html>
