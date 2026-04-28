@@ -27,12 +27,14 @@
 	<mappers>
 		<mapper resource="mapper/AccountMapper.xml"/>
 		<mapper resource="mapper/BranchMapper.xml"/>
+		<mapper resource="mapper/hq/PlaceOrderItemLimitMapper.xml"/>
 		<mapper resource="mapper/hq/BranchOptionMapper.xml"/>
 		<mapper resource="mapper/hq/ReceipeMapper.xml"/>
 		<mapper resource="mapper/hq/WarehouseStockMapper.xml"/>
         <mapper resource="mapper/hq/BranchSearchMapper.xml"/>
         <mapper resource="mapper/hq/NoticeMapper.xml"/>
 		<mapper resource="mapper/branch/InquiryMapper.xml"/>
+		<mapper resource="mapper/branch/stock/BranchSafetyStockMapper.xml"/>
 		<mapper resource="mapper/branch/placeOrderMapper.xml"/>
 		<mapper resource="mapper/branch/sales/SalesMapper.xml"/>
         <mapper resource="mapper/branch/sales/BranchSalesRankMapper.xml"/>
