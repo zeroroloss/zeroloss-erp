@@ -31,7 +31,7 @@ if (loginUser == null) {
     boolean placeOrderGroup = uri.contains("/hq/place_order/");
     boolean placeOrderOverViewActive = uri.endsWith("/hq/place_order/overview.jsp");
     boolean placeOrderProcessingActive = uri.endsWith("/hq/place_order/processing.jsp");
-    boolean placeOrderItemLimitActive = uri.endsWith("/hq/place_order/item_limit.jsp");
+    boolean placeOrderItemLimitActive = uri.endsWith("/hq/place_order/order_quantity_limit.jsp");
 
     boolean salesGroup = uri.contains("/hq/sales/");
     boolean salesDetailActive = uri.endsWith("/hq/sales/sales-detail.jsp");
@@ -146,7 +146,7 @@ if (loginUser == null) {
         <div class="submenu <%= placeOrderGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
             <a href="<%= cp %>/hq/place_order/overview" class="block px-4 py-2 rounded-lg text-sm <%= placeOrderOverViewActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">지점 발주 요청 조회</a>
             <a href="<%= cp %>/hq/place_order/processing" class="block px-4 py-2 rounded-lg text-sm <%= placeOrderProcessingActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">지점 발주 요청 처리</a>
-            <a href="<%= cp %>/hq/place_order/item_limit" class="block px-4 py-2 rounded-lg text-sm <%= placeOrderItemLimitActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">품목별 최소/최대 발주 수량</a>
+            <a href="<%= cp %>/hq/place_order/order_quantity_limit" class="block px-4 py-2 rounded-lg text-sm <%= placeOrderItemLimitActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">품목별 최소/최대 발주 수량</a>
         </div>
 
         <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= salesGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">

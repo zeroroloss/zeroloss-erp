@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.hq.place_order.OrderQuantityLimitMapper">
+	<select id="selectLimits" parameterType="map" resultType="dto.hq.place_order.OrderQuantityLimitDTO">
+		SELECT
+			m.material_code AS materialCode,
+			m.material_name AS materialName,
+			mg.group_name AS categoryName,
+			m.unit AS unit,
+			COALESCE(mol.min_qty, 0) AS minQty,
+			COALESCE(mol.max_qty, 0) AS maxQty
+		FROM material m
+		LEFT JOIN material_group mg ON m.material_group_id = mg.material_group_id
+		LEFT JOIN material_order_limit mol ON mol.material_code = m.material_code
+		<where>
+			<if test="categoryName != null and categoryName != '' and categoryName != '전체'">
+				AND mg.group_name = #{categoryName}
+			</if>
+			<if test="itemName != null and itemName != '' and itemName != '전체'">
+				AND m.material_name = #{itemName}
+			</if>
+		</where>
+		ORDER BY mg.group_name, m.material_name
+	</select>
+
+	<insert id="insertLimit" parameterType="map">
+		INSERT INTO material_order_limit (material_code, min_qty, max_qty)
+		VALUES (#{materialCode}, #{minQty}, #{maxQty})
+		ON DUPLICATE KEY UPDATE min_qty = VALUES(min_qty), max_qty = VALUES(max_qty)
+	</insert>
+
+	<update id="updateItemLimit" parameterType="map">
+		UPDATE material_order_limit
+		SET min_qty = #{minQty}, max_qty = #{maxQty}
+		WHERE material_code = #{materialCode}
+	</update>
+</mapper>
