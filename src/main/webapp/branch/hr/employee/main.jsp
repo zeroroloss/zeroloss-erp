@@ -1,4 +1,5 @@
 ﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -45,7 +46,7 @@
     .modal-overlay.open { display: flex; }
     .modal-frame { width: min(820px, 100%); height: min(92vh, 920px); border: 0; border-radius: 16px; background: transparent; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22); }
     .modal-close { position: absolute; top: 18px; right: 18px; width: 36px; height: 36px; border: 0; border-radius: 999px; background: #fff; color: #374151; font-size: 22px; line-height: 36px; cursor: pointer; z-index: 2001; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
-
+	.modal-hidden { display: none !important;}
 
     @media (max-width: 1200px) {
       .title { font-size: 30px; }
@@ -114,7 +115,7 @@
               </div>
               <div>
                 <p class="text-sm text-gray-500">본사 직원</p>
-                <p class="text-2xl font-bold text-gray-900 mt-1" id="totalBranch">${totalBranch}</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1" id="totalHqEmp">${totalHqEmp}</p>
               </div>
             </div>
           </div>
@@ -126,7 +127,7 @@
               </div>
               <div>
                 <p class="text-sm text-gray-500">알바생</p>
-                <p class="text-2xl font-bold text-gray-900 mt-1" id="newEmpCnt">${newEmpCnt}</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1" id="ptmEmp">${ptmEmp}</p>
               </div>
             </div>
           </div>
@@ -205,6 +206,8 @@
   </div>
 </div>
 
+<%@ include file="/branch/hr/employee/add_employee.jsp" %>
+<%@ include file="/branch/hr/employee/modify_employee.jsp" %>
 <!-- main: 목록 조회 / 검색 / 페이징 / 공통 메뉴 -->
 <script>
     var selectedEmployee = null;
@@ -234,64 +237,25 @@
     window.addEventListener("DOMContentLoaded", function() {
         clearEmployeeTable();
         setupSidebarToggle();
+        
+        var addBtn = document.getElementById("openAddEmployeeModal");
+        if (addBtn) {
+            addBtn.addEventListener("click", showAddModal);
+        }
     });
-
-    function setupSidebarToggle() {
-        var sidebarToggle = document.getElementById('mobileMenuBtn');
-        var sidebar = document.getElementById('sidebar');
-        var backdrop = document.getElementById('sidebarBackdrop');
-
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', function() {
-                toggleSidebar();
-            });
-        }
-
-        if (backdrop) {
-            backdrop.addEventListener('click', function() {
-                sidebar.classList.add('-translate-x-full');
-                backdrop.classList.add('hidden');
-            });
-        }
-    }
-
-    function toggleSidebar() {
-        var sidebar = document.getElementById('sidebar');
-        var backdrop = document.getElementById('sidebarBackdrop');
-        sidebar.classList.toggle('-translate-x-full');
-        backdrop.classList.toggle('hidden');
-    }
-
-    function toggleUserMenu() {
-        document.getElementById('userMenu').classList.toggle('hidden');
-    }
-
-    function logout() {
-        alert('로그아웃되었습니다.');
-    }
-
-    function toggleMenu(button) {
-        var submenu = button.nextElementSibling;
-        if (submenu && submenu.classList.contains('submenu')) {
-            submenu.classList.toggle('hidden');
-            var arrow = button.querySelector('i:last-child');
-            arrow.classList.toggle('fa-chevron-right');
-            arrow.classList.toggle('fa-chevron-down');
-        }
-    }
-
+    
     function applyFilters() {
-        currentPage = 1;
-        renderEmployees();
+    	currentPage=1;
+    	renderEmployees();
     }
-
+    
     function resetFilters() {
-        document.getElementById("searchInput").value = "";
-        currentPage = 1;
-        clearEmployeeTable();
-        document.getElementById("pagination").innerHTML = "";
+    	document.getElementById("searchInput").value="";
+    	currentPage = 1;
+    	clearEmployeeTable();
+    	document.getElementById("pagination").innerHTML = "";
     }
-
+    
     function renderEmployees() {
         var searchTerm = document.getElementById("searchInput").value.toLowerCase();
 
@@ -301,15 +265,14 @@
                 String(employee.empNo || "").toLowerCase().includes(searchTerm) ||
                 String(employee.dept || "").toLowerCase().includes(searchTerm) ||
                 String(employee.branchName || "").toLowerCase().includes(searchTerm) ||
-                String(employee.positionName || "").toLowerCase().includes(searchTerm) ||
-                String(employee.gradeName || "").toLowerCase().includes(searchTerm)
+                String(employee.positionName || "").toLowerCase().includes(searchTerm)
             );
         });
 
         var tbody = document.getElementById('employeeTableBody');
 
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">검색 결과가 없습니다.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">검색 결과가 없습니다.</td></tr>';
             document.getElementById("pagination").innerHTML = "";
             return;
         }
@@ -355,10 +318,7 @@
                     '</div>' +
                 '</td>' +
 
-                '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.dept || '-') + '</td>' +
-
                 '<td class="px-4 py-3 whitespace-nowrap">' +
-                    '<div class="text-sm text-gray-900">' + (emp.gradeName || '-') + '</div>' +
                     '<div class="text-sm text-gray-900">' + (emp.positionName || '-') + '</div>' +
                 '</td>' +
 
@@ -386,7 +346,7 @@
 
     function clearEmployeeTable() {
         var tbody = document.getElementById('employeeTableBody');
-        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">조회 버튼을 눌러 직원을 검색하세요.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">조회 버튼을 눌러 직원을 검색하세요.</td></tr>';
     }
 
     function renderPagination(totalPages) {
@@ -416,6 +376,193 @@
 
         currentPage = page;
         renderEmployees();
+    }
+    
+    function showAddModal() {
+    	document.getElementById("addModal").classList.remove("modal-hidden");
+    }
+    
+    function closeAddModal() {
+    	document.getElementById("addModal").classList.add("modal-hidden");
+    }
+    
+    function saveEmployee() {
+        var params = new URLSearchParams();
+
+        params.append("action", "add");
+        params.append("empNo", getValue("empNo"));
+        params.append("name", getValue("name"));
+        params.append("branchCode", getValue("branchCode"));
+        params.append("dept", getValue("dept"));
+        params.append("positionCode", getValue("positionCode"));
+        params.append("phone", getValue("phone"));
+        params.append("email", getValue("email"));
+        params.append("hireDate", getValue("hireDate"));
+        params.append("status", getValue("status"));
+
+        fetch("<%= request.getContextPath() %>/branch/hr/main", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: params.toString()
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                alert("직원이 등록되었습니다.");
+                closeAddModal();
+                location.reload();
+            } else {
+                alert(data.message || "직원 등록에 실패했습니다.");
+            }
+        })
+        .catch(function(error) {
+            console.error(error);
+            alert("서버 오류가 발생했습니다.");
+        });
+    }
+
+    function openEmployeeModal(empNo) {
+        selectedEmployee = employees.find(function(emp) {
+            return String(emp.empNo) === String(empNo);
+        });
+        
+        if (!selectedEmployee) {
+            alert("직원 정보를 찾을 수 없습니다.");
+            return;
+        }
+
+        resetEditMode();
+
+        setValue("editEmpNo", selectedEmployee.empNo);
+        setValue("editEmpNoView", selectedEmployee.empNo);
+        setValue("editName", selectedEmployee.name);
+        setValue("editBranchCode", selectedEmployee.branchCode);
+        setValue("editDept", selectedEmployee.dept);
+        setValue("editPositionCode", selectedEmployee.positionCode);
+        setValue("editPhone", selectedEmployee.phone);
+        setValue("editEmail", selectedEmployee.email);
+        setValue("editHireDate", selectedEmployee.hireDate);
+        setValue("editStatus", selectedEmployee.status || "ACTIVE");
+
+        document.getElementById("editModal").classList.remove("modal-hidden");
+    }
+
+    function closeEditModal() {
+        document.getElementById("editModal").classList.add("modal-hidden");
+    }
+
+    function changeToEditMode() {
+        document.querySelector("#editModal h3").innerText = "직원 정보 수정";
+        document.getElementById("editModeBtn").classList.add("hidden");
+        document.getElementById("saveBtn").classList.remove("hidden");
+
+        document.querySelectorAll(".editable-field").forEach(function(field) {
+            if (field.tagName === "SELECT") {
+                field.disabled = false;
+            } else {
+                field.readOnly = false;
+            }
+
+            field.classList.remove("bg-gray-100", "text-gray-500", "cursor-not-allowed");
+            field.classList.add("bg-white", "text-gray-900");
+        });
+    }
+
+    function resetEditMode() {
+        document.querySelector("#editModal h3").innerText = "직원 상세 조회";
+        document.getElementById("editModeBtn").classList.remove("hidden");
+        document.getElementById("saveBtn").classList.add("hidden");
+
+        document.querySelectorAll(".editable-field").forEach(function(field) {
+            if (field.tagName === "SELECT") {
+                field.disabled = true;
+            } else {
+                field.readOnly = true;
+            }
+
+            field.classList.remove("bg-white", "text-gray-900");
+            field.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed");
+        });
+    }
+
+    function updateEmployee() {
+        if (!selectedEmployee) return;
+
+        var params = new URLSearchParams();
+
+        params.append("action", "update");
+        params.append("empNo", selectedEmployee.empNo);
+        params.append("branchCode", getValue("editBranchCode"));
+        params.append("dept", getValue("editDept"));
+        params.append("positionCode", getValue("editPositionCode"));
+        params.append("phone", getValue("editPhone"));
+        params.append("email", getValue("editEmail"));
+        params.append("status", getValue("editStatus"));
+
+        fetch("<%= request.getContextPath() %>/branch/hr/main", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: params.toString()
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            if (data.success) {
+                alert("직원 정보가 수정되었습니다.");
+                closeEditModal();
+                location.reload();
+            } else {
+                alert(data.message || "직원 수정에 실패했습니다.");
+            }
+        })
+        .catch(function(error) {
+            console.error(error);
+            alert("서버 오류가 발생했습니다.");
+        });
+    }
+
+    function getValue(id) {
+        var el = document.getElementById(id);
+        return el ? el.value : "";
+    }
+
+    function setValue(id, value) {
+        var el = document.getElementById(id);
+        if (el) {
+            el.value = value || "";
+        }
+    }
+
+    function setupSidebarToggle() {
+        var sidebarToggle = document.getElementById("mobileMenuBtn");
+        var sidebar = document.getElementById("sidebar");
+        var backdrop = document.getElementById("sidebarBackdrop");
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener("click", toggleSidebar);
+        }
+
+        if (backdrop) {
+            backdrop.addEventListener("click", function() {
+                sidebar.classList.add("-translate-x-full");
+                backdrop.classList.add("hidden");
+            });
+        }
+    }
+
+    function toggleSidebar() {
+        var sidebar = document.getElementById("sidebar");
+        var backdrop = document.getElementById("sidebarBackdrop");
+
+        if (sidebar) sidebar.classList.toggle("-translate-x-full");
+        if (backdrop) backdrop.classList.toggle("hidden");
     }
 </script>
 </body>

@@ -6,12 +6,12 @@ import dto.branch.hr.EmployeeDTO;
 
 public interface EmployeeDao {
 	// 직원 현황 대시보드
-	Integer selectEmpCnt() throws Exception;
-	Integer selectHqEmpCnt() throws Exception;
-	Integer selectPTMCnt() throws Exception;
+	Integer selectEmpCnt(Integer branchCode) throws Exception;
+	Integer selectHqEmpCnt(Integer branchCode) throws Exception;
+	Integer selectPTMCnt(Integer branchCode) throws Exception;
 	
 	// 직원 리스트 조회
-	List<EmployeeDTO> selectEmployeeList(EmployeeDTO employee) throws Exception;
+	List<EmployeeDTO> selectEmployeeList(Integer branchCode) throws Exception;
  	
 	// 직원 추가(알바생)
 	void insertEmployee(EmployeeDTO employee) throws Exception;
