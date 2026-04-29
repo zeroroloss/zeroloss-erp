@@ -19,12 +19,12 @@ public interface PlaceOrderDAO {
     // 발주서 번호 기준의 품목 상세 목록을 조회
     List<PlaceOrderDetailDTO> selectPlaceOrderDetails(String poNo);
 
-    // 발주서를 생성
+    // 발주서 생성
     int insertPlaceOrder(PlaceOrderRequestDTO requestDTO);
 
-    // 발주서의 품목 상세를 생성
+    // 발주서의 품목 상세 생성
     int insertPlaceOrderDetails(Integer poId, List<PlaceOrderRequestDetailDTO> details);
 
-    // 발주서 상태와 반려 사유를 갱신
+    // 발주서 상태, 반려 사유 갱신
     int updatePlaceOrderStatus(Map<String, Object> updateParams);
 }

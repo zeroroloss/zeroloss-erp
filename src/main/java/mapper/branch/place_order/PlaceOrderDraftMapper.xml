@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.branch.placeOrderDraftMapper">
+
+<!-- IN_PROGESS 상태의 draft 조회 -->
+	<select id="findInProgressDraft" parameterType="int"
+			resultType="dto.branch.place_order.PlaceOrderDraftDTO">
+		SELECT 
+			draft_id 		AS draftId,
+	        branch_code		AS branchCode,
+	        status			AS status,
+	        po_id			AS poId,		
+	        created_at		AS createdAt,
+	        updated_at		AS updatedAt
+	        
+		FROM place_order_draft
+	    WHERE branch_code = #{_parameter}
+	      AND status = 'IN_PROGRESS'
+      	LIMIT 1
+	</select>
+
+<!-- draft 생성 -->
+	<insert id="insertDraft" parameterType="dto.branch.place_order.PlaceOrderDraftDTO"
+			useGeneratedKeys="true" keyProperty="draftId">
+        INSERT INTO place_order_draft (
+            branch_code,
+            status
+        )
+        VALUES (
+            #{branchCode},
+            #{status}
+        )
+	</insert>
+
+<!-- draftDetail 리스트 조회 -->	
+	<select id="findDraftDetails" parameterType="int" 
+			resultType="dto.branch.place_order.PlaceOrderDraftDetailDTO">
+		SELECT
+			dd.draft_detail_id		AS draftDetailId,
+			dd.draft_id				AS draftId,
+			dd.material_code		AS materialCode,
+			dd.requested_qty		AS requestedQty,
+			dd.source_type			AS sourceType,
+			
+			m.material_name			AS materialName,
+			mg.group_name			AS categoryName,
+			m.unit					AS unit 
+			
+		FROM place_order_draft_detail dd
+		JOIN material m
+		  	ON dd.material_code = m.material_code
+	  	JOIN material_group mg
+	  		ON m.material_group_id = mg.material_group_id
+  		WHERE dd.draft_id = #{_parameter}
+	</select>
+	
+<!-- 안전재고 미달 품목 조회 (LOW_STOCK)  -->
+<!-- 각 지점의 각 품목별 총합이 각 품목의 안전재고 이하인 것들에 대해, 
+	DraftDetailDTO 리스트를 만들어 반환한다 -->
+	<select id="findLowStockMaterials" parameterType="int" resultType="dto.branch.place_order.PlaceOrderDraftDetailDTO">
+		SELECT
+			m.material_code				AS materialCode,
+			m.material_name				AS materialName,	
+			mg.group_name				AS categoryName,
+			m.unit						AS unit,
+			
+			CAST(COALESCE(SUM(bs.current_qty), 0) AS SIGNED) 	AS currentStock,
+			CAST(bmss.safe_stock_qty AS SIGNED)					AS safeStock,
+										
+			0							AS requestedQty
+			
+		FROM material m
+		
+		<!-- 카테고리 -->
+		JOIN material_group mg
+			ON m.material_group_id = mg.material_group_id
+		
+		<!-- 안전재고 -->
+		JOIN branch_material_safety_stock bmss
+			ON m.material_code = bmss.material_code
+			  AND bmss.branch_code = #{_parameter}
+	  	
+	  	<!-- 현재 재고 (합계) (재고 없는 품목도 계산하기 위해 left join) -->
+	  	LEFT JOIN branch_stock bs
+	  		ON bs.branch_code = #{_parameter}
+  			  AND bs.material_code = m.material_code
+ 		
+ 		GROUP BY
+ 			m.material_code,
+ 			m.material_name,
+ 			mg.group_name,
+ 			m.unit,
+            bmss.safe_stock_qty
+ 			
+ 		HAVING currentStock &lt; safeStock
+	</select>
+	
+<!-- draft detail 삽입 -->
+	<insert id="insertDraftDetail" parameterType="dto.branch.place_order.PlaceOrderDraftDetailDTO">
+        INSERT INTO place_order_draft_detail (
+            draft_id,
+            material_code,
+            requested_qty,
+            source_type
+        )
+        VALUES (
+            #{draftId},
+            #{materialCode},
+            #{requestedQty},
+            #{sourceType}
+        )
+	</insert>
+</mapper>

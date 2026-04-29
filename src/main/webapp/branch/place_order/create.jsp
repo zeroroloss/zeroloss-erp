@@ -81,8 +81,8 @@
 
 <%@ include file="/branch/common/layout/layout_head.jsp" %>
 <%
-	Object lowStockListAttr = request.getAttribute("lowStockList");
-	Object addedItemListAttr = request.getAttribute("addedItemList");
+	Object lowStockListAttr = request.getAttribute("lowStockList");   // 안전재고 미달 품목
+	Object addedItemListAttr = request.getAttribute("addedItemList"); // 추가 발주 품목
 	
 	// 안전재고 미달
 	String lowStockJson = new com.google.gson.Gson().toJson(
@@ -130,7 +130,7 @@
 		                    <th>품목코드</th>
 		                    <th>품목명</th>
 		                    <th>카테고리</th>
-		                    <th>현재 재고</th>
+		                    <th>현재 재고 합계</th>
 		                    <th>안전 재고</th>
 		                    <th>요청 수량</th>
 		                    <th class="center">삭제</th>
@@ -161,7 +161,7 @@
 		                    <th>품목코드</th>
 		                    <th>품목명</th>
 		                    <th>카테고리</th>
-		                    <th>현재 재고</th>
+		                    <th>현재 재고 합계</th>
 		                    <th>안전 재고</th>
 		                    <th>요청 수량</th>
 		                    <th class="center">삭제</th>

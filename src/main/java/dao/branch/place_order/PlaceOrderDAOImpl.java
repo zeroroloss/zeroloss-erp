@@ -15,38 +15,33 @@ import util.MyBatisSqlSessionFactory;
 public class PlaceOrderDAOImpl implements PlaceOrderDAO {
 
     private static final String MAPPER_NAMESPACE = "mapper.branch.placeOrderMapper.";
-    private static final String SELECT_PLACE_ORDER_HISTORY = MAPPER_NAMESPACE + "selectPlaceOrderHistory";
-    private static final String SELECT_PLACE_ORDER_DETAIL = MAPPER_NAMESPACE + "selectPlaceOrderDetail";
-    private static final String SELECT_PLACE_ORDER_DETAILS = MAPPER_NAMESPACE + "selectPlaceOrderDetails";
-    private static final String INSERT_PLACE_ORDER = MAPPER_NAMESPACE + "insertPlaceOrder";
-    private static final String INSERT_PLACE_ORDER_DETAILS = MAPPER_NAMESPACE + "insertPlaceOrderDetails";
-    private static final String UPDATE_PLACE_ORDER_STATUS = MAPPER_NAMESPACE + "updatePlaceOrderStatus";
+
 
     @Override
     public List<PlaceOrderHistoryDTO> selectPlaceOrderHistory(Map<String, Object> params) {
         try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-            return sqlSession.selectList(SELECT_PLACE_ORDER_HISTORY, params);
+            return sqlSession.selectList(MAPPER_NAMESPACE + "selectPlaceOrderHistory", params);
         }
     }
 
     @Override
     public PlaceOrderHistoryDTO selectPlaceOrderDetail(String poNo) {
         try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-            return sqlSession.selectOne(SELECT_PLACE_ORDER_DETAIL, poNo);
+            return sqlSession.selectOne(MAPPER_NAMESPACE + "selectPlaceOrderDetail", poNo);
         }
     }
 
     @Override
     public List<PlaceOrderDetailDTO> selectPlaceOrderDetails(String poNo) {
         try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-            return sqlSession.selectList(SELECT_PLACE_ORDER_DETAILS, poNo);
+            return sqlSession.selectList(MAPPER_NAMESPACE + "selectPlaceOrderDetails", poNo);
         }
     }
 
     @Override
     public int insertPlaceOrder(PlaceOrderRequestDTO requestDTO) {
         try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-            int result = sqlSession.insert(INSERT_PLACE_ORDER, requestDTO);
+            int result = sqlSession.insert(MAPPER_NAMESPACE + "insertPlaceOrder", requestDTO);
             sqlSession.commit();
             return result;
         }
@@ -58,7 +53,8 @@ public class PlaceOrderDAOImpl implements PlaceOrderDAO {
             Map<String, Object> params = new HashMap<>();
             params.put("poId", poId);
             params.put("details", details);
-            int result = sqlSession.insert(INSERT_PLACE_ORDER_DETAILS, params);
+
+            int result = sqlSession.insert(MAPPER_NAMESPACE + "insertPlaceOrderDetails", params);
             sqlSession.commit();
             return result;
         }
@@ -67,7 +63,7 @@ public class PlaceOrderDAOImpl implements PlaceOrderDAO {
     @Override
     public int updatePlaceOrderStatus(Map<String, Object> params) {
         try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-            int result = sqlSession.update(UPDATE_PLACE_ORDER_STATUS, params);
+            int result = sqlSession.update(MAPPER_NAMESPACE + "updatePlaceOrderStatus", params);
             sqlSession.commit();
             return result;
         }

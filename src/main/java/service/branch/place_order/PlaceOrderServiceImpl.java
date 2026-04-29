@@ -8,11 +8,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.session.SqlSession;
+
 import dao.branch.place_order.PlaceOrderDAO;
 import dao.branch.place_order.PlaceOrderDAOImpl;
+import dao.branch.place_order.PlaceOrderDraftDAO;
+import dao.branch.place_order.PlaceOrderDraftDAOImpl;
 import dto.branch.place_order.PlaceOrderDetailDTO;
+import dto.branch.place_order.PlaceOrderDraftDTO;
+import dto.branch.place_order.PlaceOrderDraftDetailDTO;
 import dto.branch.place_order.PlaceOrderHistoryDTO;
 import dto.branch.place_order.PlaceOrderRequestDTO;
+import util.MyBatisSqlSessionFactory;
 
 public class PlaceOrderServiceImpl implements PlaceOrderService {
 
@@ -31,7 +38,8 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
     private static final DateTimeFormatter PO_NO_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"); // 발주번호 생성 포맷
 
     private final PlaceOrderDAO placeOrderDAO = new PlaceOrderDAOImpl(); // DAO 인스턴스 생성
-
+    private final PlaceOrderDraftDAO draftDAO = new PlaceOrderDraftDAOImpl();
+    
     @Override
     public List<PlaceOrderHistoryDTO> getPlaceOrderHistoryList(int branchCode, String startDate, String endDate, String status) {
         Map<String, Object> params = new HashMap<>(); // DAO로 전달할 파라미터 맵 생성
@@ -195,4 +203,77 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
             historyDTO.setCancelUrl(contextPath + "/branch/place_order/" + PAGE_CANCEL_REQUEST); // 취소 URL 설정
         }
     }
+
+    // ==========================
+    //  발주서 생성
+    // ==========================
+	@Override
+	public PlaceOrderDraftDTO findOrCreateInProgressDraft(int branchCode) {
+		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false);
+		try {
+			// 1. IN_PROGESS 상태의 draft 조회
+			PlaceOrderDraftDTO draftDTO = draftDAO.findInProgressDraft(sqlSession, branchCode);
+			
+			// 2. IN_PROGESS가 없으면 생성
+			if (draftDTO == null) {
+				draftDTO = new PlaceOrderDraftDTO();
+				draftDTO.setBranchCode(branchCode);
+				draftDTO.setStatus("IN_PROGRESS");
+				
+				// 새로운 draft DTO 삽입 - IN_PROGRESS
+				draftDAO.insertDraft(sqlSession, draftDTO); 
+			}
+			
+			int draftId = draftDTO.getDraftId();
+			
+			// 3. 기존 draftDetail 리스트 조회
+			List<PlaceOrderDraftDetailDTO> existingDetails = draftDAO.findDraftDetails(sqlSession, draftId);
+			
+			// 4. 안전재고 미달 품목 조회 (LOW_STOCK) 
+			List<PlaceOrderDraftDetailDTO> lowStockMaterials = draftDAO.findLowStockMaterials(sqlSession, branchCode);
+			// 🔥 로그 추가
+			System.out.println("===== [LOW STOCK CHECK] =====");
+
+			for (PlaceOrderDraftDetailDTO item : lowStockMaterials) {
+			    System.out.println(
+			        "[재고체크] materialCode=" + item.getMaterialCode()
+			        + ", materialName=" + item.getMaterialName()
+			        + ", currentStock=" + item.getCurrentStock()
+			        + ", safeStock=" + item.getSafeStock()
+			    );
+			}
+
+			System.out.println("===== [END] =====");
+			// 5. existingDetails에 없는 안전재고 미달 품목(LOW_STOCK)만 추가
+			for (PlaceOrderDraftDetailDTO lowStock : lowStockMaterials) {
+				boolean exists = existingDetails.stream()
+											.anyMatch(detail -> 
+												detail.getMaterialCode().equals(lowStock.getMaterialCode()));
+				
+				if (!exists) {
+					lowStock.setDraftId(draftId);
+					lowStock.setSourceType("LOW_STOCK");
+					lowStock.setRequestedQty(0);
+					
+					// DB에 draftDetail 삽입
+					draftDAO.insertDraftDetail(sqlSession, lowStock);
+				}
+			}
+			
+			// 6. 다시 draftDetail 조회 (삽입된 것들까지 같이) 
+			List<PlaceOrderDraftDetailDTO> allDraftDetails = draftDAO.findDraftDetails(sqlSession, draftId);
+			// list 넣어주기
+			draftDTO.setDetails(allDraftDetails);
+			
+			// 커밋
+			sqlSession.commit();
+			return draftDTO;
+			
+		} catch(Exception e) {
+			sqlSession.rollback();
+			throw new RuntimeException(e);
+		} finally {
+	        sqlSession.close();
+	    }
+	}
 }
