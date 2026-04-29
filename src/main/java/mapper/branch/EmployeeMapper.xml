@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="mapper.employee">
+<mapper namespace="mapper.branch.employee">
 	<insert id="insertEmployee" parameterType="dto.branch.hr.EmployeeDTO">
 		insert into employee(emp_no, branch_code, position_code, name, phone, email, hire_date, status)
 		values(#{empNo},#{branchCode},#{positionCode},#{name},#{phone},#{email},#{hireDate},#{status})
 	</insert>
 	
 	<select id="selectEmployee" parameterType="Integer" resultType="dto.branch.hr.EmployeeDTO">
-		select emp_no as empNo, branch_code as branchCode, position_code as positionCode, name, phone, email, hire_date as hireDate, status from employee where emp_no=#{empNo} and branch_code=#{branchCode}
+		select emp_no as empNo, branch_code as branchCode, position_code as positionCode, name, phone, email, hire_date as hireDate, status from employee where emp_no=#{value}
 	</select>
 	
 	<select id="selectEmpCnt" parameterType="Integer" resultType="Integer">

@@ -5,399 +5,333 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>매출 순위 - ZERO LOSS 본사 관리 시스템</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <%-- flatpickr --%>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
+        :root {
+            --green: #00853D;
+            --line: #e5e7eb;
+            --muted: #6b7280;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
         .sidebar-open .sidebar {
             transform: translateX(0);
         }
+
+        .head h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; }
+        .head p { color: #6b7280; }
+
+        .search-panel { margin-top:24px; border:1px solid var(--line); border-radius:18px; background:#fff; box-shadow:0 1px 2px rgba(15,23,42,0.05); padding:14px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        .filters { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+        .filter-group { display:flex; align-items:center; gap: 6px; }
+        .filter-group .label { font-size:13px; color:#374151; font-weight:700; flex-shrink: 0; }
+
+        .date-picker-wrap input, select.sort-btn, select#mainCategorySelect, select#menuSelect {
+            height:38px;
+            width:115px;
+            border-radius:12px;
+            border:1px solid #d1d5db;
+            background:#fff;
+            color:#1f2937;
+            padding:0 8px;
+            font-size:13px;
+            outline:none;
+        }
+
+        .date-picker-wrap input {
+            padding-left: 30px !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af' class='w-5 h-5'%3E%3Cpath fill-rule='evenodd' d='M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zM4.5 6.75A1.25 1.25 0 015.75 5.5h8.5A1.25 1.25 0 0115.5 6.75v8.5A1.25 1.25 0 0114.25 16.5h-8.5A1.25 1.25 0 014.5 15.25v-8.5zM7 10a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm-6 3a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z' clip-rule='evenodd' /%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 8px center;
+            background-size: 16px;
+        }
+
+        .sort-btn { height:38px; border:1px solid #d1d5db; border-radius:12px; padding:0 10px; background:#f9fafb; color:#374151; font-size:13px; font-weight:700; cursor:pointer; }
+        .sort-btn.active { border-color:var(--green); color:var(--green); background:#ecf8f1; }
+
+        .rank-tabs { margin-top:24px; display:flex; gap:10px; border-bottom: 1px solid var(--line); }
+        .rank-tab { padding:0 4px 12px; text-decoration:none; display:inline-flex; align-items:center; font-weight:700; font-size:16px; color:var(--muted); border-bottom: 3px solid transparent; cursor: pointer; }
+        .rank-tab.active { color:var(--green); border-bottom-color: var(--green); }
+
+        .grid { margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+
+        .panel { background:#fff; border:1px solid #009223; border-radius:16px; }
+        .panel-head { display:flex; align-items:center; gap:8px; padding: 18px 20px; border-bottom: 1px solid #009223; }
+        .panel-title { font-size:20px; font-weight:700; }
+        .badge { margin-left:auto; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+        .badge.green { background:#e6f4ea; color:#009223; }
+        .rank-no { width:28px; font-size:18px; font-weight:800; color:#009223; text-align:center; flex-shrink: 0; }
+
+        .panel.orange { border-color: #FFA940; background-color: #FFF7E6; }
+        .panel.orange .panel-head { border-bottom-color: #FFA940; }
+        .badge.orange { background:#fff1de; color:#d97706; }
+        .panel.orange .rank-no { color: #d97706; }
+
+        .rank-list { display:flex; flex-direction:column; gap:6px; padding: 12px; }
+        .rank-item { display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px; background: #fff; }
+        .item-main { flex:1; min-width:0; }
+        .item-name { font-size:16px; font-weight:700; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .item-value { font-size:18px; font-weight:700; white-space:nowrap; color:#111827; flex-shrink: 0; }
+
+        .no-data { text-align: center; padding: 60px 20px; color: var(--muted); }
+
+        .hidden-group { display: none !important; }
+
+        @media (max-width:960px){ .grid{grid-template-columns:1fr;} }
     </style>
 </head>
 <body class="bg-gray-50">
-	    <%@ include file="/hq/common/sidebar.jsp" %>
-        <!-- 메인 콘텐츠 -->
-        <div class="lg:pl-72">
 
-            <!-- 페이지 콘텐츠 -->
-            <main class="p-6">
-                <!-- 메인 컨테이너 -->
-                <div class="space-y-6">
-                    
-                    <!-- 페이지 헤더 -->
-                    <div>
-                        <h2 class="text-3xl font-bold text-gray-900">매출 순위</h2>
-                        <p class="text-gray-500 mt-1">메뉴별, 시간대별 매출 랭킹을 확인하세요</p>
+<%@ include file="/hq/common/sidebar.jsp" %>
+
+<div class="lg:pl-72">
+    <main class="p-6">
+        <header class="head">
+            <h1>전사 매출 랭킹</h1>
+            <p>전국 직영점의 실적과 메뉴 트렌드를 분석합니다.</p>
+        </header>
+
+        <section class="search-panel">
+            <div class="filters">
+                <div class="filter-group">
+                    <span class="label">조회기간:</span>
+                    <div class="date-picker-wrap">
+                        <input type="text" id="period-start" placeholder="시작일">
                     </div>
-
-                    <!-- 필터 카드 -->
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
-                        <div class="flex flex-wrap items-center gap-4">
-                            <!-- 기간 설정 -->
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-calendar w-4 h-4 text-gray-500"></i>
-                                <span class="text-sm font-medium text-gray-700">기간:</span>
-                                <select id="periodFilter" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
-                                    <option selected>이번 달</option>
-                                    <option>지난 달</option>
-                                    <option>1분기</option>
-                                    <option>2분기</option>
-                                    <option>3분기</option>
-                                    <option>4분기</option>
-                                    <option>상반기</option>
-                                    <option>하반기</option>
-                                    <option>올해</option>
-                                </select>
-                            </div>
-
-                            <!-- Divider -->
-                            <div class="h-8 w-px bg-gray-300"></div>
-
-                            <!-- 정렬 기준 -->
-                            <div class="flex items-center gap-2">
-                                <i class="fas fa-chart-line w-4 h-4 text-gray-500"></i>
-                                <span class="text-sm font-medium text-gray-700">정렬:</span>
-                                <div class="flex gap-2">
-                                    <button onclick="setSortBy('sales')" class="px-3 py-2 rounded-lg border border-[#00853D] bg-[#00853D]/5 text-[#00853D] text-sm font-medium transition-all sortBtn" data-sort="sales">
-                                        총매출액 순
-                                    </button>
-                                    <button onclick="setSortBy('orders')" class="px-3 py-2 rounded-lg border border-gray-200 text-gray-700 hover:border-gray-300 text-sm font-medium transition-all sortBtn" data-sort="orders">
-                                        총 주문 건수 순
-                                    </button>
-                                    <button onclick="setSortBy('avgPrice')" class="px-3 py-2 rounded-lg border border-gray-200 text-gray-700 hover:border-gray-300 text-sm font-medium transition-all sortBtn" data-sort="avgPrice">
-                                        객단가 순
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                    <span class="text-gray-500">~</span>
+                    <div class="date-picker-wrap">
+                        <input type="text" id="period-end" placeholder="종료일">
                     </div>
-
-                    <!-- 뷰 모드 선택 -->
-                    <div class="flex gap-3">
-                        <button onclick="setViewMode('menus')" class="px-4 py-2 rounded-lg font-medium transition-all bg-[#00853D] text-white viewModeBtn" data-mode="menus">
-                            <i class="fas fa-trophy mr-2"></i>메뉴별 랭킹
-                        </button>
-                        <button onclick="setViewMode('timeDate')" class="px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200 viewModeBtn" data-mode="timeDate">
-                            <i class="fas fa-clock mr-2"></i>일자/시간대별 랭킹
-                        </button>
-                    </div>
-
-                    <!-- 콘텐츠 영역 -->
-                    <div id="contentArea">
-                        <!-- 메뉴별 랭킹 뷰 (기본) -->
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <!-- 베스트셀러 TOP 10 -->
-                            <div class="bg-white rounded-lg border border-gray-200 p-4">
-                                <div class="flex items-center gap-2 mb-3">
-                                    <i class="fas fa-trophy w-4 h-4 text-[#00853D]"></i>
-                                    <h3 class="text-base font-semibold text-gray-900">베스트셀러 (효자 메뉴) TOP 10</h3>
-                                    <span class="ml-auto text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-                                        프로모션 추천
-                                    </span>
-                                </div>
-                                <div class="space-y-1.5" id="bestMenusList"></div>
-                            </div>
-
-                            <!-- 워스트셀러 BOTTOM 10 -->
-                            <div class="bg-white rounded-lg border border-orange-200 p-4">
-                                <div class="flex items-center gap-2 mb-3">
-                                    <i class="fas fa-chart-line w-4 h-4 text-orange-600"></i>
-                                    <h3 class="text-base font-semibold text-orange-900">워스트셀러 (단종 고려) BOTTOM 10</h3>
-                                    <span class="ml-auto text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">
-                                        주문 검토
-                                    </span>
-                                </div>
-                                <div class="space-y-1.5" id="worstMenusList"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 상세 정보 -->
-                    <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-info-circle w-5 h-5 text-blue-600"></i>
-                            <p class="text-sm text-blue-900">
-                                <span class="font-semibold">매출 순위</span>는 메뉴별 베스트셀러와 워스트셀러, 최고 매출 시간대와 요일을 분석합니다. 프로모션 전략 수립과 메뉴 관리에 활용하세요.
-                            </p>
-                        </div>
-                    </div>
-
                 </div>
-            </main>
-        </div>
-    </div>
 
-    <script>
-        // Mock 데이터
-        // 베스트셀러 TOP 10
-        const bestMenus = [
-            { id: "bm1", rank: 1, name: "이탈리안 비엠티", category: "샌드위치", sales: 3450000, orders: 245, avgPrice: 14082 },
-            { id: "bm2", rank: 2, name: "로티세리 치킨", category: "샌드위치", sales: 2870000, orders: 215, avgPrice: 13349 },
-            { id: "bm3", rank: 3, name: "터키 베이컨 아보카도", category: "샌드위치", sales: 2340000, orders: 172, avgPrice: 13605 },
-            { id: "bm4", rank: 4, name: "써브웨이 클럽", category: "샌드위치", sales: 2030000, orders: 150, avgPrice: 13533 },
-            { id: "bm5", rank: 5, name: "스파이시 이탈리안", category: "샌드위치", sales: 1780000, orders: 131, avgPrice: 13588 },
-            { id: "bm6", rank: 6, name: "치킨 샐러드", category: "샐러드", sales: 1450000, orders: 116, avgPrice: 12500 },
-            { id: "bm7", rank: 7, name: "터키 샐러드", category: "샐러드", sales: 1230000, orders: 101, avgPrice: 12178 },
-            { id: "bm8", rank: 8, name: "참치 샐러드", category: "샐러드", sales: 1010000, orders: 85, avgPrice: 11882 },
-            { id: "bm9", rank: 9, name: "쿠키 세트", category: "사이드", sales: 980000, orders: 195, avgPrice: 5026 },
-            { id: "bm10", rank: 10, name: "음료 세트", category: "사이드", sales: 850000, orders: 213, avgPrice: 3991 }
-        ];
+                <div class="filter-group hidden-group" id="specific-menu-filter">
+                    <span class="label ml-4">타겟 메뉴:</span>
+                    <select id="mainCategorySelect" class="sort-btn bg-white">
+                        <option value="1">샌드위치</option>
+                        <option value="2">샐러드</option>
+                        <option value="3">사이드</option>
+                        <option value="4">음료/수프</option>
+                    </select>
+                    <select id="menuSelect" class="sort-btn bg-white">
+                        <option value="1001">잠봉 플러스</option>
+                        <option value="1008">에그마요</option>
+                        <option value="1006">이탈리안 비엠티</option>
+                    </select>
+                </div>
 
-        // 워스트셀러 BOTTOM 10
-        const worstMenus = [
-            { id: "wm1", rank: 41, name: "베지 디럭스", category: "샌드위치", sales: 85000, orders: 7, avgPrice: 12143 },
-            { id: "wm2", rank: 42, name: "에그마요 샌드위치", category: "샌드위치", sales: 78000, orders: 6, avgPrice: 13000 },
-            { id: "wm3", rank: 43, name: "할라피뇨 샌드위치", category: "샌드위치", sales: 68000, orders: 5, avgPrice: 13600 },
-            { id: "wm4", rank: 44, name: "스테이크 샐러드", category: "샐러드", sales: 52000, orders: 4, avgPrice: 13000 },
-            { id: "wm5", rank: 45, name: "새우 샐러드", category: "샐러드", sales: 38000, orders: 3, avgPrice: 12667 },
-            { id: "wm6", rank: 46, name: "올리브 샌드위치", category: "샌드위치", sales: 26000, orders: 2, avgPrice: 13000 },
-            { id: "wm7", rank: 47, name: "비프 샐러드", category: "샐러드", sales: 13000, orders: 1, avgPrice: 13000 },
-            { id: "wm8", rank: 48, name: "피클 칩스", category: "사이드", sales: 9500, orders: 2, avgPrice: 4750 },
-            { id: "wm9", rank: 49, name: "크림 수프", category: "사이드", sales: 5000, orders: 1, avgPrice: 5000 },
-            { id: "wm10", rank: 50, name: "치아바타 샌드위치", category: "샌드위치", sales: 0, orders: 0, avgPrice: 0 }
-        ];
+                <div class="filter-group ml-auto">
+                    <span class="label">정렬기준:</span>
+                    <button class="sort-btn active" data-sort="sales">매출액 순</button>
+                    <button class="sort-btn" data-sort="quantity">주문/판매량 순</button>
+                </div>
+            </div>
+        </section>
 
-        // 최고 매출 요일/시간대
-        const topDayTimeSlots = [
-            { id: "dt1", rank: 1, day: "금요일", timeSlot: "12:00-13:00", sales: 880000, orders: 65 },
-            { id: "dt2", rank: 2, day: "토요일", timeSlot: "18:00-19:00", sales: 820000, orders: 61 },
-            { id: "dt3", rank: 3, day: "금요일", timeSlot: "18:00-19:00", sales: 790000, orders: 59 },
-            { id: "dt4", rank: 4, day: "목요일", timeSlot: "12:00-13:00", sales: 765000, orders: 56 },
-            { id: "dt5", rank: 5, day: "토요일", timeSlot: "12:00-13:00", sales: 740000, orders: 54 }
-        ];
+        <nav class="rank-tabs" aria-label="랭킹 종류">
+            <a class="rank-tab active" data-rank-type="branch">지점 종합 랭킹</a>
+            <a class="rank-tab" data-rank-type="menu">전사 메뉴별 랭킹</a>
+            <a class="rank-tab" data-rank-type="specific_menu">특정 메뉴 집중 분석</a>
+            <a class="rank-tab" data-rank-type="trend">전사 트렌드 (시간/요일)</a>
+        </nav>
 
-        // 최고 매출일
-        const topDates = [
-            { id: "td1", rank: 1, date: "2026-03-15", day: "토요일", sales: 1850000, orders: 145, note: "화이트데이 프로모션" },
-            { id: "td2", rank: 2, date: "2026-03-22", day: "토요일", sales: 1780000, orders: 138, note: "주말 특가" },
-            { id: "td3", rank: 3, date: "2026-03-08", day: "토요일", sales: 1720000, orders: 132, note: "3월 프로모션" },
-            { id: "td4", rank: 4, date: "2026-03-29", day: "토요일", sales: 1690000, orders: 128, note: "월말 세일" },
-            { id: "td5", rank: 5, date: "2026-03-01", day: "토요일", sales: 1650000, orders: 125, note: "월초 특가" }
-        ];
+        <section class="grid">
+            <article class="panel">
+                <div class="panel-head">
+                    <div class="panel-title" id="best-title"></div>
+                    <span class="badge green">TOP 10</span>
+                </div>
+                <div class="rank-list" id="best-list">
+                    <div class="no-data">조회된 데이터가 없습니다.</div>
+                </div>
+            </article>
 
-        let currentSortBy = 'sales';
-        let currentViewMode = 'menus';
+            <article class="panel orange">
+                <div class="panel-head">
+                    <div class="panel-title" id="worst-title"></div>
+                    <span class="badge orange">WORST 10</span>
+                </div>
+                <div class="rank-list" id="worst-list">
+                    <div class="no-data">조회된 데이터가 없습니다.</div>
+                </div>
+            </article>
+        </section>
+    </main>
+</div>
 
-        // 포맷 함수
-        function formatCurrency(value) {
-            return "₩" + value.toLocaleString();
-        }
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        flatpickr.localize(flatpickr.l10ns.ko);
 
-        // 정렬 기준 설정
-        function setSortBy(sortType) {
-            currentSortBy = sortType;
-            document.querySelectorAll('.sortBtn').forEach(btn => {
-                if (btn.dataset.sort === sortType) {
-                    btn.classList.remove('border-gray-200', 'text-gray-700', 'hover:border-gray-300');
-                    btn.classList.add('border-[#00853D]', 'bg-[#00853D]/5', 'text-[#00853D]');
-                } else {
-                    btn.classList.remove('border-[#00853D]', 'bg-[#00853D]/5', 'text-[#00853D]');
-                    btn.classList.add('border-gray-200', 'text-gray-700', 'hover:border-gray-300');
-                }
-            });
-            renderContent();
-        }
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-        // 뷰 모드 설정
-        function setViewMode(mode) {
-            currentViewMode = mode;
-            document.querySelectorAll('.viewModeBtn').forEach(btn => {
-                if (btn.dataset.mode === mode) {
-                    btn.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-                    btn.classList.add('bg-[#00853D]', 'text-white');
-                } else {
-                    btn.classList.remove('bg-[#00853D]', 'text-white');
-                    btn.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-                }
-            });
-            renderContent();
-        }
-
-        // 콘텐츠 렌더링
-        function renderContent() {
-            const contentArea = document.getElementById("contentArea");
-
-            if (currentViewMode === 'menus') {
-                renderMenusView();
-            } else if (currentViewMode === 'timeDate') {
-                renderTimeDateView();
-            }
-        }
-
-        // 메뉴별 뷰
-        function renderMenusView() {
-            const bestMenusHtml = bestMenus.map(menu => {
-                return "<div class=\"flex items-center justify-between p-2 rounded-lg border border-gray-200 hover:border-[#00853D] hover:bg-[#00853D]/5 transition-all\">" +
-                    "<div class=\"flex items-center gap-2 flex-1\">" +
-                    "<span class=\"font-bold text-[#00853D] text-sm w-5\">" + menu.rank + "</span>" +
-                    "<div class=\"flex-1\">" +
-                    "<h3 class=\"font-semibold text-sm text-gray-900\">" + menu.name + "</h3>" +
-                    "<p class=\"text-xs text-gray-500\">" + menu.category + " · " + menu.orders + "건 판매</p>" +
-                    "</div>" +
-                    "</div>" +
-                    "<div class=\"text-right\">" +
-                    "<p class=\"font-bold text-sm text-gray-900\">" + formatCurrency(menu.sales) + "</p>" +
-                    "</div>" +
-                    "</div>";
-            }).join("");
-
-            const worstMenusHtml = worstMenus.map(menu => {
-                return "<div class=\"flex items-center justify-between p-2 rounded-lg border border-orange-200 bg-orange-50/30 hover:bg-orange-50 transition-all\">" +
-                    "<div class=\"flex items-center gap-2 flex-1\">" +
-                    "<span class=\"font-bold text-orange-600 text-sm w-5\">" + menu.rank + "</span>" +
-                    "<div class=\"flex-1\">" +
-                    "<h3 class=\"font-semibold text-sm text-gray-900\">" + menu.name + "</h3>" +
-                    "<p class=\"text-xs text-gray-500\">" + menu.category + " · " + menu.orders + "건만 판매</p>" +
-                    "</div>" +
-                    "</div>" +
-                    "<div class=\"text-right\">" +
-                    "<p class=\"font-bold text-sm text-orange-600\">" + formatCurrency(menu.sales) + "</p>" +
-                    "</div>" +
-                    "</div>";
-            }).join("");
-
-            document.getElementById("bestMenusList").innerHTML = bestMenusHtml;
-            document.getElementById("worstMenusList").innerHTML = worstMenusHtml;
-        }
-
-        // 시간대/일자 뷰
-        function renderTimeDateView() {
-            const contentArea = document.getElementById("contentArea");
-
-            const slotTableRows = topDayTimeSlots.map(slot => {
-                return "<tr class=\"border-b border-gray-100 hover:bg-gray-50\">" +
-                    "<td class=\"px-2 py-2\">" +
-                    "<span class=\"inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#00853D]/10 text-[#00853D] text-xs font-bold\">" + slot.rank + "</span>" +
-                    "</td>" +
-                    "<td class=\"px-2 py-2 font-semibold text-sm text-gray-900\">" + slot.day + "</td>" +
-                    "<td class=\"px-2 py-2 text-sm text-gray-900\">" + slot.timeSlot + "</td>" +
-                    "<td class=\"px-2 py-2 text-right font-bold text-sm text-gray-900\">" + formatCurrency(slot.sales) + "</td>" +
-                    "<td class=\"px-2 py-2 text-right text-sm text-gray-600\">" + slot.orders + "건</td>" +
-                    "</tr>";
-            }).join("");
-
-            const dateTableRows = topDates.map(date => {
-                const badge = date.rank === 1 ? "🥇" : (date.rank === 2 ? "🥈" : (date.rank === 3 ? "🥉" : date.rank));
-                return "<tr class=\"border-b border-gray-100 hover:bg-gray-50\">" +
-                    "<td class=\"px-2 py-2\">" +
-                    "<span class=\"inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#FFD100]/20 text-sm font-bold\">" + badge + "</span>" +
-                    "</td>" +
-                    "<td class=\"px-2 py-2 text-xs text-gray-900\">" + date.date + "</td>" +
-                    "<td class=\"px-2 py-2 font-semibold text-sm text-gray-900\">" + date.day + "</td>" +
-                    "<td class=\"px-2 py-2 text-right font-bold text-sm text-gray-900\">" + formatCurrency(date.sales) + "</td>" +
-                    "<td class=\"px-2 py-2 text-right text-sm text-gray-600\">" + date.orders + "건</td>" +
-                    "<td class=\"px-2 py-2\">" +
-                    "<span class=\"inline-block px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full\">" + date.note + "</span>" +
-                    "</td>" +
-                    "</tr>";
-            }).join("");
-
-            contentArea.innerHTML = 
-                "<div class=\"grid grid-cols-1 lg:grid-cols-2 gap-6\">" +
-                "<div class=\"bg-white rounded-lg border border-gray-200 p-4\">" +
-                "<div class=\"flex items-center gap-2 mb-3\">" +
-                "<i class=\"fas fa-clock w-4 h-4 text-[#00853D]\"></i>" +
-                "<h2 class=\"text-base font-semibold text-gray-900\">최고 매출 요일/시간대 순위</h2>" +
-                "<span class=\"ml-auto text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium\">알바생 스케줄 참고</span>" +
-                "</div>" +
-                "<div class=\"overflow-x-auto\">" +
-                "<table class=\"w-full\">" +
-                "<thead class=\"bg-gray-50 border-b border-gray-200\">" +
-                "<tr>" +
-                "<th class=\"px-2 py-2 text-left text-xs font-semibold text-gray-900\">순위</th>" +
-                "<th class=\"px-2 py-2 text-left text-xs font-semibold text-gray-900\">요일</th>" +
-                "<th class=\"px-2 py-2 text-left text-xs font-semibold text-gray-900\">시간대</th>" +
-                "<th class=\"px-2 py-2 text-right text-xs font-semibold text-gray-900\">매출액</th>" +
-                "<th class=\"px-2 py-2 text-right text-xs font-semibold text-gray-900\">주문수</th>" +
-                "</tr>" +
-                "</thead>" +
-                "<tbody class=\"divide-y divide-gray-200\">" + slotTableRows + "</tbody>" +
-                "</table>" +
-                "</div>" +
-                "</div>" +
-                "<div class=\"bg-white rounded-lg border border-gray-200 p-4\">" +
-                "<div class=\"flex items-center gap-2 mb-3\">" +
-                "<i class=\"fas fa-calendar w-4 h-4 text-[#FFD100]\"></i>" +
-                "<h2 class=\"text-base font-semibold text-gray-900\">최고 매출일 Top 5</h2>" +
-                "</div>" +
-                "<div class=\"overflow-x-auto\">" +
-                "<table class=\"w-full\">" +
-                "<thead class=\"bg-gray-50 border-b border-gray-200\">" +
-                "<tr>" +
-                "<th class=\"px-2 py-2 text-left text-xs font-semibold text-gray-900\">순위</th>" +
-                "<th class=\"px-2 py-2 text-left text-xs font-semibold text-gray-900\">날짜</th>" +
-                "<th class=\"px-2 py-2 text-left text-xs font-semibold text-gray-900\">요일</th>" +
-                "<th class=\"px-2 py-2 text-right text-xs font-semibold text-gray-900\">매출액</th>" +
-                "<th class=\"px-2 py-2 text-right text-xs font-semibold text-gray-900\">주문수</th>" +
-                "<th class=\"px-2 py-2 text-left text-xs font-semibold text-gray-900\">비고</th>" +
-                "</tr>" +
-                "</thead>" +
-                "<tbody class=\"divide-y divide-gray-200\">" + dateTableRows + "</tbody>" +
-                "</table>" +
-                "</div>" +
-                "</div>" +
-                "</div>";
-        }
-
-        // 사이드바 토글
-        function toggleSidebar() {
-            const sidebar = document.getElementById("sidebar");
-            const backdrop = document.getElementById("sidebarBackdrop");
-            
-            if (sidebar.classList.contains("-translate-x-full")) {
-                sidebar.classList.remove("-translate-x-full");
-                backdrop.classList.remove("hidden");
-            } else {
-                sidebar.classList.add("-translate-x-full");
-                backdrop.classList.add("hidden");
-            }
-        }
-
-        // 메뉴 토글
-        function toggleMenu(button) {
-            const submenu = button.nextElementSibling;
-            const chevron = button.querySelector("i.fa-chevron-right") || button.querySelector("i.fa-chevron-down");
-            
-            submenu.classList.toggle("hidden");
-            if (chevron) {
-                if (submenu.classList.contains("hidden")) {
-                    chevron.classList.remove("fa-chevron-down");
-                    chevron.classList.add("fa-chevron-right");
-                } else {
-                    chevron.classList.add("fa-chevron-down");
-                    chevron.classList.remove("fa-chevron-right");
-                }
-            }
-        }
-
-        // 사용자 메뉴 토글
-        function toggleUserMenu() {
-            const userMenu = document.getElementById("userMenu");
-            userMenu.classList.toggle("hidden");
-        }
-
-        // 사용자 메뉴 외부 클릭시 닫기
-        document.addEventListener("click", function(e) {
-            const userMenuBtn = document.getElementById("userMenuBtn");
-            const userMenu = document.getElementById("userMenu");
-            
-            if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
-                userMenu.classList.add("hidden");
-            }
+        const periodStartPicker = flatpickr("#period-start", {
+            defaultDate: thirtyDaysAgo,
+            dateFormat: "Y-m-d",
+            onChange: () => fetchData()
+        });
+        const periodEndPicker = flatpickr("#period-end", {
+            defaultDate: "today",
+            dateFormat: "Y-m-d",
+            onChange: () => fetchData()
         });
 
-        // 사이드바 배경 클릭시 닫기
-        document.getElementById("sidebarBackdrop").addEventListener("click", toggleSidebar);
+        const sortButtons = document.querySelectorAll('.sort-btn[data-sort]');
+        const rankTabs = document.querySelectorAll('.rank-tab');
+        const specificMenuFilter = document.getElementById('specific-menu-filter');
+        const mainCategorySelect = document.getElementById('mainCategorySelect');
+        const menuSelect = document.getElementById('menuSelect');
 
-        // 로그아웃 함수
-        function logout() {
-            alert("로그아웃 되었습니다.");
-            window.location.href = "<%= request.getContextPath() %>/common/login.jsp";
+        const bestList = document.getElementById('best-list');
+        const worstList = document.getElementById('worst-list');
+        const bestTitle = document.getElementById('best-title');
+        const worstTitle = document.getElementById('worst-title');
+
+        let currentSort = 'sales';
+        let currentRankType = 'branch';
+
+        function updateTitles() {
+            const sortText = currentSort === 'sales' ? '매출액' : '판매량';
+            let prefix = '';
+
+            if (currentRankType === 'branch') {
+                prefix = '지점 종합';
+            } else if (currentRankType === 'menu') {
+                prefix = '전사 메뉴';
+            } else if (currentRankType === 'specific_menu') {
+                const selectedMenuText = menuSelect.options[menuSelect.selectedIndex].text;
+                prefix = '[' + selectedMenuText + '] 판매 지점';
+            } else if (currentRankType === 'trend') {
+                prefix = '피크/데드 타임';
+            }
+
+            bestTitle.textContent = prefix + ' ' + sortText + ' TOP 10';
+            worstTitle.textContent = prefix + ' ' + sortText + ' WORST 10';
         }
 
-        // 초기 렌더링
-        renderContent();
-    </script>
+        function renderList(container, data) {
+            container.innerHTML = '';
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="no-data">조회된 데이터가 없습니다.</div>';
+                return;
+            }
+
+            const formatValue = (value) => {
+                const numValue = Number(value);
+                return currentSort === 'sales'
+                    ? '₩' + Math.round(numValue).toLocaleString('ko-KR')
+                    : numValue.toLocaleString('ko-KR') + '건(개)';
+            };
+
+            const itemsHtml = data.map((item, index) => {
+                const rank = index + 1;
+                return (
+                    '<div class="rank-item">' +
+                    '<div class="rank-no">' + rank + '</div>' +
+                    '<div class="item-main">' +
+                    '<div class="item-name">' + item.name + '</div>' +
+                    '</div>' +
+                    '<div class="item-value">' + formatValue(item.value) + '</div>' +
+                    '</div>'
+                );
+            }).join('');
+            container.innerHTML = itemsHtml;
+        }
+
+        function fetchData() {
+            updateTitles();
+
+            bestList.innerHTML = '<div class="no-data">데이터를 분석 중입니다...</div>';
+            worstList.innerHTML = '<div class="no-data">데이터를 분석 중입니다...</div>';
+
+            setTimeout(() => {
+                const mockData = generateMockData(currentRankType, currentSort, mainCategorySelect.value, menuSelect.value);
+                renderList(bestList, mockData.top10);
+                renderList(worstList, mockData.worst10);
+            }, 300);
+        }
+
+        function generateMockData(rankType, sort, categoryId, menuId) {
+            const top10 = [];
+            const worst10 = [];
+
+            let bestNames = [], worstNames = [];
+
+            if (rankType === 'branch') {
+                bestNames = ['강남점', '수원점', '홍대점', '대구점', '서면점', '대전점', '울산점', '제주점', '해운대점', '천안점'];
+                worstNames = ['조치원점', '아산점', '강릉점', '진주점', '구미점', '충주점', '순천점', '여수점', '군산점', '포항점'];
+            } else if (rankType === 'menu') {
+                bestNames = ['잠봉 플러스', '에그마요', '이탈리안 비엠티', '스테이크&치즈', '로스트 치킨', '베이컨 치즈 웨지', '참치', '쉬림프', '아메리카노', '쿠키 세트'];
+                worstNames = ['베지', '오트밀 레이즌', '미니 로티세리', '칩', '초코칩', '라즈베리 치즈케익', '에그 슬라이스', '햄', '스파이시 이탈리안', '터키'];
+            } else if (rankType === 'specific_menu') {
+                bestNames = ['강남점', '홍대점', '수원점', '대전점', '대구점', '인천점', '성남점', '천안점', '서면점', '울산점'];
+                worstNames = ['조치원점', '아산점', '강릉점', '진주점', '구미점', '충주점', '순천점', '여수점', '군산점', '포항점'];
+            } else if (rankType === 'trend') {
+                bestNames = ['금요일 18시~20시', '목요일 12시~14시', '토요일 13시~15시', '수요일 18시~20시', '금요일 12시~14시', '화요일 12시~14시', '일요일 14시~16시', '목요일 18시~20시', '월요일 12시~14시', '토요일 18시~20시'];
+                worstNames = ['월요일 15시~17시', '화요일 15시~17시', '수요일 15시~17시', '목요일 15시~17시', '월요일 10시~11시', '화요일 10시~11시', '수요일 10시~11시', '목요일 10시~11시', '금요일 10시~11시', '일요일 10시~11시'];
+            }
+
+            for (let i = 0; i < 10; i++) {
+                top10.push({
+                    name: bestNames[i],
+                    value: sort === 'sales' ? Math.floor(Math.random() * 5000000) + 10000000 : Math.floor(Math.random() * 1500) + 1000
+                });
+                worst10.push({
+                    name: worstNames[i],
+                    value: sort === 'sales' ? Math.floor(Math.random() * 800000) + 200000 : Math.floor(Math.random() * 50) + 20
+                });
+            }
+
+            top10.sort((a, b) => b.value - a.value);
+            worst10.sort((a, b) => a.value - b.value);
+
+            return { top10, worst10 };
+        }
+
+        sortButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentSort = btn.dataset.sort;
+                sortButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                fetchData();
+            });
+        });
+
+        rankTabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                currentRankType = tab.dataset.rankType;
+                rankTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                if (currentRankType === 'specific_menu') {
+                    specificMenuFilter.classList.remove('hidden-group');
+                } else {
+                    specificMenuFilter.classList.add('hidden-group');
+                }
+
+                fetchData();
+            });
+        });
+
+        mainCategorySelect.addEventListener('change', fetchData);
+        menuSelect.addEventListener('change', fetchData);
+
+        fetchData();
+    });
+</script>
 </body>
 </html>
-
-

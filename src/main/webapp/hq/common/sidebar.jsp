@@ -201,7 +201,7 @@
         <div class="submenu <%= hrGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
             <a href="<%= cp %>/hq/hr/employee" class="block px-4 py-2 rounded-lg text-sm <%= hrInquiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사/지점 직원 통합 조회</a>
             <a href="<%= cp %>/hq/hr/main" class="block px-4 py-2 rounded-lg text-sm <%= permissionsActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">계정/권한 관리</a>
-            <a href="<%= cp %>/hq/hr/schedule" class="block px-4 py-2 rounded-lg text-sm <%= employeeScheduleActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">직원 일정 관리</a>
+            <a href="<%= cp %>/hq/hr/employee-schedule-management.jsp" class="block px-4 py-2 rounded-lg text-sm <%= employeeScheduleActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">직원 일정 관리</a>
         </div>
     </nav>
     <div class="mt-auto p-4 border-t border-gray-200 bg-white">

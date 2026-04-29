@@ -14,26 +14,26 @@ public class EmployeeServiceImpl implements EmployeeService {
 	}
 
 	@Override
-	public Integer selectEmpCnt() throws Exception {
-		Integer cnt = employeeDao.selectEmpCnt();
+	public Integer selectEmpCnt(Integer branchCode) throws Exception {
+		Integer cnt = employeeDao.selectEmpCnt(branchCode);
 		return cnt;
 	}
 
 	@Override
-	public Integer selectHqEmpCnt() throws Exception {
-		Integer cnt = employeeDao.selectHqEmpCnt();
+	public Integer selectHqEmpCnt(Integer branchCode) throws Exception {
+		Integer cnt = employeeDao.selectHqEmpCnt(branchCode);
 		return cnt;
 	}
 
 	@Override
-	public Integer selectPTMCnt() throws Exception {
-		Integer cnt = employeeDao.selectPTMCnt();
+	public Integer selectPTMCnt(Integer branchCode) throws Exception {
+		Integer cnt = employeeDao.selectPTMCnt(branchCode);
 		return cnt;
 	}
 
 	@Override
-	public List<EmployeeDTO> searchEmployeeList(EmployeeDTO employee) throws Exception {
-		List<EmployeeDTO> emp = employeeDao.selectEmployeeList(employee);
+	public List<EmployeeDTO> searchEmployeeList(Integer branchCode) throws Exception {
+		List<EmployeeDTO> emp = employeeDao.selectEmployeeList(branchCode);
 		return emp;
 	}
 

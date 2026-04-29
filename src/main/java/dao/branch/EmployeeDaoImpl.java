@@ -10,11 +10,11 @@ import util.MyBatisSqlSessionFactory;
 public class EmployeeDaoImpl implements EmployeeDao {
 	// 직원 현황 대시보드
 	@Override
-	public Integer selectEmpCnt() throws Exception {
+	public Integer selectEmpCnt(Integer branchCode) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		Integer cnt = null;
 		try {
-			cnt = sqlSession.selectOne("mapper.employee.selectEmpCnt");
+			cnt = sqlSession.selectOne("mapper.branch.employee.selectEmpCnt", branchCode);
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -25,11 +25,11 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	}
 
 	@Override
-	public Integer selectHqEmpCnt() throws Exception {
+	public Integer selectHqEmpCnt(Integer branchCode) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		Integer cnt = null;
 		try {
-			cnt = sqlSession.selectOne("mapper.employee.selectHqEmpCnt");
+			cnt = sqlSession.selectOne("mapper.branch.employee.selectHqEmpCnt", branchCode);
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -40,11 +40,11 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	}
 
 	@Override
-	public Integer selectPTMCnt() throws Exception {
+	public Integer selectPTMCnt(Integer branchCode) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		Integer cnt = null;
 		try {
-			cnt = sqlSession.selectOne("mapper.employee.selectPTMCnt");
+			cnt = sqlSession.selectOne("mapper.branch.employee.selectPTMCnt", branchCode);
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -55,11 +55,11 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	}
 
 	@Override
-	public List<EmployeeDTO> selectEmployeeList(EmployeeDTO employee) throws Exception {
+	public List<EmployeeDTO> selectEmployeeList(Integer branchCode) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		List<EmployeeDTO> emp = null;
 		try {
-			emp = sqlSession.selectList("mapper.employee.selectEmployeeList", employee);
+			emp = sqlSession.selectList("mapper.branch.employee.selectEmployeeList", branchCode);
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -73,7 +73,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	public void insertEmployee(EmployeeDTO employee) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		try {
-			sqlSession.insert("mapper.employee.insertEmployee", employee);
+			sqlSession.insert("mapper.branch.employee.insertEmployee", employee);
 			sqlSession.commit();
 		} catch(Exception e) {
 			sqlSession.rollback();
@@ -86,7 +86,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	@Override
 	public EmployeeDTO selectEmployee(Integer empNo) throws Exception {
 		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-			return sqlSession.selectOne("mapper.employee.selectEmployee", empNo);
+			return sqlSession.selectOne("mapper.branch.employee.selectEmployee", empNo);
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -96,7 +96,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	@Override
 	public EmployeeDTO selectEmployeeByPhone(EmployeeDTO employee) throws Exception {
 		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-			return sqlSession.selectOne("mapper.employee.selectEmployeeByPhone", employee);
+			return sqlSession.selectOne("mapper.branch.employee.selectEmployeeByPhone", employee);
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -107,7 +107,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
 	public void updateEmployee(EmployeeDTO employee) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		try {
-			sqlSession.update("mapper.employee.updateEmployee", employee);
+			sqlSession.update("mapper.branch.employee.updateEmployee", employee);
 			sqlSession.commit();
 		} catch(Exception e) {
 			sqlSession.rollback();
