@@ -32,7 +32,7 @@
 			AND m.material_name = #{itemName}
 		</if>
 		GROUP BY bs.branch_stock_code, bs.material_code, mg.group_name, m.material_name, m.unit, bmss.safe_stock_qty
-		ORDER BY mg.group_name, m.material_name
+		ORDER BY bs.material_code
 	</select>
 	
 <!-- 특정 지점의 특정 품목의 안전재고 INESRT + UPDATE (UPSERT) -->
@@ -45,7 +45,7 @@
 -->
 	<insert id="insertSafetyStock" parameterType="map">
 		INSERT INTO branch_material_safety_stock (branch_code, material_code, safe_stock_qty)
-		VALUES (#{branchCode}, #{materialCode}, #{safeStockQty})
+			VALUES (#{branchCode}, #{materialCode}, #{safeStockQty})
 		ON DUPLICATE KEY UPDATE safe_stock_qty = VALUES(safe_stock_qty)
 	</insert>
 

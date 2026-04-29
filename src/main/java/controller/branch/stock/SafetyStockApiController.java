@@ -19,6 +19,8 @@ import dao.branch.stock.BranchSafetyStockDao;
 import dao.branch.stock.BranchSafetyStockDaoImpl;
 import dto.AccountDTO;
 import dto.branch.stock.BranchSafetyStockRowDTO;
+import service.branch.stock.SafetyStockService;
+import service.branch.stock.SafetyStockServiceImpl;
 import util.GsonFactory;
 
 @WebServlet("/api/branch/stock/safety_stock")
@@ -26,6 +28,7 @@ public class SafetyStockApiController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private final BranchSafetyStockDao branchSafetyStockDao = new BranchSafetyStockDaoImpl();
+	private final SafetyStockService service = new SafetyStockServiceImpl();
 	private final Gson gson = GsonFactory.getGson();
 
 	@Override
@@ -43,7 +46,7 @@ public class SafetyStockApiController extends HttpServlet {
 			String itemName = request.getParameter("item");
 			
 			// 지점코드, 카테고리명, 품목명에 해당되는 DB 데이터 가져오기
-			List<BranchSafetyStockRowDTO> rows = branchSafetyStockDao.selectSafetyStocks(resolveBranchCode(loginUser), categoryName, itemName);
+			List<BranchSafetyStockRowDTO> rows = service.selectSafetyStocks(resolveBranchCode(loginUser), categoryName, itemName);
 			response.getWriter().write(gson.toJson(successBody(rows)));
 			
 		} catch (Exception e) {
@@ -77,7 +80,7 @@ public class SafetyStockApiController extends HttpServlet {
 			}
 			
 			// 지점코드, 품목번호에 해당하는 데이터 row의 안전재고를 safeStockQty로 업데이트
-			int updated = branchSafetyStockDao.updateSafetyStock(resolveBranchCode(loginUser), materialCode, safeStockQty);
+			int updated = service.updateSafetyStock(resolveBranchCode(loginUser), materialCode, safeStockQty);
 			
 			response.setStatus(updated > 0 ? 200 : 400);
 			response.getWriter().write(gson.toJson(updated > 0 ? successBodyWithMessage("저장되었습니다.") : failBody("저장 실패")));
