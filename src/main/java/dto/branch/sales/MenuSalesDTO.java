@@ -1,12 +1,21 @@
 package dto.branch.sales;
 
 public class MenuSalesDTO {
+    private String recipeCode; // Added recipeCode field
     private String menuName;
     private int quantity;
     private long totalSales;
     private double salesShare;
 
     // Getters and Setters
+    public String getRecipeCode() {
+        return recipeCode;
+    }
+
+    public void setRecipeCode(String recipeCode) {
+        this.recipeCode = recipeCode;
+    }
+
     public String getMenuName() {
         return menuName;
     }
@@ -42,7 +51,8 @@ public class MenuSalesDTO {
     @Override
     public String toString() {
         return "MenuSalesDTO{" +
-                "menuName='" + menuName + '\'' +
+                "recipeCode='" + recipeCode + '\'' +
+                ", menuName='" + menuName + '\'' +
                 ", quantity=" + quantity +
                 ", totalSales=" + totalSales +
                 ", salesShare=" + salesShare +

@@ -29,29 +29,29 @@
     <select id="getDailySales" resultType="dto.branch.sales.DailySalesDTO" parameterType="map">
         WITH DailySummaries AS (
             SELECT
-                order_date,
-                SUM(total_amount) AS dailyTotalSales,
-                COUNT(*) AS dailyTotalOrders
+                DATE(order_date) AS sale_date,
+                SUM(total_amount) AS daily_total_sales,
+                COUNT(*) AS daily_total_orders
             FROM
                 orders
             WHERE
                 status = 'PAID'
-              AND order_date BETWEEN #{startDate} AND #{endDate}
+              AND DATE(order_date) BETWEEN #{startDate} AND #{endDate}
               <if test="branchCode != null and branchCode != 'all'">
                 AND branch_code = #{branchCode}
               </if>
             GROUP BY
-                order_date
+                sale_date
         )
         SELECT
-            ds.order_date AS saleDate,
-            ds.dailyTotalSales AS totalSales,
-            ds.dailyTotalOrders AS totalOrders,
-            SUM(ds.dailyTotalSales) OVER (ORDER BY ds.order_date) AS cumulativeSales
+            ds.sale_date AS sale_date,
+            ds.daily_total_sales AS total_sales,
+            ds.daily_total_orders AS total_orders,
+            SUM(ds.daily_total_sales) OVER (ORDER BY ds.sale_date) AS cumulative_sales
         FROM
             DailySummaries ds
         ORDER BY
-            ds.order_date ASC;
+            ds.sale_date ASC;
     </select>
 
     <!--
@@ -61,13 +61,13 @@
     <select id="getHourlySales" resultType="dto.branch.sales.HourlySalesDTO" parameterType="map">
         SELECT
             HOUR(created_at) AS hour,
-            SUM(total_amount) AS totalSales,
-            COUNT(*) AS totalOrders
+            SUM(total_amount) AS total_sales,
+            COUNT(*) AS total_orders
         FROM
             orders
         WHERE
             status = 'PAID'
-          AND order_date = #{targetDate}
+          AND DATE(order_date) = #{targetDate}
           <if test="branchCode != null and branchCode != 'all'">
             AND branch_code = #{branchCode}
           </if>
@@ -79,27 +79,181 @@
 
     <!--
         ID: getMenuSales
-        - 특정 날짜의 메뉴별 매출 데이터를 조회
+        - 특정 날짜와 카테고리의 메뉴별 매출 데이터를 조회
     -->
     <select id="getMenuSales" resultType="dto.branch.sales.MenuSalesDTO" parameterType="map">
         SELECT
-            r.name AS menuName,
+            r.name AS menu_name,
             SUM(om.qty) AS quantity,
-            SUM(om.line_total_amount) AS totalSales
+            SUM(om.line_total_amount) AS total_sales
         FROM
             orders o
                 JOIN order_menu om ON o.order_id = om.order_id
                 JOIN recipe r ON om.recipe_code = r.recipe_code
         WHERE
             o.status = 'PAID'
-          AND o.order_date = #{targetDate}
+          AND DATE(o.order_date) = #{targetDate}
           <if test="branchCode != null and branchCode != 'all'">
             AND o.branch_code = #{branchCode}
+          </if>
+          <if test="categoryId != null and categoryId != 0">
+            AND r.category_id = #{categoryId}
+          </if>
+          <if test="subCategoryCode != null and subCategoryCode != '' and subCategoryCode != 'all'">
+            AND r.sub_category_code = #{subCategoryCode}
           </if>
         GROUP BY
             r.name
         ORDER BY
-            totalSales DESC;
+            total_sales DESC;
+    </select>
+
+    <!--
+        ID: getHeadquartersSalesSummary
+        - 본사 매출 요약 정보를 조회 (전지점 통합)
+    -->
+    <select id="getHeadquartersSalesSummary" resultType="dto.hq.sales.HqSalesSummaryDTO" parameterType="map">
+        SELECT
+            COALESCE((
+                SELECT SUM(total_amount)
+                FROM orders
+                WHERE status = 'PAID'
+                  AND DATE(order_date) = #{targetDate}
+            ), 0) AS total_sales,
+            COALESCE((
+                SELECT COUNT(DISTINCT order_id)
+                FROM orders
+                WHERE status = 'PAID'
+                  AND DATE(order_date) = #{targetDate}
+            ), 0) AS total_orders,
+            COALESCE((
+                SELECT r.name
+                FROM order_menu om
+                    JOIN recipe r ON om.recipe_code = r.recipe_code
+                    JOIN orders o ON o.order_id = om.order_id
+                WHERE o.status = 'PAID'
+                  AND DATE(o.order_date) = #{targetDate}
+                GROUP BY r.name
+                ORDER BY SUM(om.qty) DESC
+                LIMIT 1
+            ), 'N/A') AS popular_menu,
+            COALESCE((
+                SELECT SUM(total_amount)
+                FROM orders
+                WHERE status = 'PAID'
+                  AND MONTH(order_date) = MONTH(#{targetDate})
+                  AND YEAR(order_date) = YEAR(#{targetDate})
+            ), 0) AS monthly_cumulative_sales
+    </select>
+
+    <!--
+        ID: getTodaySalesSummary
+        - 오늘의 본사 매출 요약 정보를 조회 (전지점 통합)
+    -->
+    <select id="getTodaySalesSummary" resultType="dto.hq.sales.HqTodaySalesSummaryDTO" parameterType="map">
+        SELECT
+            COALESCE((
+                SELECT SUM(total_amount)
+                FROM orders
+                WHERE status = 'PAID'
+                  AND DATE(order_date) = #{targetDate}
+            ), 0) AS total_sales,
+            COALESCE((
+                SELECT COUNT(DISTINCT order_id)
+                FROM orders
+                WHERE status = 'PAID'
+                  AND DATE(order_date) = #{targetDate}
+            ), 0) AS total_orders,
+            COALESCE((
+                SELECT r.name
+                FROM order_menu om
+                    JOIN recipe r ON om.recipe_code = r.recipe_code
+                    JOIN orders o ON o.order_id = om.order_id
+                WHERE o.status = 'PAID'
+                  AND DATE(o.order_date) = #{targetDate}
+                GROUP BY r.name
+                ORDER BY SUM(om.qty) DESC
+                LIMIT 1
+            ), 'N/A') AS popular_menu,
+            COALESCE((
+                SELECT SUM(total_amount)
+                FROM orders
+                WHERE status = 'PAID'
+                  AND MONTH(order_date) = MONTH(#{targetDate})
+                  AND YEAR(order_date) = YEAR(#{targetDate})
+            ), 0) AS monthly_cumulative_sales
+    </select>
+
+    <!--
+        ID: getAllMainCategories
+        - 모든 메인 카테고리를 조회
+    -->
+    <select id="getAllMainCategories" resultType="dto.hq.sales.CategoryDTO">
+        SELECT
+            category_id AS category_id,
+            name
+        FROM
+            main_category
+        WHERE is_active = TRUE
+        ORDER BY
+            category_id;
+    </select>
+
+    <!--
+        ID: getSubCategoriesByMainCategory
+        - 특정 메인 카테고리에 속한 서브 카테고리를 조회
+    -->
+    <select id="getSubCategoriesByMainCategory" resultType="dto.hq.sales.SubCategoryDTO" parameterType="int">
+        SELECT
+            sub_category_code AS sub_category_code,
+            name
+        FROM
+            sub_category
+        WHERE
+            main_category_id = #{mainCategoryId}
+        ORDER BY
+            sub_category_code;
+    </select>
+
+    <select id="getMenusByCategory" resultType="dto.branch.sales.MenuSalesDTO" parameterType="map">
+        SELECT
+            recipe_code as recipe_code,
+            name as menu_name
+        FROM recipe
+        WHERE category_id = #{categoryId}
+        ORDER BY name;
+    </select>
+
+    <select id="getMenuSalesRanksByCategory" resultType="dto.hq.sales.MenuSalesRankDTO" parameterType="map">
+        SELECT
+            RANK() OVER (ORDER BY SUM(om.qty) DESC) AS `rank`,
+            r.name AS menu_name,
+            SUM(om.qty) AS quantity,
+            SUM(om.line_total_amount) AS total_sales
+        FROM orders o
+                 JOIN order_menu om ON o.order_id = om.order_id
+                 JOIN recipe r ON om.recipe_code = r.recipe_code
+        WHERE o.status = 'PAID'
+          AND DATE(o.order_date) = #{targetDate}
+          AND r.category_id = #{categoryId}
+        GROUP BY r.name
+        ORDER BY `rank`
+    </select>
+
+    <select id="getBranchSalesRanksByMenu" resultType="dto.hq.sales.BranchMenuSalesRankDTO" parameterType="map">
+        SELECT
+            RANK() OVER (ORDER BY SUM(om.qty) DESC) AS `rank`,
+            b.name AS branch_name,
+            SUM(om.qty) AS quantity,
+            SUM(om.line_total_amount) AS total_sales
+        FROM orders o
+                 JOIN order_menu om ON o.order_id = om.order_id
+                 JOIN branch b ON o.branch_code = b.branch_code
+        WHERE o.status = 'PAID'
+          AND DATE(o.order_date) BETWEEN #{startDate} AND #{endDate}
+          AND om.recipe_code = #{recipeCode}
+        GROUP BY b.name
+        ORDER BY `rank`
     </select>
 
 </mapper>
