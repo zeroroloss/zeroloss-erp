@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.hq.sales.SalesRankingMapper">
+
+    <select id="getSalesRanking" parameterType="map" resultType="dto.hq.sales.SalesRankingDto">
+        SELECT
+            RANK() OVER (ORDER BY SUM(om.line_total_amount) DESC) as rank,
+            b.name as branchName,
+            SUM(om.line_total_amount) as totalSales
+        FROM orders o
+                 JOIN branch b ON o.branch_code = b.branch_code
+                 JOIN order_menu om ON o.order_id = om.order_id
+        WHERE o.status = 'PAID'
+          AND DATE(o.order_date) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY b.name
+        ORDER BY totalSales DESC
+    </select>
+
+    <select id="getSalesQuantityRanking" parameterType="map" resultType="dto.hq.sales.SalesRankingDto">
+        SELECT
+            RANK() OVER (ORDER BY SUM(om.qty) DESC) as rank,
+            b.name as branchName,
+            SUM(om.qty) as totalQuantity
+        FROM orders o
+                 JOIN branch b ON o.branch_code = b.branch_code
+                 JOIN order_menu om ON o.order_id = om.order_id
+        WHERE o.status = 'PAID'
+          AND DATE(o.order_date) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY b.name
+        ORDER BY totalQuantity DESC
+    </select>
+</mapper>

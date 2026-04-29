@@ -157,7 +157,7 @@
         <div class="submenu <%= salesGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
             <a href="<%= cp %>/hq/sales/sales-headquarters.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesHeadquartersActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 매출 조회</a>
             <a href="<%= cp %>/hq/sales/sales-detail.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesDetailActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">직영점 매출 조회</a>
-            <a href="<%= cp %>/hq/sales/sales-ranking.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesRankingActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">매출 순위</a>
+            <a href="<%= cp %>/hq/sales/sales-ranking.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesRankingActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">전사 매출 랭킹</a>
         </div>
 
         <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= deliveryGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">

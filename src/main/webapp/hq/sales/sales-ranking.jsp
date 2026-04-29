@@ -229,8 +229,10 @@
                 return;
             }
 
-            const formatValue = (value) => {
-                const numValue = Number(value);
+            const formatValue = (item) => {
+                // 백엔드 연동 시 DTO 필드명에 맞게 매핑 (매출액: totalSales, 수량: totalQuantity)
+                const val = currentSort === 'sales' ? (item.totalSales || item.value) : (item.totalQuantity || item.value);
+                const numValue = Number(val || 0);
                 return currentSort === 'sales'
                     ? '₩' + Math.round(numValue).toLocaleString('ko-KR')
                     : numValue.toLocaleString('ko-KR') + '건(개)';
@@ -238,13 +240,16 @@
 
             const itemsHtml = data.map((item, index) => {
                 const rank = index + 1;
+                // 🟢 3번 문제 해결: 지점명이든 메뉴명이든 있는 데이터를 동적으로 출력 (없으면 '알 수 없음')
+                const itemName = item.branchName || item.menuName || item.name || '알 수 없음';
+
                 return (
                     '<div class="rank-item">' +
                     '<div class="rank-no">' + rank + '</div>' +
                     '<div class="item-main">' +
-                    '<div class="item-name">' + item.name + '</div>' +
+                    '<div class="item-name">' + itemName + '</div>' +
                     '</div>' +
-                    '<div class="item-value">' + formatValue(item.value) + '</div>' +
+                    '<div class="item-value">' + formatValue(item) + '</div>' +
                     '</div>'
                 );
             }).join('');
@@ -257,48 +262,35 @@
             bestList.innerHTML = '<div class="no-data">데이터를 분석 중입니다...</div>';
             worstList.innerHTML = '<div class="no-data">데이터를 분석 중입니다...</div>';
 
-            setTimeout(() => {
-                const mockData = generateMockData(currentRankType, currentSort, mainCategorySelect.value, menuSelect.value);
-                renderList(bestList, mockData.top10);
-                renderList(worstList, mockData.worst10);
-            }, 300);
-        }
+            const contextPath = "<%= request.getContextPath() %>";
+            const startDate = periodStartPicker.input.value;
+            const endDate = periodEndPicker.input.value;
 
-        function generateMockData(rankType, sort, categoryId, menuId) {
-            const top10 = [];
-            const worst10 = [];
-
-            let bestNames = [], worstNames = [];
-
-            if (rankType === 'branch') {
-                bestNames = ['강남점', '수원점', '홍대점', '대구점', '서면점', '대전점', '울산점', '제주점', '해운대점', '천안점'];
-                worstNames = ['조치원점', '아산점', '강릉점', '진주점', '구미점', '충주점', '순천점', '여수점', '군산점', '포항점'];
-            } else if (rankType === 'menu') {
-                bestNames = ['잠봉 플러스', '에그마요', '이탈리안 비엠티', '스테이크&치즈', '로스트 치킨', '베이컨 치즈 웨지', '참치', '쉬림프', '아메리카노', '쿠키 세트'];
-                worstNames = ['베지', '오트밀 레이즌', '미니 로티세리', '칩', '초코칩', '라즈베리 치즈케익', '에그 슬라이스', '햄', '스파이시 이탈리안', '터키'];
-            } else if (rankType === 'specific_menu') {
-                bestNames = ['강남점', '홍대점', '수원점', '대전점', '대구점', '인천점', '성남점', '천안점', '서면점', '울산점'];
-                worstNames = ['조치원점', '아산점', '강릉점', '진주점', '구미점', '충주점', '순천점', '여수점', '군산점', '포항점'];
-            } else if (rankType === 'trend') {
-                bestNames = ['금요일 18시~20시', '목요일 12시~14시', '토요일 13시~15시', '수요일 18시~20시', '금요일 12시~14시', '화요일 12시~14시', '일요일 14시~16시', '목요일 18시~20시', '월요일 12시~14시', '토요일 18시~20시'];
-                worstNames = ['월요일 15시~17시', '화요일 15시~17시', '수요일 15시~17시', '목요일 15시~17시', '월요일 10시~11시', '화요일 10시~11시', '수요일 10시~11시', '목요일 10시~11시', '금요일 10시~11시', '일요일 10시~11시'];
+            if (currentRankType !== 'branch') {
+                setTimeout(() => {
+                    bestList.innerHTML = '<div class="no-data">해당 랭킹 데이터는 준비 중입니다.</div>';
+                    worstList.innerHTML = '<div class="no-data">해당 랭킹 데이터는 준비 중입니다.</div>';
+                }, 300);
+                return;
             }
+            const url = contextPath + '/hq/sales/ranking?action=getRanking&sortType=' + currentSort + '&startDate=' + startDate + '&endDate=' + endDate;
 
-            for (let i = 0; i < 10; i++) {
-                top10.push({
-                    name: bestNames[i],
-                    value: sort === 'sales' ? Math.floor(Math.random() * 5000000) + 10000000 : Math.floor(Math.random() * 1500) + 1000
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // 데이터가 배열로 온다고 가정하고 Top10 / Worst10 분리
+                    const top10 = data.slice(0, 10);
+                    // 매출이 가장 낮은 하위 10개 (원본이 내림차순 정렬되어 있으므로 뒤에서 자름)
+                    const worst10 = data.slice(-10).reverse();
+
+                    renderList(bestList, top10);
+                    renderList(worstList, worst10);
+                })
+                .catch(error => {
+                    console.error('Error fetching rank data:', error);
+                    bestList.innerHTML = '<div class="no-data">데이터 로드 실패</div>';
+                    worstList.innerHTML = '<div class="no-data">데이터 로드 실패</div>';
                 });
-                worst10.push({
-                    name: worstNames[i],
-                    value: sort === 'sales' ? Math.floor(Math.random() * 800000) + 200000 : Math.floor(Math.random() * 50) + 20
-                });
-            }
-
-            top10.sort((a, b) => b.value - a.value);
-            worst10.sort((a, b) => a.value - b.value);
-
-            return { top10, worst10 };
         }
 
         sortButtons.forEach(btn => {
