@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.ibatis.session.SqlSession;
 
@@ -231,7 +232,7 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 			
 			// 4. 안전재고 미달 품목 조회 (LOW_STOCK) 
 			List<PlaceOrderDraftDetailDTO> lowStockMaterials = draftDAO.findLowStockMaterials(sqlSession, branchCode);
-			// 🔥 로그 추가
+			// 로그 추가
 			System.out.println("===== [LOW STOCK CHECK] =====");
 
 			for (PlaceOrderDraftDetailDTO item : lowStockMaterials) {
@@ -273,6 +274,71 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 			sqlSession.rollback();
 			throw new RuntimeException(e);
 		} finally {
+	        sqlSession.close();
+	    }
+	}
+
+	@Override
+	public List<Map<String, Object>> getSelectableItems(int branchCode, String category, String item, String search) {
+
+	    SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false);
+
+	    try {
+	        // 1. draft 확보 (없으면 생성)
+	        PlaceOrderDraftDTO draftDTO = findOrCreateInProgressDraft(branchCode);
+	        int draftId = draftDTO.getDraftId();
+
+	        // 2. 전체 조회
+	        List<Map<String, Object>> list =
+	                draftDAO.findSelectableItems(sqlSession, branchCode, draftId);
+
+	        if (list == null || list.isEmpty()) {
+	            return Collections.emptyList();
+	        }
+
+	        // 3. 필터링
+	        return list.stream()
+	                .filter(row -> {
+
+	                    String categoryName = (String) row.get("categoryName");
+	                    String materialName = (String) row.get("materialName");
+	                    String materialCode = (String) row.get("materialCode");
+
+	                    // 카테고리 필터
+	                    if (hasText(category) && !"전체".equals(category)) {
+	                        if (categoryName == null || !categoryName.equals(category)) {
+	                            return false;
+	                        }
+	                    }
+
+	                    // 품목 필터
+	                    if (hasText(item) && !"전체".equals(item)) {
+	                        if (materialName == null || !materialName.equals(item)) {
+	                            return false;
+	                        }
+	                    }
+
+	                    // 검색 필터
+	                    if (hasText(search)) {
+	                        String keyword = search.toLowerCase();
+
+	                        boolean match =
+	                                (materialCode != null && materialCode.toLowerCase().contains(keyword))
+	                                || (materialName != null && materialName.toLowerCase().contains(keyword))
+	                                || (categoryName != null && categoryName.toLowerCase().contains(keyword));
+
+	                        if (!match) {
+	                            return false;
+	                        }
+	                    }
+
+	                    return true;
+	                })
+	                .collect(Collectors.toList());
+
+	    } catch (Exception e) {
+	        throw new RuntimeException(e);
+	    } finally {
 	        sqlSession.close();
 	    }
 	}

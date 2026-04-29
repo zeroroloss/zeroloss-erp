@@ -81,18 +81,11 @@
 
 <%@ include file="/branch/common/layout/layout_head.jsp" %>
 <%
-	Object lowStockListAttr = request.getAttribute("lowStockList");   // 안전재고 미달 품목
-	Object addedItemListAttr = request.getAttribute("addedItemList"); // 추가 발주 품목
-	
-	// 안전재고 미달
-	String lowStockJson = new com.google.gson.Gson().toJson(
-		lowStockListAttr != null ? lowStockListAttr : java.util.Collections.emptyList()
-	);
-	
-	// 
-	String addedItemJson = new com.google.gson.Gson().toJson(
-		addedItemListAttr != null ? addedItemListAttr : java.util.Collections.emptyList()
-	);
+	Object draftAttr = request.getAttribute("draft");
+	String draftJson = new com.google.gson.Gson().toJson(
+        draftAttr != null ? draftAttr : new dto.branch.place_order.PlaceOrderDraftDTO()
+    );
+
 %>
 </head>
 
@@ -184,49 +177,55 @@
         <iframe id="placePopupFrame" class="place-popup-frame" title="발주 팝업"></iframe>
 </div>
 
-<!-- JSON을 JS로 전달 -->
-<script type="application/json" id="lowStockJson"><%= lowStockJson %></script>
-<script type="application/json" id="addedItemJson"><%= addedItemJson %></script>
-
+<script type="application/json" id="draftJson"><%= draftJson %></script>
 <script>
 	// JS에서 데이터 파싱
+	var draftData = {};
 	var lowStockData = [];
 	var addedItemData = [];
 	
 	try {
-	    lowStockData = JSON.parse(document.getElementById('lowStockJson').textContent || '[]');
-	    addedItemData = JSON.parse(document.getElementById('addedItemJson').textContent || '[]');
+		draftData = JSON.parse(document.getElementById('draftJson').textContent || '{}');
+		
+		var details = draftData.details || [];
+		
+		details.forEach(function(item) {
+			if (item.sourceType === 'LOW_STOCK') {
+				lowStockData.push(item);
+			} else {
+				addedItemData.push(item);
+			}
+		});
+		
 	} catch (e) {
-	    lowStockData = [];
-	    addedItemData = [];
+		draftData = {};
+		lowStockData = [];
+		addedItemData = [];
 	}
 	
 	
 	// 데이터 행 html
 	function buildRow(item, isLowStock) {
-	    var stockClass = isLowStock && item.currentStock < item.safeStock ? 'stock-low' : '';
-
-	    return `
-	        <tr data-id="${item.itemCode}">      
-	        	<td>${item.itemCode}</td>
-	            <td>${item.itemName}</td>
-	            <td><span class="chip">${item.category}</span></td>
-	            <td class="${stockClass}">${item.currentStock}${item.unit}</td>
-	            <td>${item.safeStock}${item.unit}</td>
-	            <td>
-	                <span class="qty-cell">
-	                    <input class="qty-input" type="number" 
-	                    	min="${item.minQty != null ? item.minQty : 0}" 
-	                    	max="${item.maxQty != null ? item.maxQty : ''}" 
-	                    	step = "1"
-	                    	value="${item.requestQty != null ? item.requestQty : 0}" 
-                    	/>
-	                    <span class="unit">${item.unit}</span>
-	                </span>
-	            </td>
-	            <td class="center"><span class="trash">🗑</span></td>
-	        </tr>
-	    `;
+	    var stockClass = isLowStock ? 'stock-low' : '';
+	
+	    return '<tr data-id="' + item.materialCode + '">' +
+	        '<td>' + item.materialCode + '</td>' +
+	        '<td>' + item.materialName + '</td>' +
+	        '<td><span class="chip">' + item.categoryName + '</span></td>' +
+	        '<td class="' + stockClass + '">' + (item.currentStock || 0) + (item.unit || '') + '</td>' +
+	        '<td>' + (item.safeStock || 0) + (item.unit || '') + '</td>' +
+	        '<td>' +
+	            '<span class="qty-cell">' +
+	                '<input class="qty-input" type="number" ' +
+	                    'value="' + (item.requestedQty != null 
+	                        ? item.requestedQty 
+	                        : Math.max(0, item.safeStock - item.currentStock)) + '" ' +
+	                    'min="0" step="1">' +
+	                '<span class="unit">' + (item.unit || '') + '</span>' +
+	            '</span>' +
+	        '</td>' +
+	        '<td class="center"><span class="trash">🗑</span></td>' +
+	    '</tr>';
 	}
 	
 	// 테이블에 데이터 넣기
@@ -311,9 +310,11 @@
 		    // 배열 데이터에서도 제거
 	    	// confirm은 동기함수. 버튼 누를 때까지 멈춰 있는다.
 		    if (row.parentNode.id === 'lowStockTbody') {
-		        lowStockData = lowStockData.filter(i => i.itemCode !== id);
+		    	// 안전재고 미달 품목
+		        lowStockData = lowStockData.filter(i => i.materialCode !== id);
 		    } else {
-		        addedItemData = addedItemData.filter(i => i.itemCode !== id);
+		    	// 수동 추가 품목
+		        addedItemData = addedItemData.filter(i => i.materialCode !== id);
 		    }
 		    
 	        renderTables();
@@ -339,13 +340,13 @@
      	    e.target.value = qty;
      		
      	    // 데이터 반영
-     	    if (row.parentNode.id === 'lowStockTbody') {
-     	        var item = lowStockData.find(i => i.itemCode === id);
-     	        if (item) item.requestQty = qty;
-     	    } else {
-     	        var item = addedItemData.find(i => i.itemCode === id);
-     	        if (item) item.requestQty = qty;
-     	    }
+			if (row.parentNode.id === 'lowStockTbody') {
+			    var item = lowStockData.find(i => i.materialCode === id);
+			    if (item) item.requestedQty = qty;
+			} else {
+			    var item = addedItemData.find(i => i.materialCode === id);
+			    if (item) item.requestedQty = qty;
+			}
      	});
      	
 
@@ -356,9 +357,49 @@
         }
 
         window.addEventListener('message', function (event) {
-            if (event.data && event.data.type === 'close-place-popup') {
-                closePopup();
-            }
+			if (!event.data || !event.data.type) return;
+
+			if (event.data.type === 'close-place-popup') {
+				closePopup();
+				return;
+			}
+
+			if (event.data.type === 'add-item') {
+				var addItem = event.data.item || {};
+				if (!addItem.materialCode) return;
+
+				var existsInLow = lowStockData.some(function(i) { return i.materialCode === addItem.materialCode; });
+				var existsInAdd = addedItemData.some(function(i) { return i.materialCode === addItem.materialCode; });
+				if (existsInLow || existsInAdd) return;
+
+				var normalized = {
+					materialCode: addItem.materialCode,
+					materialName: addItem.materialName || '',
+					categoryName: addItem.categoryName || '',
+					currentStock: Number(addItem.currentStock || 0),
+					safeStock: Number(addItem.safeStock || 0),
+					unit: addItem.unit || '',
+					sourceType: addItem.sourceType || 'MANUAL',
+					requestedQty: Math.max(0, Number(addItem.safeStock || 0) - Number(addItem.currentStock || 0))
+				};
+
+				if (normalized.sourceType === 'LOW_STOCK') {
+					lowStockData.unshift(normalized);
+				} else {
+					addedItemData.unshift(normalized);
+				}
+				renderTables();
+				return;
+			}
+
+			if (event.data.type === 'remove-item') {
+				var removeItem = event.data.item || {};
+				if (!removeItem.materialCode) return;
+
+				lowStockData = lowStockData.filter(function(i) { return i.materialCode !== removeItem.materialCode; });
+				addedItemData = addedItemData.filter(function(i) { return i.materialCode !== removeItem.materialCode; });
+				renderTables();
+			}
         });
     })();
 </script>

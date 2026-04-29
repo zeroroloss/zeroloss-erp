@@ -1,6 +1,7 @@
 package service.branch.place_order;
 
 import java.util.List;
+import java.util.Map;
 
 import dto.branch.place_order.PlaceOrderDraftDTO;
 import dto.branch.place_order.PlaceOrderDraftDetailDTO;
@@ -17,4 +18,7 @@ public interface PlaceOrderService {
     
     // 발주서 생성
 	PlaceOrderDraftDTO findOrCreateInProgressDraft(int branchCode);
+	
+	// 발주서 생성 - API 응답
+	List<Map<String, Object>> getSelectableItems(int branchCode, String category, String item, String search);
 }

@@ -1,6 +1,8 @@
 package dao.branch.place_order;
 
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
@@ -34,6 +36,14 @@ public class PlaceOrderDraftDAOImpl implements PlaceOrderDraftDAO {
 	@Override
 	public void insertDraftDetail(SqlSession sqlSession, PlaceOrderDraftDetailDTO detailDTO) {
 		sqlSession.insert(MAPPER_NAMESPACE + "insertDraftDetail", detailDTO);
+	}
+
+	@Override
+	public List<Map<String, Object>> findSelectableItems(SqlSession sqlSession, int branchCode, int draftId) {
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("branchCode", branchCode);
+		params.put("draftId", draftId);
+		return sqlSession.selectList(MAPPER_NAMESPACE + "findSelectableItems", params);
 	}
 
 }

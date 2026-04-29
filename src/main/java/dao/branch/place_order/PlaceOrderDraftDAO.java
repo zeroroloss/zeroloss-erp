@@ -1,6 +1,7 @@
 package dao.branch.place_order;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
@@ -23,5 +24,8 @@ public interface PlaceOrderDraftDAO {
 	
 	// draftDetail 삽입
 	void insertDraftDetail(SqlSession sqlSession, PlaceOrderDraftDetailDTO detailDTO);
+
+	// 팝업용 전체 품목 조회 (드래프트 포함 상태 + 재고/안전재고)
+	List<Map<String, Object>> findSelectableItems(SqlSession sqlSession, int branchCode, int draftId);
 	
 }
