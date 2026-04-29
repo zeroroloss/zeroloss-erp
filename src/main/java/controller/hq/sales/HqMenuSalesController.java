@@ -43,7 +43,8 @@ public class HqMenuSalesController extends HttpServlet {
             }
 
             LocalDate targetDate = LocalDate.parse(dateParam);
-            List<MenuSalesDTO> menuSales = hqSalesService.getMenuSales(branchCodeParam, targetDate);
+            // Pass null for the new category parameters to maintain original functionality
+            List<MenuSalesDTO> menuSales = hqSalesService.getMenuSales(branchCodeParam, targetDate, null, null);
 
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
