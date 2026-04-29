@@ -4,7 +4,8 @@ public class SalesRankingDto {
     private int rank;
     private String branchName;
     private long totalSales;
-    private long totalQuantity; // 새로 추가
+    private long totalQuantity;
+    private String menuName; // 전사 메뉴별 랭킹
 
     public SalesRankingDto() {
     }
@@ -15,6 +16,12 @@ public class SalesRankingDto {
         this.totalSales = totalSales;
         this.totalQuantity = totalQuantity;
     }
+
+    //게터세터
+
+    public String getMenuName() { return menuName; }
+
+    public void setMenuName(String menuName) { this.menuName = menuName; }
 
     public int getRank() {
         return rank;

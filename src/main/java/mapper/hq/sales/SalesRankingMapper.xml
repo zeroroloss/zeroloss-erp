@@ -4,30 +4,103 @@
 <mapper namespace="mapper.hq.sales.SalesRankingMapper">
 
     <select id="getSalesRanking" parameterType="map" resultType="dto.hq.sales.SalesRankingDto">
-        SELECT
-            RANK() OVER (ORDER BY SUM(om.line_total_amount) DESC) as rank,
-            b.name as branchName,
-            SUM(om.line_total_amount) as totalSales
-        FROM orders o
-                 JOIN branch b ON o.branch_code = b.branch_code
-                 JOIN order_menu om ON o.order_id = om.order_id
-        WHERE o.status = 'PAID'
-          AND DATE(o.order_date) BETWEEN #{startDate} AND #{endDate}
-        GROUP BY b.name
-        ORDER BY totalSales DESC
+        SELECT RANK() OVER (ORDER BY SUM(om.line_total_amount) DESC) as rank, b.name as branchName, SUM(om.line_total_amount) as totalSales
+        FROM orders o JOIN branch b ON o.branch_code = b.branch_code JOIN order_menu om ON o.order_id = om.order_id
+        WHERE o.status = 'PAID' AND DATE(o.order_date) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY b.name ORDER BY totalSales DESC
     </select>
 
     <select id="getSalesQuantityRanking" parameterType="map" resultType="dto.hq.sales.SalesRankingDto">
+        SELECT RANK() OVER (ORDER BY SUM(om.qty) DESC) as rank, b.name as branchName, SUM(om.qty) as totalQuantity
+        FROM orders o JOIN branch b ON o.branch_code = b.branch_code JOIN order_menu om ON o.order_id = om.order_id
+        WHERE o.status = 'PAID' AND DATE(o.order_date) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY b.name ORDER BY totalQuantity DESC
+    </select>
+
+    <select id="getMenuSalesRanking" parameterType="map" resultType="dto.hq.sales.SalesRankingDto">
+        SELECT RANK() OVER (ORDER BY SUM(om.line_total_amount) DESC) as rank, r.name as menuName, SUM(om.line_total_amount) as totalSales
+        FROM orders o JOIN order_menu om ON o.order_id = om.order_id JOIN recipe r ON om.recipe_code = r.recipe_code
+        WHERE o.status = 'PAID' AND DATE(o.order_date) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY r.name ORDER BY totalSales DESC
+    </select>
+
+    <select id="getMenuQuantityRanking" parameterType="map" resultType="dto.hq.sales.SalesRankingDto">
+        SELECT RANK() OVER (ORDER BY SUM(om.qty) DESC) as rank, r.name as menuName, SUM(om.qty) as totalQuantity
+        FROM orders o JOIN order_menu om ON o.order_id = om.order_id JOIN recipe r ON om.recipe_code = r.recipe_code
+        WHERE o.status = 'PAID' AND DATE(o.order_date) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY r.name ORDER BY totalQuantity DESC
+    </select>
+
+    <select id="getSpecificMenuSalesRanking" parameterType="map" resultType="dto.hq.sales.SalesRankingDto">
+        SELECT RANK() OVER (ORDER BY SUM(om.line_total_amount) DESC) as rank, b.name as branchName, SUM(om.line_total_amount) as totalSales
+        FROM orders o JOIN branch b ON o.branch_code = b.branch_code JOIN order_menu om ON o.order_id = om.order_id
+        WHERE o.status = 'PAID' AND DATE(o.order_date) BETWEEN #{startDate} AND #{endDate} AND om.recipe_code = #{recipeCode}
+        GROUP BY b.name ORDER BY totalSales DESC
+    </select>
+
+    <select id="getSpecificMenuQuantityRanking" parameterType="map" resultType="dto.hq.sales.SalesRankingDto">
+        SELECT RANK() OVER (ORDER BY SUM(om.qty) DESC) as rank, b.name as branchName, SUM(om.qty) as totalQuantity
+        FROM orders o JOIN branch b ON o.branch_code = b.branch_code JOIN order_menu om ON o.order_id = om.order_id
+        WHERE o.status = 'PAID' AND DATE(o.order_date) BETWEEN #{startDate} AND #{endDate} AND om.recipe_code = #{recipeCode}
+        GROUP BY b.name ORDER BY totalQuantity DESC
+    </select>
+
+    <!-- 메뉴 카테고리 목록 조회 -->
+    <select id="getAllMenuCategories" resultType="dto.hq.sales.MenuCategoryDto">
         SELECT
-            RANK() OVER (ORDER BY SUM(om.qty) DESC) as rank,
-            b.name as branchName,
+            category_id as categoryCode,
+            name as categoryName
+        FROM main_category
+        WHERE is_active = TRUE
+        ORDER BY category_id
+    </select>
+
+    <!-- 특정 카테고리에 속하는 메뉴 목록 조회 -->
+    <select id="getMenusByCategory" parameterType="int" resultType="dto.hq.sales.MenuDto">
+        SELECT
+            recipe_code as recipeCode,
+            name as recipeName,
+            category_id as categoryCode
+        FROM recipe
+        WHERE category_id = #{categoryCode} AND is_active = TRUE
+        ORDER BY name
+    </select>
+
+    <!-- 시간별 트렌드 조회 -->
+    <select id="getHourlySalesTrend" parameterType="map" resultType="dto.hq.sales.HourlySalesTrendDto">
+        SELECT
+            HOUR(o.created_at) as hour,
+            SUM(om.line_total_amount) as totalSales,
             SUM(om.qty) as totalQuantity
         FROM orders o
-                 JOIN branch b ON o.branch_code = b.branch_code
-                 JOIN order_menu om ON o.order_id = om.order_id
+        JOIN order_menu om ON o.order_id = om.order_id
         WHERE o.status = 'PAID'
           AND DATE(o.order_date) BETWEEN #{startDate} AND #{endDate}
-        GROUP BY b.name
-        ORDER BY totalQuantity DESC
+        GROUP BY hour
+        ORDER BY hour
     </select>
+
+    <!-- 요일별 트렌드 조회 -->
+    <select id="getDailySalesTrend" parameterType="map" resultType="dto.hq.sales.DailySalesTrendDto">
+        SELECT
+            DAYOFWEEK(o.order_date) as dayOfWeek,
+            CASE DAYOFWEEK(o.order_date)
+                WHEN 1 THEN '일'
+                WHEN 2 THEN '월'
+                WHEN 3 THEN '화'
+                WHEN 4 THEN '수'
+                WHEN 5 THEN '목'
+                WHEN 6 THEN '금'
+                WHEN 7 THEN '토'
+            END as dayName,
+            SUM(om.line_total_amount) as totalSales,
+            SUM(om.qty) as totalQuantity
+        FROM orders o
+        JOIN order_menu om ON o.order_id = om.order_id
+        WHERE o.status = 'PAID'
+          AND DATE(o.order_date) BETWEEN #{startDate} AND #{endDate}
+        GROUP BY dayOfWeek, dayName
+        ORDER BY dayOfWeek
+    </select>
+
 </mapper>

@@ -120,15 +120,10 @@
                 <div class="filter-group hidden-group" id="specific-menu-filter">
                     <span class="label ml-4">타겟 메뉴:</span>
                     <select id="mainCategorySelect" class="sort-btn bg-white">
-                        <option value="1">샌드위치</option>
-                        <option value="2">샐러드</option>
-                        <option value="3">사이드</option>
-                        <option value="4">음료/수프</option>
+                        <option value="">카테고리 로딩...</option>
                     </select>
                     <select id="menuSelect" class="sort-btn bg-white">
-                        <option value="1001">잠봉 플러스</option>
-                        <option value="1008">에그마요</option>
-                        <option value="1006">이탈리안 비엠티</option>
+                        <option value="">메뉴 로딩...</option>
                     </select>
                 </div>
 
@@ -147,7 +142,7 @@
             <a class="rank-tab" data-rank-type="trend">전사 트렌드 (시간/요일)</a>
         </nav>
 
-        <section class="grid">
+        <section class="grid" id="ranking-grid">
             <article class="panel">
                 <div class="panel-head">
                     <div class="panel-title" id="best-title"></div>
@@ -167,6 +162,31 @@
                     <div class="no-data">조회된 데이터가 없습니다.</div>
                 </div>
             </article>
+        </section>
+
+        <!-- 🟢 추가: 전사 트렌드 (시간/요일) 데이터를 표시할 영역 -->
+        <section class="hidden-group" id="trend-data-section">
+            <div class="grid mt-6">
+                <article class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title">시간대별 매출/판매량 트렌드</div>
+                        <span class="badge green">24시간</span>
+                    </div>
+                    <div class="rank-list" id="hourly-trend-list">
+                        <div class="no-data">데이터를 분석 중입니다...</div>
+                    </div>
+                </article>
+
+                <article class="panel orange">
+                    <div class="panel-head">
+                        <div class="panel-title">요일별 매출/판매량 트렌드</div>
+                        <span class="badge orange">주 7일</span>
+                    </div>
+                    <div class="rank-list" id="daily-trend-list">
+                        <div class="no-data">데이터를 분석 중입니다...</div>
+                    </div>
+                </article>
+            </div>
         </section>
     </main>
 </div>
@@ -195,6 +215,9 @@
         const mainCategorySelect = document.getElementById('mainCategorySelect');
         const menuSelect = document.getElementById('menuSelect');
 
+        const rankingGrid = document.getElementById('ranking-grid'); // 🟢 추가
+        const trendDataSection = document.getElementById('trend-data-section'); // 🟢 추가
+
         const bestList = document.getElementById('best-list');
         const worstList = document.getElementById('worst-list');
         const bestTitle = document.getElementById('best-title');
@@ -202,6 +225,7 @@
 
         let currentSort = 'sales';
         let currentRankType = 'branch';
+        const contextPath = "<%= request.getContextPath() %>";
 
         function updateTitles() {
             const sortText = currentSort === 'sales' ? '매출액' : '판매량';
@@ -212,10 +236,14 @@
             } else if (currentRankType === 'menu') {
                 prefix = '전사 메뉴';
             } else if (currentRankType === 'specific_menu') {
-                const selectedMenuText = menuSelect.options[menuSelect.selectedIndex].text;
+                // 메뉴가 로딩되지 않았을 때를 대비한 안전 처리
+                const selectedMenuText = menuSelect.options.length > 0 ? menuSelect.options[menuSelect.selectedIndex].text : '메뉴';
                 prefix = '[' + selectedMenuText + '] 판매 지점';
-            } else if (currentRankType === 'trend') {
-                prefix = '피크/데드 타임';
+            } else if (currentRankType === 'trend') { // 🟢 추가
+                // 트렌드 탭에서는 TOP/WORST 개념이 없으므로 제목을 다르게 설정
+                bestTitle.textContent = '시간대별 ' + sortText + ' 트렌드';
+                worstTitle.textContent = '요일별 ' + sortText + ' 트렌드';
+                return; // 기존 TOP/WORST 10 제목 업데이트 로직 건너뛰기
             }
 
             bestTitle.textContent = prefix + ' ' + sortText + ' TOP 10';
@@ -230,7 +258,6 @@
             }
 
             const formatValue = (item) => {
-                // 백엔드 연동 시 DTO 필드명에 맞게 매핑 (매출액: totalSales, 수량: totalQuantity)
                 const val = currentSort === 'sales' ? (item.totalSales || item.value) : (item.totalQuantity || item.value);
                 const numValue = Number(val || 0);
                 return currentSort === 'sales'
@@ -240,57 +267,216 @@
 
             const itemsHtml = data.map((item, index) => {
                 const rank = index + 1;
-                // 🟢 3번 문제 해결: 지점명이든 메뉴명이든 있는 데이터를 동적으로 출력 (없으면 '알 수 없음')
                 const itemName = item.branchName || item.menuName || item.name || '알 수 없음';
 
-                return (
-                    '<div class="rank-item">' +
+                // 🟢 JSP EL 에러를 막기 위해 백틱(`) 대신 문자열 덧셈(+) 기호로 HTML 생성
+                return '<div class="rank-item">' +
                     '<div class="rank-no">' + rank + '</div>' +
                     '<div class="item-main">' +
                     '<div class="item-name">' + itemName + '</div>' +
                     '</div>' +
                     '<div class="item-value">' + formatValue(item) + '</div>' +
-                    '</div>'
-                );
+                    '</div>';
             }).join('');
+
             container.innerHTML = itemsHtml;
         }
 
-        function fetchData() {
-            updateTitles();
+        // 🟢 새로운 트렌드 데이터 렌더링 함수
+        function renderTrendData(hourlyData, dailyData) {
+            const hourlyTrendList = document.getElementById('hourly-trend-list');
+            const dailyTrendList = document.getElementById('daily-trend-list');
 
-            bestList.innerHTML = '<div class="no-data">데이터를 분석 중입니다...</div>';
-            worstList.innerHTML = '<div class="no-data">데이터를 분석 중입니다...</div>';
+            hourlyTrendList.innerHTML = '';
+            dailyTrendList.innerHTML = '';
 
-            const contextPath = "<%= request.getContextPath() %>";
-            const startDate = periodStartPicker.input.value;
-            const endDate = periodEndPicker.input.value;
+            const formatValue = (item) => {
+                const val = currentSort === 'sales' ? item.totalSales : item.totalQuantity;
+                const numValue = Number(val || 0);
+                return currentSort === 'sales'
+                    ? '₩' + Math.round(numValue).toLocaleString('ko-KR')
+                    : numValue.toLocaleString('ko-KR') + '건(개)';
+            };
 
-            if (currentRankType !== 'branch') {
-                setTimeout(() => {
-                    bestList.innerHTML = '<div class="no-data">해당 랭킹 데이터는 준비 중입니다.</div>';
-                    worstList.innerHTML = '<div class="no-data">해당 랭킹 데이터는 준비 중입니다.</div>';
-                }, 300);
-                return;
+            // 시간별 트렌드 렌더링
+            if (hourlyData && hourlyData.length > 0) {
+                hourlyData.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'rank-item';
+                    div.innerHTML = `
+                        <div class="rank-no">${item.hour}시</div>
+                        <div class="item-main">
+                            <div class="item-name">총 ${currentSort === 'sales' ? '매출' : '판매량'}</div>
+                        </div>
+                        <div class="item-value">${formatValue(item)}</div>
+                    `;
+                    hourlyTrendList.appendChild(div);
+                });
+            } else {
+                hourlyTrendList.innerHTML = '<div class="no-data">조회된 시간별 데이터가 없습니다.</div>';
             }
-            const url = contextPath + '/hq/sales/ranking?action=getRanking&sortType=' + currentSort + '&startDate=' + startDate + '&endDate=' + endDate;
+
+            // 요일별 트렌드 렌더링
+            if (dailyData && dailyData.length > 0) {
+                dailyData.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'rank-item';
+                    div.innerHTML = `
+                        <div class="rank-no">${item.dayName}</div>
+                        <div class="item-main">
+                            <div class="item-name">총 ${currentSort === 'sales' ? '매출' : '판매량'}</div>
+                        </div>
+                        <div class="item-value">${formatValue(item)}</div>
+                    `;
+                    dailyTrendList.appendChild(div);
+                });
+            } else {
+                dailyTrendList.innerHTML = '<div class="no-data">조회된 요일별 데이터가 없습니다.</div>';
+            }
+        }
+
+        // 🟢 1. 대분류 카테고리 로드
+        function loadCategories() {
+            const url = contextPath + '/hq/sales/ranking?action=getMenuCategories';
 
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    // 데이터가 배열로 온다고 가정하고 Top10 / Worst10 분리
-                    const top10 = data.slice(0, 10);
-                    // 매출이 가장 낮은 하위 10개 (원본이 내림차순 정렬되어 있으므로 뒤에서 자름)
-                    const worst10 = data.slice(-10).reverse();
-
-                    renderList(bestList, top10);
-                    renderList(worstList, worst10);
+                    mainCategorySelect.innerHTML = '';
+                    if(data && data.length > 0) {
+                        data.forEach(cat => {
+                            const option = document.createElement('option');
+                            option.value = cat.categoryCode;
+                            option.textContent = cat.categoryName;
+                            mainCategorySelect.appendChild(option);
+                        });
+                        // 카테고리 로드가 끝나면 바로 그 카테고리에 맞는 메뉴 로드 실행
+                        loadMenus();
+                    } else {
+                        mainCategorySelect.innerHTML = '<option value="">카테고리 없음</option>';
+                    }
                 })
                 .catch(error => {
-                    console.error('Error fetching rank data:', error);
-                    bestList.innerHTML = '<div class="no-data">데이터 로드 실패</div>';
-                    worstList.innerHTML = '<div class="no-data">데이터 로드 실패</div>';
+                    console.error('Error fetching categories:', error);
+                    mainCategorySelect.innerHTML = '<option value="">로드 실패</option>';
                 });
+        }
+
+        // 🟢 2. 특정 카테고리의 하위 메뉴 로드
+        function loadMenus() {
+            const categoryCode = mainCategorySelect.value;
+            if (!categoryCode) return;
+
+            // JSP EL 에러 방지를 위해 문자열 덧셈 적용
+            const url = contextPath + '/hq/sales/ranking?action=getMenusByCategory&categoryCode=' + categoryCode;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    menuSelect.innerHTML = '';
+                    if(data && data.length > 0) {
+                        data.forEach(menu => {
+                            const option = document.createElement('option');
+                            option.value = menu.recipeCode;
+                            option.textContent = menu.recipeName;
+                            menuSelect.appendChild(option);
+                        });
+                    } else {
+                        menuSelect.innerHTML = '<option value="">메뉴 없음</option>';
+                    }
+                    // 하위 메뉴까지 세팅이 끝나면 마침내 전체 데이터(랭킹) 패치
+                    fetchData();
+                })
+                .catch(error => {
+                    console.error('Error fetching menus:', error);
+                    menuSelect.innerHTML = '<option value="">로드 실패</option>';
+                });
+        }
+
+        // 🟢 트렌드 데이터 패치 함수
+        function fetchTrendData() {
+            updateTitles(); // 트렌드 탭에 맞는 제목으로 업데이트
+
+            const startDate = periodStartPicker.input.value;
+            const endDate = periodEndPicker.input.value;
+
+            const url = `${contextPath}/hq/sales/ranking?action=getTrendData&startDate=${startDate}&endDate=${endDate}`;
+
+            document.getElementById('hourly-trend-list').innerHTML = '<div class="no-data">데이터를 분석 중입니다...</div>';
+            document.getElementById('daily-trend-list').innerHTML = '<div class="no-data">데이터를 분석 중입니다...</div>';
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    renderTrendData(data.hourly, data.daily);
+                })
+                .catch(error => {
+                    console.error('Error fetching trend data:', error);
+                    document.getElementById('hourly-trend-list').innerHTML = '<div class="no-data">데이터 로드 실패</div>';
+                    document.getElementById('daily-trend-list').innerHTML = '<div class="no-data">데이터 로드 실패</div>';
+                });
+        }
+
+        // 🟢 3. 최종 데이터(랭킹 순위 또는 트렌드) 로드
+        function fetchData() {
+            // 기존 랭킹/트렌드 섹션 숨기기
+            rankingGrid.classList.add('hidden-group');
+            trendDataSection.classList.add('hidden-group');
+            specificMenuFilter.classList.add('hidden-group'); // 특정 메뉴 필터도 숨김
+
+            if (currentRankType === 'trend') {
+                trendDataSection.classList.remove('hidden-group');
+                fetchTrendData();
+            } else {
+                rankingGrid.classList.remove('hidden-group');
+                if (currentRankType === 'specific_menu') {
+                    specificMenuFilter.classList.remove('hidden-group');
+                }
+
+                // 기존 랭킹 데이터 로직
+                updateTitles();
+
+                bestList.innerHTML = '<div class="no-data">데이터를 분석 중입니다...</div>';
+                worstList.innerHTML = '<div class="no-data">데이터를 분석 중입니다...</div>';
+
+                const startDate = periodStartPicker.input.value;
+                const endDate = periodEndPicker.input.value;
+                const recipeCode = menuSelect.value || ''; // 선택된 타겟 메뉴 코드
+
+                const supportedTabs = ['branch', 'menu', 'specific_menu'];
+                if (!supportedTabs.includes(currentRankType)) {
+                    setTimeout(() => {
+                        bestList.innerHTML = '<div class="no-data">해당 랭킹 데이터는 준비 중입니다.</div>';
+                        worstList.innerHTML = '<div class="no-data">해당 랭킹 데이터는 준비 중입니다.</div>';
+                    }, 300);
+                    return;
+                }
+
+                if (currentRankType === 'specific_menu' && !recipeCode) {
+                    setTimeout(() => {
+                        bestList.innerHTML = '<div class="no-data">분석할 메뉴를 선택해주세요.</div>';
+                        worstList.innerHTML = '<div class="no-data"></div>';
+                    }, 300);
+                    return;
+                }
+
+                const url = `${contextPath}/hq/sales/ranking?action=getRanking&rankType=${currentRankType}&sortType=${currentSort}&startDate=${startDate}&endDate=${endDate}&recipeCode=${recipeCode}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const top10 = data.slice(0, 10);
+                        const worst10 = data.slice(-10).reverse();
+
+                        renderList(bestList, top10);
+                        renderList(worstList, worst10);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching rank data:', error);
+                        bestList.innerHTML = '<div class="no-data">데이터 로드 실패</div>';
+                        worstList.innerHTML = '<div class="no-data">데이터 로드 실패</div>';
+                    });
+            }
         }
 
         sortButtons.forEach(btn => {
@@ -309,21 +495,33 @@
                 rankTabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
 
+                // 🟢 탭 변경 시 필터 및 데이터 섹션 가시성 제어
                 if (currentRankType === 'specific_menu') {
                     specificMenuFilter.classList.remove('hidden-group');
-                } else {
+                    rankingGrid.classList.remove('hidden-group');
+                    trendDataSection.classList.add('hidden-group');
+                } else if (currentRankType === 'trend') {
                     specificMenuFilter.classList.add('hidden-group');
+                    rankingGrid.classList.add('hidden-group');
+                    trendDataSection.classList.remove('hidden-group');
+                } else { // branch, menu 탭
+                    specificMenuFilter.classList.add('hidden-group');
+                    rankingGrid.classList.remove('hidden-group');
+                    trendDataSection.classList.add('hidden-group');
                 }
 
                 fetchData();
             });
         });
 
-        mainCategorySelect.addEventListener('change', fetchData);
+        // 🟢 이벤트 리스너 연결
+        mainCategorySelect.addEventListener('change', loadMenus);
         menuSelect.addEventListener('change', fetchData);
 
-        fetchData();
+        // 🟢 초기 페이지 진입 시 로드 순서: 카테고리 불러오기 -> 메뉴 불러오기 -> 데이터(랭킹) 불러오기
+        loadCategories();
     });
 </script>
+
 </body>
 </html>
