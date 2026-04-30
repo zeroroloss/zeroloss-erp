@@ -11,12 +11,20 @@ public class BranchStockDTO {
 	private LocalDate expireDate;
 	private LocalDateTime receivedAt;
 	private BigDecimal currentQty;
+	
+	//조회에 쓰기 위한 조인 필드
+	private String groupName;
+	private String materialName;
+	private BigDecimal safeStockQty;
+	private String unit;
 
 	public BranchStockDTO() {
 		super();
 	}
 
-	public BranchStockDTO(String branchStockCode, Integer branchCode, String materialCode, LocalDate expireDate, LocalDateTime receivedAt, BigDecimal currentQty) {
+	public BranchStockDTO(String branchStockCode, Integer branchCode, String materialCode, LocalDate expireDate,
+			LocalDateTime receivedAt, BigDecimal currentQty, String groupName, String materialName,
+			BigDecimal safeStockQty) {
 		super();
 		this.branchStockCode = branchStockCode;
 		this.branchCode = branchCode;
@@ -24,6 +32,9 @@ public class BranchStockDTO {
 		this.expireDate = expireDate;
 		this.receivedAt = receivedAt;
 		this.currentQty = currentQty;
+		this.groupName = groupName;
+		this.materialName = materialName;
+		this.safeStockQty = safeStockQty;
 	}
 
 	public String getBranchStockCode() {
@@ -74,9 +85,29 @@ public class BranchStockDTO {
 		this.currentQty = currentQty;
 	}
 
-	@Override
-	public String toString() {
-		return "BranchStockDTO [branchStockCode=" + branchStockCode + ", branchCode=" + branchCode + ", materialCode=" + materialCode + ", expireDate=" + expireDate + ", receivedAt=" + receivedAt + ", currentQty=" + currentQty + "]";
+	public String getGroupName() {
+		return groupName;
 	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
+
+	public String getMaterialName() {
+		return materialName;
+	}
+
+	public void setMaterialName(String materialName) {
+		this.materialName = materialName;
+	}
+
+	public BigDecimal getSafeStockQty() {
+		return safeStockQty;
+	}
+
+	public void setSafeStockQty(BigDecimal safeStockQty) {
+		this.safeStockQty = safeStockQty;
+	}
+	
 }
 

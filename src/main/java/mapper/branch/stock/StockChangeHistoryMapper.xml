@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.branch.stock.history">
+
+	<!-- 변동 이력 조회 -->
+	<select id="selectStockChangeHistory" parameterType="map"
+		resultType="dto.BranchStockChangeHistoryDTO">
+		SELECT
+		bsch.change_id AS changeId,
+		bsch.branch_stock_code AS
+		branchStockCode,
+		bsch.change_amount AS changeAmount,
+		bsch.change_type AS
+		changeType,
+		bsch.after_qty AS afterQty,
+		DATE_FORMAT(bsch.changed_at,
+		'%Y-%m-%d %H:%i') AS changedAt,
+		m.material_name AS materialName,
+		mg.group_name AS groupName,
+		bs.expire_date AS expireDate
+		FROM
+		branch_stock_change_history bsch
+		JOIN branch_stock bs
+		ON
+		bsch.branch_stock_code = bs.branch_stock_code
+		JOIN material m
+		ON
+		bs.material_code = m.material_code
+		JOIN material_group mg
+		ON
+		m.material_group_id = mg.material_group_id
+		WHERE bs.branch_code =
+		#{branchCode}
+		<if test="materialGroupId != null and materialGroupId != ''">
+			AND mg.material_group_id = #{materialGroupId}
+		</if>
+		<if test="materialName != null and materialName != ''">
+			AND m.material_name = #{materialName}
+		</if>
+		<if test="startDate != null and startDate != ''">
+			AND DATE(bsch.changed_at) >= #{startDate}
+		</if>
+		<if test="endDate != null and endDate != ''">
+			AND DATE(bsch.changed_at) &lt;= #{endDate}
+		</if>
+		ORDER BY bsch.changed_at DESC
+		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
+
+	<select id="selectStockChangeHistoryCount" parameterType="map"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM branch_stock_change_history bsch
+		JOIN branch_stock
+		bs
+		ON bsch.branch_stock_code = bs.branch_stock_code
+		JOIN material m
+		ON
+		bs.material_code = m.material_code
+		JOIN material_group mg
+		ON
+		m.material_group_id = mg.material_group_id
+		WHERE bs.branch_code =
+		#{branchCode}
+		<if test="materialGroupId != null and materialGroupId != ''">
+			AND mg.material_group_id = #{materialGroupId}
+		</if>
+		<if test="materialName != null and materialName != ''">
+			AND m.material_name = #{materialName}
+		</if>
+		<if test="startDate != null and startDate != ''">
+			AND DATE(bsch.changed_at) >= #{startDate}
+		</if>
+		<if test="endDate != null and endDate != ''">
+			AND DATE(bsch.changed_at) &lt;= #{endDate}
+		</if>
+	</select>
+
+	<!-- 폐기 내역 조회 -->
+	<select id="selectDisposalHistory" parameterType="map"
+		resultType="dto.BranchStockDisposalHistoryDTO">
+		SELECT
+		bsdh.disposal_id AS disposalId,
+		bsdh.reason AS reason,
+		bsdh.reason_detail AS reasonDetail,
+		bsch.change_id AS changeId,
+		bsch.branch_stock_code AS branchStockCode,
+		bsch.change_amount AS
+		changeAmount,
+		DATE_FORMAT(bsch.changed_at, '%Y-%m-%d %H:%i') AS
+		changedAt,
+		m.material_name AS materialName,
+		mg.group_name AS groupName,
+		bs.expire_date AS expireDate
+		FROM branch_stock_disposal_history bsdh
+		JOIN branch_stock_change_history bsch
+		ON bsdh.change_id =
+		bsch.change_id
+		JOIN branch_stock bs
+		ON bsch.branch_stock_code =
+		bs.branch_stock_code
+		JOIN material m
+		ON bs.material_code =
+		m.material_code
+		JOIN material_group mg
+		ON m.material_group_id =
+		mg.material_group_id
+		WHERE bs.branch_code = #{branchCode}
+		<if test="materialGroupId != null and materialGroupId != ''">
+			AND mg.material_group_id = #{materialGroupId}
+		</if>
+		<if test="materialName != null and materialName != ''">
+			AND m.material_name = #{materialName}
+		</if>
+		<if test="startDate != null and startDate != ''">
+			AND DATE(bsch.changed_at) >= #{startDate}
+		</if>
+		<if test="endDate != null and endDate != ''">
+			AND DATE(bsch.changed_at) &lt;= #{endDate}
+		</if>
+		ORDER BY bsch.changed_at DESC
+		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
+
+	<select id="selectDisposalHistoryCount" parameterType="map"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM branch_stock_disposal_history bsdh
+		JOIN
+		branch_stock_change_history bsch
+		ON bsdh.change_id = bsch.change_id
+		JOIN branch_stock bs
+		ON bsch.branch_stock_code = bs.branch_stock_code
+		JOIN material m
+		ON bs.material_code = m.material_code
+		JOIN
+		material_group mg
+		ON m.material_group_id = mg.material_group_id
+		WHERE
+		bs.branch_code = #{branchCode}
+		<if test="materialGroupId != null and materialGroupId != ''">
+			AND mg.material_group_id = #{materialGroupId}
+		</if>
+		<if test="materialName != null and materialName != ''">
+			AND m.material_name = #{materialName}
+		</if>
+		<if test="startDate != null and startDate != ''">
+			AND DATE(bsch.changed_at) >= #{startDate}
+		</if>
+		<if test="endDate != null and endDate != ''">
+			AND DATE(bsch.changed_at) &lt;= #{endDate}
+		</if>
+	</select>
+</mapper>

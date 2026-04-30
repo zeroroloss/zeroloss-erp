@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.branch.stock.list">
+	<select id="selectCategoryList" parameterType="int"
+		resultType="dto.MaterialGroupDTO">
+		SELECT DISTINCT
+		mg.material_group_id AS materialGroupId,
+		mg.group_name AS groupName
+		FROM branch_stock bs
+		JOIN material m
+		ON
+		bs.material_code = m.material_code
+		JOIN material_group mg
+		ON
+		m.material_group_id = mg.material_group_id
+		WHERE bs.branch_code =
+		#{branchCode}
+		AND bs.current_qty > 0
+		ORDER BY mg.group_name
+	</select>
+
+	<!-- 실제 재고에 있는 것만 품목 조회 -->
+	<!-- <select id="selectMaterialListByCategory" parameterType="map" resultType="dto.MaterialDTO"> 
+		SELECT DISTINCT m.material_code AS materialCode, m.material_name AS materialName 
+		FROM branch_stock bs JOIN material m ON bs.material_code = m.material_code 
+		JOIN material_group mg ON m.material_group_id = mg.material_group_id WHERE 
+		bs.branch_code = #{branchCode} AND mg.material_group_id = #{materialGroupId} 
+		AND bs.current_qty > 0 ORDER BY m.material_name </select> -->
+
+	<!-- 실제 재고에 없어도 전체 품목 조회 -->
+	<select id="selectMaterialListByCategory" parameterType="map"
+		resultType="dto.MaterialDTO">
+		SELECT
+		m.material_code AS materialCode,
+		m.material_name AS
+		materialName
+		FROM material m
+		JOIN material_group mg ON
+		m.material_group_id = mg.material_group_id
+		WHERE mg.material_group_id =
+		#{materialGroupId}
+		ORDER BY m.material_name
+	</select>
+
+	<select id="selectBranchStockList" parameterType="map"
+		resultType="dto.BranchStockDTO">
+		SELECT
+		bs.branch_stock_code AS branchStockCode,
+		bs.branch_code AS
+		branchCode,
+		bs.material_code AS materialCode,
+		mg.group_name AS
+		groupName,
+		m.material_name AS materialName,
+		m.unit AS unit,
+		bs.received_at AS receivedAt,
+		bs.expire_date AS expireDate,
+		bs.current_qty AS currentQty,
+		COALESCE(ss.safe_stock_qty, 0) AS
+		safeStockQty
+		FROM branch_stock bs
+		JOIN material m
+		ON bs.material_code =
+		m.material_code
+		JOIN material_group mg
+		ON m.material_group_id =
+		mg.material_group_id
+		LEFT JOIN branch_material_safety_stock ss
+		ON
+		ss.branch_code = bs.branch_code
+		AND ss.material_code = bs.material_code
+		WHERE bs.branch_code = #{branchCode}
+		AND bs.current_qty > 0
+		<if test="materialGroupId != null and materialGroupId != ''">
+			AND mg.material_group_id = #{materialGroupId}
+		</if>
+		<if test="materialName != null and materialName != ''">
+			AND m.material_name = #{materialName}
+		</if>
+		<if test="keyword != null and keyword != ''">
+			AND (bs.branch_stock_code LIKE CONCAT('%', #{keyword},
+			'%')
+			OR m.material_name LIKE CONCAT('%', #{keyword}, '%'))
+		</if>
+		ORDER BY
+		<choose>
+			<when test="sortField == 'expireDate'">bs.expire_date</when>
+			<otherwise>bs.received_at</otherwise>
+		</choose>
+		<choose>
+			<when test="sortDir == 'desc'">DESC</when>
+			<otherwise>ASC</otherwise>
+		</choose>
+		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
+
+	<!-- 전체 건수 -->
+	<select id="selectBranchStockCount" parameterType="map"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM branch_stock bs
+		JOIN material m
+		ON bs.material_code
+		= m.material_code
+		JOIN material_group mg
+		ON m.material_group_id =
+		mg.material_group_id
+		WHERE bs.branch_code = #{branchCode}
+		AND
+		bs.current_qty > 0
+		<if test="materialGroupId != null and materialGroupId != ''">
+			AND mg.material_group_id = #{materialGroupId}
+		</if>
+		<if test="materialName != null and materialName != ''">
+			AND m.material_name = #{materialName}
+		</if>
+		<if test="keyword != null and keyword != ''">
+			AND (bs.branch_stock_code LIKE CONCAT('%', #{keyword},
+			'%')
+			OR m.material_name LIKE CONCAT('%', #{keyword}, '%'))
+		</if>
+	</select>
+</mapper>

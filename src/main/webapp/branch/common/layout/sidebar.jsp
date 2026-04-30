@@ -101,9 +101,14 @@ boolean inquiryActive = uri.contains("/branch/support/branch-inquiries.jsp");
             <i class="fas <%= stockGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
         </button>
         <div class="submenu <%= stockGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
+<<<<<<< Updated upstream
             <a href="<%= request.getContextPath() %>/branch/stock/stock" class="block px-4 py-2 rounded-lg text-sm <%= stockStatusActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">재고 현황 및 품목별 총 재고</a>
             <a href="<%= request.getContextPath() %>/branch/stock/stock_change" class="block px-4 py-2 rounded-lg text-sm <%= stockChangeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">재고 변동 및 폐기</a>
             <a href="<%= request.getContextPath() %>/branch/stock/safety_stock" class="block px-4 py-2 rounded-lg text-sm <%= safetyStockActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">품목별 안전재고 설정</a>
+=======
+            <a href="<%= request.getContextPath() %>/branch/stock" class="block px-4 py-2 rounded-lg text-sm <%= stockStatusActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">재고 현황</a>
+            <a href="<%= request.getContextPath() %>/branch/stock_change" class="block px-4 py-2 rounded-lg text-sm <%= stockChangeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">재고 변동</a>
+>>>>>>> Stashed changes
         </div>
 
         <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= inboundGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
