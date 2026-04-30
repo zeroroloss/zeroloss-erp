@@ -135,6 +135,11 @@
 			source_type = VALUES(source_type)
 	</insert>
 
+	<delete id="deleteDraftDetails" parameterType="map">
+		DELETE FROM place_order_draft_detail
+		WHERE draft_id = #{draftId}
+	</delete>
+	
 	<delete id="deleteDraftDetail" parameterType="map">
 		DELETE FROM place_order_draft_detail
 		WHERE draft_id = #{draftId}
@@ -146,6 +151,13 @@
 		SET requested_qty = #{requestedQty}
 		WHERE draft_id = #{draftId}
 		  AND material_code = #{materialCode}
+	</update>
+
+	<update id="updateDraftPoIdStatus" parameterType="map">
+		UPDATE place_order_draft
+		SET po_id = #{poId},
+			status = #{status}
+		WHERE draft_id = #{draftId}
 	</update>
 
 	<select id="findSelectableItems" parameterType="map" resultType="map">
@@ -184,5 +196,24 @@
 			dd.draft_detail_id,
 			dd.source_type
 		ORDER BY isAdded DESC, isLowStock DESC, mg.group_name ASC, m.material_name ASC
+	</select>
+	
+<!-- 안전재고 미달 품목 전체 개수 -->
+	<select id="countLowStockMaterials" parameterType="int" resultType="int">
+	    SELECT COUNT(*)
+		FROM (
+		    SELECT m.material_code
+		    FROM material m
+		    JOIN material_group mg
+		        ON m.material_group_id = mg.material_group_id
+		    JOIN branch_material_safety_stock bmss
+		        ON m.material_code = bmss.material_code
+		        AND bmss.branch_code = #{branchCode}
+		    LEFT JOIN branch_stock bs
+		        ON bs.branch_code = #{branchCode}
+		        AND bs.material_code = m.material_code
+		    GROUP BY m.material_code, bmss.safe_stock_qty
+		    HAVING COALESCE(SUM(bs.current_qty), 0) &lt; bmss.safe_stock_qty
+		)  AS low_stock_sub
 	</select>
 </mapper>

@@ -6,14 +6,14 @@ import java.util.Map;
 import dto.branch.place_order.PlaceOrderDraftDTO;
 import dto.branch.place_order.PlaceOrderDraftDetailDTO;
 import dto.branch.place_order.PlaceOrderHistoryDTO;
-import dto.branch.place_order.PlaceOrderRequestDTO;
+import dto.branch.place_order.PlaceOrderDTO;
 
 public interface PlaceOrderService {
 
 	// 발주 내역
     List<PlaceOrderHistoryDTO> getPlaceOrderHistoryList(int branchCode, String startDate, String endDate, String status);
     PlaceOrderHistoryDTO getPlaceOrderDetail(String poNo);
-    boolean createPlaceOrder(PlaceOrderRequestDTO requestDTO);
+    boolean createPlaceOrder(PlaceOrderDTO requestDTO);
     boolean updatePlaceOrderStatus(String poNo, String status, String rejectReason);
     
     // 발주서 생성
@@ -24,5 +24,8 @@ public interface PlaceOrderService {
 	
 	// 발주 임시 상세 추가/삭제
 	boolean updatePlaceOrderDraftDetail(int branchCode, String action, PlaceOrderDraftDetailDTO detailDTO);
+	
+	// 안전재고 미달 품목 수
+	int getLowStockTotalCount(int branchCode);
 	
 }

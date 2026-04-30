@@ -8,9 +8,7 @@ import org.apache.ibatis.session.SqlSession;
 
 import dto.branch.place_order.PlaceOrderDetailDTO;
 import dto.branch.place_order.PlaceOrderHistoryDTO;
-import dto.branch.place_order.PlaceOrderRequestDTO;
-import dto.branch.place_order.PlaceOrderRequestDetailDTO;
-import util.MyBatisSqlSessionFactory;
+import dto.branch.place_order.PlaceOrderDTO;
 
 public class PlaceOrderDAOImpl implements PlaceOrderDAO {
 
@@ -18,54 +16,54 @@ public class PlaceOrderDAOImpl implements PlaceOrderDAO {
 
 
     @Override
-    public List<PlaceOrderHistoryDTO> selectPlaceOrderHistory(Map<String, Object> params) {
-        try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-            return sqlSession.selectList(MAPPER_NAMESPACE + "selectPlaceOrderHistory", params);
-        }
+    public List<PlaceOrderHistoryDTO> selectPlaceOrderHistory(SqlSession sqlSession, Map<String, Object> params) {
+        return sqlSession.selectList(MAPPER_NAMESPACE + "selectPlaceOrderHistory", params);
     }
 
     @Override
-    public PlaceOrderHistoryDTO selectPlaceOrderDetail(String poNo) {
-        try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-            return sqlSession.selectOne(MAPPER_NAMESPACE + "selectPlaceOrderDetail", poNo);
-        }
+    public PlaceOrderHistoryDTO selectPlaceOrderDetail(SqlSession sqlSession, String poNo) {
+        return sqlSession.selectOne(MAPPER_NAMESPACE + "selectPlaceOrderDetail", poNo);
     }
 
     @Override
-    public List<PlaceOrderDetailDTO> selectPlaceOrderDetails(String poNo) {
-        try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-            return sqlSession.selectList(MAPPER_NAMESPACE + "selectPlaceOrderDetails", poNo);
-        }
+    public List<PlaceOrderDetailDTO> selectPlaceOrderDetails(SqlSession sqlSession, String poNo) {
+        return sqlSession.selectList(MAPPER_NAMESPACE + "selectPlaceOrderDetails", poNo);
     }
 
     @Override
-    public int insertPlaceOrder(PlaceOrderRequestDTO requestDTO) {
-        try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-            int result = sqlSession.insert(MAPPER_NAMESPACE + "insertPlaceOrder", requestDTO);
-            sqlSession.commit();
-            return result;
-        }
+    public int insertPlaceOrder(SqlSession sqlSession, PlaceOrderDTO placeOrderDTO) {
+        int result = sqlSession.insert(MAPPER_NAMESPACE + "insertPlaceOrder", placeOrderDTO);
+        return result;
+    }	
+    
+	@Override
+	public String findPlaceOrderNo(SqlSession sqlSession, int placeOrderId) {
+		return sqlSession.selectOne(MAPPER_NAMESPACE + "findPlaceOrderNo", placeOrderId);
+	}
+
+    @Override
+    public int insertPlaceOrderDetails(SqlSession sqlSession, Integer poId, List<PlaceOrderDetailDTO> detailDTOs) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("poId", poId);
+        params.put("details", detailDTOs);
+
+        int result = sqlSession.insert(MAPPER_NAMESPACE + "insertPlaceOrderDetails", params);
+        sqlSession.commit();
+        return result;
     }
 
     @Override
-    public int insertPlaceOrderDetails(Integer poId, List<PlaceOrderRequestDetailDTO> details) {
-        try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-            Map<String, Object> params = new HashMap<>();
-            params.put("poId", poId);
-            params.put("details", details);
-
-            int result = sqlSession.insert(MAPPER_NAMESPACE + "insertPlaceOrderDetails", params);
-            sqlSession.commit();
-            return result;
-        }
+    public int updatePlaceOrderStatus(SqlSession sqlSession, Map<String, Object> params) {
+        int result = sqlSession.update(MAPPER_NAMESPACE + "updatePlaceOrderStatus", params);
+        return result;
     }
 
-    @Override
-    public int updatePlaceOrderStatus(Map<String, Object> params) {
-        try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-            int result = sqlSession.update(MAPPER_NAMESPACE + "updatePlaceOrderStatus", params);
-            sqlSession.commit();
-            return result;
-        }
-    }
+	@Override
+	public int updatePlaceOrderNo(SqlSession sqlSession, Integer poId, String poNo) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("poId", poId);
+		params.put("poNo", poNo);
+		return sqlSession.update(MAPPER_NAMESPACE + "updatePlaceOrderNo", params);
+	}
+
 }

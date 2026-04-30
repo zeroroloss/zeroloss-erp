@@ -80,23 +80,56 @@
 			<a class="btn btn-cancel" href="#" onclick="closePopup()">취소</a>
             <a class="btn btn-send" href="#" onclick="sendAndClose()">전송</a>
         </div>
-    </div>
+    </section>
 </div>
 
 <script>
+
+window.addEventListener('message', function(event) {
+
+    const message = event.data;
+    if (!message || message.type !== 'init-order-data') 
+        return;
+
+    const lowStock = message.data?.lowStock || [];
+    const added = message.data?.added || [];
+
+    // === 화면 반영 ===
+    // 발주 품목 수
+    const itemCount = lowStock.length + added.length;
+    document.getElementById('itemCount').textContent = itemCount + '개';
+    // 재고 부족 품목
+    document.getElementById('lowStockCount').textContent = lowStock.length + '개';
+    // 수동 추가 품목
+    document.getElementById('manualCount').textContent = added.length + '개';
+
+    console.log('lowStock(안전재고 미달 품목): ', lowStock);
+    console.log('added(수동 추가 품목): ', added);
+})
+
+
 function closePopup() {
     window.parent.postMessage({ type: 'close-place-popup' }, '*');
 }
 
 function sendAndClose() {
-    // TODO: 실제 전송 API 호출 넣기
-
-    alert('전송되었습니다.');
-
-    window.parent.postMessage({ type: 'close-place-popup' }, '*');
-
-    // 페이지 리로드 이동
-    window.parent.location.href = '<%= request.getContextPath() %>/branch/place_order/create';
+	// POST) /branch/place_order/send 
+    fetch('<%= request.getContextPath() %>/branch/place_order/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8', 'Accept': 'application/json' }
+    }).then(function(res) { // 응답 검사
+        if (!res.ok) {
+            return res.json().catch(function(){return{}}).then(function(payload){ throw new Error((payload && payload.message) || '전송에 실패했습니다.'); });
+        }
+        return res.json().catch(function(){return{}});
+    }).then(function() { // 성공 처리
+        alert('전송되었습니다.');
+        window.parent.postMessage({ type: 'close-place-popup' }, '*');
+        // location.href 는 window.parent(create.jsp) 브라우저창 URL을 변경 (클라이언트 사이드 redirect)
+        window.parent.location.href = '<%= request.getContextPath() %>/branch/place_order/create';
+    }).catch(function(err) {
+        alert(err.message || '전송에 실패했습니다.');
+    });
 }
 </script>
 </body>

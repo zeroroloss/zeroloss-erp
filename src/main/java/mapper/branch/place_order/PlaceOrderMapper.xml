@@ -128,9 +128,10 @@
         ORDER BY pod.po_detail_id ASC
     </select>
 
-    <insert id="insertPlaceOrder" parameterType="dto.branch.place_order.PlaceOrderRequestDTO" useGeneratedKeys="true" keyProperty="poId" keyColumn="po_id">
-        INSERT INTO place_order (po_no, branch_code, status, total_material_cnt, total_amount, reject_reason)
-        VALUES (#{poNo}, #{branchCode}, #{status}, #{totalMaterialCnt}, #{totalAmount}, #{rejectReason})
+    <insert id="insertPlaceOrder" parameterType="dto.branch.place_order.PlaceOrderDTO" 
+    		useGeneratedKeys="true" keyProperty="poId" keyColumn="po_id">
+        INSERT INTO place_order (po_no, branch_code, total_material_cnt, total_amount, reject_reason)
+        VALUES (#{poNo}, #{branchCode}, #{totalMaterialCnt}, #{totalAmount}, #{rejectReason})
     </insert>
 
     <insert id="insertPlaceOrderDetails" parameterType="map">
@@ -146,6 +147,13 @@
         SET status = #{status},
             reject_reason = #{rejectReason}
         WHERE po_no = #{poNo}
+    </update>
+    
+    
+    <update id="updatePlaceOrderNo" parameterType="map">
+        UPDATE place_order
+        SET po_no = #{poNo}
+        WHERE po_id = #{poId}
     </update>
 
 </mapper>

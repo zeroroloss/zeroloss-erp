@@ -22,16 +22,25 @@ public interface PlaceOrderDraftDAO {
 	// 안전재고 미달 품목 조회 (LOW_STOCK) 
 	List<PlaceOrderDraftDetailDTO> findLowStockMaterials(SqlSession sqlSession, int branchCode);
 	
+	// 안전재고 미달 품목 전체 개수
+	int countLowStockMaterials(SqlSession sqlSession, int branchCode);
+	
 	// draftDetail 삽입
 	void insertDraftDetail(SqlSession sqlSession, PlaceOrderDraftDetailDTO detailDTO);
 
-	// draftDetail 삭제
-	int deleteDraftDetail(SqlSession sqlSession, int draftId, String materialCode);
+	// draftDetail 모두 삭제
+	int deleteDraftDetails(SqlSession sqlSession, int draftId);
 
+	// draftDetail 단일 삭제
+	int deleteDraftDetails(SqlSession sqlSession, int draftId, String materialCode);
+	
 	// draftDetail 요청수량 업데이트
 	int updateDraftDetailQty(SqlSession sqlSession, int draftId, String materialCode, int requestedQty);
 
 	// 팝업용 전체 품목 조회 (드래프트 포함 상태 + 재고/안전재고)
 	List<Map<String, Object>> findSelectableItems(SqlSession sqlSession, int branchCode, int draftId);
-	
+
+	// 드래프트 전송 후 상태 업데이트 (po_id 연결 + 상태 변경)
+	int updateDraftStatusAfterSend(SqlSession sqlSession, int draftId, int poId, String status);
+
 }

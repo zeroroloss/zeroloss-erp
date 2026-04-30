@@ -81,6 +81,9 @@
 
 <%@ include file="/branch/common/layout/layout_head.jsp" %>
 <%
+	Integer lowStockTotalCount = (Integer) request.getAttribute("lowStockTotalCount");
+	if (lowStockTotalCount == null) lowStockTotalCount = 0;
+
 	Object draftAttr = request.getAttribute("draft");
 	String draftJson = new com.google.gson.Gson().toJson(
         draftAttr != null ? draftAttr : new dto.branch.place_order.PlaceOrderDraftDTO()
@@ -112,7 +115,7 @@
 		                <div class="card-icon">⚠</div>
 		                <div>
 		                    <h2 class="card-title">안전재고 미달 품목</h2>
-		                    <p class="card-sub"><!-- 0개 품목이 안전 재고보다 부족합니다 --></p>
+		                    <p class="card-sub">총 <%= lowStockTotalCount %>개 품목이 안전 재고 미달입니다</p>
 		                </div>
 		            </div>
 		            <div class="card-count"><!-- 0개 --></div>
@@ -262,7 +265,7 @@
 	}
 
 	function persistDraftChange(action, item) {
-		return fetch('<%= request.getContextPath() %>/api/branch/place_order/create', {
+		return fetch('<%= request.getContextPath() %>/api/branch/place_order/draft', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json; charset=UTF-8',
@@ -323,17 +326,12 @@
 	    // 카드 개수
 	    document.querySelector('.card.warn .card-count').textContent = lowCount + '개';
 	    document.querySelector('.card.added .card-count').textContent = addCount + '개';
-
-	    // 설명 텍스트
-	    document.querySelector('.card.warn .card-sub').textContent =
-	        lowCount + '개 품목이 안전 재고보다 부족합니다';
 	}
 	
 
 	renderTables();
 </script>
 
-<!--  -->
 <script>
     (function () {
         var overlay = document.getElementById('placePopupOverlay');
@@ -350,6 +348,7 @@
 				syncPopupState();
 
 				// send 팝업일 때만 데이터 전달
+				// postMessage가 'message' 이벤트를 발생시킴
 				if (popupType === 'send') {
 					frame.contentWindow.postMessage({
 						type: 'init-order-data',

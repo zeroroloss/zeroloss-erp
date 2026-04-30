@@ -401,7 +401,7 @@ body {
 
 <script>
 (function() {
-	var apiUrl = '<%=request.getContextPath()%>/api/branch/place_order/create/items';
+	var apiUrl = '<%=request.getContextPath()%>/api/branch/place_order/draft/items';
 	var items = [];
 	var pendingParentState = null;
 	var selectedCategory = '전체';

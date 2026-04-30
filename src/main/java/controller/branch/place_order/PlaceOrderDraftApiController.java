@@ -21,8 +21,8 @@ import service.branch.place_order.PlaceOrderService;
 import service.branch.place_order.PlaceOrderServiceImpl;
 import util.GsonFactory;
 
-@WebServlet("/api/branch/place_order/create")
-public class PlaceOrderCreateApiController extends HttpServlet {
+@WebServlet("/api/branch/place_order/draft")
+public class PlaceOrderDraftApiController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private final PlaceOrderService service = new PlaceOrderServiceImpl();
 	private final Gson gson = GsonFactory.getGson();

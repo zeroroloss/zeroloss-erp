@@ -19,7 +19,7 @@ import com.google.gson.Gson;
 
 import dto.AccountDTO;
 import dto.branch.place_order.PlaceOrderHistoryDTO;
-import dto.branch.place_order.PlaceOrderRequestDTO;
+import dto.branch.place_order.PlaceOrderDTO;
 import service.branch.place_order.PlaceOrderService;
 import service.branch.place_order.PlaceOrderServiceImpl;
 import util.GsonFactory;
@@ -128,7 +128,7 @@ public class PlaceOrderHistoryApiController extends HttpServlet {
 			}
 
 			String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-			PlaceOrderRequestDTO placeOrderRequestDTO = gson.fromJson(requestBody, PlaceOrderRequestDTO.class);
+			PlaceOrderDTO placeOrderRequestDTO = gson.fromJson(requestBody, PlaceOrderDTO.class);
 			if (placeOrderRequestDTO.getBranchCode() == null) {
 				placeOrderRequestDTO.setBranchCode(resolveBranchCode(loginUser));
 			}

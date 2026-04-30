@@ -5,8 +5,6 @@ import java.math.BigDecimal;
 // 발주 품목 상세
 public class PlaceOrderDetailDTO {
 
-    private static final long serialVersionUID = 1L;
-
     private Integer poDetailId;
     private Integer poId;
     private String materialCode;
@@ -14,13 +12,21 @@ public class PlaceOrderDetailDTO {
     private BigDecimal requestedQty;
     private BigDecimal approvedQty;
     private BigDecimal remainingQty;
-    private String unit; // 단위
+    private String unit;
 
     public Integer getPoDetailId() {
         return poDetailId;
     }
 
-    public void setPoDetailId(Integer poDetailId) {
+    public String getUnit() {
+		return unit;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+
+	public void setPoDetailId(Integer poDetailId) {
         this.poDetailId = poDetailId;
     }
 
@@ -28,7 +34,15 @@ public class PlaceOrderDetailDTO {
         return poId;
     }
 
-    public void setPoId(Integer poId) {
+    public String getMaterialName() {
+		return materialName;
+	}
+
+	public void setMaterialName(String materialName) {
+		this.materialName = materialName;
+	}
+
+	public void setPoId(Integer poId) {
         this.poId = poId;
     }
 
@@ -38,14 +52,6 @@ public class PlaceOrderDetailDTO {
 
     public void setMaterialCode(String materialCode) {
         this.materialCode = materialCode;
-    }
-
-    public String getMaterialName() {
-        return materialName;
-    }
-
-    public void setMaterialName(String materialName) {
-        this.materialName = materialName;
     }
 
     public BigDecimal getRequestedQty() {
@@ -72,11 +78,4 @@ public class PlaceOrderDetailDTO {
         this.remainingQty = remainingQty;
     }
     
-    public String getUnit() {
-        return unit;
-    }
-
-    public void setUnit(String unit) {
-        this.unit = unit;
-    }
 }

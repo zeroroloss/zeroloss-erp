@@ -20,14 +20,14 @@ import dto.hq.place_order.PlaceOrderMaterialDTO;
 import service.branch.place_order.PlaceOrderService;
 import service.branch.place_order.PlaceOrderServiceImpl;
 
-@WebServlet("/branch/place_order/create")
-public class PlaceOrderCreateController extends HttpServlet {
+@WebServlet("/branch/place_order/draft")
+public class PlaceOrderDraftController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private final PlaceOrderService service = new PlaceOrderServiceImpl();
 	private final Gson gson = new Gson();
 
-	public PlaceOrderCreateController() {
+	public PlaceOrderDraftController() {
         super();
     }
 
@@ -49,9 +49,12 @@ public class PlaceOrderCreateController extends HttpServlet {
 			// 반환: draftDTO
 			PlaceOrderDraftDTO draftDTO = service.findOrCreateInProgressDraft(branchCode);
 			
+			// 전체 미달 품목 개수
+			int lowStockTotalCount = service.getLowStockTotalCount(branchCode);
+			
 			// 응답 - 페이지 전송
             request.setAttribute("draft", draftDTO);
-            
+            request.setAttribute("lowStockTotalCount", lowStockTotalCount);
 			request.getRequestDispatcher("/branch/place_order/create.jsp").forward(request, response);
 			
 		} catch (Exception e) {

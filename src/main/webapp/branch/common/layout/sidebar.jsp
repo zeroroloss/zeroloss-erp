@@ -27,7 +27,7 @@ boolean inboundProcessingActive = uri.contains("/branch/inbound/processing.jsp")
 
 boolean orderGroup = uri.contains("/branch/place_order/");
 boolean orderHistoryActive = uri.contains("/branch/place_order/history");
-boolean orderCreateActive = uri.contains("/branch/place_order/create");
+boolean orderDraftCreateActive = uri.contains("/branch/place_order/draft");
 
 boolean salesGroup = uri.contains("/branch/sales/");
 boolean salesDetailActive = uri.contains("/branch/sales/branch_sales/sales-detail.jsp");
@@ -127,7 +127,7 @@ boolean inquiryActive = uri.contains("/branch/support/branch-inquiries.jsp");
         </button>
         <div class="submenu <%= orderGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
             <a href="<%= request.getContextPath() %>/branch/place_order/history" class="block px-4 py-2 rounded-lg text-sm <%= orderHistoryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">발주 내역</a>
-            <a href="<%= request.getContextPath() %>/branch/place_order/create" class="block px-4 py-2 rounded-lg text-sm <%= orderCreateActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">발주서 작성</a>
+            <a href="<%= request.getContextPath() %>/branch/place_order/draft" class="block px-4 py-2 rounded-lg text-sm <%= orderDraftCreateActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">발주서 작성</a>
         </div>
 
         <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= salesGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">

@@ -38,7 +38,7 @@ public class PlaceOrderDraftDTO {
 				+ "]";
 	}
 	//
-	public int getDraftId() {
+	public Integer getDraftId() {
 		return draftId;
 	}
 
@@ -46,7 +46,7 @@ public class PlaceOrderDraftDTO {
 		this.draftId = draftId;
 	}
 
-	public int getBranchCode() {
+	public Integer getBranchCode() {
 		return branchCode;
 	}
 
@@ -62,7 +62,7 @@ public class PlaceOrderDraftDTO {
 		this.status = status;
 	}
 
-	public int getPoId() {
+	public Integer getPoId() {
 		return poId;
 	}
 

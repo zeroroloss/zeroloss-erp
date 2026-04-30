@@ -1,6 +1,7 @@
 package dao.branch.place_order;
 
 import java.util.List;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,15 +33,28 @@ public class PlaceOrderDraftDAOImpl implements PlaceOrderDraftDAO {
 	public List<PlaceOrderDraftDetailDTO> findLowStockMaterials(SqlSession sqlSession, int branchCode) {
 		return sqlSession.selectList(MAPPER_NAMESPACE + "findLowStockMaterials", branchCode);
 	}
+	
+	@Override
+	public int countLowStockMaterials(SqlSession sqlSession, int branchCode) {
+		return sqlSession.selectOne(MAPPER_NAMESPACE + "countLowStockMaterials", branchCode);
+	}
 
 	@Override
 	public void insertDraftDetail(SqlSession sqlSession, PlaceOrderDraftDetailDTO detailDTO) {
 		sqlSession.insert(MAPPER_NAMESPACE + "insertDraftDetail", detailDTO);
 	}
 
+	// 반환) 영향받은 row 수 
 	@Override
-	public int deleteDraftDetail(SqlSession sqlSession, int draftId, String materialCode) {
+	public int deleteDraftDetails(SqlSession sqlSession, int draftId) {
 		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("draftId", draftId);
+		return sqlSession.delete(MAPPER_NAMESPACE + "deleteDraftDetails", draftId);
+	}
+	
+	@Override
+	public int deleteDraftDetails(SqlSession sqlSession, int draftId, String materialCode) {
+		Map<String, Object> params = new HashMap<>();
 		params.put("draftId", draftId);
 		params.put("materialCode", materialCode);
 		return sqlSession.delete(MAPPER_NAMESPACE + "deleteDraftDetail", params);
@@ -61,6 +75,15 @@ public class PlaceOrderDraftDAOImpl implements PlaceOrderDraftDAO {
 		params.put("branchCode", branchCode);
 		params.put("draftId", draftId);
 		return sqlSession.selectList(MAPPER_NAMESPACE + "findSelectableItems", params);
+	}
+
+	@Override
+	public int updateDraftStatusAfterSend(SqlSession sqlSession, int draftId, int poId, String status) {
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("draftId", draftId);
+		params.put("poId", poId);
+		params.put("status", status);
+		return sqlSession.update(MAPPER_NAMESPACE + "updateDraftPoIdStatus", params);
 	}
 
 }
