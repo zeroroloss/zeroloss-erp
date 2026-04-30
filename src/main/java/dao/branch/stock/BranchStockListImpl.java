@@ -14,7 +14,6 @@ public class BranchStockListImpl implements BranchStockListDao {
 
 	@Override
 	public List<MaterialGroupDTO> selectCategoryList(Integer branchCode) throws Exception {
-		 System.out.println("branchCode: " + branchCode);
 		List<MaterialGroupDTO> materialGroupList= null;
 		try(SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
 			materialGroupList = sqlSession.selectList("mapper.branch.stock.list.selectCategoryList", branchCode);

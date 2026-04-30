@@ -151,4 +151,31 @@
 			AND DATE(bsch.changed_at) &lt;= #{endDate}
 		</if>
 	</select>
+
+	<!-- 폐기 등록 -->
+	<insert id="insertStockChangeHistory" parameterType="dto.BranchStockChangeHistoryDTO">
+		INSERT INTO branch_stock_change_history (branch_stock_code, change_amount, change_type, changed_at, after_qty)
+		 VALUES ( #{branchStockCode}, #{changeAmount}, 'DISPOSAL', NOW(), #{afterQty})
+	</insert>
+	
+	<!-- 폐기 이력 등록-->
+	<insert id="insertDisposalHistory" parameterType="dto.BranchStockDisposalHistoryDTO" useGeneratedKeys="true" keyProperty="changeId">
+    	INSERT INTO branch_stock_disposal_history (change_id, reason, reason_detail)
+    	 VALUES (#{changeId}, #{reason},#{reasonDetail})
+	</insert>
+	
+   	<!-- 재고 수량 차감 -->
+   	<update id="updateBranchStockQty" parameterType="map">
+    UPDATE branch_stock SET current_qty = current_qty - #{disposalQty}
+    WHERE branch_stock_code = #{branchStockCode}
+    AND current_qty >= #{disposalQty}
+	</update>
+	
+	<!-- 폐기 후 after_qty 조회용 -->
+	<select id="selectCurrentQty" parameterType="string" resultType="java.math.BigDecimal">
+    SELECT current_qty
+    FROM branch_stock
+    WHERE branch_stock_code = #{branchStockCode}
+</select>
+	
 </mapper>
