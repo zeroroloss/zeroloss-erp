@@ -29,6 +29,7 @@
 		<mapper resource="mapper/BranchMapper.xml"/>
 		<mapper resource="mapper/hq/PlaceOrderQuantityLimitMapper.xml"/>
 		<mapper resource="mapper/hq/EmployeeMapper.xml"/>
+		<mapper resource="mapper/hq/HqScheduleMapper.xml"/>
 		<mapper resource="mapper/hq/BranchOptionMapper.xml"/>
 		<mapper resource="mapper/hq/ReceipeMapper.xml"/>
 		<mapper resource="mapper/hq/WarehouseStockMapper.xml"/>

@@ -1,4 +1,5 @@
 ﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -56,9 +57,10 @@
 	    .schedule-event:hover {
 	        opacity: 0.9;
 	    }
-	    .type-휴가 { background-color: #10b981; }
-	    .type-교육 { background-color: #a855f7; }
-	    .type-출장 { background-color: #3b82f6; }
+	    .type-OFF { background-color: #10b981; }
+	    .type-TRAINING { background-color: #a855f7; }
+	    .type-VISIT { background-color: #DC2626; }
+	    .type-BUSINESS_TRIP { background-color: #3b82f6; }
 	
 	    /* 수정 모달 전용 */
 	    .modal-input,
@@ -120,45 +122,6 @@
 					    </div>
 					</div>
 
-                    <!-- 통계 카드 -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-white rounded-lg border border-gray-200 p-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-calendar w-6 h-6 text-blue-600"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">총 일정</p>
-                                    <p class="text-2xl font-bold text-gray-900 mt-1" id="totalSchedules">0</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-lg border border-gray-200 p-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-file-alt w-6 h-6 text-purple-600"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">교육/출장</p>
-                                    <p class="text-2xl font-bold text-gray-900 mt-1" id="scheduleMeetings">0</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-lg border border-gray-200 p-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-map-pin w-6 h-6 text-yellow-600"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">휴가</p>
-                                    <p class="text-2xl font-bold text-gray-900 mt-1" id="scheduleTimeoff">0</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- 필터 섹션 -->
                     <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
                         <div class="flex flex-col gap-4">
@@ -213,6 +176,10 @@
                                 <span class="text-gray-600">출장</span>
                             </div>
                             <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <span class="text-gray-600">지점점검</span>
+                            </div>
+                            <div class="flex items-center gap-2">
                                 <div class="w-3 h-3 bg-green-500 rounded-full"></div>
                                 <span class="text-gray-600">휴가</span>
                             </div>
@@ -259,54 +226,45 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             직원 선택 <span class="text-red-500">*</span>
                         </label>
-                        <select id="positionSelect" onchange="updateEmployeeCheckboxes()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent mb-3">
+                        <select id="gradeCode" onchange="updateEmployeeCheckboxes()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent mb-3">
                             <option value="">직급을 먼저 선택하세요</option>
-                            <option value="부장">부장</option>
-                            <option value="과장">과장</option>
-                            <option value="차장">차장</option>
-                            <option value="대리">대리</option>
+                            <option value="GR_DIR">부장</option>
+                            <option value="GR_DPT">차장</option>
+                            <option value="GR_MGR">과장</option>
+                            <option value="GR_AST">대리</option>
+                            <option value="GR_STF">사원</option>
+                            <option value="GR_DRV">배달기사</option>
                         </select>
+	                    <div id="employeeCheckboxes" class="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto bg-gray-50 hidden">
+	                    	<div class="space-y-2" id="employeeList"></div>
+	                    </div>
                         <p class="text-xs text-gray-500 mt-1">직급을 선택하면 해당 직급의 직원이 표시됩니다</p>
                     </div>
-                    <div id="employeeCheckboxes" class="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto bg-gray-50 hidden">
-                    	<div class="space-y-2" id="employeeList"></div>
-                    </div>
-                </div>
-
-                <!-- 날짜 및 근무 유형 -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            날짜 <span class="text-red-500">*</span>
-                        </label>
-                        <input type="date" id="scheduleDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                    </div>
-
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             근무 유형 <span class="text-red-500">*</span>
                         </label>
                         <select id="scheduleType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                            <option value="교육">교육</option>
-                            <option value="출장">출장</option>
-                            <option value="휴가">휴가</option>
+                            <option value="TRAINING">교육</option>
+                            <option value="BUSINESS_TRIP">출장</option>
+                            <option value="VISIT">지점점검</option>
+                            <option value="OFF">휴가</option>
                         </select>
                     </div>
                 </div>
 
                 <!-- 기간설정 -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                        기간 <span class="text-red-500">*</span>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">기간 <span class="text-red-500">*</span>
                     </label>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">시작 날짜</label>
-                            <input type="time" id="startTime" value="09:00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                            <input type="date" id="startDay" value="2026-01-01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                         </div>
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">종료 날짜</label>
-                            <input type="time" id="endTime" value="18:00" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                            <input type="date" id="endDay" value="2026-12-31" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
                         </div>
                     </div>
                 </div>
@@ -353,36 +311,28 @@
 	                    <label class="block text-sm font-medium text-gray-700 mb-2">직원</label>
 	                    <input type="text" id="editEmployeeName" class="modal-input modal-readonly" readonly>
 	                </div>
-	            </div>
-	
-	            <!-- 날짜 및 근무 유형 -->
-	            <div class="grid grid-cols-2 gap-4">
-	                <div>
-	                    <label class="block text-sm font-medium text-gray-700 mb-2">날짜</label>
-	                    <input type="date" id="editDate" class="modal-input modal-readonly" readonly>
-	                </div>
-	
 	                <div>
 	                    <label class="block text-sm font-medium text-gray-700 mb-2">근무 유형</label>
 	                    <select id="editScheduleType" class="modal-select">
-	                        <option value="교육">교육</option>
-	                        <option value="출장">출장</option>
-	                        <option value="휴가">휴가</option>
+	                        <option value="TRAINING">교육</option>
+	                        <option value="BUSINESS_TRIP">출장</option>
+	                        <option value="VISIT">지점점검</option>
+	                        <option value="VACATION">휴가</option>
 	                    </select>
 	                </div>
 	            </div>
-	
+	            
 	            <!-- 근무 시간 -->
 	            <div>
 	                <label class="block text-sm font-medium text-gray-700 mb-2">기간</label>
 	                <div class="grid grid-cols-2 gap-4">
 	                    <div>
 	                        <label class="block text-xs text-gray-500 mb-1">시작 날짜</label>
-	                        <input type="time" id="editStartTime" class="modal-input">
+	                        <input type="date" id="editStartDay" class="modal-input">
 	                    </div>
 	                    <div>
 	                        <label class="block text-xs text-gray-500 mb-1">종료 날짜</label>
-	                        <input type="time" id="editEndTime" class="modal-input">
+	                        <input type="date" id="editEndDay" class="modal-input">
 	                    </div>
 	                </div>
 	            </div>
@@ -413,18 +363,43 @@
 	</div>
 
 	<script>
-		var hqSchedules = [];
+		var hqSchedules = [
+			<c:forEach var="s" items="${scheduleList}" varStatus="st">
+			{
+				id: "${s.scheduleId}",
+				employeeId: "${s.empNo}",
+				employee: "${s.empName}",
+				branchCode: "${s.branchCode}",
+				branch: "${s.branchName}",
+				type: "${s.workType}",
+				title: "${s.workType}",
+				startDay: "${s.startDay}",
+				endDay: "${s.endDay}",
+				notes: "${s.memo}"
+			}<c:if test="${!st.last}">,</c:if>
+			</c:forEach>
+		];
 		var branchSchedules = [];
 		
 		var scheduleViewMode = 'hq'; // hq 또는 branch
 	    var currentDate = new Date();
 	    var selectedEmployees = [];
 	    
-	    var employees = [];
+	    var employees = [
+	    	<c:forEach var="e" items="${hqEmployeeList}" varStatus="st">
+	    	{
+	    		id: "${e.empNo}",
+	    		name: "${e.name}",
+	    		grade: "${e.gradeCode}",
+	    		dept: "${e.dept}",
+	    		branch: "${e.branchName}",
+	    		branchCode: "${e.branchCode}"
+	    	}<c:if test="${!st.last}">,</c:if>
+	    	</c:forEach>
+	    ];
 	
 	    window.addEventListener('DOMContentLoaded', function() {
 	        renderCalendar();
-	        updateStats();
 	    });
 	
 	    function getCurrentSchedules() {
@@ -445,7 +420,6 @@
 	        }
 
 	        renderCalendar();
-	        updateStats();
 	    }
 	    
 	    function renderCalendar() {
@@ -511,6 +485,10 @@
 	                String(dayObj.date.getDate()).padStart(2, '0');
 	
 	            var daySchedules = currentSchedules.filter(function(s) {
+	                if (scheduleViewMode === 'hq') {
+	                    return s.startDay <= dateStr && s.endDay >= dateStr;
+	                }
+
 	                return s.date === dateStr;
 	            });
 	
@@ -569,50 +547,30 @@
 	        showAddModal(dateStr);
 	    }
 	
-	    function updateStats() {
-	        var currentSchedules = getCurrentSchedules();
-
-	        var total = currentSchedules.length;
-
-	        var educationTrip = currentSchedules.filter(function(s) {
-	            return s.type === '교육' || s.type === '출장';
-	        }).length;
-
-	        var timeoff = currentSchedules.filter(function(s) {
-	            return s.type === '휴가';
-	        }).length;
-
-	        document.getElementById('totalSchedules').textContent = total;
-	        document.getElementById('scheduleMeetings').textContent = educationTrip;
-	        document.getElementById('scheduleTimeoff').textContent = timeoff;
-	    }
-	
 	    function applyFilters() {
 	        renderCalendar();
-	        updateStats();
 	    }
 	
 	    function resetFilters() {
 	        document.getElementById('searchInput').value = '';
 	        renderCalendar();
-	        updateStats();
 	    }
 	
 	    function updateEmployeeCheckboxes() {
-	        var position = document.getElementById('positionSelect').value;
+	        var grade = document.getElementById('gradeCode').value;
 	        var container = document.getElementById('employeeCheckboxes');
 	        var list = document.getElementById('employeeList');
 	
 	        selectedEmployees = [];
 	
-	        if (!position) {
+	        if (!grade) {
 	            container.classList.add('hidden');
 	            list.innerHTML = '';
 	            return;
 	        }
 	
 	        var filtered = employees.filter(function(e) {
-	            return e.position === position;
+	            return e.grade === grade;
 	        });
 	
 	        var html = '';
@@ -626,7 +584,6 @@
 	            html += '<div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">' + emp.name.charAt(0) + '</div>';
 	            html += '<div class="text-sm">';
 	            html += '<span class="font-medium text-gray-900">' + emp.name + '</span>';
-	            html += '<span class="text-gray-500 ml-1">(' + emp.branch + ')</span>';
 	            html += '</div>';
 	            html += '</div>';
 	            html += '</label>';
@@ -650,13 +607,12 @@
 	    }
 	
 	    function showAddModal(selectedDate) {
-	        document.getElementById('positionSelect').value = '';
+	        document.getElementById('gradeCode').value = '';
 	        document.getElementById('employeeCheckboxes').classList.add('hidden');
 	        document.getElementById('employeeList').innerHTML = '';
-	        document.getElementById('scheduleDate').value = selectedDate || new Date().toISOString().split('T')[0];
-	        document.getElementById('scheduleType').value = '교육';
-	        document.getElementById('startTime').value = '09:00';
-	        document.getElementById('endTime').value = '18:00';
+	        document.getElementById('scheduleType').value = 'TRAINING';
+	        document.getElementById('startDay').value = '2026-01-01';
+	        document.getElementById('endDay').value = '2026-12-31';
 	        document.getElementById('notes').value = '';
 	
 	        selectedEmployees = [];
@@ -669,45 +625,47 @@
 	    }
 	
 	    function saveSchedule() {
-	        var checkboxes = document.querySelectorAll('#employeeCheckboxes input[type="checkbox"]:checked');
-	        var date = document.getElementById('scheduleDate').value;
+	        var empNo = selectedEmployees[0];
+	        var startDay = document.getElementById('startDay').value;
+	        var endDay = document.getElementById('endDay').value;
 	        var type = document.getElementById('scheduleType').value;
-	        var startTime = document.getElementById('startTime').value;
-	        var endTime = document.getElementById('endTime').value;
 	        var notes = document.getElementById('notes').value;
-	
-	        if (checkboxes.length === 0 || !date || !type || !startTime || !endTime) {
+
+	        if (!empNo || !startDay || !endDay || !type) {
 	            alert('필수 항목을 모두 입력하세요.');
 	            return;
 	        }
-	
-	        for (var i = 0; i < checkboxes.length; i++) {
-	            var empId = checkboxes[i].value;
-	            var emp = employees.find(function(e) {
-	                return e.id === empId;
-	            });
-	
-	            var schedules = getCurrentSchedules();
-	            if (emp) {
-	                schedules.push({
-	                    id: String(Date.now()) + '_' + i,
-	                    employee: emp.name,
-	                    employeeId: emp.id,
-	                    branch: emp.branch,
-	                    type: type,
-	                    title: type,
-	                    date: date,
-	                    startTime: startTime,
-	                    endTime: endTime,
-	                    notes: notes
-	                });
-	            }
+
+	        if (endDay < startDay) {
+	            alert('종료 날짜는 시작 날짜보다 빠를 수 없습니다.');
+	            return;
 	        }
-	
-	        alert('일정이 추가되었습니다.');
-	        closeAddModal();
-	        renderCalendar();
-	        updateStats();
+
+	        fetch('<%= request.getContextPath() %>/hq/hr/hqschedule', {
+	            method: 'POST',
+	            headers: {
+	                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+	            },
+	            body:
+	                'action=add' +
+	                '&empNo=' + encodeURIComponent(empNo) +
+	                '&branchCode=1' +
+	                '&startDay=' + encodeURIComponent(startDay) +
+	                '&endDay=' + encodeURIComponent(endDay) +
+	                '&memo=' + encodeURIComponent(notes) +
+	                '&workType=' + encodeURIComponent(type)
+	        })
+	        .then(function(res) {
+	            return res.json();
+	        })
+	        .then(function(data) {
+	            if (data.success) {
+	                alert(data.message || '일정이 등록되었습니다.');
+	                location.reload();
+	            } else {
+	                alert(data.message || '일정 등록 실패');
+	            }
+	        });
 	    }
 	
 	    function viewSchedule(id) {
@@ -723,10 +681,9 @@
 	
 	        document.getElementById('editScheduleId').value = schedule.id;
 	        document.getElementById('editEmployeeName').value = schedule.employee || '';
-	        document.getElementById('editDate').value = schedule.date || '';
 	        document.getElementById('editScheduleType').value = schedule.type || '교육';
-	        document.getElementById('editStartTime').value = schedule.startTime || '';
-	        document.getElementById('editEndTime').value = schedule.endTime || '';
+	        document.getElementById('editStartDay').value = schedule.startDay || schedule.date || '';
+	        document.getElementById('editEndDay').value = schedule.endDay || schedule.date || '';
 	        document.getElementById('editNotes').value = schedule.notes || '';
 	
 	        document.getElementById('editModal').classList.remove('modal-hidden');
@@ -737,37 +694,46 @@
 	    }
 	
 	    function updateSchedule() {
-	    	var schedules = getCurrentSchedules();
 	        var scheduleId = document.getElementById('editScheduleId').value;
 	        var type = document.getElementById('editScheduleType').value;
-	        var startTime = document.getElementById('editStartTime').value;
-	        var endTime = document.getElementById('editEndTime').value;
 	        var notes = document.getElementById('editNotes').value;
-	
-	        if (!type || !startTime || !endTime) {
+	        var startDay = document.getElementById('editStartDay').value;
+	        var endDay = document.getElementById('editEndDay').value;
+
+	        if (!scheduleId || !startDay || !endDay || !type) {
 	            alert('필수 항목을 모두 입력하세요.');
 	            return;
 	        }
-	
-	        var schedule = schedules.find(function(s) {
-	            return String(s.id) === String(scheduleId);
-	        });
-	
-	        if (!schedule) {
-	            alert('수정할 일정을 찾을 수 없습니다.');
+
+	        if (endDay < startDay) {
+	            alert('종료 날짜는 시작 날짜보다 빠를 수 없습니다.');
 	            return;
 	        }
-	
-	        schedule.type = type;
-	        schedule.title = type;
-	        schedule.startTime = startTime;
-	        schedule.endTime = endTime;
-	        schedule.notes = notes;
-	
-	        alert('일정이 수정되었습니다.');
-	        closeEditModal();
-	        renderCalendar();
-	        updateStats();
+
+	        fetch('<%= request.getContextPath() %>/hq/hr/hqschedule', {
+	            method: 'POST',
+	            headers: {
+	                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+	            },
+	            body:
+	                'action=update' +
+	                '&scheduleId=' + encodeURIComponent(scheduleId) +
+	                '&startDay=' + encodeURIComponent(startDay) +
+	                '&endDay=' + encodeURIComponent(endDay) +
+	                '&memo=' + encodeURIComponent(notes) +
+	                '&workType=' + encodeURIComponent(type)
+	        })
+	        .then(function(res) {
+	            return res.json();
+	        })
+	        .then(function(data) {
+	            if (data.success) {
+	                alert(data.message || '일정이 수정되었습니다.');
+	                location.reload(); // DB에서 다시 조회해서 캘린더 반영
+	            } else {
+	                alert(data.message || '일정 수정 실패');
+	            }
+	        });
 	    }
 	
 	    function deleteSchedule() {
@@ -794,7 +760,6 @@
 
 	        closeEditModal();
 	        renderCalendar();
-	        updateStats();
 	    }
 	
 	    function toggleMenu(button) {

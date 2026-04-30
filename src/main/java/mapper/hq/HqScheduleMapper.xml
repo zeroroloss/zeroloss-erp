@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="mapper.hq.schedule">
+	<insert id="insertSchedule" parameterType="dto.hq.hr.HqScheduleDTO">
+		insert into hq_schedule(emp_no,branch_code,start_day,end_day,memo,work_type)
+		values(#{empNo},#{branchCode},#{startDay},#{endDay},#{memo},#{workType})
+	</insert>
+	
+	<select id="selectSchedule" parameterType="Integer" resultType="dto.hq.hr.HqScheduleDTO">
+		select schedule_id as scheduleId, emp_no as empNo, branch_code as branchCode, start_day as startDay, end_day as endDay, memo, work_type as workType from hq_schedule where schedule_id=#{value}
+	</select>
+	
+	<select id="selectHqEmployee" resultType="dto.hq.hr.EmployeeDTO">
+		select emp_no as empNo, branch_code as branchCode, name, dept, grade_code as gradeCode, status from employee where branch_code = 1 and status = 'ACTIVE' order by name
+	</select>
+	
+	<select id="duplicateScdCnt" parameterType="dto.hq.hr.HqScheduleDTO" resultType="int">
+		select count(*)
+		from hq_schedule
+		where emp_no = #{empNo}
+		and start_day &lt;= #{endDay}
+		and end_day &gt;= #{startDay}
+	</select>
+
+	<select id="duplicateScdCntForUpdate" parameterType="dto.hq.hr.HqScheduleDTO" resultType="int">
+		select count(*)
+		from hq_schedule
+		where emp_no = #{empNo}
+		and schedule_id != #{scheduleId}
+		and start_day &lt;= #{endDay}
+		and end_day &gt;= #{startDay}
+	</select>
+	
+	<select id="selectScheduleList" parameterType="dto.hq.hr.HqScheduleDTO" resultType="dto.hq.hr.HqScheduleDTO">
+		select s.schedule_id as scheduleId, s.emp_no as empNo, e.name as empName, e.dept as dept, s.branch_code as branchCode, b.name as branchName, start_day as startDay, end_day as endDay, memo, work_type as workType from hq_schedule s
+		left join employee e on s.emp_no=e.emp_no
+		left join branch b on s.branch_code=b.branch_code
+		<where>
+			<if test="empNo != null">
+				and e.emp_no like CONCAT('%', #{empNo}, '%')
+			</if>
+			<if test="dept != null and dept != ''">
+				and e.dept like CONCAT('%', #{dept}, '%')
+			</if>
+			<if test="empName != null and empName != ''">
+				and e.name like CONCAT('%', #{empName}, '%')
+			</if>
+			<if test="branchName != null and branchName != ''">
+				and b.name like CONCAT('%', #{branchName}, '%')
+			</if>
+		</where>
+		order by s.start_day DESC, s.schedule_id DESC
+	</select>
+	
+	<update id="updateSchedule" parameterType="dto.hq.hr.HqScheduleDTO">
+		update hq_schedule set start_day = #{startDay}, end_day = #{endDay}, memo = #{memo}, work_type = #{workType} where schedule_id = #{scheduleId}
+	</update>
+	
+	<delete id="deleteSchedule" parameterType="Integer">
+		delete from hq_schedule where schedule_id = #{value}
+	</delete>
+</mapper>
