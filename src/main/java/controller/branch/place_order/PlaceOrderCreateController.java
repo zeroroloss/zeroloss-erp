@@ -32,7 +32,7 @@ public class PlaceOrderCreateController extends HttpServlet {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.setContentType("text/html; charset=UTF-8");
+		response.setContentType("text/html; charset=UTF-8"); // 화면 내려줌
 		
 		try {
 			AccountDTO loginUser = getLoginUser(request);
@@ -60,8 +60,9 @@ public class PlaceOrderCreateController extends HttpServlet {
             response.getWriter().write("server error");
         }
 	}
+	
 
-    private AccountDTO getLoginUser(HttpServletRequest request) {
+	private AccountDTO getLoginUser(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session == null) return null;
         return (AccountDTO) session.getAttribute("loginUser");

@@ -45,14 +45,34 @@
 			
 			m.material_name			AS materialName,
 			mg.group_name			AS categoryName,
-			m.unit					AS unit 
+			m.unit					AS unit,
+			CAST(COALESCE(SUM(bs.current_qty), 0) AS SIGNED)	AS currentStock,
+			CAST(COALESCE(bmss.safe_stock_qty, 0) AS SIGNED)	AS safeStock
 			
 		FROM place_order_draft_detail dd
 		JOIN material m
 		  	ON dd.material_code = m.material_code
 	  	JOIN material_group mg
 	  		ON m.material_group_id = mg.material_group_id
+		LEFT JOIN branch_stock bs
+			ON bs.branch_code = (SELECT branch_code FROM place_order_draft WHERE draft_id = dd.draft_id)
+		  	AND bs.material_code = dd.material_code
+		LEFT JOIN branch_material_safety_stock bmss
+			ON bmss.branch_code = (SELECT branch_code FROM place_order_draft WHERE draft_id = dd.draft_id)
+		  	AND bmss.material_code = dd.material_code
+		  	
   		WHERE dd.draft_id = #{_parameter}
+  		
+		GROUP BY
+			dd.draft_detail_id,
+			dd.draft_id,
+			dd.material_code,
+			dd.requested_qty,
+			dd.source_type,
+			m.material_name,
+			mg.group_name,
+			m.unit,
+			bmss.safe_stock_qty
 	</select>
 	
 <!-- 안전재고 미달 품목 조회 (LOW_STOCK)  -->
@@ -109,8 +129,24 @@
             #{materialCode},
             #{requestedQty},
             #{sourceType}
-        )
+		)
+		ON DUPLICATE KEY UPDATE
+			requested_qty = VALUES(requested_qty),
+			source_type = VALUES(source_type)
 	</insert>
+
+	<delete id="deleteDraftDetail" parameterType="map">
+		DELETE FROM place_order_draft_detail
+		WHERE draft_id = #{draftId}
+		  AND material_code = #{materialCode}
+	</delete>
+
+	<update id="updateDraftDetailQty" parameterType="map">
+		UPDATE place_order_draft_detail
+		SET requested_qty = #{requestedQty}
+		WHERE draft_id = #{draftId}
+		  AND material_code = #{materialCode}
+	</update>
 
 	<select id="findSelectableItems" parameterType="map" resultType="map">
 		SELECT

@@ -25,6 +25,12 @@ public interface PlaceOrderDraftDAO {
 	// draftDetail 삽입
 	void insertDraftDetail(SqlSession sqlSession, PlaceOrderDraftDetailDTO detailDTO);
 
+	// draftDetail 삭제
+	int deleteDraftDetail(SqlSession sqlSession, int draftId, String materialCode);
+
+	// draftDetail 요청수량 업데이트
+	int updateDraftDetailQty(SqlSession sqlSession, int draftId, String materialCode, int requestedQty);
+
 	// 팝업용 전체 품목 조회 (드래프트 포함 상태 + 재고/안전재고)
 	List<Map<String, Object>> findSelectableItems(SqlSession sqlSession, int branchCode, int draftId);
 	

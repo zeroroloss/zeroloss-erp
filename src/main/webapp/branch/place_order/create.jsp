@@ -101,7 +101,8 @@
 		            <p class="page-sub">자동 생성된 발주서를 확인하고 품목을 추가하거나 수정하세요</p>
 		        </div>
 		        <div class="head-actions">
-		            <a class="btn btn-primary open-place-popup" href="<%= request.getContextPath() %>/branch/place_order/send.jsp">✈ 본사 전송</a>
+		            <a class="btn btn-primary open-place-popup" data-type="send"
+						href="<%= request.getContextPath() %>/branch/place_order/send.jsp">✈ 본사 전송</a>
 		        </div>
 		    </div>
 		
@@ -167,7 +168,8 @@
 		    </section>
 		
 		    <div class="add-action">
-		                <a class="btn btn-add open-place-popup" href="<%= request.getContextPath() %>/branch/place_order/create_add.jsp">＋ 품목 추가</a>
+		                <a class="btn btn-add open-place-popup" data-type="add" 
+							href="<%= request.getContextPath() %>/branch/place_order/create_add.jsp">＋ 품목 추가</a>
 		    </div>
 		</div>
 	</div>
@@ -216,11 +218,9 @@
 	        '<td>' + (item.safeStock || 0) + (item.unit || '') + '</td>' +
 	        '<td>' +
 	            '<span class="qty-cell">' +
-	                '<input class="qty-input" type="number" ' +
-	                    'value="' + (item.requestedQty != null 
-	                        ? item.requestedQty 
-	                        : Math.max(0, item.safeStock - item.currentStock)) + '" ' +
-	                    'min="0" step="1">' +
+					'<input class="qty-input" type="number" ' +
+						'value="' + (item.requestedQty != null ? item.requestedQty : (item.safeStock != null ? item.safeStock : 0)) + '" ' +
+						'min="0" step="1">' +
 	                '<span class="unit">' + (item.unit || '') + '</span>' +
 	            '</span>' +
 	        '</td>' +
@@ -247,6 +247,73 @@
 	
 	    updateCounts();
 	}
+
+	function syncPopupState() {
+		var frame = document.getElementById('placePopupFrame');
+		if (!frame || !frame.contentWindow) return;
+
+		frame.contentWindow.postMessage({
+			type: 'sync-order-state',
+			data: {
+				lowStock: lowStockData,
+				added: addedItemData
+			}
+		}, '*');
+	}
+
+	function persistDraftChange(action, item) {
+		return fetch('<%= request.getContextPath() %>/api/branch/place_order/create', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json; charset=UTF-8',
+				'Accept': 'application/json'
+			},
+			body: JSON.stringify({
+				action: action,
+				item: item
+			})
+		}).then(function(response) {
+			if (!response.ok) {
+				return response.json().catch(function() { return {}; }).then(function(payload) {
+					throw new Error((payload && payload.message) || '발주 임시저장 반영에 실패했습니다.');
+				});
+			}
+			return response.json().catch(function() { return {}; });
+		});
+	}
+
+	function applyLocalDraftChange(action, item) {
+		if (!item || !item.materialCode) return;
+
+		if (action === 'add') {
+			var normalized = {
+				materialCode: item.materialCode,
+				materialName: item.materialName || '',
+				categoryName: item.categoryName || '',
+				currentStock: Number(item.currentStock || 0),
+				safeStock: Number(item.safeStock || 0),
+				unit: item.unit || '',
+				sourceType: item.sourceType || 'MANUAL',
+				requestedQty: item.requestedQty != null ? Number(item.requestedQty) : (Number(item.safeStock || 0))
+			};
+
+			if (normalized.sourceType === 'LOW_STOCK') {
+				if (!lowStockData.some(function(existing) { return existing.materialCode === normalized.materialCode; })) {
+					lowStockData.unshift(normalized);
+				}
+			} else if (!addedItemData.some(function(existing) { return existing.materialCode === normalized.materialCode; })) {
+				addedItemData.unshift(normalized);
+			}
+			return;
+		}
+
+		lowStockData = lowStockData.filter(function(existing) {
+			return existing.materialCode !== item.materialCode;
+		});
+		addedItemData = addedItemData.filter(function(existing) {
+			return existing.materialCode !== item.materialCode;
+		});
+	}
 	
 	// 카운트 동적 처리
 	function updateCounts() {
@@ -272,13 +339,44 @@
         var overlay = document.getElementById('placePopupOverlay');
         var frame = document.getElementById('placePopupFrame');
 
-        function openPopup(url) {
+		function openPopup(url, popupType) {
             if (!overlay || !frame || !url) return;
             frame.src = url;
             overlay.classList.add('active');
             overlay.setAttribute('aria-hidden', 'false');
             document.body.style.overflow = 'hidden';
+
+			frame.onload = function () {
+				syncPopupState();
+
+				// send 팝업일 때만 데이터 전달
+				if (popupType === 'send') {
+					frame.contentWindow.postMessage({
+						type: 'init-order-data',
+						data: {
+							lowStock: lowStockData,
+							added: addedItemData
+						}
+					}, '*');
+				}
+			};
         }
+
+		// send.jsp에 데이터 넘기는 함수
+		function buildSummary() {
+			var allItems = lowStockData.concat(addedItemData);
+
+			var totalQty = 0;
+			allItems.forEach(function(item) {
+				totalQty += Number(item.requestedQty || 0);
+			});
+
+			return {
+				itemCount: allItems.length,
+				totalQty: totalQty,
+				lowStockCount: lowStockData.length
+			};
+		}
 
         function closePopup() {
             if (!overlay || !frame) return;
@@ -289,11 +387,15 @@
         }
 
         document.addEventListener('click', function (event) {
-            var target = event.target.closest('.open-place-popup');
-            if (!target) return;
+			var target = event.target.closest('.open-place-popup');
+			if (!target) return;
 
-            event.preventDefault();
-            openPopup(target.getAttribute('href'));
+			event.preventDefault();
+
+			var type = target.dataset.type;
+			var url = target.getAttribute('href');
+
+			openPopup(url, type);
         });
         
      	// 삭제 버튼 클릭 시 해당 row 제거
@@ -318,6 +420,7 @@
 		    }
 		    
 	        renderTables();
+	        syncPopupState();
 		});
      	
      	// 입력 시마다 호출되는 이벤트!
@@ -347,7 +450,28 @@
 			    var item = addedItemData.find(i => i.materialCode === id);
 			    if (item) item.requestedQty = qty;
 			}
+			syncPopupState();
      	});
+
+		  // 입력 필드에서 포커스가 빠져나갈 때 서버에 요청수량을 반영한다 (blur / focusout)
+		  document.addEventListener('focusout', function(e) {
+			  if (!e.target.classList.contains('qty-input')) return;
+
+			  var row = e.target.closest('tr');
+			  if (!row) return;
+			  var id = row.dataset.id;
+			  var qty = Number(e.target.value) || 0;
+
+			  var payload = { materialCode: id, requestedQty: qty };
+
+			  persistDraftChange('update-qty', payload)
+				  .then(function() {
+					  // 성공 시 추가 동작 없음 (로컬 상태는 이미 업데이트되어 있음)
+				  })
+				  .catch(function(error) {
+					  alert(error.message || '요청 수량 반영에 실패했습니다.');
+				  });
+		  });
      	
 
         if (overlay) {
@@ -368,27 +492,16 @@
 				var addItem = event.data.item || {};
 				if (!addItem.materialCode) return;
 
-				var existsInLow = lowStockData.some(function(i) { return i.materialCode === addItem.materialCode; });
-				var existsInAdd = addedItemData.some(function(i) { return i.materialCode === addItem.materialCode; });
-				if (existsInLow || existsInAdd) return;
-
-				var normalized = {
-					materialCode: addItem.materialCode,
-					materialName: addItem.materialName || '',
-					categoryName: addItem.categoryName || '',
-					currentStock: Number(addItem.currentStock || 0),
-					safeStock: Number(addItem.safeStock || 0),
-					unit: addItem.unit || '',
-					sourceType: addItem.sourceType || 'MANUAL',
-					requestedQty: Math.max(0, Number(addItem.safeStock || 0) - Number(addItem.currentStock || 0))
-				};
-
-				if (normalized.sourceType === 'LOW_STOCK') {
-					lowStockData.unshift(normalized);
-				} else {
-					addedItemData.unshift(normalized);
-				}
-				renderTables();
+				persistDraftChange('add', addItem)
+					.then(function() {
+						applyLocalDraftChange('add', addItem);
+						renderTables();
+						syncPopupState();
+					})
+					.catch(function(error) {
+						alert(error.message || '발주 임시저장 반영에 실패했습니다.');
+						syncPopupState();
+					});
 				return;
 			}
 
@@ -396,9 +509,16 @@
 				var removeItem = event.data.item || {};
 				if (!removeItem.materialCode) return;
 
-				lowStockData = lowStockData.filter(function(i) { return i.materialCode !== removeItem.materialCode; });
-				addedItemData = addedItemData.filter(function(i) { return i.materialCode !== removeItem.materialCode; });
-				renderTables();
+				persistDraftChange('remove', removeItem)
+					.then(function() {
+						applyLocalDraftChange('remove', removeItem);
+						renderTables();
+						syncPopupState();
+					})
+					.catch(function(error) {
+						alert(error.message || '발주 임시저장 반영에 실패했습니다.');
+						syncPopupState();
+					});
 			}
         });
     })();

@@ -212,59 +212,23 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 	public PlaceOrderDraftDTO findOrCreateInProgressDraft(int branchCode) {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false);
 		try {
-			// 1. IN_PROGESS 상태의 draft 조회
-			PlaceOrderDraftDTO draftDTO = draftDAO.findInProgressDraft(sqlSession, branchCode);
-			
-			// 2. IN_PROGESS가 없으면 생성
-			if (draftDTO == null) {
-				draftDTO = new PlaceOrderDraftDTO();
-				draftDTO.setBranchCode(branchCode);
-				draftDTO.setStatus("IN_PROGRESS");
-				
-				// 새로운 draft DTO 삽입 - IN_PROGRESS
-				draftDAO.insertDraft(sqlSession, draftDTO); 
-			}
-			
-			int draftId = draftDTO.getDraftId();
-			
-			// 3. 기존 draftDetail 리스트 조회
-			List<PlaceOrderDraftDetailDTO> existingDetails = draftDAO.findDraftDetails(sqlSession, draftId);
-			
-			// 4. 안전재고 미달 품목 조회 (LOW_STOCK) 
-			List<PlaceOrderDraftDetailDTO> lowStockMaterials = draftDAO.findLowStockMaterials(sqlSession, branchCode);
-			// 로그 추가
-			System.out.println("===== [LOW STOCK CHECK] =====");
+            PlaceOrderDraftDTO draftDTO = draftDAO.findInProgressDraft(sqlSession, branchCode);
+            boolean isNewDraft = false;
 
-			for (PlaceOrderDraftDetailDTO item : lowStockMaterials) {
-			    System.out.println(
-			        "[재고체크] materialCode=" + item.getMaterialCode()
-			        + ", materialName=" + item.getMaterialName()
-			        + ", currentStock=" + item.getCurrentStock()
-			        + ", safeStock=" + item.getSafeStock()
-			    );
-			}
+            if (draftDTO == null) {
+                draftDTO = new PlaceOrderDraftDTO();
+                draftDTO.setBranchCode(branchCode);
+                draftDTO.setStatus("IN_PROGRESS");
+                draftDAO.insertDraft(sqlSession, draftDTO);
+                isNewDraft = true;
+            }
 
-			System.out.println("===== [END] =====");
-			// 5. existingDetails에 없는 안전재고 미달 품목(LOW_STOCK)만 추가
-			for (PlaceOrderDraftDetailDTO lowStock : lowStockMaterials) {
-				boolean exists = existingDetails.stream()
-											.anyMatch(detail -> 
-												detail.getMaterialCode().equals(lowStock.getMaterialCode()));
-				
-				if (!exists) {
-					lowStock.setDraftId(draftId);
-					lowStock.setSourceType("LOW_STOCK");
-					lowStock.setRequestedQty(0);
-					
-					// DB에 draftDetail 삽입
-					draftDAO.insertDraftDetail(sqlSession, lowStock);
-				}
-			}
-			
-			// 6. 다시 draftDetail 조회 (삽입된 것들까지 같이) 
-			List<PlaceOrderDraftDetailDTO> allDraftDetails = draftDAO.findDraftDetails(sqlSession, draftId);
-			// list 넣어주기
-			draftDTO.setDetails(allDraftDetails);
+            if (isNewDraft) {
+                initializeLowStockDetails(sqlSession, branchCode, draftDTO);
+            } else {
+            	// 기존의 DraftDetails 가져와 연결하기
+                draftDTO.setDetails(draftDAO.findDraftDetails(sqlSession, draftDTO.getDraftId()));
+            }
 			
 			// 커밋
 			sqlSession.commit();
@@ -277,6 +241,108 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 	        sqlSession.close();
 	    }
 	}
+
+    @Override
+    public boolean updatePlaceOrderDraftDetail(int branchCode, String action, PlaceOrderDraftDetailDTO detailDTO) {
+        if (!hasText(action)) {
+            throw new IllegalArgumentException("발주 처리 유형이 필요합니다.");
+        }
+        if (detailDTO == null || !hasText(detailDTO.getMaterialCode())) {
+            throw new IllegalArgumentException("품목 정보가 비어있습니다.");
+        }
+
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false);
+        try {
+            PlaceOrderDraftDTO draftDTO = ensureInProgressDraft(sqlSession, branchCode);
+            int draftId = draftDTO.getDraftId();
+            String normalizedAction = action.trim().toLowerCase();
+
+            
+            if ("add".equals(normalizedAction)) {
+            	// place_order_draft_detail에 추가
+                PlaceOrderDraftDetailDTO payload = buildDraftDetailPayload(draftId, detailDTO);
+                draftDAO.insertDraftDetail(sqlSession, payload);
+                
+            } else if ("remove".equals(normalizedAction)) {
+            	// place_order_draft_detail에서 제외
+            	draftDAO.deleteDraftDetail(sqlSession, draftId, detailDTO.getMaterialCode());
+            	
+            } else if ("update-qty".equals(normalizedAction) || "updateqty".equals(normalizedAction) || "update".equals(normalizedAction)) {
+                // 요청수량 변경
+                Integer qty = detailDTO.getRequestedQty() != null ? detailDTO.getRequestedQty() : 0;
+                draftDAO.updateDraftDetailQty(sqlSession, draftId, detailDTO.getMaterialCode(), qty);
+
+            } else {
+                throw new IllegalArgumentException("지원하지 않는 발주 처리 유형입니다.");
+            }
+
+            sqlSession.commit();
+            return true;
+        } catch (Exception e) {
+            sqlSession.rollback();
+            throw new RuntimeException(e);
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+    private PlaceOrderDraftDTO ensureInProgressDraft(SqlSession sqlSession, int branchCode) {
+    	// InProgress상태의 임시 발주서 가져오기
+        PlaceOrderDraftDTO draftDTO = draftDAO.findInProgressDraft(sqlSession, branchCode);
+        if (draftDTO != null) {
+            return draftDTO;
+        }
+
+        // 없으면 생성
+        draftDTO = new PlaceOrderDraftDTO();
+        draftDTO.setBranchCode(branchCode);
+        draftDTO.setStatus("IN_PROGRESS");
+        draftDAO.insertDraft(sqlSession, draftDTO);
+        return draftDTO;
+    }
+
+    private void initializeLowStockDetails(SqlSession sqlSession, int branchCode, PlaceOrderDraftDTO draftDTO) {
+        if (draftDTO == null || draftDTO.getDraftId() <= 0) {
+            return;
+        }
+
+        List<PlaceOrderDraftDetailDTO> existingDetails = draftDAO.findDraftDetails(sqlSession, draftDTO.getDraftId());
+        List<PlaceOrderDraftDetailDTO> lowStockMaterials = draftDAO.findLowStockMaterials(sqlSession, branchCode);
+
+        for (PlaceOrderDraftDetailDTO lowStock : lowStockMaterials) {
+            boolean exists = existingDetails.stream()
+                    .anyMatch(detail -> detail.getMaterialCode().equals(lowStock.getMaterialCode()));
+
+            if (!exists) {
+                lowStock.setDraftId(draftDTO.getDraftId());
+                lowStock.setSourceType("LOW_STOCK");
+                lowStock.setRequestedQty(defaultRequestedQty(lowStock));
+                draftDAO.insertDraftDetail(sqlSession, lowStock);
+            }
+        }
+
+        draftDTO.setDetails(draftDAO.findDraftDetails(sqlSession, draftDTO.getDraftId()));
+    }
+
+    private PlaceOrderDraftDetailDTO buildDraftDetailPayload(int draftId, PlaceOrderDraftDetailDTO detailDTO) {
+        PlaceOrderDraftDetailDTO payload = new PlaceOrderDraftDetailDTO();
+        payload.setDraftId(draftId);
+        payload.setMaterialCode(detailDTO.getMaterialCode());
+        payload.setMaterialName(detailDTO.getMaterialName());
+        payload.setCategoryName(detailDTO.getCategoryName());
+        payload.setUnit(detailDTO.getUnit());
+        payload.setCurrentStock(detailDTO.getCurrentStock());
+        payload.setSafeStock(detailDTO.getSafeStock());
+        payload.setSourceType(hasText(detailDTO.getSourceType()) ? detailDTO.getSourceType() : "MANUAL");
+        payload.setRequestedQty(detailDTO.getRequestedQty() != null ? detailDTO.getRequestedQty() : defaultRequestedQty(detailDTO));
+        return payload;
+    }
+
+    private int defaultRequestedQty(PlaceOrderDraftDetailDTO detailDTO) {
+        // 기본 요청수량을 안전재고 양으로 변경 (요청: 기본값 = safeStock)
+        int safeStock = detailDTO != null && detailDTO.getSafeStock() != null ? detailDTO.getSafeStock() : 0;
+        return Math.max(0, safeStock);
+    }
 
 	@Override
 	public List<Map<String, Object>> getSelectableItems(int branchCode, String category, String item, String search) {

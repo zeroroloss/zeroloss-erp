@@ -61,19 +61,20 @@
         <div class="meta">
             <div class="meta-row">
                 <span class="k">발주 품목 수</span>
-                <span class="v">6개</span>
-            </div>
-            <div class="meta-row">
-                <span class="k">총 요청 수량</span>
-                <span class="v">205개 단위</span>
+                <span class="v" id="itemCount">0개</span>
             </div>
             <div class="meta-row">
                 <span class="k">재고 부족 품목</span>
-                <span class="v red">4개</span>
+                <span class="v red" id="lowStockCount">0개</span>
+            </div>
+
+            <div class="meta-row">
+                <span class="k">수동 추가 품목</span>
+                <span class="v" id="manualCount">0개</span>
             </div>
         </div>
 
-        <div class="notice"><strong>안내:</strong> 전송 후 본사의 승인을 기다려야 합니다. 반려된 경우 수정 후 재전송이 가능합니다.</div>
+        <div class="notice"><strong>안내:</strong> 전송 시 해당 발주서는 발주 내역의 전송 탭에서 확인 가능하며, 본사에 의해 승인/반려 처리됩니다.</div>
 
         <div class="actions">
 			<a class="btn btn-cancel" href="#" onclick="closePopup()">취소</a>

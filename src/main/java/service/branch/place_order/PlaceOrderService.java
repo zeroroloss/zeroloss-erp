@@ -21,4 +21,8 @@ public interface PlaceOrderService {
 	
 	// 발주서 생성 - API 응답
 	List<Map<String, Object>> getSelectableItems(int branchCode, String category, String item, String search);
+	
+	// 발주 임시 상세 추가/삭제
+	boolean updatePlaceOrderDraftDetail(int branchCode, String action, PlaceOrderDraftDetailDTO detailDTO);
+	
 }

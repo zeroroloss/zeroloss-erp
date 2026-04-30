@@ -324,7 +324,7 @@ body {
 			<div class="head-row">
 				<div>
 					<h1 class="title">발주 품목 추가</h1>
-					<p class="subtitle">이미 추가된 품목은 상단에 표시됩니다</p>
+					<p class="subtitle">추가된 품목은 우측에 표시됩니다</p>
 				</div>
 				<button class="close-x" type="button" aria-label="닫기">×</button>
 			</div>
@@ -403,6 +403,7 @@ body {
 (function() {
 	var apiUrl = '<%=request.getContextPath()%>/api/branch/place_order/create/items';
 	var items = [];
+	var pendingParentState = null;
 	var selectedCategory = '전체';
 	var selectedItemName = '전체';
 	var searchText = '';
@@ -466,6 +467,9 @@ body {
 					item.sourceType = item.sourceType || (item.isLowStock ? 'LOW_STOCK' : 'MANUAL');
 					return item;
 				});
+				if (pendingParentState) {
+					applyParentState(pendingParentState);
+				}
 				updateCategoryFilter();
 				updateItemFilter();
 				renderBothPanes();
@@ -597,6 +601,40 @@ body {
 		return null;
 	}
 
+	function applyParentState(state) {
+		pendingParentState = state || null;
+		if (!items.length || !pendingParentState) {
+			return;
+		}
+
+		var parentMap = {};
+		(pendingParentState.lowStock || []).forEach(function(item) {
+			if (item && item.materialCode) {
+				parentMap[item.materialCode] = item;
+			}
+		});
+		(pendingParentState.added || []).forEach(function(item) {
+			if (item && item.materialCode) {
+				parentMap[item.materialCode] = item;
+			}
+		});
+
+		items.forEach(function(item) {
+			var parentItem = parentMap[item.materialCode];
+			item.isAdded = !!parentItem;
+			if (parentItem) {
+				item.currentStock = toNumber(parentItem.currentStock);
+				item.safeStock = toNumber(parentItem.safeStock);
+				item.unit = parentItem.unit || item.unit;
+				item.sourceType = parentItem.sourceType || item.sourceType;
+			}
+		});
+
+		updateCategoryFilter();
+		updateItemFilter();
+		renderBothPanes();
+	}
+
     function buildRow(item) {
         var unit = escapeHtml(item.unit || '');
         var code = escapeHtml(item.materialCode || '');
@@ -643,6 +681,13 @@ body {
 			window.parent.postMessage({ type: 'close-place-popup' }, '*');
 		}
 	}
+
+	window.addEventListener('message', function(event) {
+		if (!event.data || !event.data.type) return;
+		if (event.data.type === 'sync-order-state') {
+			applyParentState(event.data.data || {});
+		}
+	});
 
 	categoryFilter.addEventListener('change', function() {
 		selectedCategory = categoryFilter.value;
@@ -692,6 +737,7 @@ body {
         item.isAdded = (action === 'add');
 
         notifyParent(action, item);
+		pendingParentState = null;
         
         renderBothPanes();
     }

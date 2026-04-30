@@ -39,6 +39,23 @@ public class PlaceOrderDraftDAOImpl implements PlaceOrderDraftDAO {
 	}
 
 	@Override
+	public int deleteDraftDetail(SqlSession sqlSession, int draftId, String materialCode) {
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("draftId", draftId);
+		params.put("materialCode", materialCode);
+		return sqlSession.delete(MAPPER_NAMESPACE + "deleteDraftDetail", params);
+	}
+
+	@Override
+	public int updateDraftDetailQty(SqlSession sqlSession, int draftId, String materialCode, int requestedQty) {
+		Map<String, Object> params = new LinkedHashMap<>();
+		params.put("draftId", draftId);
+		params.put("materialCode", materialCode);
+		params.put("requestedQty", requestedQty);
+		return sqlSession.update(MAPPER_NAMESPACE + "updateDraftDetailQty", params);
+	}
+
+	@Override
 	public List<Map<String, Object>> findSelectableItems(SqlSession sqlSession, int branchCode, int draftId) {
 		Map<String, Object> params = new LinkedHashMap<>();
 		params.put("branchCode", branchCode);
