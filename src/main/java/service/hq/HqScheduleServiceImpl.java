@@ -6,6 +6,7 @@ import dao.hq.EmployeeDao;
 import dao.hq.EmployeeDaoImpl;
 import dao.hq.HqScheduleDao;
 import dao.hq.HqScheduleDaoImpl;
+import dto.branch.hr.BranchScheduleDTO;
 import dto.hq.hr.EmployeeDTO;
 import dto.hq.hr.HqScheduleDTO;
 
@@ -70,5 +71,10 @@ public class HqScheduleServiceImpl implements HqScheduleService {
 	@Override
 	public void removeSchedule(Integer scheduleId) throws Exception {
 		scheduleDao.deleteSchedule(scheduleId);
+	}
+
+	@Override
+	public List<BranchScheduleDTO> searchBranchScheduleList(BranchScheduleDTO schedule) throws Exception {
+		return scheduleDao.selectBranchScheduleList(schedule);
 	}
 }

@@ -108,11 +108,20 @@
                         <div class="flex items-center gap-2">
 					        <button
 							    type="button"
-							    id="toggleScheduleViewBtn"
-							    onclick="toggleScheduleView()"
+							    id="hqScheduleBtn"
+							    onclick="changeScheduleView('hq')"
+							    class="flex items-center gap-2 bg-[#00853D] text-white border border-[#00853D] px-4 py-2.5 rounded-lg transition-colors">
+							    <i class="fas fa-building w-5 h-5"></i>
+							    <span>본사 스케줄 조회</span>
+							</button>
+							
+							<button
+							    type="button"
+							    id="branchScheduleBtn"
+							    onclick="changeScheduleView('branch')"
 							    class="flex items-center gap-2 bg-white text-[#00853D] border border-[#00853D] px-4 py-2.5 rounded-lg hover:bg-[#00853D] hover:text-white transition-colors">
 							    <i class="fas fa-store w-5 h-5"></i>
-							    <span id="toggleScheduleViewText">직영점 스케줄 조회</span>
+							    <span>직영점 스케줄 조회</span>
 							</button>
 					
 					        <button id="addScheduleBtn" onclick="showAddModal()" class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
@@ -224,21 +233,15 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
-                            직원 선택 <span class="text-red-500">*</span>
+                            직원 이름 <span class="text-red-500">*</span>
                         </label>
-                        <select id="gradeCode" onchange="updateEmployeeCheckboxes()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent mb-3">
-                            <option value="">직급을 먼저 선택하세요</option>
-                            <option value="GR_DIR">부장</option>
-                            <option value="GR_DPT">차장</option>
-                            <option value="GR_MGR">과장</option>
-                            <option value="GR_AST">대리</option>
-                            <option value="GR_STF">사원</option>
-                            <option value="GR_DRV">배달기사</option>
-                        </select>
-	                    <div id="employeeCheckboxes" class="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto bg-gray-50 hidden">
-	                    	<div class="space-y-2" id="employeeList"></div>
-	                    </div>
-                        <p class="text-xs text-gray-500 mt-1">직급을 선택하면 해당 직급의 직원이 표시됩니다</p>
+                        <input id="empName" type="text" oninput="searchEmployeesByName()" onkeydown="if(event.key === 'Enter') selectFirstEmployeeByEnter(event)" placeholder="직원 이름을 입력하세요" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent mb-3">
+                    	<input type="hidden" id="empNo">
+                    	<div id="employeeCheckboxes" class="border border-gray-300 rounded-lg p-3 max-h-48 overflow-y-auto bg-gray-50 hidden">
+					        <div class="space-y-2" id="employeeList"></div>
+					    </div>
+					
+					    <p class="text-xs text-gray-500 mt-1">이름을 입력하면 해당 직원이 표시됩니다</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -317,7 +320,7 @@
 	                        <option value="TRAINING">교육</option>
 	                        <option value="BUSINESS_TRIP">출장</option>
 	                        <option value="VISIT">지점점검</option>
-	                        <option value="VACATION">휴가</option>
+	                        <option value="OFF">휴가</option>
 	                    </select>
 	                </div>
 	            </div>
@@ -384,6 +387,7 @@
 		var scheduleViewMode = 'hq'; // hq 또는 branch
 	    var currentDate = new Date();
 	    var selectedEmployees = [];
+	    var isSearched = false;
 	    
 	    var employees = [
 	    	<c:forEach var="e" items="${hqEmployeeList}" varStatus="st">
@@ -406,26 +410,58 @@
 	        return scheduleViewMode === 'hq' ? hqSchedules : branchSchedules;
 	    }
 
-	    function toggleScheduleView() {
-	    	var addBtn = document.getElementById('addScheduleBtn');
-	    	
-	        if (scheduleViewMode === 'hq') {
-	            scheduleViewMode = 'branch';
-	            document.getElementById('toggleScheduleViewText').textContent = '본사 스케줄 조회';
-				addBtn.classList.add('hidden'); // 직영점에서 추가 숨김	            
-	        } else {
-	            scheduleViewMode = 'hq';
-	            document.getElementById('toggleScheduleViewText').textContent = '직영점 스케줄 조회';
-	        	addBtn.classList.remove('hidden'); // 본사에서는 추가 보임
+	    function changeScheduleView(mode) {
+	        var addBtn = document.getElementById('addScheduleBtn');
+	        var hqBtn = document.getElementById('hqScheduleBtn');
+	        var branchBtn = document.getElementById('branchScheduleBtn');
+
+	        scheduleViewMode = mode;
+
+	        isSearched = false;
+	        document.getElementById('searchInput').value = '';
+
+	        if (mode === 'hq') {
+	            addBtn.classList.remove('hidden');
+
+	            hqBtn.className = 'flex items-center gap-2 bg-[#00853D] text-white border border-[#00853D] px-4 py-2.5 rounded-lg transition-colors';
+	            branchBtn.className = 'flex items-center gap-2 bg-white text-[#00853D] border border-[#00853D] px-4 py-2.5 rounded-lg hover:bg-[#00853D] hover:text-white transition-colors';
+
+	            renderCalendar();
 	        }
 
-	        renderCalendar();
+	        if (mode === 'branch') {
+	            addBtn.classList.add('hidden');
+
+	            hqBtn.className = 'flex items-center gap-2 bg-white text-[#00853D] border border-[#00853D] px-4 py-2.5 rounded-lg hover:bg-[#00853D] hover:text-white transition-colors';
+	            branchBtn.className = 'flex items-center gap-2 bg-[#00853D] text-white border border-[#00853D] px-4 py-2.5 rounded-lg transition-colors';
+
+	            branchSchedules = [];
+	            renderCalendar();
+	            loadBranchSchedules();
+	        }
+	    }
+	    
+	    function loadBranchSchedules() {
+	        fetch('<%= request.getContextPath() %>/hq/hr/branchschedule?action=list')
+	            .then(function(res) {
+	                return res.json();
+	            })
+	            .then(function(data) {
+	                if (!data.success) {
+	                    alert(data.message || '직영점 스케줄 조회 실패');
+	                    return;
+	                }
+
+	                branchSchedules = data.list;
+	                isSearched = true;
+	                renderCalendar();
+	            });
 	    }
 	    
 	    function renderCalendar() {
 	        var year = currentDate.getFullYear();
 	        var month = currentDate.getMonth();
-	        var currentSchedules = scheduleViewMode === 'hq' ? hqSchedules : branchSchedules;
+	        var currentSchedules = isSearched ? getFilteredSchedules() : [];
 	
 	        document.getElementById('monthTitle').textContent = year + '년 ' + (month + 1) + '월';
 	
@@ -524,6 +560,90 @@
 	        dayHeaders.style.gridTemplateColumns = 'repeat(7, 1fr)';
 	    }
 	    
+	    function searchEmployeesByName() {
+	        var keyword = document.getElementById('empName').value.trim();
+	        var container = document.getElementById('employeeCheckboxes');
+	        var list = document.getElementById('employeeList');
+
+	        document.getElementById('empNo').value = '';
+
+	        if (!keyword) {
+	            container.classList.add('hidden');
+	            list.innerHTML = '';
+	            return;
+	        }
+
+	        var filtered = employees.filter(function(e) {
+	            return e.name.includes(keyword);
+	        });
+
+	        var html = '';
+
+	        for (var i = 0; i < filtered.length; i++) {
+	            var emp = filtered[i];
+
+	            html += '<div onclick="selectEmployeeForSchedule(\'' + emp.id + '\', \'' + emp.name + '\')" class="flex items-center gap-2 p-2 hover:bg-gray-100 rounded cursor-pointer">';
+	            html += '<div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">' + emp.name.charAt(0) + '</div>';
+	            html += '<div class="text-sm">';
+	            html += '<span class="font-medium text-gray-900">' + emp.name + '</span>';
+	            html += '<span class="text-gray-500 ml-1">(' + (emp.dept || '-') + ')</span>';
+	            html += '</div>';
+	            html += '</div>';
+	        }
+
+	        if (filtered.length === 0) {
+	            html = '<p class="text-sm text-gray-500 text-center py-4">검색된 직원이 없습니다</p>';
+	        }
+
+	        list.innerHTML = html;
+	        container.classList.remove('hidden');
+	    }
+	    
+	    function selectFirstEmployeeByEnter(event) {
+	        event.preventDefault();
+
+	        var keyword = document.getElementById('empName').value.trim();
+
+	        if (!keyword) {
+	            return;
+	        }
+
+	        var filtered = employees.filter(function(e) {
+	            return e.name.includes(keyword);
+	        });
+
+	        if (filtered.length === 0) {
+	            alert('검색된 직원이 없습니다.');
+	            return;
+	        }
+
+	        var emp = filtered[0];
+
+	        selectEmployeeForSchedule(emp.id, emp.name);
+	    }
+
+	    function selectEmployeeForSchedule(empNo, empName) {
+	        document.getElementById('empNo').value = empNo;
+	        document.getElementById('empName').value = empName;
+	        document.getElementById('employeeCheckboxes').classList.add('hidden');
+	    }
+	    
+	    function getFilteredSchedules() {
+	        var keyword = document.getElementById('searchInput').value.trim();
+	        var schedules = scheduleViewMode === 'hq' ? hqSchedules : branchSchedules;
+
+	        if (!keyword) {
+	            return schedules;
+	        }
+
+	        return schedules.filter(function(s) {
+	            return String(s.employeeId || '').includes(keyword)
+	                || String(s.employee || '').includes(keyword)
+	                || String(s.branch || '').includes(keyword)
+	                || String(s.type || '').includes(keyword);
+	        });
+	    }
+	    
 	    function previousPeriod() {
 	        currentDate.setMonth(currentDate.getMonth() - 1);
 	        renderCalendar();
@@ -548,53 +668,14 @@
 	    }
 	
 	    function applyFilters() {
+	    	isSearched = true;
 	        renderCalendar();
 	    }
 	
 	    function resetFilters() {
+	    	isSearched = false;
 	        document.getElementById('searchInput').value = '';
 	        renderCalendar();
-	    }
-	
-	    function updateEmployeeCheckboxes() {
-	        var grade = document.getElementById('gradeCode').value;
-	        var container = document.getElementById('employeeCheckboxes');
-	        var list = document.getElementById('employeeList');
-	
-	        selectedEmployees = [];
-	
-	        if (!grade) {
-	            container.classList.add('hidden');
-	            list.innerHTML = '';
-	            return;
-	        }
-	
-	        var filtered = employees.filter(function(e) {
-	            return e.grade === grade;
-	        });
-	
-	        var html = '';
-	
-	        for (var i = 0; i < filtered.length; i++) {
-	            var emp = filtered[i];
-	
-	            html += '<label class="flex items-center gap-2 p-2 hover:bg-gray-100 rounded cursor-pointer">';
-	            html += '<input type="checkbox" value="' + emp.id + '" class="w-4 h-4 text-[#00853D] border-gray-300 rounded focus:ring-[#00853D]" onchange="updateSelectedEmployees()">';
-	            html += '<div class="flex items-center gap-2 flex-1">';
-	            html += '<div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">' + emp.name.charAt(0) + '</div>';
-	            html += '<div class="text-sm">';
-	            html += '<span class="font-medium text-gray-900">' + emp.name + '</span>';
-	            html += '</div>';
-	            html += '</div>';
-	            html += '</label>';
-	        }
-	
-	        if (filtered.length === 0) {
-	            html = '<p class="text-sm text-gray-500 text-center py-4">해당 직급의 직원이 없습니다</p>';
-	        }
-	
-	        list.innerHTML = html;
-	        container.classList.remove('hidden');
 	    }
 	
 	    function updateSelectedEmployees() {
@@ -607,16 +688,24 @@
 	    }
 	
 	    function showAddModal(selectedDate) {
-	        document.getElementById('gradeCode').value = '';
+	    	var today = new Date();
+	        var todayStr =
+	            today.getFullYear() + '-' +
+	            String(today.getMonth() + 1).padStart(2, '0') + '-' +
+	            String(today.getDate()).padStart(2, '0');
+
+	        var targetDate = selectedDate || todayStr;
+
+	        document.getElementById('empName').value = '';
+	        document.getElementById('empNo').value = '';
 	        document.getElementById('employeeCheckboxes').classList.add('hidden');
 	        document.getElementById('employeeList').innerHTML = '';
+
 	        document.getElementById('scheduleType').value = 'TRAINING';
-	        document.getElementById('startDay').value = '2026-01-01';
-	        document.getElementById('endDay').value = '2026-12-31';
+	        document.getElementById('startDay').value = targetDate;
+	        document.getElementById('endDay').value = targetDate;
 	        document.getElementById('notes').value = '';
-	
-	        selectedEmployees = [];
-	
+
 	        document.getElementById('addModal').classList.remove('modal-hidden');
 	    }
 	
@@ -625,7 +714,7 @@
 	    }
 	
 	    function saveSchedule() {
-	        var empNo = selectedEmployees[0];
+	        var empNo = document.getElementById('empNo').value;
 	        var startDay = document.getElementById('startDay').value;
 	        var endDay = document.getElementById('endDay').value;
 	        var type = document.getElementById('scheduleType').value;
@@ -743,23 +832,26 @@
 	            return;
 	        }
 	
-	        var target =
-	            scheduleViewMode === 'hq'
-	            ? hqSchedules
-	            : branchSchedules;
-
-	        var filtered = target.filter(function(s) {
-	            return String(s.id) !== String(scheduleId);
+	        fetch('<%= request.getContextPath() %>/hq/hr/hqschedule', {
+	            method: 'POST',
+	            headers: {
+	                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+	            },
+	            body:
+	                'action=delete' +
+	                '&scheduleId=' + encodeURIComponent(scheduleId)
+	        })
+	        .then(function(res) {
+	            return res.json();
+	        })
+	        .then(function(data) {
+	            if (data.success) {
+	                alert(data.message || '일정이 삭제되었습니다.');
+	                location.reload();
+	            } else {
+	                alert(data.message || '일정 삭제 실패');
+	            }
 	        });
-
-	        if (scheduleViewMode === 'hq') {
-	            hqSchedules = filtered;
-	        } else {
-	            branchSchedules = filtered;
-	        }
-
-	        closeEditModal();
-	        renderCalendar();
 	    }
 	
 	    function toggleMenu(button) {

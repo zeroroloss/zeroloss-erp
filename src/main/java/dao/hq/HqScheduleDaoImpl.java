@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 
+import dto.branch.hr.BranchScheduleDTO;
 import dto.hq.hr.EmployeeDTO;
 import dto.hq.hr.HqScheduleDTO;
 import util.MyBatisSqlSessionFactory;
@@ -124,5 +125,19 @@ public class HqScheduleDaoImpl implements HqScheduleDao {
 		} finally {
 			sqlSession.close();
 		}
+	}
+
+	@Override
+	public List<BranchScheduleDTO> selectBranchScheduleList(BranchScheduleDTO schedule) throws Exception {
+		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
+		List<BranchScheduleDTO> scd = null;
+		try {
+			scd = sqlSession.selectList("mapper.hq.schedule.selectBranchScheduleList");
+		} catch(Exception e) {
+			throw e;
+		} finally {
+			sqlSession.close();
+		}
+		return scd;
 	}
 }

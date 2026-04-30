@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="mapper.branch.schedule">
+	<insert id="insertSchedule" parameterType="dto.branch.hr.BranchScheduleDTO">
+		insert into hq_schedule(emp_no,branch_code,work_date,start_time,end_time,is_repeat,memo,work_type)
+		values(#{empNo},#{branchCode},#{workDate},#{startTime},#{endTime},#{isRepeat},#{memo},#{workType})
+	</insert>
+	
+	<select id="selectSchedule" parameterType="Integer" resultType="dto.branch.hr.BranchScheduleDTO">
+		select schedule_id as scheduleId, emp_no as empNo, branch_code as branchCode, work_date as workDate, start_time as startTime, end_time as endTime, is_repeat as isRepeat, memo, work_type as workType from hq_schedule where schedule_id=#{value}
+	</select>
+	
+	<select id="selectBranchEmployee" parameterType="" resultType="dto.branch.hr.EmployeeDTO">
+		select emp_no as empNo, branch_code as branchCode, name, position_code as positionCode, status from employee where branch_code = #{value} and status = 'ACTIVE' order by name
+	</select>
+	
+	<select id="duplicateScdCnt" parameterType="dto.branch.hr.BranchScheduleDTO" resultType="int">
+		select count(*)
+		from hq_schedule
+		where emp_no = #{empNo}
+		and start_day &lt;= #{endDay}
+		and end_day &gt;= #{startDay}
+	</select>
+
+	<select id="duplicateScdCntForUpdate" parameterType="dto.branch.hr.BranchScheduleDTO" resultType="int">
+		select count(*)
+		from hq_schedule
+		where emp_no = #{empNo}
+		and schedule_id != #{scheduleId}
+		and start_day &lt;= #{endDay}
+		and end_day &gt;= #{startDay}
+	</select>
+	
+	<select id="selectScheduleList" parameterType="dto.branch.hr.BranchScheduleDTO" resultType="dto.branch.hr.BranchScheduleDTO">
+		select s.schedule_id as scheduleId, s.emp_no as empNo, e.name as empName, s.branch_code as branchCode, b.name as branchName, s.work_date as workDate, s.start_time as startTime, s.end_time as endTime, s.is_repeat as isRepeat, s.memo, s.work_type as workType from branch_schedule s
+		left join employee e on s.emp_no = e.emp_no
+		left join branch b on s.branch_code = b.branch_code
+		<where>
+			<if test="empNo != null">
+				and e.emp_no like CONCAT('%', #{empNo}, '%')
+			</if>
+			<if test="empName != null and empName != ''">
+				and e.name like CONCAT('%', #{empName}, '%')
+			</if>
+			<if test="branchCode != null">
+			    and s.branch_code = #{branchCode}
+			</if>
+			<if test="branchName != null and branchName != ''">
+				and b.name like CONCAT('%', #{branchName}, '%')
+			</if>
+			<if test="workDate != null">
+			    and s.work_date = #{workDate}
+			</if>
+		</where>
+		order by s.work_date DESC, s.start_time ASC
+	</select>
+	
+	<update id="updateSchedule" parameterType="dto.branch.hr.BranchScheduleDTO">
+		update hq_schedule set start_day = #{startDay}, end_day = #{endDay}, memo = #{memo}, work_type = #{workType} where schedule_id = #{scheduleId}
+	</update>
+	
+	<delete id="deleteSchedule" parameterType="Integer">
+		delete from hq_schedule where schedule_id = #{value}
+	</delete>
+	
+</mapper>

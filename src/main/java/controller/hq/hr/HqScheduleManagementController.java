@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import dto.branch.hr.BranchScheduleDTO;
 import dto.hq.hr.EmployeeDTO;
 import dto.hq.hr.HqScheduleDTO;
 import service.hq.HqScheduleService;
@@ -34,6 +35,8 @@ public class HqScheduleManagementController extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("application/json; charset=UTF-8");
+		
 		try {
 			HqScheduleDTO schedule = new HqScheduleDTO();
 			List<HqScheduleDTO> scdList = scheduleService.searchScheduleList(schedule);

@@ -2,6 +2,7 @@ package dao.hq;
 
 import java.util.List;
 
+import dto.branch.hr.BranchScheduleDTO;
 import dto.hq.hr.EmployeeDTO;
 import dto.hq.hr.HqScheduleDTO;
 
@@ -23,4 +24,7 @@ public interface HqScheduleDao {
 	
 	// 스케줄 삭제
 	void deleteSchedule(Integer scheduleId) throws Exception;
+	
+	// 직영점 스케줄 조회
+	List<BranchScheduleDTO> selectBranchScheduleList(BranchScheduleDTO schedule) throws Exception;
 }
