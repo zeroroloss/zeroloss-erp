@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+	<mapper namespace="mapper.hq.branchrisk">
+
+	<!-- 유통기한 임박 리스트 -->
+	<select id="selectExpireRiskList"
+			parameterType="dto.hq.branch_stock.BranchRiskSearchDTO"
+			resultType="dto.hq.branch_stock.ExpireRiskDTO">
+
+		SELECT
+			b.name AS branchName,
+			m.material_name AS materialName,
+			DATE_FORMAT(bs.received_at, '%Y-%m-%d') AS receivedDate,
+			DATE_FORMAT(bs.expire_date, '%Y-%m-%d') AS expireDate,
+			DATEDIFF(bs.expire_date, CURDATE()) AS dDay,
+			CASE
+				WHEN DATEDIFF(bs.expire_date, CURDATE()) <![CDATA[<=]]> 1 THEN 'urgent'
+				WHEN DATEDIFF(bs.expire_date, CURDATE()) <![CDATA[<=]]> 3 THEN 'warning'
+				ELSE 'normal'
+			END AS riskType,
+			bs.current_qty AS qty,
+			m.unit AS unit
+
+		FROM branch_stock bs
+
+		JOIN branch b
+			ON bs.branch_code = b.branch_code
+
+		JOIN material m
+			ON bs.material_code = m.material_code
+
+		WHERE bs.current_qty > 0
+ 	 	AND bs.expire_date IS NOT NULL
+  		AND DATEDIFF(bs.expire_date, CURDATE()) BETWEEN 0 AND 7
+
+		<if test="branchCode != null">
+			AND bs.branch_code = #{branchCode}
+		</if>
+
+		<if test="endDate != null and endDate != ''">
+			AND bs.expire_date <![CDATA[<=]]> DATE_ADD(#{endDate}, INTERVAL 7 DAY)
+		</if>
+
+		ORDER BY
+			b.name ASC,
+			bs.expire_date ASC,
+			m.material_name ASC
+
+	</select>
+
+
+	<!-- 폐기 리스트 -->
+	<select id="selectDisposalRiskList"
+			parameterType="dto.hq.branch_stock.BranchRiskSearchDTO"
+			resultType="dto.hq.branch_stock.DisposalRiskDTO">
+
+		SELECT
+			DATE_FORMAT(bsch.changed_at, '%Y-%m-%d') AS disposalDate,
+			b.name AS branchName,
+			m.material_name AS materialName,
+			ABS(bsch.change_amount) AS qty,
+			m.unit AS unit,
+			ABS(bsch.change_amount) * IFNULL(m.material_price, 0) AS lossAmount,
+			d.reason_detail AS reason
+
+		FROM branch_stock_disposal_history d
+
+		JOIN branch_stock_change_history bsch
+			ON d.change_id = bsch.change_id
+
+		JOIN branch_stock bs
+			ON bsch.branch_stock_code = bs.branch_stock_code
+
+		JOIN branch b
+			ON bs.branch_code = b.branch_code
+
+		JOIN material m
+			ON bs.material_code = m.material_code
+
+		WHERE bsch.change_type = 'DISPOSAL'
+
+		<if test="branchCode != null">
+			AND bs.branch_code = #{branchCode}
+		</if>
+
+		<if test="startDate != null and startDate != ''">
+			AND DATE(bsch.changed_at) <![CDATA[>=]]> #{startDate}
+		</if>
+
+		<if test="endDate != null and endDate != ''">
+			AND DATE(bsch.changed_at) <![CDATA[<=]]> #{endDate}
+		</if>
+
+		ORDER BY bsch.changed_at DESC
+
+	</select>
+
+
+	<!-- 요약 카드 -->
+	<select id="selectRiskSummary"
+			parameterType="dto.hq.branch_stock.BranchRiskSearchDTO"
+			resultType="dto.hq.branch_stock.BranchRiskSummaryDTO">
+
+		SELECT
+			(
+	SELECT COUNT(*)
+	FROM branch_stock bs
+	WHERE bs.current_qty > 0
+	  AND bs.expire_date IS NOT NULL
+	  AND DATEDIFF(bs.expire_date, CURDATE()) BETWEEN 0 AND 1
+
+	<if test="branchCode != null">
+		AND bs.branch_code = #{branchCode}
+	</if>
+) AS urgentCount,
+
+(
+	SELECT COUNT(*)
+	FROM branch_stock bs
+	WHERE bs.current_qty > 0
+	  AND bs.expire_date IS NOT NULL
+	  AND DATEDIFF(bs.expire_date, CURDATE()) BETWEEN 2 AND 3
+
+	<if test="branchCode != null">
+		AND bs.branch_code = #{branchCode}
+	</if>
+) AS warningCount,
+
+			(
+				SELECT COUNT(*)
+				FROM branch_stock_disposal_history d
+
+				JOIN branch_stock_change_history bsch
+					ON d.change_id = bsch.change_id
+
+				JOIN branch_stock bs
+					ON bsch.branch_stock_code = bs.branch_stock_code
+
+				WHERE bsch.change_type = 'DISPOSAL'
+
+				<if test="branchCode != null">
+					AND bs.branch_code = #{branchCode}
+				</if>
+
+				<if test="startDate != null and startDate != ''">
+					AND DATE(bsch.changed_at) <![CDATA[>=]]> #{startDate}
+				</if>
+
+				<if test="endDate != null and endDate != ''">
+					AND DATE(bsch.changed_at) <![CDATA[<=]]> #{endDate}
+				</if>
+			) AS disposalCount
+
+	</select>
+	
+	</mapper>

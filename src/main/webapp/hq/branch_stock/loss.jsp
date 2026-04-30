@@ -1,185 +1,173 @@
-﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지점 손실 관리 - ZERO LOSS 본사 관리 시스템</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .sidebar-open .sidebar {
-            transform: translateX(0);
-        }
-        .sidebar-open #sidebarBackdrop {
-            display: block;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<c:set var="contextPath" value="${pageContext.request.contextPath}" />
+<title>지점 손실 관리 - ZERO LOSS 본사 관리 시스템</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+.sidebar-open .sidebar {
+	transform: translateX(0);
+}
+
+.sidebar-open #sidebarBackdrop {
+	display: block;
+}
+</style>
 </head>
 <body class="bg-gray-50">
-	    <%@ include file="/hq/common/sidebar.jsp" %>
-        <!-- 메인 콘텐츠 -->
-        <div class="lg:pl-72">
+	<%@ include file="/hq/common/sidebar.jsp"%>
+	<!-- 메인 콘텐츠 -->
+	<div class="lg:pl-72">
 
-            <!-- 페이지 콘텐츠 -->
-            <main class="p-6">
-                <!-- 헤더 -->
-                <div class="mb-6">
-                    <h2 class="text-3xl font-bold text-gray-900">지점 재고 리스크 현황</h2>
-                    <p class="text-gray-500 mt-1">유통기한 임박 품목 및 손실 기록 현황을 조회하세요</p>
-                </div>
+		<!-- 페이지 콘텐츠 -->
+		<main class="p-6">
+			<!-- 헤더 -->
+			<div class="mb-6">
+				<h2 class="text-3xl font-bold text-gray-900">지점 재고 리스크 현황</h2>
+				<p class="text-gray-500 mt-1">유통기한 임박 품목 및 손실 기록 현황을 조회하세요</p>
+			</div>
 
-                <!-- 필터 -->
-                <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <!-- 지점 선택 -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">지점 선택</label>
-                            <select id="branchSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                <option value="전체">전체</option>
-                                <option value="본사 물류창고">본사 물류창고</option>
-                                <option value="강남점">강남점</option>
-                                <option value="홍대점">홍대점</option>
-                                <option value="신촌점">신촌점</option>
-                                <option value="이대점">이대점</option>
-                            </select>
-                        </div>
+			<!-- 필터 -->
+			<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+					<!-- 지점 선택 -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">지점
+							선택</label> <select id="branchSelect"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+							<option value="">전체</option>
 
-                        <!-- 시작 날짜 -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">시작 날짜</label>
-                            <input type="date" id="startDate" value="2026-03-01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                        </div>
+							<c:forEach var="branch" items="${branchList}">
+								<option value="${branch.branchCode}">${branch.branchName}</option>
+							</c:forEach>
+						</select>
+					</div>
 
-                        <!-- 종료 날짜 -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">종료 날짜</label>
-                            <input type="date" id="endDate" value="2026-04-05" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                        </div>
-                    </div>
+					<!-- 시작 날짜 -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">시작
+							날짜</label> <input type="date" id="startDate" value="${startDate}"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+					</div>
 
-                    <div class="flex items-center gap-2">
-                        <button onclick="handleFilter()" class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
-                            조회하기
-                        </button>
-                        <button onclick="handleReset()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
-                            초기화
-                        </button>
-                    </div>
-                </div>
+					<!-- 종료 날짜 -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">종료
+							날짜</label> <input type="date" id="endDate" value="${endDate}"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+					</div>
+				</div>
 
-                <!-- 통합 통계 카드 -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white rounded-lg border border-gray-200 p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">유통기한 임박 (긴급)</p>
-                                <p class="text-3xl font-bold text-red-600" id="urgentCount">0</p>
-                            </div>
-                            <i class="fas fa-exclamation-circle text-red-600 text-4xl opacity-20"></i>
-                        </div>
-                    </div>
+				<div class="flex items-center gap-2">
+					<button onclick="handleFilter()"
+						class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
+						조회하기</button>
+					<button onclick="handleReset()"
+						class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
+						초기화</button>
+				</div>
+			</div>
 
-                    <div class="bg-white rounded-lg border border-gray-200 p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">유통기한 임박 (주의)</p>
-                                <p class="text-3xl font-bold text-yellow-600" id="warningCount">0</p>
-                            </div>
-                            <i class="fas fa-exclamation-triangle text-yellow-600 text-4xl opacity-20"></i>
-                        </div>
-                    </div>
+			<!-- 통합 통계 카드 -->
+			<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+				<div class="bg-white rounded-lg border border-gray-200 p-6">
+					<div class="flex items-center justify-between">
+						<div>
+							<p class="text-sm text-gray-600">유통기한 임박 (긴급)</p>
+							<p class="text-3xl font-bold text-red-600" id="urgentCount">0</p>
+						</div>
+						<i
+							class="fas fa-exclamation-circle text-red-600 text-4xl opacity-20"></i>
+					</div>
+				</div>
 
-                    <div class="bg-white rounded-lg border border-gray-200 p-6">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">폐기 건수</p>
-                                <p class="text-3xl font-bold text-blue-600" id="disposalRecordCount">0</p>
-                                <p class="text-xs text-gray-500 mt-2" id="disposalReasonSummary">만료 0건 | 품질 0건 | 기타 0건</p>
-                            </div>
-                            <i class="fas fa-trash text-blue-600 text-4xl opacity-20"></i>
-                        </div>
-                    </div>
-                </div>
+				<div class="bg-white rounded-lg border border-gray-200 p-6">
+					<div class="flex items-center justify-between">
+						<div>
+							<p class="text-sm text-gray-600">유통기한 임박 (주의)</p>
+							<p class="text-3xl font-bold text-yellow-600" id="warningCount">0</p>
+						</div>
+						<i
+							class="fas fa-exclamation-triangle text-yellow-600 text-4xl opacity-20"></i>
+					</div>
+				</div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- 좌측: 유통기한 임박 품목 -->
-                    <section>
-                        <div class="flex items-center justify-between mb-3">
-                            <h3 class="text-lg font-semibold text-gray-900">유통기한 임박 품목 리스트</h3>
-                        </div>
-                        <div id="branchListContainer" class="space-y-4 max-h-[680px] overflow-y-auto pr-1">
-                            <!-- 동적으로 생성됨 -->
-                        </div>
-                    </section>
+				<div class="bg-white rounded-lg border border-gray-200 p-6">
+					<div class="flex items-center justify-between">
+						<div>
+							<p class="text-sm text-gray-600">폐기 건수</p>
+							<p class="text-3xl font-bold text-blue-600"
+								id="disposalRecordCount">0</p>
+							<p class="text-xs text-gray-500 mt-2" id="disposalReasonSummary">만료
+								0건 | 품질 0건 | 기타 0건</p>
+						</div>
+						<i class="fas fa-trash text-blue-600 text-4xl opacity-20"></i>
+					</div>
+				</div>
+			</div>
 
-                    <!-- 우측: 폐기 리스트 -->
-                    <section>
-                        <div class="flex items-center justify-between mb-3">
-                            <h3 class="text-lg font-semibold text-gray-900">폐기 건수 리스트</h3>
-                        </div>
-                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden max-h-[680px]">
-                            <div class="overflow-auto h-full">
-                                <table class="w-full">
-                                    <thead class="bg-gray-50 border-b border-gray-200">
-                                        <tr>
-                                            <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">날짜</th>
-                                            <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">지점</th>
-                                            <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
-                                            <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">수량</th>
-                                            <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">손실액</th>
-                                            <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">사유</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="disposalTableBody">
-                                        <!-- 동적으로 생성됨 -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </main>
-        </div>
-    </div>
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+				<!-- 좌측: 유통기한 임박 품목 -->
+				<section>
+					<div class="flex items-center justify-between mb-3">
+						<h3 class="text-lg font-semibold text-gray-900">유통기한 임박 품목
+							리스트</h3>
+					</div>
+					<div id="branchListContainer"
+						class="space-y-4 max-h-[680px] overflow-y-auto pr-1">
+						<!-- 동적으로 생성됨 -->
+					</div>
+				</section>
 
-    <script>
+				<!-- 우측: 폐기 리스트 -->
+				<section>
+					<div class="flex items-center justify-between mb-3">
+						<h3 class="text-lg font-semibold text-gray-900">폐기 건수 리스트</h3>
+					</div>
+					<div
+						class="bg-white rounded-lg border border-gray-200 overflow-hidden max-h-[680px]">
+						<div class="overflow-auto h-full">
+							<table class="w-full">
+								<thead class="bg-gray-50 border-b border-gray-200">
+									<tr>
+										<th
+											class="text-left py-4 px-6 text-sm font-semibold text-gray-900">날짜</th>
+										<th
+											class="text-left py-4 px-6 text-sm font-semibold text-gray-900">지점</th>
+										<th
+											class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
+										<th
+											class="text-right py-4 px-6 text-sm font-semibold text-gray-900">수량</th>
+										<th
+											class="text-right py-4 px-6 text-sm font-semibold text-gray-900">손실액</th>
+										<th
+											class="text-left py-4 px-6 text-sm font-semibold text-gray-900">사유</th>
+									</tr>
+								</thead>
+								<tbody id="disposalTableBody">
+									<!-- 동적으로 생성됨 -->
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</section>
+			</div>
+		</main>
+	</div>
+
+	<script>
+	const contextPath = "${contextPath}";
+	
         // 전역 상태
         let filteredExpiryData = [];
         let filteredDisposalData = [];
-
-        // Mock 유통기한 임박 데이터
-        const mockExpiryItems = [
-            { id: "1", branch: "강남점", itemName: "소고기 패티", itemCode: "MEAT-001", category: "육류", quantity: 45, unit: "개", receivedDate: "2026-03-20", expiryDate: "2026-03-30", daysLeft: 1, status: "urgent" },
-            { id: "1-2", branch: "강남점", itemName: "소고기 패티", itemCode: "MEAT-001", category: "육류", quantity: 30, unit: "개", receivedDate: "2026-03-18", expiryDate: "2026-03-29", daysLeft: 0, status: "urgent" },
-            { id: "2", branch: "강남점", itemName: "생크림", itemCode: "DAIRY-001", category: "유제품", quantity: 12, unit: "L", receivedDate: "2026-03-25", expiryDate: "2026-03-31", daysLeft: 2, status: "urgent" },
-            { id: "3", branch: "홍대점", itemName: "소고기 패티", itemCode: "MEAT-001", category: "육류", quantity: 38, unit: "개", receivedDate: "2026-03-20", expiryDate: "2026-03-30", daysLeft: 1, status: "urgent" },
-            { id: "3-2", branch: "홍대점", itemName: "소고기 패티", itemCode: "MEAT-001", category: "육류", quantity: 25, unit: "개", receivedDate: "2026-03-22", expiryDate: "2026-04-01", daysLeft: 3, status: "warning" },
-            { id: "4", branch: "본사 물류창고", itemName: "체다치즈", itemCode: "DAIRY-002", category: "유제품", quantity: 50, unit: "장", receivedDate: "2026-03-24", expiryDate: "2026-03-31", daysLeft: 2, status: "urgent" },
-            { id: "4-2", branch: "본사 물류창고", itemName: "체다치즈", itemCode: "DAIRY-002", category: "유제품", quantity: 35, unit: "장", receivedDate: "2026-03-23", expiryDate: "2026-03-30", daysLeft: 1, status: "urgent" },
-            { id: "5", branch: "신촌점", itemName: "양상추", itemCode: "VEG-002", category: "채소", quantity: 8, unit: "kg", receivedDate: "2026-03-26", expiryDate: "2026-04-01", daysLeft: 3, status: "warning" },
-            { id: "5-2", branch: "신촌점", itemName: "양상추", itemCode: "VEG-002", category: "채소", quantity: 6, unit: "kg", receivedDate: "2026-03-27", expiryDate: "2026-04-03", daysLeft: 5, status: "warning" },
-            { id: "6", branch: "이대점", itemName: "토마토", itemCode: "VEG-003", category: "채소", quantity: 15, unit: "kg", receivedDate: "2026-03-25", expiryDate: "2026-04-02", daysLeft: 4, status: "warning" },
-            { id: "7", branch: "강남점", itemName: "양상추", itemCode: "VEG-002", category: "채소", quantity: 10, unit: "kg", receivedDate: "2026-03-26", expiryDate: "2026-04-02", daysLeft: 4, status: "warning" },
-            { id: "8", branch: "홍대점", itemName: "토마토", itemCode: "VEG-003", category: "채소", quantity: 12, unit: "kg", receivedDate: "2026-03-24", expiryDate: "2026-04-03", daysLeft: 5, status: "warning" },
-            { id: "9", branch: "신촌점", itemName: "버거빵", itemCode: "BREAD-001", category: "빵류", quantity: 165, unit: "개", receivedDate: "2026-03-23", expiryDate: "2026-04-05", daysLeft: 7, status: "warning" },
-            { id: "9-2", branch: "신촌점", itemName: "버거빵", itemCode: "BREAD-001", category: "빵류", quantity: 120, unit: "개", receivedDate: "2026-03-24", expiryDate: "2026-04-06", daysLeft: 8, status: "normal" },
-            { id: "10", branch: "본사 물류창고", itemName: "생크림", itemCode: "DAIRY-001", category: "유제품", quantity: 65, unit: "L", receivedDate: "2026-03-22", expiryDate: "2026-04-06", daysLeft: 8, status: "normal" }
-        ];
-
-        // Mock 손실 기록 데이터
-        const mockDisposalRecords = [
-            { id: "1", date: "2026-04-04", branch: "강남점", itemName: "소고기 패티", quantity: 25, unit: "개", amount: 625000, reason: "유통기한 만료" },
-            { id: "2", date: "2026-04-03", branch: "홍대점", itemName: "생크림", quantity: 8, unit: "L", amount: 240000, reason: "유통기한 만료" },
-            { id: "3", date: "2026-04-03", branch: "강남점", itemName: "양상추", quantity: 12, unit: "kg", amount: 180000, reason: "품질 불량" },
-            { id: "4", date: "2026-04-02", branch: "신촌점", itemName: "토마토", quantity: 15, unit: "kg", amount: 300000, reason: "유통기한 만료" },
-            { id: "5", date: "2026-04-02", branch: "이대점", itemName: "체다치즈", quantity: 20, unit: "장", amount: 500000, reason: "품질 불량" },
-            { id: "6", date: "2026-04-01", branch: "강남점", itemName: "버거빵", quantity: 50, unit: "개", amount: 250000, reason: "유통기한 만료" },
-            { id: "7", date: "2026-04-01", branch: "홍대점", itemName: "소고기 패티", quantity: 18, unit: "개", amount: 450000, reason: "파손/손상" },
-            { id: "8", date: "2026-03-31", branch: "신촌점", itemName: "생크림", quantity: 6, unit: "L", amount: 180000, reason: "유통기한 만료" },
-            { id: "9", date: "2026-03-30", branch: "강남점", itemName: "양상추", quantity: 10, unit: "kg", amount: 150000, reason: "품질 불량" },
-            { id: "10", date: "2026-03-29", branch: "이대점", itemName: "토마토", quantity: 12, unit: "kg", amount: 240000, reason: "유통기한 만료" }
-        ];
 
         // 사이드바 토글
         function toggleSidebar() {
@@ -227,59 +215,62 @@
         // 로그아웃
         function logout() {
             alert('로그아웃되었습니다.');
-            window.location.href = '<%= request.getContextPath() %>/common/login.jsp';
+            window.location.href = '<%=request.getContextPath()%>/common/login.jsp';
         }
 
         // 백드롭 클릭 시 사이드바 닫기
         document.getElementById('sidebarBackdrop').addEventListener('click', closeSidebar);
 
+        function applyServerData(data) {
+
+        	// 1. 리스트 세팅
+        	filteredExpiryData = data.expireRiskList || [];
+        	filteredDisposalData = data.disposalRiskList || [];
+
+        	// 2. 카드 값 직접 세팅 (서버값 사용)
+        	document.getElementById('urgentCount').textContent = data.summary.urgentCount;
+        	document.getElementById('warningCount').textContent = data.summary.warningCount;
+        	document.getElementById('disposalRecordCount').textContent = data.summary.disposalCount;
+
+        	// 3. 화면 렌더링
+        	renderExpirySection();
+        	renderDisposalSection();
+        	console.log(data.summary);
+        }
+        
         // 필터링
         function handleFilter() {
-            const selectedBranch = document.getElementById('branchSelect').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+			const branchCode = document.getElementById('branchSelect').value;
+			const startDate = document.getElementById('startDate').value;
+			const endDate = document.getElementById('endDate').value;
 
-            // 유통기한 필터
-            filteredExpiryData = mockExpiryItems.filter(item => {
-                const matchesBranch = selectedBranch === '전체' || item.branch === selectedBranch;
-                const expiryDate = new Date(item.expiryDate);
-                const start = new Date(startDate);
-                const end = new Date(endDate);
-                const matchesDate = expiryDate >= start && expiryDate <= end;
-                return matchesBranch && matchesDate;
-            });
+			const params = new URLSearchParams();
+			if (branchCode) params.append('branchCode', branchCode);
+			if (startDate) params.append('startDate', startDate);
+			if (endDate) params.append('endDate', endDate);
 
-            // 손실 기록 필터
-            filteredDisposalData = mockDisposalRecords.filter(record => {
-                const matchesBranch = selectedBranch === '전체' || record.branch === selectedBranch;
-                const recordDate = new Date(record.date);
-                const start = new Date(startDate);
-                const end = new Date(endDate);
-                const matchesDate = recordDate >= start && recordDate <= end;
-                return matchesBranch && matchesDate;
-            });
-
-            // 정렬
-            filteredExpiryData.sort((a, b) => {
-                if (a.daysLeft !== b.daysLeft) {
-                    return a.daysLeft - b.daysLeft;
-                }
-                return a.branch.localeCompare(b.branch);
-            });
-
-            renderUnifiedView();
-        }
+			fetch(contextPath + '/hq/branch_stock/loss', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				body: params.toString()
+			})
+			.then(res => res.json())
+			.then(data => {
+				console.log(data);
+				applyServerData(data);
+			})
+			.catch(err => console.error(err));
+		}
 
         // 초기화
         function handleReset() {
-            document.getElementById('branchSelect').value = '전체';
-            document.getElementById('startDate').value = '2026-03-01';
-            document.getElementById('endDate').value = '2026-04-05';
-            
-            filteredExpiryData = mockExpiryItems.slice();
-            filteredDisposalData = mockDisposalRecords.slice();
+            document.getElementById('branchSelect').value = '';
+            document.getElementById('startDate').value = '${startDate}';
+            document.getElementById('endDate').value = '${endDate}';
 
-            renderUnifiedView();
+            handleFilter();
         }
 
         function renderUnifiedView() {
@@ -289,8 +280,8 @@
         }
 
         function renderSummaryCards() {
-            const urgentCount = filteredExpiryData.filter(i => i.daysLeft <= 2).length;
-            const warningCount = filteredExpiryData.filter(i => i.daysLeft > 2 && i.daysLeft <= 10).length;
+            const urgentCount = filteredExpiryData.filter(i => i.dDay <= 1).length;
+            const warningCount = filteredExpiryData.filter(i => i.dDay > 1 && i.dDay <= 3).length;
 
             const expiryReasonCount = filteredDisposalData.filter(r => r.reason === '유통기한 만료').length;
             const qualityReasonCount = filteredDisposalData.filter(r => r.reason === '품질 불량').length;
@@ -309,10 +300,10 @@
             // 지점별 그룹핑
             const branchGroups = {};
             filteredExpiryData.forEach(item => {
-                if (!branchGroups[item.branch]) {
-                    branchGroups[item.branch] = [];
+                if (!branchGroups[item.branchName]) {
+                    branchGroups[item.branchName] = [];
                 }
-                branchGroups[item.branch].push(item);
+                branchGroups[item.branchName].push(item);
             });
 
             // 지점별 카드 렌더링
@@ -321,16 +312,16 @@
 
             Object.keys(branchGroups).sort().forEach(branch => {
                 const items = branchGroups[branch];
-                const urgentItems = items.filter(i => i.daysLeft <= 2).length;
-                const warningItems = items.filter(i => i.daysLeft > 2 && i.daysLeft <= 7).length;
+                const urgentItems = items.filter(i => i.dDay <= 1).length;
+                const warningItems = items.filter(i => i.dDay > 1 && i.dDay <= 3).length;
 
                 let branchCardHtml = '<div class="p-6 border-b border-gray-200 bg-gray-50"><div class="flex items-center justify-between"><h3 class="font-semibold text-gray-900">' + branch + '</h3><div class="flex gap-2"><span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">긴급: ' + urgentItems + '</span><span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">주의: ' + warningItems + '</span></div></div></div><div class="overflow-x-auto"><table class="w-full"><thead class="bg-gray-50 border-b border-gray-200"><tr><th class="text-left py-3 px-4 text-sm font-semibold text-gray-900">품목명</th><th class="text-left py-3 px-4 text-sm font-semibold text-gray-900">수신일</th><th class="text-left py-3 px-4 text-sm font-semibold text-gray-900">유통기한</th><th class="text-center py-3 px-4 text-sm font-semibold text-gray-900">남은 일수</th><th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">재고</th></tr></thead><tbody>';
 
                 items.forEach(item => {
-                    const daysLeftClass = item.daysLeft <= 2 ? 'text-red-600 font-semibold' : item.daysLeft <= 7 ? 'text-yellow-600 font-semibold' : 'text-green-600';
-                    const statusBadge = item.daysLeft <= 2 ? '<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">긴급</span>' : item.daysLeft <= 7 ? '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">주의</span>' : '<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">정상</span>';
+                    const daysLeftClass = item.dDay <= 1 ? 'text-red-600 font-semibold' : item.dDay <= 3 ? 'text-yellow-600 font-semibold' : 'text-green-600';
+                    const statusBadge = item.dDay <= 1 ? '<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">긴급</span>' : item.dDay <= 3 ? '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">주의</span>' : '<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">정상</span>';
                     
-                    branchCardHtml += '<tr class="border-b border-gray-100 hover:bg-gray-50"><td class="py-3 px-4 text-sm text-gray-900">' + item.itemName + '</td><td class="py-3 px-4 text-sm text-gray-600">' + item.receivedDate + '</td><td class="py-3 px-4 text-sm text-gray-600">' + item.expiryDate + '</td><td class="py-3 px-4 text-center">' + statusBadge + '<span class="block text-sm ' + daysLeftClass + ' mt-1">' + item.daysLeft + '일</span></td><td class="py-3 px-4 text-right text-sm font-medium text-gray-900">' + item.quantity + item.unit + '</td></tr>';
+                    branchCardHtml += '<tr class="border-b border-gray-100 hover:bg-gray-50"><td class="py-3 px-4 text-sm text-gray-900">' + item.materialName + '</td><td class="py-3 px-4 text-sm text-gray-600">' + item.receivedDate + '</td><td class="py-3 px-4 text-sm text-gray-600">' + item.expireDate + '</td><td class="py-3 px-4 text-center">' + statusBadge + '<span class="block text-sm ' + daysLeftClass + ' mt-1">' + item.dDay + '일</span></td><td class="py-3 px-4 text-right text-sm font-medium text-gray-900">' + item.qty + item.unit + '</td></tr>';
                 });
 
                 branchCardHtml += '</tbody></table></div>';
@@ -362,8 +353,8 @@
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-gray-100 hover:bg-gray-50';
                 
-                const amount = record.amount.toLocaleString('ko-KR');
-                tr.innerHTML = '<td class="py-4 px-6 text-sm text-gray-900">' + record.date + '</td><td class="py-4 px-6 text-sm"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">' + record.branch + '</span></td><td class="py-4 px-6 text-sm font-medium text-gray-900">' + record.itemName + '</td><td class="py-4 px-6 text-right text-sm text-gray-600">' + record.quantity + record.unit + '</td><td class="py-4 px-6 text-right text-sm font-semibold text-red-600">' + amount + '원</td><td class="py-4 px-6 text-sm"><span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium ' + reasonColorClass + '">' + record.reason + '</span></td>';
+                const amount = record.lossAmount.toLocaleString('ko-KR');
+                tr.innerHTML = '<td class="py-4 px-6 text-sm text-gray-900">' +  record.disposalDate + '</td><td class="py-4 px-6 text-sm"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">' + record.branchName + '</span></td><td class="py-4 px-6 text-sm font-medium text-gray-900">' + record.materialName + '</td><td class="py-4 px-6 text-right text-sm text-gray-600">' + record.qty + record.unit + '</td><td class="py-4 px-6 text-right text-sm font-semibold text-red-600">' + amount + '원</td><td class="py-4 px-6 text-sm"><span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium ' + reasonColorClass + '">' + record.reason + '</span></td>';
                 
                 tbody.appendChild(tr);
             });
@@ -380,9 +371,8 @@
 
         // 초기 로드
         window.addEventListener('DOMContentLoaded', function() {
-            filteredExpiryData = mockExpiryItems.slice();
-            filteredDisposalData = mockDisposalRecords.slice();
             renderUnifiedView();
+            handleFilter();
         });
     </script>
 </body>
