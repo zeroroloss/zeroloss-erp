@@ -153,7 +153,7 @@
 	</select>
 
 	<!-- 폐기 등록 -->
-	<insert id="insertStockChangeHistory" parameterType="dto.BranchStockChangeHistoryDTO">
+	<insert id="insertStockChangeHistory" parameterType="dto.BranchStockChangeHistoryDTO" useGeneratedKeys="true" keyProperty="changeId">
 		INSERT INTO branch_stock_change_history (branch_stock_code, change_amount, change_type, changed_at, after_qty)
 		 VALUES ( #{branchStockCode}, #{changeAmount}, 'DISPOSAL', NOW(), #{afterQty})
 	</insert>

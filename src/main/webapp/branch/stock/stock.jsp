@@ -11,7 +11,6 @@
         .page-title { margin: 0; font-size: 28px; font-weight: 700; color: #111827; }
         .page-sub { margin: 8px 0 0; color: #6b7280; font-size: 14px; }
 
-        /* ── 필터 ── */
         .filter-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px; margin-bottom: 16px; }
         .filters { display: grid; grid-template-columns: 1fr 1fr 1.2fr auto; gap: 10px; }
         .filter-input, .filter-select { width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; background: #fff; }
@@ -19,11 +18,9 @@
         .btn-primary { background: #00853d; color: #fff; }
         .btn-muted { background: #eef2f7; color: #374151; }
 
-        /* ── 메인 레이아웃 ── */
         .stock-layout { display: grid; grid-template-columns: 1fr; gap: 14px; align-items: start; }
         .stock-layout.panel-open { grid-template-columns: 1fr 360px; }
 
-        /* ── 테이블 패널 ── */
         .panel { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; min-width: 0; }
         .panel-head { padding: 14px 14px 10px; border-bottom: 1px solid #eef2f7; }
         .panel-title { margin: 0; font-size: 17px; font-weight: 800; color: #111827; }
@@ -45,6 +42,10 @@
         th { background: #f8fafc; color: #374151; font-weight: 700; }
         tbody tr { cursor: pointer; transition: background 0.1s; }
         tbody tr:hover td { background: #f8fafc; }
+
+        tr.row-expired td { background: #fecaca; }
+        tr.row-expired:hover td { background: #fca5a5; }
+        tr.row-expired.row-sel td { background: #f87171 !important; }
         tr.row-urgent td { background: #fff1f1; }
         tr.row-urgent:hover td { background: #ffe4e4; }
         tr.row-urgent.row-sel td { background: #ffd7d7 !important; }
@@ -57,7 +58,7 @@
         .badge-urgent   { background: #fee2e2; color: #b91c1c; }
         .badge-warn     { background: #ffedd5; color: #c2410c; }
         .badge-safe     { background: #dcfce7; color: #166534; }
-        .badge-expired  { background: #fecaca; color: #991b1b; }
+        .badge-expired  { background: #f55656; color: #991b1b; }
         .badge-disposal { background: #f1f5f9; color: #475569; }
         .badge-lack     { background: #fee2e2; color: #b91c1c; }
         .badge-caution  { background: #fef3c7; color: #92400e; }
@@ -66,16 +67,13 @@
 
         .empty { padding: 24px 14px; text-align: center; color: #6b7280; font-size: 13px; }
 
-        /* ── 슬라이드 패널 ── */
         .detail-panel { display: none; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; flex-direction: column; position: sticky; top: 16px; max-height: calc(100vh - 80px); min-width: 0; }
         .detail-panel.open { display: flex; }
-
         .dp-head { padding: 14px 16px; border-bottom: 1px solid #eef2f7; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
         .dp-name { font-size: 16px; font-weight: 800; color: #111827; }
         .dp-cat  { font-size: 12px; color: #6b7280; margin-top: 2px; }
         .dp-close { background: none; border: none; font-size: 20px; color: #9ca3af; cursor: pointer; padding: 2px 6px; border-radius: 4px; line-height: 1; }
         .dp-close:hover { background: #f3f4f6; }
-
         .dp-summary { padding: 14px 16px; background: #f8fafc; border-bottom: 1px solid #eef2f7; flex-shrink: 0; }
         .dp-total-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
         .dp-total-label { font-size: 11px; color: #6b7280; }
@@ -88,9 +86,7 @@
         .dp-prog-bg { flex: 1; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
         .dp-prog-fill { height: 6px; border-radius: 3px; transition: width 0.3s; }
         .dp-ratio-pct { font-size: 13px; font-weight: 700; min-width: 38px; text-align: right; }
-
         .dp-body { padding: 14px 16px; flex: 1; overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
-
         .dp-sec-title { font-size: 11px; font-weight: 700; color: #6b7280; padding: 4px 10px; background: #f1f5f9; border-radius: 6px; display: inline-block; margin-bottom: 2px; }
         .dp-sec-title.disposal { color: #fff; background: #dc2626; }
         .sec-divider { border: none; border-top: 3px solid #dc2626; margin: 6px 0; }
@@ -110,17 +106,14 @@
         .lot-days-a { font-size: 11px; color: #d97706; font-weight: 700; }
         .lot-days-g { font-size: 11px; color: #9ca3af; }
         .lot-action { margin-top: 10px; display: flex; justify-content: flex-end; }
-
         .btn-disposal         { border: 0; border-radius: 6px; padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer; background: #fee2e2; color: #b91c1c; }
         .btn-disposal:hover   { background: #fecaca; }
         .btn-disposal-outline { border: 1px solid #d1d5db; border-radius: 6px; padding: 5px 12px; font-size: 11px; font-weight: 700; cursor: pointer; background: #fff; color: #374151; }
         .btn-disposal-outline:hover { background: #f3f4f6; }
-
         .disposal-banner { padding: 8px 12px; background: #fff1f0; border: 1px solid #fca5a5; border-radius: 8px; }
         .disposal-banner-title { font-size: 12px; font-weight: 700; color: #991b1b; }
         .disposal-banner-sub   { font-size: 11px; color: #b91c1c; margin-top: 2px; }
 
-        /* ── 폐기 모달 ── */
         .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 50; align-items: center; justify-content: center; padding: 16px; }
         .modal-backdrop.open { display: flex; }
         .modal-box { background: #fff; border-radius: 12px; width: 100%; max-width: 480px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
@@ -130,34 +123,31 @@
         .modal-close:hover { background: #f3f4f6; }
         .modal-body { padding: 18px; }
         .modal-foot { padding: 12px 18px; border-top: 1px solid #eef2f7; display: flex; justify-content: flex-end; gap: 8px; }
-
         .warn-banner { background: #fff1f0; border: 1px solid #fca5a5; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; }
         .warn-banner-title { font-size: 12px; font-weight: 700; color: #991b1b; }
         .warn-banner-sub   { font-size: 11px; color: #b91c1c; margin-top: 3px; }
-
         .info-box { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
         .info-item .il { font-size: 11px; color: #6b7280; }
         .info-item .iv { font-size: 13px; font-weight: 700; color: #111827; margin-top: 2px; }
-
         .mfield { margin-bottom: 12px; }
         .mfield label { display: block; font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 5px; }
         .mfield input, .mfield select, .mfield textarea { width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; background: #fff; color: #111827; }
         .mfield input[readonly], .mfield select[disabled] { background: #f3f4f6; color: #6b7280; cursor: not-allowed; }
         .mfield textarea { resize: vertical; min-height: 72px; font-family: inherit; }
         .mfield-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
         .mbtn { height: 36px; padding: 0 18px; border: 0; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
         .mbtn-cancel { background: #eef2f7; color: #374151; }
         .mbtn-danger { background: #dc2626; color: #fff; }
 
+        .paging-wrap { display: flex; justify-content: center; align-items: center; gap: 4px; padding: 14px; }
+        .page-btn { min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; color: #374151; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .page-btn:hover { background: #f3f4f6; }
+        .page-btn.active { background: #00853d; color: #fff; border-color: #00853d; }
+        .page-btn:disabled { background: #f9fafb; color: #d1d5db; cursor: not-allowed; }
+        .page-info { font-size: 12px; color: #6b7280; margin: 0 8px; }
+
         @media (max-width: 900px) { .filters { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 640px) { .filters { grid-template-columns: 1fr; } .btn { height: 38px; } }
-        .paging-wrap { display: flex; justify-content: center; align-items: center; gap: 4px; padding: 14px; }
-.page-btn { min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; color: #374151; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.page-btn:hover { background: #f3f4f6; }
-.page-btn.active { background: #00853d; color: #fff; border-color: #00853d; }
-.page-btn:disabled { background: #f9fafb; color: #d1d5db; cursor: not-allowed; }
-.page-info { font-size: 12px; color: #6b7280; margin: 0 8px; }
     </style>
 
 <%@ include file="/branch/common/layout/layout_head.jsp" %>
@@ -220,7 +210,6 @@
             </div>
         </div>
 
-        <!-- 슬라이드 패널 -->
         <div class="detail-panel" id="detailPanel">
             <div class="dp-head">
                 <div>
@@ -252,7 +241,6 @@
 </div>
 </div>
 
-<!-- 폐기 등록 모달 -->
 <div class="modal-backdrop" id="disposalModal" onclick="onBackdropClick(event)">
     <div class="modal-box">
         <div class="modal-head">
@@ -273,9 +261,7 @@
     TODAY.setHours(0, 0, 0, 0);
     var contextPath = '<%=request.getContextPath()%>';
 
-    /* ── 재고 데이터 (API 연동) ── */
-    var stockData = [];
-
+    var stockData          = [];
     var filteredData       = [];
     var currentPage        = 1;
     var totalPages         = 1;
@@ -283,7 +269,6 @@
     var currentModalStockNo = null;
     var sortState          = { field: 'receivedAt', direction: 'asc' };
 
-    /* ── 날짜 유틸 ── */
     function parseDate(s) { return new Date(String(s).replace(' ', 'T')); }
     function daysUntil(dateStr) {
         var d = new Date(dateStr); d.setHours(0,0,0,0);
@@ -293,10 +278,10 @@
 
     function getExpiryStatus(dateStr) {
         var d = daysUntil(dateStr);
-        if (d <= 0) return { label: '만료', cls: 'badge-expired', rowCls: 'row-urgent', lotCls: 'lot-urgent' };
-        if (d <= 1) return { label: '긴급', cls: 'badge-urgent',  rowCls: 'row-urgent', lotCls: 'lot-urgent' };
-        if (d <= 3) return { label: '경고', cls: 'badge-warn',    rowCls: 'row-warn',   lotCls: 'lot-warn'   };
-        return             { label: '정상', cls: 'badge-safe',    rowCls: '',           lotCls: ''           };
+        if (d <= 0) return { label: '만료', cls: 'badge-expired', rowCls: 'row-expired', lotCls: 'lot-urgent' };
+        if (d <= 1) return { label: '긴급', cls: 'badge-urgent',  rowCls: 'row-urgent',  lotCls: 'lot-urgent' };
+        if (d <= 3) return { label: '경고', cls: 'badge-warn',    rowCls: 'row-warn',    lotCls: 'lot-warn'   };
+        return             { label: '정상', cls: 'badge-safe',    rowCls: '',            lotCls: ''           };
     }
 
     function getSafetyStatus(validQty, safetyQty) {
@@ -312,19 +297,6 @@
             .replace(/&/g,'&amp;').replace(/</g,'&lt;')
             .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     }
-
-    /* ── 정렬 ── */
-    /* function sortData(rows) {
-        var sorted = rows.slice();
-        var mult = sortState.direction === 'asc' ? 1 : -1;
-        sorted.sort(function (a, b) {
-            var av = parseDate(sortState.field === 'expireDate' ? a.expireDate + ' 00:00:00' : a.receivedAt).getTime();
-            var bv = parseDate(sortState.field === 'expireDate' ? b.expireDate + ' 00:00:00' : b.receivedAt).getTime();
-            if (av === bv) return a.branchStockCode.localeCompare(b.stockNo) * mult;
-            return (av - bv) * mult;
-        });
-        return sorted;
-    } */
 
     function syncSortButtons() {
         var rBtn = document.getElementById('sortReceivedBtn');
@@ -342,7 +314,6 @@
         loadStockList(1);
     };
 
-    /* ── 필터 ── */
     function loadCategoryList() {
         fetch(contextPath + '/branch/stock/categories')
             .then(function (res) { return res.json(); })
@@ -354,18 +325,14 @@
                         '<option value="' + escapeHtml(item.materialGroupId) + '">' + escapeHtml(item.groupName) + '</option>');
                 });
             })
-            .catch(function () {
-                alert('카테고리 목록을 불러오지 못했습니다.');
-            });
+            .catch(function () { alert('카테고리 목록을 불러오지 못했습니다.'); });
     }
 
     window.onCategoryChange = function () {
         var materialGroupId = document.getElementById('categoryFilter').value;
         var sel = document.getElementById('itemFilter');
         sel.innerHTML = '<option value="">품목명 전체</option>';
-
-        if (!materialGroupId) { loadStockList(); return; }
-
+        if (!materialGroupId) { loadStockList(1); return; }
         fetch(contextPath + '/branch/stock/materials?materialGroupId=' + encodeURIComponent(materialGroupId))
             .then(function (res) { return res.json(); })
             .then(function (data) {
@@ -373,11 +340,9 @@
                     sel.insertAdjacentHTML('beforeend',
                         '<option value="' + escapeHtml(item.materialName) + '">' + escapeHtml(item.materialName) + '</option>');
                 });
-                loadStockList();
+                loadStockList(1);
             })
-            .catch(function () {
-                alert('품목 목록을 불러오지 못했습니다.');
-            });
+            .catch(function () { alert('품목 목록을 불러오지 못했습니다.'); });
     };
 
     function loadStockList(page) {
@@ -391,7 +356,7 @@
             + '&materialName='   + encodeURIComponent(materialName)
             + '&keyword='        + encodeURIComponent(keyword)
             + '&page='           + currentPage
-        	+ '&sortField='      + sortState.field
+            + '&sortField='      + sortState.field
             + '&sortDir='        + sortState.direction;
 
         fetch(url)
@@ -403,12 +368,10 @@
                 renderTable();
                 renderPaging(data.totalCount, data.page, data.totalPages);
             })
-            .catch(function () {
-                alert('재고 목록을 불러오지 못했습니다.');
-            });
+            .catch(function () { alert('재고 목록을 불러오지 못했습니다.'); });
     }
 
-    window.applyFilters = function () { loadStockList(1); };
+    window.applyFilters  = function () { loadStockList(1); };
     window.loadStockList = loadStockList;
 
     window.resetFilters = function () {
@@ -422,7 +385,6 @@
         loadStockList(1);
     };
 
-    /* ── 테이블 렌더링 ── */
     function renderTable() {
         var tbody = document.getElementById('stockTableBody');
         var empty = document.getElementById('stockEmpty');
@@ -436,10 +398,10 @@
             var isSel  = selectedStockNo === row.branchStockCode;
             tbody.insertAdjacentHTML('beforeend',
                 '<tr class="' + es.rowCls + (isSel ? ' row-sel' : '') + '" onclick="selectStock(\'' + escapeHtml(row.branchStockCode) + '\')">' +
-                    '<td style="font-family:monospace;font-size:12px">'  + escapeHtml(row.branchStockCode)   + '</td>' +
-                    '<td style="color:#6b7280;font-size:12px">'          + escapeHtml(row.groupName)  + '</td>' +
-                    '<td style="font-weight:700">'                        + escapeHtml(row.materialName)  + '</td>' +
-                    '<td style="color:#6b7280;font-size:12px">'          + escapeHtml(row.receivedAt) + '</td>' +
+                    '<td style="font-family:monospace;font-size:12px">' + escapeHtml(row.branchStockCode) + '</td>' +
+                    '<td style="color:#6b7280;font-size:12px">'         + escapeHtml(row.groupName)       + '</td>' +
+                    '<td style="font-weight:700">'                       + escapeHtml(row.materialName)    + '</td>' +
+                    '<td style="color:#6b7280;font-size:12px">'         + escapeHtml(row.receivedAt)      + '</td>' +
                     '<td><strong>' + escapeHtml(row.expireDate) + '</strong> <span style="font-size:11px;opacity:.75">(' + escapeHtml(dayTxt) + ')</span></td>' +
                     '<td><strong>' + escapeHtml(row.currentQty + ' ' + row.unit) + '</strong></td>' +
                     '<td><span class="badge ' + es.cls + '">' + es.label + '</span></td>' +
@@ -448,12 +410,11 @@
         });
     }
 
-    /* ── 슬라이드 패널 ── */
-    window.selectStock = function (stockNo) {
-        if (selectedStockNo === stockNo) { closePanel(); return; }
-        selectedStockNo = stockNo;
+    window.selectStock = function (branchStockCode) {
+        if (selectedStockNo === branchStockCode) { closePanel(); return; }
+        selectedStockNo = branchStockCode;
 
-        var clicked     = stockData.find(function (x) { return x.branchStockCode === stockNo; });
+        var clicked     = stockData.find(function (x) { return x.branchStockCode === branchStockCode; });
         if (!clicked) return;
 
         var sameName    = stockData.filter(function (x) { return x.materialName === clicked.materialName; });
@@ -488,14 +449,13 @@
 
         var html = '';
 
-        /* 유효 재고 */
         if (validList.length) {
             html += '<div class="dp-sec-title">유효 재고 ' + validList.length + '건</div>';
             validList.forEach(function (x) {
                 var es    = getExpiryStatus(x.expireDate);
                 var d     = daysUntil(x.expireDate);
                 var dayCls = d <= 3 ? 'lot-days-r' : d <= 7 ? 'lot-days-a' : 'lot-days-g';
-                var isCur = x.branchStockCode === stockNo;
+                var isCur = x.branchStockCode === branchStockCode;
                 html +=
                     '<div class="lot-card ' + es.lotCls + (isCur ? ' lot-sel' : '') + '">' +
                         '<div class="lot-no">' + escapeHtml(x.branchStockCode) + (isCur ? ' · 현재 선택' : '') + '</div>' +
@@ -514,7 +474,6 @@
             });
         }
 
-        /* 폐기 필요 */
         if (expiredList.length) {
             html += '<hr class="sec-divider">';
             html += '<div class="dp-sec-title disposal">폐기 필요 ' + expiredList.length + '건</div>';
@@ -525,7 +484,7 @@
                 '</div>';
             expiredList.forEach(function (x) {
                 var d     = daysUntil(x.expireDate);
-                var isCur = x.branchStockCode === stockNo;
+                var isCur = x.branchStockCode === branchStockCode;
                 html +=
                     '<div class="lot-card lot-expired' + (isCur ? ' lot-sel' : '') + '">' +
                         '<div class="lot-no">' + escapeHtml(x.branchStockCode) + '</div>' +
@@ -550,29 +509,20 @@
         renderTable();
     };
 
-
     function renderPaging(totalCount, page, total) {
         var wrap = document.getElementById('pagingWrap');
         if (total <= 1) { wrap.style.display = 'none'; return; }
         wrap.style.display = 'flex';
-
         var html = '';
-        // 이전 버튼
         html += '<button class="page-btn" onclick="loadStockList(' + (page - 1) + ')"' + (page <= 1 ? ' disabled' : '') + '>＜</button>';
-
-        // 페이지 번호 (최대 5개)
         var startPage = Math.max(1, page - 2);
         var endPage   = Math.min(total, startPage + 4);
         if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
-
         for (var i = startPage; i <= endPage; i++) {
             html += '<button class="page-btn' + (i === page ? ' active' : '') + '" onclick="loadStockList(' + i + ')">' + i + '</button>';
         }
-
-        // 다음 버튼
         html += '<button class="page-btn" onclick="loadStockList(' + (page + 1) + ')"' + (page >= total ? ' disabled' : '') + '>＞</button>';
         html += '<span class="page-info">총 ' + totalCount + '건</span>';
-
         wrap.innerHTML = html;
     }
 
@@ -583,11 +533,10 @@
         renderTable();
     };
 
-    /* ── 폐기 모달 ── */
-    window.openDisposalModal = function (stockNo, expired) {
-        var row = stockData.find(function (x) { return x.branchStockCode === stockNo; });
+    window.openDisposalModal = function (branchStockCode, expired) {
+        var row = stockData.find(function (x) { return x.branchStockCode === branchStockCode; });
         if (!row) return;
-        currentModalStockNo = stockNo;
+        currentModalStockNo = branchStockCode;
         var html = '';
 
         if (expired) {
@@ -648,26 +597,33 @@
         if (!qty.readOnly && (!qty.value || parseInt(qty.value) <= 0)) { alert('폐기 수량을 입력해주세요.'); return; }
         if (!reason.disabled && !reason.value) { alert('폐기 사유를 선택해주세요.'); return; }
 
-        var payload = {
-            branchStockCode: currentModalStockNo,
-            disposalQty:     qty.readOnly ? null : parseInt(qty.value),
-            disposalReason:  reason.value,
-            reasonDetail:    detail.value
-        };
-        console.log('폐기 등록 요청:', payload);
+        var row = stockData.find(function (x) { return x.branchStockCode === currentModalStockNo; });
+        var disposalQty = qty.readOnly ? row.currentQty : qty.value;
 
-        /* TODO: API 연동
-        fetch(contextPath + '/api/branch/stock/disposal', {
+        var formData = new URLSearchParams();
+        formData.append('branchStockCode', currentModalStockNo);
+        formData.append('disposalQty',     disposalQty);
+        formData.append('disposalReason',  reason.value);
+        formData.append('reasonDetail',    detail.value || '');
+
+        fetch(contextPath + '/branch/stock/disposal', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        }).then(function (res) {
-            if (res.ok) { alert('폐기 등록이 완료되었습니다.'); closeDisposalModal(); applyFilters(); }
-            else { alert('폐기 등록에 실패했습니다.'); }
-        }); */
-
-        alert('폐기 등록이 완료되었습니다.');
-        closeDisposalModal();
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: formData.toString()
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            if (data.success) {
+                alert('폐기 등록이 완료되었습니다.');
+                closeDisposalModal();
+                loadStockList(currentPage);
+            } else {
+                alert(data.error || '폐기 등록에 실패했습니다.');
+            }
+        })
+        .catch(function () {
+            alert('폐기 등록 중 오류가 발생했습니다.');
+        });
     };
 
     /* ── 초기 실행 ── */

@@ -36,9 +36,16 @@
 		.tab-panel { display: none; }
 		.tab-panel.active { display: block; }
 		.panel { background: #fff; overflow: hidden; }
-		.panel-head { padding: 16px 18px; border-bottom: 1px solid #eef2f7; }
-		.panel-title { margin: 0; font-size: 18px; font-weight: 700; color: #111827; }
-		.panel-sub { margin: 6px 0 0; font-size: 13px; color: #6b7280; }
+		.panel-head { padding: 16px 18px; border-bottom: 1px solid #eef2f7; display: flex; align-items: center; justify-content: space-between; }
+		.panel-head-info .panel-title { margin: 0; font-size: 18px; font-weight: 700; color: #111827; }
+		.panel-head-info .panel-sub   { margin: 4px 0 0; font-size: 13px; color: #6b7280; }
+
+		/* 재고 번호 검색 */
+		.stock-search { position: relative; }
+		.stock-search input { height: 34px; padding: 0 12px 0 32px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; width: 200px; background: #fff; color: #111827; }
+		.stock-search input:focus { outline: none; border-color: #00853d; }
+		.stock-search input::placeholder { color: #9ca3af; }
+		.stock-search::before { content: ''; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") no-repeat center; pointer-events: none; }
 
 		.table-wrap { overflow-x: auto; }
 		table { width: 100%; border-collapse: collapse; }
@@ -47,10 +54,10 @@
 		.center { text-align: center; }
 
 		.badge { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
-		.badge-INBOUND  { background: #dcfce7; color: #166534; }
-		.badge-OUTBOUND { background: #dbeafe; color: #1d4ed8; }
-		.badge-DISPOSAL { background: #fee2e2; color: #b91c1c; }
-		.badge-ADJUST   { background: #fef3c7; color: #b45309; }
+		.badge-INBOUND     { background: #dcfce7; color: #166534; }
+		.badge-EXCHANGEIN  { background: #dcfce7; color: #166534; }
+		.badge-EXCHANGEOUT { background: #ede9fe; color: #6d28d9; }
+		.badge-DISPOSAL    { background: #fee2e2; color: #b91c1c; }
 		.badge-EXPIRED  { background: #fee2e2; color: #b91c1c; }
 		.badge-DAMAGED  { background: #ffedd5; color: #c2410c; }
 		.badge-ETC      { background: #f1f5f9; color: #475569; }
@@ -64,7 +71,6 @@
 		.disposal-title { margin: 0; font-size: 18px; font-weight: 700; color: #9a3412; }
 		.disposal-text  { margin: 6px 0 0; color: #7c2d12; font-size: 13px; }
 
-		/* 페이징 */
 		.paging-wrap { display: flex; justify-content: center; align-items: center; gap: 4px; padding: 14px; }
 		.page-btn { min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; color: #374151; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
 		.page-btn:hover { background: #f3f4f6; }
@@ -118,23 +124,28 @@
 			</div>
 		</div>
 		<div class="filter-actions">
-			<button type="button" class="filter-btn primary"    onclick="applyFilters()">조회하기</button>
-			<button type="button" class="filter-btn secondary"  onclick="resetFilters()">초기화</button>
+			<button type="button" class="filter-btn primary"   onclick="applyFilters()">조회하기</button>
+			<button type="button" class="filter-btn secondary" onclick="resetFilters()">초기화</button>
 		</div>
 	</div>
 
 	<div class="table-card">
 		<div class="tabs">
-			<button class="tab-link active"    data-tab="history"  onclick="switchTab('history')">변동 이력</button>
-			<button class="tab-link disposal"  data-tab="disposal" onclick="switchTab('disposal')">폐기 내역</button>
+			<button class="tab-link active"   data-tab="history"  onclick="switchTab('history')">변동 이력</button>
+			<button class="tab-link disposal" data-tab="disposal" onclick="switchTab('disposal')">폐기 내역</button>
 		</div>
 
 		<!-- 변동 이력 탭 -->
 		<div id="historyPanel" class="tab-panel active">
 			<div class="panel">
 				<div class="panel-head">
-					<h2 class="panel-title">재고 변동 이력</h2>
-					<p class="panel-sub">입고, 출고, 조정, 폐기 등 재고 변동 내역입니다.</p>
+					<div class="panel-head-info">
+						<h2 class="panel-title">재고 변동 이력</h2>
+						<p class="panel-sub">입고, 교환, 폐기 등 재고 변동 내역입니다.</p>
+					</div>
+					<div class="stock-search">
+						<input type="text" id="historyStockSearch" placeholder="재고 번호 검색" oninput="onStockSearch('history')">
+					</div>
 				</div>
 				<div class="table-wrap">
 					<table>
@@ -168,8 +179,13 @@
 			</div>
 			<div class="panel">
 				<div class="panel-head">
-					<h2 class="panel-title">폐기 처리 내역</h2>
-					<p class="panel-sub">폐기 등록은 재고 현황 페이지에서 처리할 수 있습니다.</p>
+					<div class="panel-head-info">
+						<h2 class="panel-title">폐기 처리 내역</h2>
+						<p class="panel-sub">폐기 등록은 재고 현황 페이지에서 처리할 수 있습니다.</p>
+					</div>
+					<div class="stock-search">
+						<input type="text" id="disposalStockSearch" placeholder="재고 번호 검색" oninput="onStockSearch('disposal')">
+					</div>
 				</div>
 				<div class="table-wrap">
 					<table>
@@ -200,14 +216,15 @@
 
 <script>
 (function () {
-	var contextPath    = '<%= request.getContextPath() %>';
+	var contextPath      = '<%= request.getContextPath() %>';
 	var defaultStartDate = '<%= defaultStartDate %>';
 	var defaultEndDate   = '<%= defaultEndDate %>';
-	var currentTab     = 'history';
-	var historyPage    = 1;
-	var disposalPage   = 1;
+	var currentTab       = 'history';
+	var historyPage      = 1;
+	var disposalPage     = 1;
+	var lastHistoryData  = [];
+	var lastDisposalData = [];
 
-	/* ── 유틸 ── */
 	function escapeHtml(v) {
 		return String(v == null ? '' : v)
 			.replace(/&/g,'&amp;').replace(/</g,'&lt;')
@@ -254,6 +271,21 @@
 		loadTabData(tab, 1);
 	};
 
+	/* ── 재고 번호 검색 (클라이언트) ── */
+	window.onStockSearch = function (tab) {
+		if (tab === 'history') renderHistory(lastHistoryData);
+		else                   renderDisposal(lastDisposalData);
+	};
+
+	function filterByStockCode(list, tab) {
+		var inputId = tab === 'history' ? 'historyStockSearch' : 'disposalStockSearch';
+		var keyword = document.getElementById(inputId).value.trim().toLowerCase();
+		if (!keyword) return list;
+		return list.filter(function (r) {
+			return r.branchStockCode && r.branchStockCode.toLowerCase().indexOf(keyword) >= 0;
+		});
+	}
+
 	/* ── 데이터 로드 ── */
 	function loadTabData(tab, page) {
 		if (tab === 'history') historyPage  = page || 1;
@@ -266,21 +298,23 @@
 		var p               = tab === 'history' ? historyPage : disposalPage;
 
 		var url = contextPath + '/branch/stock_change/view?'
-			+ 'tab='             + encodeURIComponent(tab)
-			+ '&materialGroupId='+ encodeURIComponent(materialGroupId)
-			+ '&materialName='   + encodeURIComponent(materialName)
-			+ '&startDate='      + encodeURIComponent(startDate)
-			+ '&endDate='        + encodeURIComponent(endDate)
-			+ '&page='           + p;
+			+ 'tab='              + encodeURIComponent(tab)
+			+ '&materialGroupId=' + encodeURIComponent(materialGroupId)
+			+ '&materialName='    + encodeURIComponent(materialName)
+			+ '&startDate='       + encodeURIComponent(startDate)
+			+ '&endDate='         + encodeURIComponent(endDate)
+			+ '&page='            + p;
 
 		fetch(url, { headers: { 'Accept': 'application/json' } })
 			.then(function (res) { return res.json(); })
 			.then(function (data) {
 				if (tab === 'history') {
-					renderHistory(data.list);
+					lastHistoryData = data.list || [];
+					renderHistory(lastHistoryData);
 					renderPaging('historyPaging', data.totalCount, data.page, data.totalPages, 'history');
 				} else {
-					renderDisposal(data.list);
+					lastDisposalData = data.list || [];
+					renderDisposal(lastDisposalData);
 					renderPaging('disposalPaging', data.totalCount, data.page, data.totalPages, 'disposal');
 				}
 			})
@@ -289,26 +323,26 @@
 			});
 	}
 
-	/* ── 폐기 사유 한글 변환 ── */
+	/* ── 한글 변환 ── */
 	function getReasonLabel(reason) {
 		var map = { 'EXPIRED': '유통기한 만료', 'DAMAGED': '파손', 'ETC': '기타' };
 		return map[reason] || reason;
 	}
 
-	/* ── 변동 유형 한글 변환 ── */
 	function getChangeTypeLabel(type) {
-		var map = { 'INBOUND': '입고', 'OUTBOUND': '출고', 'DISPOSAL': '폐기', 'ADJUST': '조정' };
+		var map = { 'INBOUND': '입고', 'EXCHANGEIN': '입고', 'EXCHANGEOUT': '교환', 'DISPOSAL': '폐기' };
 		return map[type] || type;
 	}
 
 	/* ── 변동 이력 렌더링 ── */
 	function renderHistory(list) {
-		var tbody  = document.getElementById('historyTableBody');
-		var empty  = document.getElementById('historyEmptyState');
+		var filtered = filterByStockCode(list, 'history');
+		var tbody    = document.getElementById('historyTableBody');
+		var empty    = document.getElementById('historyEmptyState');
 		tbody.innerHTML = '';
-		if (!list || !list.length) { empty.classList.add('visible'); return; }
+		if (!filtered.length) { empty.classList.add('visible'); return; }
 		empty.classList.remove('visible');
-		list.forEach(function (r) {
+		filtered.forEach(function (r) {
 			var qtyClass = parseFloat(r.changeAmount) >= 0 ? 'qty-plus' : 'qty-minus';
 			tbody.insertAdjacentHTML('beforeend',
 				'<tr>' +
@@ -327,12 +361,13 @@
 
 	/* ── 폐기 내역 렌더링 ── */
 	function renderDisposal(list) {
-		var tbody = document.getElementById('disposalTableBody');
-		var empty = document.getElementById('disposalEmptyState');
+		var filtered = filterByStockCode(list, 'disposal');
+		var tbody    = document.getElementById('disposalTableBody');
+		var empty    = document.getElementById('disposalEmptyState');
 		tbody.innerHTML = '';
-		if (!list || !list.length) { empty.classList.add('visible'); return; }
+		if (!filtered.length) { empty.classList.add('visible'); return; }
 		empty.classList.remove('visible');
-		list.forEach(function (r) {
+		filtered.forEach(function (r) {
 			tbody.insertAdjacentHTML('beforeend',
 				'<tr>' +
 					'<td style="font-family:monospace;font-size:12px">' + escapeHtml(r.branchStockCode) + '</td>' +
@@ -353,14 +388,11 @@
 		var wrap = document.getElementById(wrapperId);
 		if (!total || total <= 1) { wrap.style.display = 'none'; return; }
 		wrap.style.display = 'flex';
-
 		var html = '';
 		html += '<button class="page-btn" onclick="loadTabData(\'' + tab + '\',' + (page - 1) + ')"' + (page <= 1 ? ' disabled' : '') + '>＜</button>';
-
 		var startPage = Math.max(1, page - 2);
 		var endPage   = Math.min(total, startPage + 4);
 		if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
-
 		for (var i = startPage; i <= endPage; i++) {
 			html += '<button class="page-btn' + (i === page ? ' active' : '') + '" onclick="loadTabData(\'' + tab + '\',' + i + ')">' + i + '</button>';
 		}
@@ -370,14 +402,16 @@
 	}
 
 	/* ── 필터 ── */
-	window.applyFilters  = function () { loadTabData(currentTab, 1); };
-	window.loadTabData   = loadTabData;
+	window.applyFilters = function () { loadTabData(currentTab, 1); };
+	window.loadTabData  = loadTabData;
 
 	window.resetFilters = function () {
 		document.getElementById('categoryFilter').value = '';
 		document.getElementById('itemFilter').innerHTML = '<option value="">전체</option>';
 		document.getElementById('filterStartDate').value = defaultStartDate;
 		document.getElementById('filterEndDate').value   = defaultEndDate;
+		document.getElementById('historyStockSearch').value  = '';
+		document.getElementById('disposalStockSearch').value = '';
 		loadTabData(currentTab, 1);
 	};
 
