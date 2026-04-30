@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.branch.SwapMapper">
+
+    <select id="findNearbyBranchStocks" parameterType="map" resultType="dto.branch.swap.SwapStockSearchResultDto">
+        SELECT
+            b.branch_code AS branchCode,
+            b.name AS branchName,
+            b.address,
+            bs.current_qty AS currentQty,
+            b.lat,
+            b.lng,
+            (6371 * ACOS(
+                    COS(RADIANS(#{currentLat})) * COS(RADIANS(b.lat)) *
+                    COS(RADIANS(b.lng) - RADIANS(#{currentLng})) +
+                    SIN(RADIANS(#{currentLat})) * SIN(RADIANS(b.lat))
+                )) AS distance
+        FROM
+            branch b
+        JOIN
+            branch_stock bs ON b.branch_code = bs.branch_code
+        WHERE
+            b.branch_code != #{currentBranchCode}
+            AND bs.material_code = #{materialCode}
+            AND bs.current_qty >= #{requiredQty}
+            AND b.status = 'ACTIVE'
+        HAVING
+            distance &lt;= #{distance}
+        ORDER BY
+            distance;
+    </select>
+
+    <select id="findBranchLocation" parameterType="int" resultType="dto.branch.BranchLocationDto">
+        SELECT lat, lng FROM branch WHERE branch_code = #{branchCode}
+    </select>
+
+    <select id="getMaterialGroups" resultType="dto.branch.swap.MaterialGroupDto">
+        SELECT
+            material_group_id as materialGroupId,
+            group_name as groupName
+        FROM material_group
+        ORDER BY material_group_id;
+    </select>
+
+    <select id="getMaterialsByGroup" parameterType="int" resultType="dto.branch.swap.MaterialDto">
+        SELECT
+            material_code as materialCode,
+            material_name as materialName
+        FROM material
+        WHERE material_group_id = #{materialGroupId}
+        ORDER BY material_name;
+    </select>
+
+</mapper>
