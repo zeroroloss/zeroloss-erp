@@ -1,173 +1,195 @@
-﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>지점 재고 현황 - ZERO LOSS 본사 관리 시스템</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .sidebar-open .sidebar {
-            transform: translateX(0);
-        }
-        .sidebar-open #sidebarBackdrop {
-            display: block;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<title>지점 재고 현황 - ZERO LOSS 본사 관리 시스템</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+.sidebar-open .sidebar {
+	transform: translateX(0);
+}
+
+.sidebar-open #sidebarBackdrop {
+	display: block;
+}
+</style>
 </head>
 <body class="bg-gray-50">
-    	<%@ include file="/hq/common/sidebar.jsp" %>
+	<%@ include file="/hq/common/sidebar.jsp"%>
 
-        <!-- 메인 콘텐츠 -->
-        <div class="lg:pl-72">
+	<!-- 메인 콘텐츠 -->
+	<div class="lg:pl-72">
 
-            <!-- 페이지 콘텐츠 -->
-            <main class="p-6">
-                <!-- 헤더 -->
-                <div class="mb-6">
-                    <h2 class="text-3xl font-bold text-gray-900">지점 재고 현황</h2>
-                    <p class="text-gray-500 mt-1">모든 지점의 재고 현황을 조회하세요</p>
-                </div>
+		<!-- 페이지 콘텐츠 -->
+		<main class="p-6">
+			<!-- 헤더 -->
+			<div class="mb-6">
+				<h2 class="text-3xl font-bold text-gray-900">지점 재고 현황</h2>
+				<p class="text-gray-500 mt-1">모든 지점의 재고 현황을 조회하세요</p>
+			</div>
 
-                <!-- 필터 -->
-                <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                        <!-- 지점 선택 -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">지점 선택</label>
-                            <select id="branchSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                <option value="전체">전체</option>
-                                <option value="강남점">강남점</option>
-                                <option value="홍대점">홍대점</option>
-                                <option value="신촌점">신촌점</option>
-                                <option value="이대점">이대점</option>
-                                <option value="본사 물류창고">본사 물류창고</option>
-                            </select>
-                        </div>
+			<!-- 필터 -->
+			<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+				<div
+					class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+					<!-- 지점 선택 -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">지점
+							선택</label> <select id="branchSelect"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+							<option value="">전체</option>
 
-                        <!-- 카테고리 선택 -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">카테고리 선택</label>
-                            <select id="categorySelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                <option value="전체">전체</option>
-                                <option value="육류">육류</option>
-                                <option value="채소">채소</option>
-                                <option value="유제품">유제품</option>
-                                <option value="빵류">빵류</option>
-                                <option value="음료">음료</option>
-                                <option value="조미료">조미료</option>
-                            </select>
-                        </div>
+							<c:forEach var="branch" items="${branchList}">
+								<option value="${branch.branchCode}">${branch.branchName}</option>
+							</c:forEach>
+						</select>
+					</div>
 
-                        <!-- 품목명 선택 -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">품목명 선택</label>
-                            <select id="itemNameSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                <option value="전체">전체</option>
-                                <option value="소고기 패티">소고기 패티</option>
-                                <option value="감자">감자</option>
-                                <option value="생크림">생크림</option>
-                                <option value="양상추">양상추</option>
-                                <option value="버거빵">버거빵</option>
-                                <option value="체다치즈">체다치즈</option>
-                                <option value="식용유">식용유</option>
-                                <option value="콜라 시럽">콜라 시럽</option>
-                            </select>
-                        </div>
+					<!-- 카테고리 선택 -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">카테고리
+							선택</label> <select id="categorySelect"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+							<option value="">전체</option>
 
-                        <!-- 검색 -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">검색어</label>
-                            <div class="relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                                <input type="text" id="searchInput" placeholder="품목명, 코드..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                            </div>
-                        </div>
-                    </div>
+							<c:forEach var="group" items="${materialGroupList}">
+								<option value="${group.materialGroupId}">${group.groupName}</option>
+							</c:forEach>
+						</select>
+					</div>
 
-                    <div class="flex items-center gap-2">
-                        <button onclick="handleSearch()" class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
-                            조회하기
-                        </button>
-                        <button onclick="handleReset()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
-                            초기화
-                        </button>
-                    </div>
-                </div>
+					<!-- 품목명 선택 -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">품목명
+							선택</label> <select id="itemNameSelect"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+							<option value="">전체</option>
+						</select>
+					</div>
 
-                <!-- 탭 -->
-                <div id="tabsContainer" class="bg-white rounded-lg border border-gray-200 hidden mb-6">
-                    <div class="flex border-b border-gray-200">
-                        <button onclick="setActiveTab('all')" class="flex-1 px-6 py-4 font-semibold transition-colors tab-btn active" data-tab="all">
-                            전체 재고 (<span id="totalCount">0</span>)
-                        </button>
-                        <button onclick="setActiveTab('expiring')" class="flex-1 px-6 py-4 font-semibold transition-colors tab-btn" data-tab="expiring">
-                            유통기한 임박 (0)
-                        </button>
-                        <button onclick="setActiveTab('low')" class="flex-1 px-6 py-4 font-semibold transition-colors tab-btn" data-tab="low">
-                            안전재고 미달 (<span id="lowCount">0</span>)
-                        </button>
-                    </div>
-                </div>
+					<!-- 검색 -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-2">검색어</label>
+						<div class="relative">
+							<i
+								class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+							<input type="text" id="searchInput" placeholder="품목명, 코드..."
+								class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+						</div>
+					</div>
+				</div>
 
-                <!-- 재고 리스트 -->
-                <div id="inventoryTableContainer" class="bg-white rounded-lg border border-gray-200 overflow-hidden hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50 border-b border-gray-200">
-                                <tr>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">지점</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목코드</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">카테고리</th>
-                                    <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">현재 재고</th>
-                                    <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">안전 재고</th>
-                                    <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">상태</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">최종 업데이트</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventoryTableBody">
-                                <!-- 동적으로 생성됨 -->
-                            </tbody>
-                        </table>
-                    </div>
+				<div class="flex items-center gap-2">
+					<button onclick="handleSearch()"
+						class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
+						조회하기</button>
+					<button onclick="handleReset()"
+						class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
+						초기화</button>
+				</div>
+			</div>
 
-                    <!-- 페이지네이션 -->
-                    <div id="paginationContainer" class="px-6 py-4 border-t border-gray-200 flex items-center justify-between hidden">
-                        <div id="paginationInfo" class="text-sm text-gray-600">
-                            <!-- 동적으로 생성됨 -->
-                        </div>
+			<!-- 탭 -->
+			<div id="tabsContainer"
+				class="bg-white rounded-lg border border-gray-200 hidden mb-6">
+				<div class="flex border-b border-gray-200">
+					<button onclick="setActiveTab('all')"
+						class="flex-1 px-6 py-4 font-semibold transition-colors tab-btn active"
+						data-tab="all">
+						전체 재고 (<span id="totalCount">0</span>)
+					</button>
+					<button onclick="setActiveTab('expiring')"
+						class="flex-1 px-6 py-4 font-semibold transition-colors tab-btn"
+						data-tab="expiring">
+						유통기한 임박 (<span id="expiringCount">0</span>)
+					</button>
+					<button onclick="setActiveTab('low')"
+						class="flex-1 px-6 py-4 font-semibold transition-colors tab-btn"
+						data-tab="low">
+						안전재고 미달 (<span id="lowCount">0</span>)
+					</button>
+				</div>
+			</div>
 
-                        <div class="flex items-center gap-2">
-                            <button onclick="previousPage()" id="prevBtn" class="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                <i class="fas fa-chevron-left w-5 h-5"></i>
-                            </button>
+			<!-- 재고 리스트 -->
+			<div id="inventoryTableContainer"
+				class="bg-white rounded-lg border border-gray-200 overflow-hidden hidden">
+				<div class="overflow-x-auto">
+					<table class="w-full">
+						<thead class="bg-gray-50 border-b border-gray-200">
+							<tr>
+								<th
+									class="text-left py-4 px-6 text-sm font-semibold text-gray-900">지점</th>
+								<th
+									class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목코드</th>
+								<th
+									class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
+								<th
+									class="text-left py-4 px-6 text-sm font-semibold text-gray-900">카테고리</th>
+								<th
+									class="text-right py-4 px-6 text-sm font-semibold text-gray-900">현재
+									재고</th>
+								<th
+									class="text-right py-4 px-6 text-sm font-semibold text-gray-900">안전
+									재고</th>
+								<th
+									class="text-center py-4 px-6 text-sm font-semibold text-gray-900">상태</th>
+								<th
+									class="text-left py-4 px-6 text-sm font-semibold text-gray-900">최종
+									업데이트</th>
+							</tr>
+						</thead>
+						<tbody id="inventoryTableBody">
+							<!-- 동적으로 생성됨 -->
+						</tbody>
+					</table>
+				</div>
 
-                            <div id="pageButtons" class="flex items-center gap-1">
-                                <!-- 동적으로 생성됨 -->
-                            </div>
+				<!-- 페이지네이션 -->
+				<div id="paginationContainer"
+					class="px-6 py-4 border-t border-gray-200 flex items-center justify-between hidden">
+					<div id="paginationInfo" class="text-sm text-gray-600">
+						<!-- 동적으로 생성됨 -->
+					</div>
 
-                            <button onclick="nextPage()" id="nextBtn" class="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-                                <i class="fas fa-chevron-right w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+					<div class="flex items-center gap-2">
+						<button onclick="previousPage()" id="prevBtn"
+							class="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+							<i class="fas fa-chevron-left w-5 h-5"></i>
+						</button>
 
-                <!-- 초기 상태 메시지 -->
-                <div id="initialStateContainer" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
-                    <i class="fas fa-box w-16 h-16 mx-auto mb-4 text-gray-300"></i>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">조회 조건을 선택하세요</h3>
-                    <p class="text-gray-500">
-                        지점, 카테고리, 품목명을 선택하거나 검색어를 입력한 후 '조회하기' 버튼을 클릭하세요
-                    </p>
-                </div>
-            </main>
-        </div>
-    </div>
+						<div id="pageButtons" class="flex items-center gap-1">
+							<!-- 동적으로 생성됨 -->
+						</div>
 
-    <script>
+						<button onclick="nextPage()" id="nextBtn"
+							class="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+							<i class="fas fa-chevron-right w-5 h-5"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- 초기 상태 메시지 -->
+			<div id="initialStateContainer"
+				class="bg-white rounded-lg border border-gray-200 p-12 text-center">
+				<i class="fas fa-box w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+				<h3 class="text-lg font-semibold text-gray-900 mb-2">조회 조건을
+					선택하세요</h3>
+				<p class="text-gray-500">지점, 카테고리, 품목명을 선택하거나 검색어를 입력한 후 '조회하기'
+					버튼을 클릭하세요</p>
+			</div>
+		</main>
+	</div>
+	</div>
+
+	<script>
         // 전역 상태
         let allData = [];
         let filteredData = [];
@@ -175,159 +197,6 @@
         const ITEMS_PER_PAGE = 10;
         let activeTab = 'all';
         let hasSearched = false;
-
-        // Mock 데이터
-        const mockItemStocks = [
-            {
-                id: "1",
-                itemCode: "MEAT-001",
-                itemName: "소고기 패티",
-                category: "육류",
-                unit: "개",
-                safetyStock: 50,
-                status: "low",
-                lastUpdated: "2026-04-01 09:30",
-                branches: [
-                    { branch: "강남점", quantity: 45, status: "low" },
-                    { branch: "홍대점", quantity: 32, status: "low" },
-                    { branch: "신촌점", quantity: 38, status: "low" },
-                    { branch: "이대점", quantity: 42, status: "low" },
-                    { branch: "본사 물류창고", quantity: 250, status: "normal" },
-                ]
-            },
-            {
-                id: "1-out",
-                itemCode: "MEAT-001",
-                itemName: "소고기 패티",
-                category: "육류",
-                unit: "개",
-                safetyStock: 50,
-                status: "out",
-                lastUpdated: "2026-04-01 09:30",
-                branches: [
-                    { branch: "압구정점", quantity: 0, status: "out" }
-                ]
-            },
-            {
-                id: "2",
-                itemCode: "VEG-001",
-                itemName: "감자",
-                category: "채소",
-                unit: "kg",
-                safetyStock: 50,
-                status: "low",
-                lastUpdated: "2026-04-01 10:15",
-                branches: [
-                    { branch: "강남점", quantity: 15, status: "low" },
-                    { branch: "홍대점", quantity: 22, status: "low" },
-                    { branch: "신촌점", quantity: 28, status: "low" },
-                    { branch: "이대점", quantity: 25, status: "low" },
-                    { branch: "본사 물류창고", quantity: 180, status: "normal" },
-                ]
-            },
-            {
-                id: "3",
-                itemCode: "DAIRY-001",
-                itemName: "생크림",
-                category: "유제품",
-                unit: "L",
-                safetyStock: 15,
-                status: "low",
-                lastUpdated: "2026-04-01 08:45",
-                branches: [
-                    { branch: "강남점", quantity: 12, status: "low" },
-                    { branch: "홍대점", quantity: 13, status: "low" },
-                    { branch: "신촌점", quantity: 14, status: "low" },
-                    { branch: "이대점", quantity: 11, status: "low" },
-                    { branch: "본사 물류창고", quantity: 65, status: "normal" },
-                ]
-            },
-            {
-                id: "4",
-                itemCode: "VEG-002",
-                itemName: "양상추",
-                category: "채소",
-                unit: "kg",
-                safetyStock: 20,
-                status: "low",
-                lastUpdated: "2026-04-01 11:20",
-                branches: [
-                    { branch: "강남점", quantity: 8, status: "low" },
-                    { branch: "홍대점", quantity: 10, status: "low" },
-                    { branch: "신촌점", quantity: 12, status: "low" },
-                    { branch: "이대점", quantity: 9, status: "low" },
-                    { branch: "본사 물류창고", quantity: 85, status: "normal" },
-                ]
-            },
-            {
-                id: "5",
-                itemCode: "BREAD-001",
-                itemName: "버거빵",
-                category: "빵류",
-                unit: "개",
-                safetyStock: 150,
-                status: "low",
-                lastUpdated: "2026-04-01 07:30",
-                branches: [
-                    { branch: "강남점", quantity: 80, status: "low" },
-                    { branch: "홍대점", quantity: 120, status: "low" },
-                    { branch: "신촌점", quantity: 135, status: "low" },
-                    { branch: "이대점", quantity: 145, status: "low" },
-                    { branch: "본사 물류창고", quantity: 650, status: "normal" },
-                ]
-            },
-            {
-                id: "6",
-                itemCode: "DAIRY-002",
-                itemName: "체다치즈",
-                category: "유제품",
-                unit: "장",
-                safetyStock: 25,
-                status: "normal",
-                lastUpdated: "2026-04-01 09:00",
-                branches: [
-                    { branch: "강남점", quantity: 30, status: "normal" },
-                    { branch: "홍대점", quantity: 27, status: "normal" },
-                    { branch: "신촌점", quantity: 28, status: "normal" },
-                    { branch: "이대점", quantity: 26, status: "normal" },
-                    { branch: "본사 물류창고", quantity: 150, status: "normal" },
-                ]
-            },
-            {
-                id: "7",
-                itemCode: "SAUCE-001",
-                itemName: "식용유",
-                category: "조미료",
-                unit: "L",
-                safetyStock: 15,
-                status: "normal",
-                lastUpdated: "2026-04-01 10:30",
-                branches: [
-                    { branch: "강남점", quantity: 18, status: "normal" },
-                    { branch: "홍대점", quantity: 16, status: "normal" },
-                    { branch: "신촌점", quantity: 17, status: "normal" },
-                    { branch: "이대점", quantity: 14, status: "low" },
-                    { branch: "본사 물류창고", quantity: 75, status: "normal" },
-                ]
-            },
-            {
-                id: "8",
-                itemCode: "BEV-001",
-                itemName: "콜라 시럽",
-                category: "음료",
-                unit: "L",
-                safetyStock: 10,
-                status: "normal",
-                lastUpdated: "2026-04-01 08:15",
-                branches: [
-                    { branch: "강남점", quantity: 12, status: "normal" },
-                    { branch: "홍대점", quantity: 11, status: "normal" },
-                    { branch: "신촌점", quantity: 10, status: "normal" },
-                    { branch: "이대점", quantity: 9, status: "low" },
-                    { branch: "본사 물류창고", quantity: 45, status: "normal" },
-                ]
-            }
-        ];
 
         // 사이드바 토글
         function toggleSidebar() {
@@ -376,34 +245,11 @@
         // 로그아웃
         function logout() {
             alert('로그아웃되었습니다.');
-            window.location.href = '<%= request.getContextPath() %>/common/login.jsp';
+            window.location.href = '<%=request.getContextPath()%>/common/login.jsp';
         }
 
         // 백드롭 클릭 시 사이드바 닫기
         document.getElementById('sidebarBackdrop').addEventListener('click', closeSidebar);
-
-        // 데이터 평탄화
-        function flattenData() {
-            allData = [];
-            mockItemStocks.forEach(item => {
-                item.branches
-                    .filter(branch => branch.branch !== '본사 물류창고')
-                    .forEach(branch => {
-                        allData.push({
-                            id: item.id,
-                            itemCode: item.itemCode,
-                            itemName: item.itemName,
-                            category: item.category,
-                            unit: item.unit,
-                            safetyStock: item.safetyStock,
-                            currentStock: branch.quantity,
-                            status: branch.status,
-                            lastUpdated: item.lastUpdated,
-                            branchName: branch.branch
-                        });
-                    });
-            });
-        }
 
         // 필터링 아래로
         function applyFilters() {
@@ -414,19 +260,19 @@
 
             filteredData = allData.filter(item => {
                 const matchesSearch = !searchQuery || 
-                    item.itemName.toLowerCase().includes(searchQuery) ||
-                    item.itemCode.toLowerCase().includes(searchQuery) ||
+                item.materialName.toLowerCase().includes(searchQuery) ||
+                    item.materialCode.toLowerCase().includes(searchQuery) ||
                     item.branchName.includes(searchQuery);
                 
-                const matchesBranch = selectedBranch === '전체' || item.branchName === selectedBranch;
-                const matchesCategory = selectedCategory === '전체' || item.category === selectedCategory;
-                const matchesItemName = selectedItemName === '전체' || item.itemName === selectedItemName;
+                const matchesBranch = !selectedBranch || item.branchName === selectedBranch;
+                const matchesCategory = !selectedCategory || item.categoryName === selectedCategory;
+                const matchesItemName = !selectedItemName || item.materialName === selectedItemName;
 
                 let matchesTab = true;
                 if (activeTab === 'low') {
                     matchesTab = item.status === 'low' || item.status === 'out';
                 } else if (activeTab === 'expiring') {
-                    matchesTab = false; // Mock 데이터에선 없음
+                	 matchesTab = item.expireStatus === 'urgent' || item.expireStatus === 'warning';
                 }
 
                 return matchesSearch && matchesBranch && matchesCategory && matchesItemName && matchesTab;
@@ -434,26 +280,55 @@
         }
 
         // 조회하기
-        function handleSearch() {
-            flattenData();
-            applyFilters();
-            hasSearched = true;
-            currentPage = 1;
-            activeTab = 'all';
-            
-            updateUI();
-        }
+        window.handleSearch = function() {
+
+	let branchCode = document.getElementById('branchSelect').value;
+	let materialGroupId = document.getElementById('categorySelect').value;
+	let materialCode = document.getElementById('itemNameSelect').value;
+	const keyword = document.getElementById('searchInput').value;
+
+	let url = '<%=request.getContextPath()%>/hq/branch_stock/stock?ajax=true'
+		+ '&branchCode=' + branchCode
+		+ '&materialGroupId=' + materialGroupId
+		+ '&materialCode=' + materialCode
+		+ '&keyword=' + keyword;
+
+	if (activeTab === 'expiring') {
+		url += '&expireWithinDays=7';
+	}
+	
+	if (activeTab === 'low') {
+	    url += '&stockStatus=low';
+	}
+	console.log(url);
+	fetch(url)
+		.then(res => res.json())
+		.then(data => {
+    		console.log("서버 데이터:", data);
+
+   		 allData = data;
+   		 filteredData = data;
+
+    		hasSearched = true;
+    		currentPage = 1;
+
+    		updateUI();
+		})
+		.catch(err => {
+			console.error(err);
+			alert("조회 실패");
+		});
+	};
 
         // 초기화
         function handleReset() {
             document.getElementById('searchInput').value = '';
-            document.getElementById('branchSelect').value = '전체';
-            document.getElementById('categorySelect').value = '전체';
-            document.getElementById('itemNameSelect').value = '전체';
+            document.getElementById('branchSelect').selectedIndex = 0;
+            document.getElementById('categorySelect').selectedIndex = 0;
+            document.getElementById('itemNameSelect').selectedIndex = 0;
             
             hasSearched = false;
             currentPage = 1;
-            activeTab = 'all';
             filteredData = [];
             allData = [];
             
@@ -462,12 +337,14 @@
 
         // 탭 변경
         function setActiveTab(tab) {
-            activeTab = tab;
-            currentPage = 1;
-            applyFilters();
-            renderTable();
-            updateTabButtons();
-        }
+    		activeTab = tab;
+    		currentPage = 1;
+    		updateTabButtons();
+
+    		if (hasSearched) {
+        		handleSearch();
+    		}
+		}
 
         // UI 업데이트
         function updateUI() {
@@ -492,12 +369,20 @@
 
         // 통계 업데이트
         function updateStats() {
-            const total = filteredData.length;
-            const low = filteredData.filter(i => i.status === 'low' || i.status === 'out').length;
-            
+        	const total = allData.length;
+
+            const expiring = allData.filter(i =>
+                i.expireStatus === 'urgent' || i.expireStatus === 'warning'
+            ).length;
+
+            const low = allData.filter(i =>
+                i.status === 'low' || i.status === 'out'
+            ).length;
+
             document.getElementById('totalCount').textContent = total;
+            document.getElementById('expiringCount').textContent = expiring;
             document.getElementById('lowCount').textContent = low;
-        }
+}
 
         // 테이블 렌더링
         function renderTable() {
@@ -523,7 +408,7 @@
             }
 
             currentItems.forEach(item => {
-                const statusBadge = getStatusBadge(item.status);
+                const statusBadge = getExpireStatusBadge(item.expireStatus);
                 const statusColorClass = item.status === 'normal' ? 'text-green-600' :
                                         item.status === 'low' ? 'text-yellow-600' :
                                         'text-red-600';
@@ -536,20 +421,20 @@
                             ` + item.branchName + `
                         </span>
                     </td>
-                    <td class="py-4 px-6 font-mono text-sm text-gray-600">` + item.itemCode + `</td>
-                    <td class="py-4 px-6 font-medium text-gray-900">` + item.itemName + `</td>
+                    <td class="py-4 px-6 font-mono text-sm text-gray-600">` + item.materialCode + `</td>
+                    <td class="py-4 px-6 font-medium text-gray-900">` + item.materialName + `</td>
                     <td class="py-4 px-6">
                         <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">
-                            ` + item.category + `
+                            ` + item.categoryName + `
                         </span>
                     </td>
                     <td class="py-4 px-6 text-right">
                         <span class="font-semibold ` + statusColorClass + `">
-                            ` + item.currentStock + item.unit + `
+                            ` + item.currentQty + item.unit + `
                         </span>
                     </td>
                     <td class="py-4 px-6 text-right text-gray-600">
-                        ` + item.safetyStock + item.unit + `
+                        ` + item.safeStockQty + item.unit + `
                     </td>
                     <td class="py-4 px-6 text-center">` + statusBadge + `</td>
                     <td class="py-4 px-6 text-sm text-gray-500">` + item.lastUpdated + `</td>
@@ -640,14 +525,14 @@
         // 상태 배지
         function getStatusBadge(status) {
             switch (status) {
-                case 'normal':
-                    return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700"><i class="fas fa-check-circle w-3 h-3"></i> 정상</span>';
-                case 'low':
-                    return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700"><i class="fas fa-exclamation-triangle w-3 h-3"></i> 부족</span>';
-                case 'out':
-                    return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700"><i class="fas fa-box w-3 h-3"></i> 품절</span>';
-                default:
-                    return '';
+            case 'urgent':
+                return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">긴급</span>';
+            case 'warning':
+                return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">주의</span>';
+            case 'normal':
+                return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">정상</span>';
+            default:
+                return '<span class="text-gray-400">-</span>';
             }
         }
 
@@ -660,13 +545,55 @@
 
         // 사용자 메뉴 외부 클릭 시 닫기
         document.addEventListener('click', function(e) {
-            const userMenu = document.getElementById('userMenu');
-            if (!e.target.closest('button[onclick="toggleUserMenu()"]') && 
-                !e.target.closest('#userMenu')) {
-                userMenu.classList.add('hidden');
-            }
-        });
+    		const userMenu = document.getElementById('userMenu');
+
+			if (!userMenu) return;
+
+			if (!e.target.closest('button[onclick="toggleUserMenu()"]') && 
+				!e.target.closest('#userMenu')) {
+					userMenu.classList.add('hidden');
+   		 		}
+			});
     </script>
+
+	<script>
+		document.getElementById("categorySelect").addEventListener("change", function () {
+
+   			const materialGroupId = this.value;
+    		const itemSelect = document.getElementById("itemNameSelect");
+
+   			itemSelect.innerHTML = '<option value="">전체</option>';
+
+    		if (!materialGroupId) return;
+
+    		fetch('<%=request.getContextPath()%>/hq/branch_stock/stock?ajax=true&type=material&materialGroupId=' + materialGroupId)
+        		.then(res => res.json())
+       			.then(data => {
+            		console.log("품목명 응답:", data);
+
+            		data.forEach(m => {
+                		const option = document.createElement("option");
+                		option.value = m.materialCode;
+                		option.textContent = m.materialName;
+                		itemSelect.appendChild(option);
+            		});
+        		})
+        	.catch(err => console.error("품목명 조회 실패:", err));
+		});
+		
+		function getExpireStatusBadge(expireStatus) {
+		    switch (expireStatus) {
+		        case 'urgent':
+		            return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">긴급</span>';
+		        case 'warning':
+		            return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">주의</span>';
+		        case 'normal':
+		            return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">정상</span>';
+		        default:
+		            return '';
+		    }
+		}
+</script>
 </body>
 </html>
 

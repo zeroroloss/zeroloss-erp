@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+	<mapper namespace="mapper.hq.branchstock">
+
+<select id="selectStockList"
+	parameterType="dto.hq.branch_stock.BranchStockSearchDTO"
+	resultType="dto.hq.branch_stock.BranchStockListDTO">
+
+	SELECT
+	b.branch_code AS branchCode,
+	b.name AS branchName,
+
+	m.material_code AS materialCode,
+	m.material_name AS materialName,
+	m.unit AS unit,
+
+	mg.group_name AS categoryName,
+
+	SUM(bs.current_qty) AS currentQty,
+	IFNULL(bmss.safe_stock_qty, 0) AS safeStockQty,
+
+	DATE_FORMAT(MIN(bs.expire_date), '%Y-%m-%d') AS expireDate,
+
+	/* 상태 추가 */
+	CASE
+    WHEN DATEDIFF(MIN(bs.expire_date), CURDATE()) <![CDATA[<=]]> 1 THEN 'urgent'
+    WHEN DATEDIFF(MIN(bs.expire_date), CURDATE()) <![CDATA[<=]]> 3 THEN 'warning'
+    ELSE 'normal'
+	END AS expireStatus,
+
+	CASE
+    	WHEN SUM(bs.current_qty) <![CDATA[<=]]> 0 THEN 'out'
+    	WHEN SUM(bs.current_qty) <![CDATA[<]]> IFNULL(bmss.safe_stock_qty, 0) THEN 'low' ELSE 'normal'
+		END AS status,
+
+	DATE_FORMAT(MAX(bs.received_at), '%Y-%m-%d %H:%i') AS lastUpdated
+
+	FROM branch_stock bs
+
+	JOIN branch b ON bs.branch_code = b.branch_code
+	JOIN material m ON bs.material_code = m.material_code
+	JOIN material_group mg ON m.material_group_id = mg.material_group_id
+	LEFT JOIN branch_material_safety_stock bmss
+	ON bmss.branch_code = bs.branch_code
+	AND bmss.material_code = bs.material_code
+
+	WHERE 1=1
+
+	<!-- 기존 조건들 -->
+	<if test="branchCode != null and branchCode != ''">
+    	AND bs.branch_code = #{branchCode}
+	</if>
+
+	<if test="materialGroupId != null">
+    	AND m.material_group_id = #{materialGroupId}
+	</if>
+
+	<if test="materialCode != null and materialCode != ''">
+   		 AND m.material_code = #{materialCode}
+	</if>
+
+	<!-- 추가: 유통기한 필터 -->
+	<if test="keyword != null and keyword != ''">
+    AND (
+        m.material_name LIKE CONCAT('%', #{keyword}, '%')
+        OR m.material_code LIKE CONCAT('%', #{keyword}, '%')
+        OR b.name LIKE CONCAT('%', #{keyword}, '%')
+    	)
+	</if>
+
+	GROUP BY
+	b.branch_code,
+	m.material_code
+	
+	<if test="expireWithinDays != null or stockStatus != null">
+    HAVING 1=1
+
+    <if test="expireWithinDays != null">
+        AND DATEDIFF(MIN(bs.expire_date), CURDATE()) <![CDATA[<=]]> #{expireWithinDays}
+    </if>
+
+    <if test="stockStatus != null and stockStatus == 'low'">
+        AND SUM(bs.current_qty) <![CDATA[<]]> safeStockQty
+    </if>
+</if>
+
+</select>
+
+<select id="selectBranchList"
+	resultType="dto.hq.branch_stock.BranchDTO">
+	SELECT
+	name AS branchName,
+	branch_code AS branchCode
+	FROM branch
+</select>
+
+<select id="selectMaterialGroupList"
+	resultType="dto.hq.branch_stock.MaterialGroupDTO">
+	SELECT
+	material_group_id AS materialGroupId,
+	group_name AS groupName
+	FROM material_group
+</select>
+
+<select id="selectMaterialList"
+	resultType="dto.hq.branch_stock.MaterialDTO">
+	SELECT
+	material_code AS materialCode,
+	material_name AS materialName
+	FROM material
+</select>
+
+<select id="selectMaterialByCategory" parameterType="int"
+	resultType="dto.hq.branch_stock.MaterialDTO">
+
+	SELECT
+	m.material_code AS materialCode,
+	m.material_name AS materialName
+	FROM material m
+	WHERE m.material_group_id = #{materialGroupId}
+
+</select>
+</mapper>
