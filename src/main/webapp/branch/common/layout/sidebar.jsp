@@ -38,7 +38,7 @@ boolean recipeActive = uri.endsWith("/branch/recipe/recipe-management.jsp");
 
 boolean hrGroup = uri.contains("/branch/hr/");
 boolean hrEmployeeActive = uri.contains("/branch/hr/employee/");
-boolean hrScheduleActive = uri.contains("/branch/hr/schedule/") || uri.contains("/branch/hr/list_schedule/");
+boolean hrScheduleActive = uri.contains("/branch/hr/schedule/");
 
 boolean supportGroup = uri.contains("/branch/support/");
 boolean noticeActive = uri.contains("/branch/support/branch-notices.jsp");
@@ -161,7 +161,7 @@ boolean inquiryActive = uri.contains("/branch/support/branch-inquiries.jsp");
         </button>
         <div class="submenu <%= hrGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
             <a href="<%= request.getContextPath() %>/branch/hr/main" class="block px-4 py-2 rounded-lg text-sm <%= hrEmployeeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">직원 정보 조회</a>
-            <a href="<%= request.getContextPath() %>/branch/hr/schedule/main.jsp" class="block px-4 py-2 rounded-lg text-sm <%= hrScheduleActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">일정관리</a>
+            <a href="<%= request.getContextPath() %>/branch/hr/branchschedule" class="block px-4 py-2 rounded-lg text-sm <%= hrScheduleActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">일정관리</a>
         </div>
 
         <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= supportGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">

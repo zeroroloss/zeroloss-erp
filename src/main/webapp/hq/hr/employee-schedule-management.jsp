@@ -114,7 +114,7 @@
 							    <i class="fas fa-building w-5 h-5"></i>
 							    <span>본사 스케줄 조회</span>
 							</button>
-							
+					
 							<button
 							    type="button"
 							    id="branchScheduleBtn"
@@ -382,7 +382,13 @@
 			}<c:if test="${!st.last}">,</c:if>
 			</c:forEach>
 		];
-		var branchSchedules = [];
+		var branchSchedules = [
+			<c:forEach var="b" items="${branchScheduleList}" varStatus="bt">
+			{
+				id: "${b.scheduleId}"
+			}
+			</c:forEach>
+		];
 		
 		var scheduleViewMode = 'hq'; // hq 또는 branch
 	    var currentDate = new Date();
@@ -411,17 +417,18 @@
 	    }
 
 	    function changeScheduleView(mode) {
-	        var addBtn = document.getElementById('addScheduleBtn');
+	    	var addBtn = document.getElementById('addScheduleBtn');
 	        var hqBtn = document.getElementById('hqScheduleBtn');
 	        var branchBtn = document.getElementById('branchScheduleBtn');
 
 	        scheduleViewMode = mode;
-
 	        isSearched = false;
 	        document.getElementById('searchInput').value = '';
 
 	        if (mode === 'hq') {
-	            addBtn.classList.remove('hidden');
+	            addBtn.disabled = false;
+	            addBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+	            addBtn.classList.add('bg-[#00853D]', 'text-white', 'hover:bg-[#006B2F]');
 
 	            hqBtn.className = 'flex items-center gap-2 bg-[#00853D] text-white border border-[#00853D] px-4 py-2.5 rounded-lg transition-colors';
 	            branchBtn.className = 'flex items-center gap-2 bg-white text-[#00853D] border border-[#00853D] px-4 py-2.5 rounded-lg hover:bg-[#00853D] hover:text-white transition-colors';
@@ -430,7 +437,9 @@
 	        }
 
 	        if (mode === 'branch') {
-	            addBtn.classList.add('hidden');
+	            addBtn.disabled = true;
+	            addBtn.classList.remove('bg-[#00853D]', 'text-white', 'hover:bg-[#006B2F]');
+	            addBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
 
 	            hqBtn.className = 'flex items-center gap-2 bg-white text-[#00853D] border border-[#00853D] px-4 py-2.5 rounded-lg hover:bg-[#00853D] hover:text-white transition-colors';
 	            branchBtn.className = 'flex items-center gap-2 bg-[#00853D] text-white border border-[#00853D] px-4 py-2.5 rounded-lg transition-colors';

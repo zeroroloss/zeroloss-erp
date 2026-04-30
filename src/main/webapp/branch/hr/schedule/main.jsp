@@ -1,4 +1,6 @@
 ﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="dto.AccountDTO" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -37,7 +39,7 @@
     .cal-nav { display: inline-flex; align-items: center; gap: 10px; }
     .nav-btn { width: 38px; height: 38px; border: 0; border-radius: 10px; background: #fff; cursor: pointer; }
     .date-label { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
-    .today { height: 40px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 12px; background: #fff; font-size: 14px; }
+	.day-cell.today {background-color: #ecfdf3; border-left: 3px solid #00853D;}
 
     .view-tabs a { text-decoration: none; width: 40px; height: 40px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; margin-left: 6px; font-weight: 700; color: #4b5563; background: #f3f4f6; font-size: 15px; }
     .view-tabs a.active { background: #0a8b43; color: #fff; }
@@ -55,10 +57,24 @@
     .out { color: #9ca3af; background: #f8fafc; }
     .picked { display: inline-flex; width: 30px; height: 30px; border-radius: 999px; align-items: center; justify-content: center; background: #2563eb; color: #fff; font-size: 18px; font-weight: 700; }
 
+	.calendar-grid {display: grid; grid-template-columns: repeat(7, 1fr);}
+	.day-header {padding: 12px 8px; text-align: center; font-size: 13px; font-weight: 700; color: #374151; border-right: 1px solid #e5e7eb;}
+	.day-header:last-child { border-right: 0;}	
+	.day-cell {min-height: 120px; border-top: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; background: white;}
+	.day-cell:nth-child(7n) {border-right: 0;}
+	.other-month {background: #f9fafb; color: #9ca3af;}
+	.today {background: #ecfdf5;}
+	.schedule-event {margin-top: 4px; padding: 3px 6px; border-radius: 6px; font-size: 12px; color: white; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+	.type-OPEN {background: #00853D;}
+	.type-MIDDLE {background: #2563eb;}
+	.type-CLOSE {background: #9333ea;}
+	.type-OFF {background: #6b7280;}
+
     .modal-overlay { position: fixed; inset: 0; background: transparent; display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; z-index: 2000; }
     .modal-overlay.open { display: flex; }
     .modal-frame { width: min(820px, 100%); height: min(92vh, 920px); border: 0; border-radius: 16px; background: transparent; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22); }
     .modal-close { position: absolute; top: 18px; right: 18px; width: 36px; height: 36px; border: 0; border-radius: 999px; background: #fff; color: #374151; font-size: 22px; line-height: 36px; cursor: pointer; z-index: 2001; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
+	.modal-hidden {display: none !important;}
 
     @media (max-width: 1200px) {
       .title { font-size: 30px; } .sub { font-size: 16px; }
@@ -84,129 +100,451 @@
   </style>
   <%@ include file="/branch/common/layout/layout_head.jsp" %>
 </head>
-<body>
+<body class="bg-gray-50">
 <div class="zl-app">
   <%@ include file="/branch/common/layout/sidebar.jsp" %>
+  
   <div class="zl-content">
     <%@ include file="/branch/common/layout/topbar.jsp" %>
-      <div class="wrap p-6">
-        <div class="head">
-          <div>
-            <h1 class="title">직원 일정 관리</h1>
-            <p class="sub">모든 매장 및 본사 직원의 일정을 통합 관리합니다</p>
-          </div>
-          <button class="add-btn" id="openCreateScheduleModal" type="button"><img class="ico-16" src="<%= request.getContextPath() %>/branch/icons/hr/plus.svg" alt="추가" />일정 추가</button>
+    
+      <div class="p-6">
+      	<main>
+        	<div class="space-y-6">
+        		<!-- 페이지 헤더 -->
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-900">직원 일정 관리</h2>
+                            <p class="text-gray-500 mt-1">${sessionScope.branchName} 직원의 일정을 통합 관리합니다</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+					        <button id="openAddScheduleModal" type="button" class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
+					            <i class="fas fa-plus w-5 h-5"></i>
+					            <span>일정 추가</span>
+					        </button>
+					    </div>
+					</div>  
+          			
+          			<!-- 필터 -->
+			        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+			          <div class="flex flex-col gap-4">
+			
+			            <div class="flex items-center justify-between gap-4">
+			              <div>
+			                <h3 class="text-sm font-semibold text-gray-800">직원 검색</h3>
+			                <p class="text-xs text-gray-500 mt-1">사번, 이름, 역할 기준으로 검색할 수 있습니다.</p>
+			              </div>
+			
+			              <div class="flex items-center gap-2">
+			                <div class="relative w-80">
+			                  <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+			                  <input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="검색어를 입력하세요" class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+			                </div>
+			                <button type="button" onclick="applyFilters()" class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">조회</button>
+			                <button type="button" onclick="resetFilters()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">초기화</button>
+			              </div>
+			            </div>
+			          </div>
+			        </div>
+			        
+			        <!-- 캘린더 컨트롤 -->
+                    <div class="bg-white rounded-lg border border-gray-200 p-4">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-4">
+                                <button onclick="previousPeriod()" class="p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-chevron-left w-5 h-5"></i>
+                                </button>
+                                
+                                <h3 id="monthTitle" class="text-lg font-semibold text-gray-900 min-w-64 text-center">2026년 4월</h3>
+                                <button onclick="nextPeriod()" class="p-2 rounded-lg hover:bg-gray-100">
+                                    <i class="fas fa-chevron-right w-5 h-5"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <button onclick="goToday()"
+							        class="px-4 py-2 text-sm font-medium bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors">
+							        오늘
+							    </button>
+                            </div>
+                        </div>
+
+                        <!-- 캘린더 범례 -->
+                        <div class="flex items-center gap-6 mb-4 flex-wrap text-sm">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <span class="text-gray-600">오픈</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                <span class="text-gray-600">미들</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                                <span class="text-gray-600">마감</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <span class="text-gray-600">휴무</span>
+                            </div>
+                        </div>
+
+                        <!-- 캘린더 그리드 -->
+                        <div class="border border-gray-200 rounded-lg overflow-hidden">
+                            <!-- 요일 헤더 -->
+                            <div id="dayHeaders" class="calendar-grid gap-0 bg-gray-50">
+                                <div class="day-header">일</div>
+                                <div class="day-header">월</div>
+                                <div class="day-header">화</div>
+                                <div class="day-header">수</div>
+                                <div class="day-header">목</div>
+                                <div class="day-header">금</div>
+                                <div class="day-header">토</div>
+                            </div>
+
+                            <!-- 캘린더 셀 -->
+                            <div id="calendarContainer" class="calendar-grid gap-0">
+                                <!-- 동적으로 생성됨 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
+    </div>  
+</div>       
 
-        <div class="notice">
-          <img class="ico-16" src="<%= request.getContextPath() %>/branch/icons/hr/info.svg" alt="안내" />
-          <p><strong>본사관리자 전용 기능</strong><br />모든 매장 및 본사의 직원 일정을 조회하고 관리할 수 있습니다.</p>
-        </div>
-
-        <section class="stats">
-          <article class="card"><div class="icon-box b1"><img class="ico-16" src="<%= request.getContextPath() %>/branch/icons/hr/calendar.svg" alt="전체" /></div><div><div class="k">총 일정</div><div class="v">4</div></div></article>
-          <article class="card"><div class="icon-box b2"><img class="ico-16" src="<%= request.getContextPath() %>/branch/icons/hr/clock.svg" alt="근무" /></div><div><div class="k">근무 일정</div><div class="v">2</div></div></article>
-          <article class="card"><div class="icon-box b3"><img class="ico-16" src="<%= request.getContextPath() %>/branch/icons/hr/file.svg" alt="회의" /></div><div><div class="k">회의/교육</div><div class="v">1</div></div></article>
-          <article class="card"><div class="icon-box b4"><img class="ico-16" src="<%= request.getContextPath() %>/branch/icons/hr/map-pin.svg" alt="휴가" /></div><div><div class="k">휴가/출장</div><div class="v">1</div></div></article>
-        </section>
-
-        <section class="panel">
-          <div class="panel-head"><img class="ico-16" src="<%= request.getContextPath() %>/branch/icons/hr/filter.svg" alt="필터" />필터</div>
-          <div class="filter-grid">
-            <div class="field"><label>매장</label><input class="input" type="text" /></div>
-            <div class="field"><label>직원</label><input class="input" type="text" /></div>
-            <div class="field"><label>근무 유형</label><input class="input" type="text" /></div>
-          </div>
-        </section>
-
-        <section class="cal-wrap">
-          <div class="cal-top">
-            <div class="cal-nav">
-              <button class="nav-btn" type="button"><img class="ico-16" src="<%= request.getContextPath() %>/branch/icons/hr/chevron-left.svg" alt="이전" /></button>
-              <div class="date-label">2026년 04월</div>
-              <button class="nav-btn" type="button"><img class="ico-16" src="<%= request.getContextPath() %>/branch/icons/hr/chevron-right.svg" alt="다음" /></button>
-              <button class="today" type="button">오늘</button>
-            </div>
-            <div class="view-tabs">
-              <a class="active" href="<%= request.getContextPath() %>/branch/hr/schedule/main.jsp">월</a>
-              <a href="<%= request.getContextPath() %>/branch/hr/schedule/week.jsp">주</a>
-              <a href="<%= request.getContextPath() %>/branch/hr/schedule/day.jsp">일</a>
-            </div>
-          </div>
-
-          <div class="legend">
-            <span><i class="dot" style="background:#3b82f6"></i>근무</span>
-            <span><i class="dot" style="background:#22c55e"></i>휴가</span>
-            <span><i class="dot" style="background:#a855f7"></i>교육</span>
-            <span><i class="dot" style="background:#f97316"></i>회의</span>
-            <span><i class="dot" style="background:#ef4444"></i>출장</span>
-          </div>
-
-          <div class="month-grid">
-            <div class="week-head"><div class="sun">일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div class="sat">토</div></div>
-            <div class="week-row">
-              <div class="cell out">29</div><div class="cell out">30</div><div class="cell out">31</div><div class="cell">1</div><div class="cell">2</div><div class="cell">3</div><div class="cell sat">4</div>
-            </div>
-            <div class="week-row">
-              <div class="cell sun">5</div><div class="cell">6</div><div class="cell">7</div><div class="cell">8</div><div class="cell">9</div><div class="cell">10</div><div class="cell sat">11</div>
-            </div>
-            <div class="week-row">
-              <div class="cell sun">12</div><div class="cell">13</div><div class="cell">14</div><div class="cell"><span class="picked">15</span></div><div class="cell">16</div><div class="cell">17</div><div class="cell sat">18</div>
-            </div>
-            <div class="week-row">
-              <div class="cell sun">19</div><div class="cell">20</div><div class="cell">21</div><div class="cell">22</div><div class="cell">23</div><div class="cell">24</div><div class="cell sat">25</div>
-            </div>
-            <div class="week-row">
-              <div class="cell sun">26</div><div class="cell">27</div><div class="cell">28</div><div class="cell">29</div><div class="cell">30</div><div class="cell out">1</div><div class="cell out">2</div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </main>
-  </div>
-</div>
-
-<div id="createScheduleModal" class="modal-overlay" aria-hidden="true">
-  <button class="modal-close" type="button" aria-label="닫기" id="closeCreateScheduleModal">×</button>
-  <iframe class="modal-frame" src="about:blank" title="일정 추가" id="createScheduleFrame"></iframe>
-</div>
-
+<%@ include file="/branch/hr/schedule/add_schedule.jsp" %>
+<%@ include file="/branch/hr/schedule/modify_schedule.jsp" %>
 <script>
-  (function () {
-    var openBtn = document.getElementById("openCreateScheduleModal");
-    var overlay = document.getElementById("createScheduleModal");
-    var closeBtn = document.getElementById("closeCreateScheduleModal");
-    var frame = document.getElementById("createScheduleFrame");
-    var pageUrl = "<%= request.getContextPath() %>/branch/hr/schedule/create_schedule.jsp";
+	var branchSchedules = [
+		<c:forEach var="s" items="${scheduleList}" varStatus="st">
+		{
+			id: "${s.scheduleId}",
+			employeeId: "${s.empNo}",
+			employee: "${s.empName}",
+			branchCode: "${s.branchCode}",
+			branch: "${s.branchName}",
+			workDate: "${s.workDate}",
+			type: "${s.workType}",
+			title: "${s.workType}",
+			startTime: "${s.startTime}",
+			endTime: "${s.endTime}",
+			isRepeat: "${s.isRepeat}",
+			repeatGroupId: "${repeatGroupId}",
+			notes: "${s.memo}"
+		}<c:if test="${!st.last}">,</c:if>
+		</c:forEach>
+	];
+	
+	var currentDate = new Date();
+    var employees = [
+    	<c:forEach var="e" items="${hqEmployeeList}" varStatus="st">
+    	{
+    		id: "${e.empNo}",
+    		name: "${e.name}",
+    		grade: "${e.gradeCode}",
+    		dept: "${e.dept}",
+    		branch: "${e.branchName}",
+    		branchCode: "${e.branchCode}"
+    	}<c:if test="${!st.last}">,</c:if>
+    	</c:forEach>
+    ];
+    
+    window.addEventListener('DOMContentLoaded', function() {
+    	renderCalendar();
+    	
+    	var addBtn = document.getElementById("openAddScheduleModal");
+    	addBtn.addEventListener("click", function() {
+    	    showAddModal();
+    	});
+    });
+    
+    function renderCalendar() {
+        var year = currentDate.getFullYear();
+        var month = currentDate.getMonth();
+        var currentSchedules = getFilteredSchedules();
 
-    function openModal() {
-      frame.src = pageUrl;
-      overlay.classList.add("open");
-      overlay.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
+        document.getElementById('monthTitle').textContent = year + '년 ' + (month + 1) + '월';
+
+        var dayHeaders = document.getElementById('dayHeaders');
+        dayHeaders.innerHTML =
+            '<div class="day-header">일</div>' +
+            '<div class="day-header">월</div>' +
+            '<div class="day-header">화</div>' +
+            '<div class="day-header">수</div>' +
+            '<div class="day-header">목</div>' +
+            '<div class="day-header">금</div>' +
+            '<div class="day-header">토</div>';
+
+        var days = [];
+        var firstDay = new Date(year, month, 1);
+        var lastDay = new Date(year, month + 1, 0);
+        var prevLastDay = new Date(year, month, 0);
+        var startDay = firstDay.getDay();
+
+        for (var i = startDay - 1; i >= 0; i--) {
+            var prevDate = prevLastDay.getDate() - i;
+            days.push({
+                day: prevDate,
+                currentMonth: false,
+                date: new Date(year, month - 1, prevDate)
+            });
+        }
+
+        for (var d = 1; d <= lastDay.getDate(); d++) {
+            days.push({
+                day: d,
+                currentMonth: true,
+                date: new Date(year, month, d)
+            });
+        }
+
+        var totalCells = Math.ceil(days.length / 7) * 7;
+        var nextDay = 1;
+
+        while (days.length < totalCells) {
+            days.push({
+                day: nextDay,
+                currentMonth: false,
+                date: new Date(year, month + 1, nextDay)
+            });
+            nextDay++;
+        }
+
+        var html = '';
+
+        for (var j = 0; j < days.length; j++) {
+            var dayObj = days[j];
+
+            var dateStr =
+                dayObj.date.getFullYear() + '-' +
+                String(dayObj.date.getMonth() + 1).padStart(2, '0') + '-' +
+                String(dayObj.date.getDate()).padStart(2, '0');
+
+            var daySchedules = currentSchedules.filter(function(s) {
+                return s.workDate === dateStr;
+            });
+
+            var isToday = new Date().toLocaleDateString() === dayObj.date.toLocaleDateString();
+
+            var cellClass =
+                'day-cell p-2 cursor-pointer hover:bg-blue-50 ' +
+                (dayObj.currentMonth ? '' : 'other-month ') +
+                (isToday ? 'today' : '');
+
+            html += '<div class="' + cellClass + '" style="min-height:120px;" onclick="selectDateForModal(\'' + dateStr + '\')">';
+            html += '<div class="text-xs font-medium mb-1 text-gray-900">' + dayObj.day + '</div>';
+
+            for (var k = 0; k < Math.min(daySchedules.length, 3); k++) {
+                var s = daySchedules[k];
+                var empName = s.employee.substring(0, 3);
+
+                html += '<div class="schedule-event type-' + s.type + '" onclick="event.stopPropagation(); viewSchedule(\'' + s.id + '\')" title="' + s.employee + ' - ' + s.type + '">';
+                html += '<span class="text-xs font-semibold">' + empName + '</span> <span class="text-xs">' + s.type + '</span>';
+                html += '</div>';
+            }
+
+            if (daySchedules.length > 3) {
+                html += '<div class="text-xs text-gray-600 text-center font-medium mt-1">+' + (daySchedules.length - 3) + '개 더보기</div>';
+            }
+
+            html += '</div>';
+        }
+
+        var container = document.getElementById('calendarContainer');
+        container.innerHTML = html;
+        container.style.gridTemplateColumns = 'repeat(7, 1fr)';
+        dayHeaders.style.gridTemplateColumns = 'repeat(7, 1fr)';
+    }
+    
+    function showAddModal(selectedDate) {
+    	var today = new Date();
+        var todayStr =
+            today.getFullYear() + '-' +
+            String(today.getMonth() + 1).padStart(2, '0') + '-' +
+            String(today.getDate()).padStart(2, '0');
+
+        var targetDate = selectedDate || todayStr;
+
+        document.getElementById('empName').value = '';
+        document.getElementById('empNo').value = '';
+        document.getElementById('employeeCheckboxes').classList.add('hidden');
+        document.getElementById('employeeList').innerHTML = '';
+
+        document.getElementById('workType').value = 'OPEN';
+        document.getElementById('startDate').value = targetDate;
+        document.getElementById('endDate').value = targetDate;
+        document.getElementById('startTime').value = '';
+        document.getElementById('endTime').value = '';
+        document.getElementById('isRepeat').value = '1';
+        document.getElementById('memo').value = '';
+
+        toggleRepeatOptions();
+
+        document.getElementById('addModal').classList.remove('modal-hidden');
+    }
+    
+    function closeAddModal() {
+    	document.getElementById("addModal").classList.add("modal-hidden");
+    }
+    
+    function toggleRepeatOptions() {
+        var isRepeat = document.getElementById('isRepeat').value;
+        var weekdayOptions = document.getElementById('weekdayOptions');
+
+        if (isRepeat === '2') {
+            weekdayOptions.classList.remove('hidden');
+        } else {
+            weekdayOptions.classList.add('hidden');
+
+            var checks = document.querySelectorAll('input[name="weekdayRepeat"]');
+            for (var i = 0; i < checks.length; i++) {
+                checks[i].checked = false;
+            }
+        }
+    }
+    
+    function searchEmployeesByName() {
+        var keyword = document.getElementById('empName').value.trim();
+        var container = document.getElementById('employeeCheckboxes');
+        var list = document.getElementById('employeeList');
+
+        document.getElementById('empNo').value = '';
+
+        if (!keyword) {
+            container.classList.add('hidden');
+            list.innerHTML = '';
+            return;
+        }
+
+        var filtered = employees.filter(function(e) {
+            return e.name.includes(keyword);
+        });
+
+        var html = '';
+
+        for (var i = 0; i < filtered.length; i++) {
+            var emp = filtered[i];
+
+            html += '<div onclick="selectEmployeeForSchedule(\'' + emp.id + '\', \'' + emp.name + '\')" class="flex items-center gap-2 p-2 hover:bg-gray-100 rounded cursor-pointer">';
+            html += '<div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">' + emp.name.charAt(0) + '</div>';
+            html += '<div class="text-sm">';
+            html += '<span class="font-medium text-gray-900">' + emp.name + '</span>';
+            html += '<span class="text-gray-500 ml-1">(' + (emp.dept || '-') + ')</span>';
+            html += '</div>';
+            html += '</div>';
+        }
+
+        if (filtered.length === 0) {
+            html = '<p class="text-sm text-gray-500 text-center py-4">검색된 직원이 없습니다</p>';
+        }
+
+        list.innerHTML = html;
+        container.classList.remove('hidden');
+    }
+    
+    function selectFirstEmployeeByEnter(event) {
+        event.preventDefault();
+
+        var keyword = document.getElementById('empName').value.trim();
+
+        if (!keyword) {
+            return;
+        }
+
+        var filtered = employees.filter(function(e) {
+            return e.name.includes(keyword);
+        });
+
+        if (filtered.length === 0) {
+            alert('검색된 직원이 없습니다.');
+            return;
+        }
+
+        var emp = filtered[0];
+
+        selectEmployeeForSchedule(emp.id, emp.name);
+    }
+    
+    function selectEmployeeForSchedule(empNo, empName) {
+        document.getElementById('empNo').value = empNo;
+        document.getElementById('empName').value = empName;
+        document.getElementById('employeeCheckboxes').classList.add('hidden');
+    }
+    
+    function getFilteredSchedules() {
+        var keyword = document.getElementById('searchInput').value.trim();
+        var schedules = branchSchedules;
+
+        if (!keyword) {
+            return schedules;
+        }
+
+        return schedules.filter(function(s) {
+            return String(s.employeeId || '').includes(keyword)
+                || String(s.employee || '').includes(keyword)
+                || String(s.branch || '').includes(keyword)
+                || String(s.type || '').includes(keyword);
+        });
+    }
+    
+    function previousPeriod() {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar();
     }
 
-    function closeModal() {
-      overlay.classList.remove("open");
-      overlay.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
-      frame.src = "about:blank";
+    function nextPeriod() {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar();
     }
+    
+	 // 오늘로 이동
+    function goToday() {
+        currentDate = new Date();
+        renderCalendar();
+    }
+	 
+    function selectDateForModal(dateStr) {
+        showAddModal(dateStr);
+    }
+    
+    function applyFilters() {
+        renderCalendar();
+    }
+    
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        renderCalendar();
+    }
+    
+    function viewSchedule(id) {
+        var schedule = branchSchedules.find(function(s) {
+            return String(s.id) === String(id);
+        });
 
-    openBtn.addEventListener("click", openModal);
-    closeBtn.addEventListener("click", closeModal);
-    overlay.addEventListener("click", function (event) {
-      if (event.target === overlay) {
-        closeModal();
-      }
-    });
+        if (!schedule) {
+            alert('일정을 찾을 수 없습니다.');
+            return;
+        }
 
-    window.addEventListener("message", function (event) {
-      if (event.data && event.data.type === "close-hr-modal") {
-        closeModal();
-      }
-    });
-  })();
+        document.getElementById('editScheduleId').value = schedule.id;
+        document.getElementById('editRepeatGroupId').value = schedule.repeatGroupId || '';
+        document.getElementById('editIsRepeat').value = schedule.isRepeat || '1';
+
+        document.getElementById('editEmployeeName').value = schedule.employee || '';
+        document.getElementById('editWorkType').value = schedule.type || 'OPEN';
+        document.getElementById('editWorkDate').value = schedule.workDate || '';
+        document.getElementById('editStartTime').value = schedule.startTime || '';
+        document.getElementById('editEndTime').value = schedule.endTime || '';
+        document.getElementById('editMemo').value = schedule.notes || '';
+
+        var isRepeat = String(schedule.isRepeat) !== '1';
+
+        document.getElementById('editRepeatNotice').classList.toggle('hidden', !isRepeat);
+        document.getElementById('deleteRepeatBtn').classList.toggle('hidden', !isRepeat);
+        document.getElementById('updateRepeatBtn').classList.toggle('hidden', !isRepeat);
+
+        document.getElementById('editModal').classList.remove('modal-hidden');
+    }
 </script>
 </body>
 </html>

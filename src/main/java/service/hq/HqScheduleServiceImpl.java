@@ -72,9 +72,4 @@ public class HqScheduleServiceImpl implements HqScheduleService {
 	public void removeSchedule(Integer scheduleId) throws Exception {
 		scheduleDao.deleteSchedule(scheduleId);
 	}
-
-	@Override
-	public List<BranchScheduleDTO> searchBranchScheduleList(BranchScheduleDTO schedule) throws Exception {
-		return scheduleDao.selectBranchScheduleList(schedule);
-	}
 }

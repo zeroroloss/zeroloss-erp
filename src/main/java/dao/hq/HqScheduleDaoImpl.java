@@ -126,18 +126,4 @@ public class HqScheduleDaoImpl implements HqScheduleDao {
 			sqlSession.close();
 		}
 	}
-
-	@Override
-	public List<BranchScheduleDTO> selectBranchScheduleList(BranchScheduleDTO schedule) throws Exception {
-		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
-		List<BranchScheduleDTO> scd = null;
-		try {
-			scd = sqlSession.selectList("mapper.hq.schedule.selectBranchScheduleList");
-		} catch(Exception e) {
-			throw e;
-		} finally {
-			sqlSession.close();
-		}
-		return scd;
-	}
 }

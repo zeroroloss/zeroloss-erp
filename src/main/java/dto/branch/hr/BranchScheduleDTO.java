@@ -11,8 +11,14 @@ public class BranchScheduleDTO {
 	private Time startTime;
 	private Time endTime;
 	private Integer isRepeat; 
+	private String repeatGroupId;
 	private String memo;
 	private String workType;
+	
+	private Date startDate;
+	private Date endDate;
+	private String[] weekdayRepeat;
+	private String deleteType;
 	private String empName;
 	private String branchName;
 
@@ -21,7 +27,7 @@ public class BranchScheduleDTO {
 	}
 
 	public BranchScheduleDTO(Integer scheduleId, Integer empNo, Integer branchCode, Date workDate, Time startTime,
-			Time endTime, Integer isRepeat, String memo, String workType) {
+			Time endTime, Integer isRepeat, String repeatGroupId, String memo, String workType) {
 		super();
 		this.scheduleId = scheduleId;
 		this.empNo = empNo;
@@ -30,6 +36,7 @@ public class BranchScheduleDTO {
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.isRepeat = isRepeat;
+		this.repeatGroupId = repeatGroupId;
 		this.memo = memo;
 		this.workType = workType;
 	}
@@ -90,6 +97,14 @@ public class BranchScheduleDTO {
 		this.isRepeat = isRepeat;
 	}
 
+	public String getRepeatGroupId() {
+		return repeatGroupId;
+	}
+
+	public void setRepeatGroupId(String repeatGroupId) {
+		this.repeatGroupId = repeatGroupId;
+	}
+
 	public String getMemo() {
 		return memo;
 	}
@@ -120,5 +135,37 @@ public class BranchScheduleDTO {
 
 	public void setBranchName(String branchName) {
 		this.branchName = branchName;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+
+	public String[] getWeekdayRepeat() {
+		return weekdayRepeat;
+	}
+
+	public void setWeekdayRepeat(String[] weekdayRepeat) {
+		this.weekdayRepeat = weekdayRepeat;
+	}
+
+	public String getDeleteType() {
+		return deleteType;
+	}
+
+	public void setDeleteType(String deleteType) {
+		this.deleteType = deleteType;
 	}
 }
