@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>발주 취소 요청</title>
+    <title>발주 취소</title>
     <style>
         body { margin: 0; font-family: "Malgun Gothic", sans-serif; background: transparent; }
         .overlay { min-height: 100vh; background: transparent; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
@@ -48,47 +48,116 @@
             .btn { height: 40px; font-size: 14px; }
         }
     </style>
+    
+<%
+	String poNo = request.getParameter("poNo");
+%>
+    
 </head>
 <body>
 <div class="overlay">
-    <section class="modal" role="dialog" aria-modal="true" aria-label="발주 취소 요청">
+    <section class="modal" role="dialog" aria-modal="true" aria-label="발주 취소">
         <div class="head">
             <div class="icon">×</div>
             <div>
-                <h1 class="title">발주 취소 요청</h1>
-                <p class="order-no">PO-2026-0329-001</p>
+                <h1 class="title">발주 취소</h1>
+                <p class="order-no">발주서 번호: <%=poNo != null ? poNo : "" %></p>
             </div>
         </div>
 
         <div class="field">
             <label>취소 사유 <span class="req">*</span></label>
-            <textarea placeholder="취소 사유를 입력해주세요..."></textarea>
+            <textarea id="cancelReason" maxlength="50" placeholder="취소 사유를 입력해주세요..."></textarea>
         </div>
 
-        <div class="notice"><strong>안내:</strong> 취소 요청이 본사로 전송되며, 승인 시 해당 발주서는 취소됩니다.</div>
+        <div class="notice"><strong>안내:</strong> 해당 발주서는 취소됩니다.</div>
 
         <div class="actions">
             <a class="btn btn-close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp">닫기</a>
-            <a class="btn btn-submit" href="<%= request.getContextPath() %>/branch/place_order/history.jsp">취소 요청</a>
+            <button type="button" class="btn btn-submit" id="submitBtn">취소</button>
         </div>
     </section>
 </div>
+
 <script>
-    (function () {
-        function closePopupOrFallback() {
-            if (window.parent && window.parent !== window) {
-                window.parent.postMessage({ type: 'close-place-order-popup' }, '*');
-            }
+(function () {
+
+    const contextPath = '<%= request.getContextPath() %>';
+    const poNo = '<%= poNo != null ? poNo : "" %>';
+
+    const textarea = document.getElementById('cancelReason');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function closePopup() {
+        if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'close-place-order-popup' }, '*');
+        }
+    }
+
+    // =========================
+    // 취소 요청
+    // =========================
+    submitBtn.addEventListener('click', async function (e) {
+        e.preventDefault();
+        
+
+        const reason = textarea.value.trim();
+        // 1. 유효성 검사
+        if (!reason) {
+            alert('취소 사유를 입력해주세요.');
+            textarea.focus();
+            return;
         }
 
-        var closeElements = document.querySelectorAll('.btn-close, .btn-submit');
-        for (var i = 0; i < closeElements.length; i += 1) {
-            closeElements[i].addEventListener('click', function (event) {
-                event.preventDefault();
-                closePopupOrFallback();
-            });
+        submitBtn.disabled = true;
+        try {
+            // 2. 서버 요청
+            const res = await fetch(
+                contextPath + '/api/branch/place_order/cancel',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        poNo: poNo,
+                        cancelReason: reason
+                    })
+                }
+            );
+
+            if (!res.ok) {
+                throw new Error('요청 실패');
+            }
+
+            const result = await res.json();
+
+            if (result.status === 'success') {
+                alert('취소 요청이 완료되었습니다.');
+                closePopup();
+                window.parent.applyFilters();
+            } else {
+                console.log(result);
+                alert(result.message || '취소 요청 실패');
+            }
+        } catch (err) {
+            alert('취소 요청 중 오류가 발생했습니다.');
+            console.error(err);
+        } finally {
+            submitBtn.disabled = false;
         }
-    })();
+    });
+
+    // =========================
+    // 닫기 버튼
+    // =========================
+    document.querySelector('.btn-close').addEventListener('click', function (e) {
+        e.preventDefault();
+        closePopup();
+    });
+
+})();
 </script>
+
 </body>
 </html>

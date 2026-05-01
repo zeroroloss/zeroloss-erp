@@ -24,14 +24,19 @@ public interface PlaceOrderDAO {
     // 발주서 생성
     int insertPlaceOrder(SqlSession sqlSession, PlaceOrderDTO placeOrderDTO);
     
+    // 발주서 조회
+    PlaceOrderDTO findPlaceOrder(SqlSession sqlSession, String poNo);
+    
     // 발주서 번호 조회
     String findPlaceOrderNo(SqlSession sqlSession, int placeOrderId);
 
     // 발주서의 품목 상세 생성
 	Integer insertPlaceOrderDetails(SqlSession sqlSession, Integer poId, List<PlaceOrderDetailDTO> draftDetailDTOs);
 	
-    // 발주서 상태, 반려 사유 갱신
-    int updatePlaceOrderStatus(SqlSession sqlSession, Map<String, Object> updateParams);
+    // 발주서 상태 갱신
+	int updatePlaceOrderStatus(SqlSession sqlSession, String poNo, String status);
+	// 발주 취소(상태도 갱신)
+    int updatePlaceOrderStatusCancel(SqlSession sqlSession, String poNo, String cancelReason);
     
     // 발주서 번호 (pONo) 변경
 	int updatePlaceOrderNo(SqlSession sqlSession, Integer poId, String poNo);

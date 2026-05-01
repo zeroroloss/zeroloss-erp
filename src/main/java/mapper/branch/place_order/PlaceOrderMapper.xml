@@ -127,6 +127,12 @@
         WHERE p.po_no = #{value}
         ORDER BY pod.po_detail_id ASC
     </select>
+    
+    <select id="findPlaceOrder" parameterType="string" resultType="dto.branch.place_order.PlaceOrderDTO">
+    	SELECT *
+    	FROM place_order
+    	WHERE po_no =#{poNo}
+    </select>
 
     <insert id="insertPlaceOrder" parameterType="dto.branch.place_order.PlaceOrderDTO" 
     		useGeneratedKeys="true" keyProperty="poId" keyColumn="po_id">
@@ -143,6 +149,12 @@
     </insert>
 
     <update id="updatePlaceOrderStatus" parameterType="map">
+        UPDATE place_order
+        SET status = #{status},
+        WHERE po_no = #{poNo}
+    </update>
+    
+    <update id="updatePlaceOrderStatusCancel" parameterType="map">
         UPDATE place_order
         SET status = #{status},
             reject_reason = #{rejectReason}

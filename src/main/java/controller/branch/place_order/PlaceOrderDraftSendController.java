@@ -19,7 +19,7 @@ import service.branch.place_order.PlaceOrderSendServiceImpl;
 import util.GsonFactory;
 
 @WebServlet("/branch/place_order/send")
-public class PlaceOrderSendController extends HttpServlet {
+public class PlaceOrderDraftSendController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     
     private final PlaceOrderSendService service = new PlaceOrderSendServiceImpl();

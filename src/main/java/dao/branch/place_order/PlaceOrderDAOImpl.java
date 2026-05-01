@@ -49,17 +49,34 @@ public class PlaceOrderDAOImpl implements PlaceOrderDAO {
         sqlSession.commit();
         return result;
 	}
+	
+	@Override
+	public PlaceOrderDTO findPlaceOrder(SqlSession sqlSession, String poNo) {
+		return sqlSession.selectOne(MAPPER_NAMESPACE + "findPlaceOrder", poNo);
+	}
     
 	@Override
 	public String findPlaceOrderNo(SqlSession sqlSession, int placeOrderId) {
 		return sqlSession.selectOne(MAPPER_NAMESPACE + "findPlaceOrderNo", placeOrderId);
 	}
-
+	
     @Override
-    public int updatePlaceOrderStatus(SqlSession sqlSession, Map<String, Object> params) {
+    public int updatePlaceOrderStatus(SqlSession sqlSession, String poNo, String status) {
+        Map<String, Object> params = new HashMap<>();
+    	params.put("poNo", poNo);
+    	params.put("status", status);
         int result = sqlSession.update(MAPPER_NAMESPACE + "updatePlaceOrderStatus", params);
         return result;
     }
+	@Override
+	public int updatePlaceOrderStatusCancel(SqlSession sqlSession, String poNo, String cancelReason) {
+        Map<String, Object> params = new HashMap<>();
+    	params.put("poNo", poNo);
+    	params.put("status", "CANCELED");
+    	params.put("reject_reason", cancelReason);
+        int result = sqlSession.update(MAPPER_NAMESPACE + "updatePlaceOrderStatusCancel", params);
+        return result;
+	}
 
 	@Override
 	public int updatePlaceOrderNo(SqlSession sqlSession, Integer poId, String poNo) {
@@ -68,4 +85,5 @@ public class PlaceOrderDAOImpl implements PlaceOrderDAO {
 		params.put("poNo", poNo);
 		return sqlSession.update(MAPPER_NAMESPACE + "updatePlaceOrderNo", params);
 	}
+
 }

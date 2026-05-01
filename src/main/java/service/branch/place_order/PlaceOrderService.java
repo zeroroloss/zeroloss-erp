@@ -13,13 +13,14 @@ public interface PlaceOrderService {
 	// 발주 내역
     List<PlaceOrderHistoryDTO> getPlaceOrderHistoryList(int branchCode, String startDate, String endDate, String status);
     PlaceOrderHistoryDTO getPlaceOrderDetail(String poNo);
-    boolean createPlaceOrder(PlaceOrderDTO requestDTO);
-    boolean updatePlaceOrderStatus(String poNo, String status, String rejectReason);
     
-    // 발주서 생성
+    // 발주서 취소
+    boolean cancelPlaceOrder(String poNo, String cancelReason);
+    
+    // 임시 발주서 가져오기 또는 생성
 	PlaceOrderDraftDTO findOrCreateInProgressDraft(int branchCode);
 	
-	// 발주서 생성 - API 응답
+	// 발주 가능 품목 조회
 	List<Map<String, Object>> getSelectableItems(int branchCode, String category, String item, String search);
 	
 	// 발주 임시 상세 추가/삭제

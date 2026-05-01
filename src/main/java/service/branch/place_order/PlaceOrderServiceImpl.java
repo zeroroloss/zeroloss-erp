@@ -1,8 +1,5 @@
 package service.branch.place_order;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +26,7 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 	private static final String STATUS_PENDING = "PENDING"; // 전송 상태
 	private static final String STATUS_APPROVED = "APPROVED"; // 승인 상태
 	private static final String STATUS_REJECTED = "REJECTED"; // 반려 상태
+	private static final String STATUS_CANCELED = "CANCELED"; // 취소 상태
 
 	private static final String STATUS_KEY_SENT = "전송";
 	private static final String STATUS_KEY_APPROVED = "승인";
@@ -60,10 +58,15 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 				return Collections.emptyList(); // null이면 빈 리스트 반환
 			}
 
+			historyList = historyList.stream()
+				    .filter(h -> !(STATUS_CANCELED.equals(h.getStatusCode())) )
+				    .collect(Collectors.toList());
+			
 			for (PlaceOrderHistoryDTO historyDTO : historyList) {
 				normalizeHistory(historyDTO, CONTEXT_PATH); // 각 DTO 데이터 정규화
 			}
 			return historyList;
+			
 		} catch (Exception e) {
 			throw e;
 		}
@@ -127,10 +130,44 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 		} catch (Exception e) {
 			sqlSession.rollback();
 			throw new RuntimeException(e);
-		}
+		} finally {
+	        sqlSession.close();
+	    }
 	   
 	}
 
+	// 발주서 취소
+	@Override
+	public boolean cancelPlaceOrder(String poNo, String cancelReason) {
+		
+		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false);
+		
+		try {
+			// 발주 취소할 발주 가져오기
+			PlaceOrderDTO placeOrderDTO = placeOrderDAO.findPlaceOrder(sqlSession, poNo);
+			if(placeOrderDTO == null) {
+				throw new IllegalArgumentException("존재하지 않는 발주입니다.");
+			}
+			// PENDING 상태만 취소 가능
+			if (!(STATUS_PENDING.equals(placeOrderDTO.getStatus()))) {
+				throw new IllegalStateException("취소 가능한 상태가 아닙니다");
+			}
+			int result = placeOrderDAO.updatePlaceOrderStatusCancel(sqlSession, poNo, cancelReason);
+			
+	        if (result <= 0) {
+	            throw new RuntimeException("취소된 발주가 없습니다.");
+	        }
+
+	        sqlSession.commit();
+	        return true;
+	        
+		} catch (Exception e) {
+			sqlSession.rollback();
+			throw e;
+		} finally {
+	        sqlSession.close();
+	    }
+	}
 
 
 	private boolean hasText(String value) {
@@ -418,16 +455,5 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 		}
 	}
 
-	@Override
-	public boolean createPlaceOrder(PlaceOrderDTO requestDTO) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean updatePlaceOrderStatus(String poNo, String status, String rejectReason) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 }
