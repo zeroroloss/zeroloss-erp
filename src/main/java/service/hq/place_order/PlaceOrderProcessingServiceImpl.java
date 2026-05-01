@@ -50,6 +50,12 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
                 return false;
             }
 
+            // Get full details with material codes for inventory deduction
+            List<PlaceOrderProcessingDetailDTO> fullDetails = dao.selectOrderDetailsByPoNo(sqlSession, poNo);
+            if (fullDetails == null) {
+                fullDetails = new java.util.ArrayList<>();
+            }
+
             if (details != null) {
                 for (PlaceOrderProcessingDetailDTO detail : details) {
                     if (detail == null || detail.getPoDetailId() == null) {
@@ -61,6 +67,25 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
                     param.put("poDetailId", detail.getPoDetailId());
                     param.put("approvedQty", approvedQty);
                     dao.updateApprovedQtyByDetailId(sqlSession, param);
+
+                    //
+                    PlaceOrderProcessingDetailDTO fullDetail = fullDetails.stream()
+                            .filter(d -> d != null && d.getPoDetailId().equals(detail.getPoDetailId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (fullDetail != null && approvedQty > 0) {
+                        // 본사 물류창고 재고 감소
+                        Map<String, Object> deductParam = new HashMap<>();
+                        deductParam.put("materialCode", fullDetail.getMaterialCode());
+                        deductParam.put("deductQty", approvedQty);
+                        int deducted = dao.deductWarehouseStock(sqlSession, deductParam);
+                        
+                        if (deducted <= 0) {
+                            sqlSession.rollback();
+                            throw new RuntimeException("본사 물류창고 재고가 부족합니다. 품목: " + fullDetail.getMaterialName() + ", 필요량: " + approvedQty);
+                        }
+                    }
                 }
             }
 

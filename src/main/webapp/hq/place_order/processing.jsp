@@ -90,7 +90,7 @@
                                             <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">요청 수량</th>
                                             <th class="text-center py-3 px-4 text-sm font-semibold text-gray-900">최종 확정 수량</th>
                                             <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">지점 현재 재고</th>
-                                            <th class="text-center py-3 px-4 text-sm font-semibold text-gray-900">상태</th>
+                                            <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">본사 재고</th>
                                         </tr>
                                     </thead>
                                     <tbody id="detailItemsTable">
@@ -336,7 +336,8 @@
                         adjustedQty: Number(item.approvedQty || 0),
                         unit: item.unit || '',
                         currentStock: Number(item.currentBranchStock || 0),
-                        safetyStock: Number(item.safeStockQty || 0)
+                        safetyStock: Number(item.safeStockQty || 0),
+                        warehouseStock: Number(item.warehouseStockQty || 0)
                     };
                 })
             };
@@ -466,9 +467,6 @@
                 tr.className = 'border-b border-gray-100';
 
                 const currentStockColor = item.currentStock < item.safetyStock ? 'text-red-600' : 'text-gray-900';
-                const statusBadge = item.currentStock < item.safetyStock 
-                    ? '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700"><i class="fas fa-triangle-exclamation w-3 h-3"></i>부족</span>'
-                    : '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700"><i class="fas fa-check-circle w-3 h-3"></i>정상</span>';
 
                 let adjustedQtyHTML;
                 if (selectedOrder.status === 'PENDING') {
@@ -477,7 +475,7 @@
                     adjustedQtyHTML = '<div class="text-center font-semibold text-green-600">' + item.adjustedQty + item.unit + '</div>';
                 }
 
-                tr.innerHTML = '<td class="py-4 px-4 font-mono text-sm text-gray-600">' + item.itemCode + '</td><td class="py-4 px-4 font-medium text-gray-900">' + item.itemName + '</td><td class="py-4 px-4 text-right font-semibold text-blue-600">' + item.requestedQty + item.unit + '</td><td class="py-4 px-4">' + adjustedQtyHTML + '</td><td class="py-4 px-4 text-right font-semibold ' + currentStockColor + '">' + item.currentStock + item.unit + '</td><td class="py-4 px-4 text-center">' + statusBadge + '</td>';
+                tr.innerHTML = '<td class="py-4 px-4 font-mono text-sm text-gray-600">' + item.itemCode + '</td><td class="py-4 px-4 font-medium text-gray-900">' + item.itemName + '</td><td class="py-4 px-4 text-right font-semibold text-blue-600">' + item.requestedQty + item.unit + '</td><td class="py-4 px-4">' + adjustedQtyHTML + '</td><td class="py-4 px-4 text-right font-semibold ' + currentStockColor + '">' + item.currentStock + item.unit + '</td><td class="py-4 px-4 text-right font-semibold text-gray-900">' + item.warehouseStock + item.unit + '</td>';
 
                 tbody.appendChild(tr);
             });

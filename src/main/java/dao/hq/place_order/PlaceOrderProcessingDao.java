@@ -20,4 +20,6 @@ public interface PlaceOrderProcessingDao {
     int updateOrderStatusReject(SqlSession sqlSession, Map<String, Object> param) throws Exception;
 
     int updateApprovedQtyByDetailId(SqlSession sqlSession, Map<String, Object> param) throws Exception;
+
+    int deductWarehouseStock(SqlSession sqlSession, Map<String, Object> param) throws Exception;
 }

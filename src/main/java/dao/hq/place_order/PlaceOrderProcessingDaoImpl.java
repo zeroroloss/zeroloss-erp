@@ -41,4 +41,9 @@ public class PlaceOrderProcessingDaoImpl implements PlaceOrderProcessingDao {
     public int updateApprovedQtyByDetailId(SqlSession sqlSession, Map<String, Object> param) throws Exception {
         return sqlSession.update(NAMESPACE + "updateApprovedQtyByDetailId", param);
     }
+
+    @Override
+    public int deductWarehouseStock(SqlSession sqlSession, Map<String, Object> param) throws Exception {
+        return sqlSession.update(NAMESPACE + "deductWarehouseStock", param);
+    }
 }

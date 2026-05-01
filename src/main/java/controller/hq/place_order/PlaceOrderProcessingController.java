@@ -55,26 +55,78 @@ public class PlaceOrderProcessingController extends HttpServlet {
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		Map<?, ?> body = gson.fromJson(request.getReader(), Map.class);
-		String action = valueAsString(body == null ? null : body.get("action"));
 
-		if (ACTION_APPROVE.equals(action)) {
-			String poNo = valueAsString(body.get("poNo"));
-			List<PlaceOrderProcessingDetailDTO> details = PlaceOrderProcessingDetailDTO.from(body.get("details"));
-			boolean updated = service.approveOrder(poNo, details);
-			writeJson(response, updated ? 200 : 400, updated ? successBodyWithMessage("승인되었습니다.") : failBody("승인 처리에 실패했습니다."));
-			return;
-		}
+	    try {
+	        Map<?, ?> body = gson.fromJson(request.getReader(), Map.class);
+	        String action = valueAsString(body == null ? null : body.get("action"));
 
-		if (ACTION_REJECT.equals(action)) {
-			String poNo = valueAsString(body.get("poNo"));
-			String rejectReason = valueAsString(body.get("rejectReason"));
-			boolean updated = service.rejectOrder(poNo, rejectReason);
-			writeJson(response, updated ? 200 : 400, updated ? successBodyWithMessage("반려되었습니다.") : failBody("반려 처리에 실패했습니다."));
-			return;
-		}
+	        if (ACTION_APPROVE.equals(action)) {
+	            String poNo = valueAsString(body.get("poNo"));
+	            List<PlaceOrderProcessingDetailDTO> details =
+	                    PlaceOrderProcessingDetailDTO.from(body.get("details"));
 
-		writeJson(response, 400, failBody("지원하지 않는 요청입니다."));
+	            if (poNo == null || poNo.isBlank()) {
+	                writeJson(response, 400, failBody("poNo는 필수입니다."));
+	                return;
+	            }
+
+	            boolean updated = service.approveOrder(poNo, details);
+
+	            if (!updated) {
+	                writeJson(response, 400, failBody("승인 처리에 실패했습니다."));
+	                return;
+	            }
+
+	            writeJson(response, 200, successBodyWithMessage("승인되었습니다."));
+	            return;
+	        }
+
+	        if (ACTION_REJECT.equals(action)) {
+	            String poNo = valueAsString(body.get("poNo"));
+	            String rejectReason = valueAsString(body.get("rejectReason"));
+
+	            if (poNo == null || poNo.isBlank()) {
+	                writeJson(response, 400, failBody("poNo는 필수입니다."));
+	                return;
+	            }
+
+	            if (rejectReason == null || rejectReason.isBlank()) {
+	                writeJson(response, 400, failBody("반려 사유는 필수입니다."));
+	                return;
+	            }
+
+	            boolean updated = service.rejectOrder(poNo, rejectReason);
+
+	            if (!updated) {
+	                writeJson(response, 400, failBody("반려 처리에 실패했습니다."));
+	                return;
+	            }
+
+	            writeJson(response, 200, successBodyWithMessage("반려되었습니다."));
+	            return;
+	        }
+
+	        writeJson(response, 400, failBody("지원하지 않는 요청입니다."));
+
+	    } catch (IllegalArgumentException e) {
+	        // 입력값 문제
+	        writeJson(response, 400, failBody(e.getMessage()));
+
+	    } catch (IllegalStateException e) {
+	        // 상태 문제 (비즈니스 룰)
+	        writeJson(response, 409, failBody(e.getMessage()));
+
+	    } catch (RuntimeException e) {
+	        // 서비스 내부 에러 (재고 부족 등)
+	        writeJson(response, 500, failBody(
+	                e.getMessage() != null ? e.getMessage() : "서버 처리 중 오류가 발생했습니다."
+	        ));
+
+	    } catch (Exception e) {
+	        // 진짜 예상 못한 에러
+	        e.printStackTrace();
+	        writeJson(response, 500, failBody("서버 오류가 발생했습니다."));
+	    }
 	}
 
 	private String valueAsString(Object value) {

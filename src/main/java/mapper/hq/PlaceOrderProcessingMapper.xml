@@ -77,7 +77,8 @@
             CAST(COALESCE(pod.approved_qty, 0) AS SIGNED) AS approvedQty,
             CAST(COALESCE(pod.remaining_qty, 0) AS SIGNED) AS remainingQty,
             COALESCE(CAST(bs.sum_qty AS SIGNED), 0) AS currentBranchStock,
-            COALESCE(CAST(bmss.safe_stock_qty AS SIGNED), 0) AS safeStockQty
+            COALESCE(CAST(bmss.safe_stock_qty AS SIGNED), 0) AS safeStockQty,
+            COALESCE(CAST(ws.qty AS SIGNED), 0) AS warehouseStockQty
         FROM place_order p
         JOIN place_order_detail pod
             ON pod.po_id = p.po_id
@@ -93,6 +94,8 @@
         LEFT JOIN branch_material_safety_stock bmss
             ON bmss.branch_code = p.branch_code
            AND bmss.material_code = pod.material_code
+        LEFT JOIN warehouse_stock ws
+            ON ws.material_code = pod.material_code
         WHERE p.po_no = #{value}
         ORDER BY pod.po_detail_id ASC
     </select>
@@ -121,6 +124,13 @@
             reject_reason = #{rejectReason}
         WHERE po_no = #{poNo}
           AND status = 'PENDING'
+    </update>
+
+    <update id="deductWarehouseStock" parameterType="map">
+        UPDATE warehouse_stock
+        SET qty = qty - #{deductQty}
+        WHERE material_code = #{materialCode}
+          AND qty >= #{deductQty}
     </update>
 
 </mapper>

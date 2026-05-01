@@ -16,6 +16,7 @@ public class PlaceOrderProcessingDetailDTO {
     private Integer remainingQty;
     private Integer currentBranchStock;
     private Integer safeStockQty;
+    private Integer warehouseStockQty;
 
     public static List<PlaceOrderProcessingDetailDTO> from(Object rawDetails) {
         List<PlaceOrderProcessingDetailDTO> details = new ArrayList<>();
@@ -126,5 +127,13 @@ public class PlaceOrderProcessingDetailDTO {
 
     public void setSafeStockQty(Integer safeStockQty) {
         this.safeStockQty = safeStockQty;
+    }
+
+    public Integer getWarehouseStockQty() {
+        return warehouseStockQty;
+    }
+
+    public void setWarehouseStockQty(Integer warehouseStockQty) {
+        this.warehouseStockQty = warehouseStockQty;
     }
 }
