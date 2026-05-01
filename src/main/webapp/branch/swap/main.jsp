@@ -52,7 +52,7 @@
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 14px 18px; border-bottom: 1px solid #e5e7eb; font-size: 0.9375rem; text-align: left; }
         th { background: #f9fafb; color: #6b7280; font-weight: 700; }
-        .ask { background: #2563eb; color: #fff; border: none; border-radius: 10px; padding: 8px 12px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; }
+        .ask { background: var(--green); color: #fff; border: none; border-radius: 10px; padding: 8px 12px; font-size: 0.8125rem; font-weight: 700; cursor: pointer; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .no-result { padding: 40px 20px; text-align: center; color: var(--muted); }
@@ -71,12 +71,6 @@
                     <h1 class="title">재고 교환/요청</h1>
                     <p class="sub">지점 간 재고를 교환하고 요청을 관리하세요</p>
                 </header>
-                <section class="stats">
-                    <article class="stat"><div class="stat-ico s1" aria-hidden="true"><i class="fa-solid fa-paper-plane"></i></div><div class="stat-text"><span class="n">1건</span><div class="l">보낸 요청</div></div></article>
-                    <article class="stat"><div class="stat-ico s2" aria-hidden="true"><i class="fa-solid fa-inbox"></i></div><div class="stat-text"><span class="n">2건</span><div class="l">받은 요청</div></div></article>
-                    <article class="stat"><div class="stat-ico s3" aria-hidden="true"><i class="fa-solid fa-clock-rotate-left"></i></div><div class="stat-text"><span class="n">3건</span><div class="l">교환 내역</div></div></article>
-                    <article class="stat"><div class="stat-ico s4" aria-hidden="true"><i class="fa-solid fa-map-marker-alt"></i></div><div class="stat-text"><span class="n">5개</span><div class="l">주변 지점</div></div></article>
-                </section>
             </div>
 
             <nav class="tabs" aria-label="재고교환 탭">
@@ -110,7 +104,6 @@
                             </div>
                         </div>
 
-                        <!-- 🟢 누락되었던 최대 거리 입력 박스 복구! -->
                         <div>
                             <label class="label" for="dist">최대 거리 (km)</label>
                             <input class="input" id="dist" name="dist" type="number" min="1" value="10">
@@ -123,16 +116,134 @@
                 </section>
                 <div id="check_stock_result" style="display:none;">
                     <section class="map-box"><div class="map-head" id="map-head"></div><div id="map"></div></section>
-                    <section class="table-box"><div class="tb-head" id="table-head"></div><table id="result-table"><thead><tr><th>지점명</th><th>주소</th><th>거리(km)</th><th>보유수량</th><th style="text-align:center;">액션</th></tr></thead><tbody></tbody></table></section>
+                    <section class="table-box"><div class="tb-head" id="table-head"></div><table id="result-table"><thead><tr><th>지점명</th><th>주소</th><th>거리(km)</th><th>보유수량</th><th style="text-align:center;">요청하기</th></tr></thead><tbody></tbody></table></section>
                 </div>
             </div>
-            <!-- 다른 탭 콘텐츠 생략 -->
+
+            <!-- 보낸 요청 탭 -->
+            <div id="tab-content-send_request" class="tab-content">
+                <section class="panel">
+                    <div class="panel-head"><h2 class="panel-title">보낸 요청 목록</h2></div>
+                    <div id="send_request_content" style="padding: 20px;">
+                        <table id="sent-table" style="display: none; width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f9fafb;">
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">날짜</th>
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">받는 지점</th>
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">품목</th>
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">수량</th>
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">상태</th>
+                                    <th style="padding: 14px 18px; text-align: center; border-bottom: 1px solid #e5e7eb;">액션</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div id="sent-empty" style="text-align: center; padding: 40px; color: #6b7280;">
+                            <p>보낸 요청이 없습니다.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 받은 요청 탭 -->
+            <div id="tab-content-received_request" class="tab-content">
+                <section class="panel">
+                    <div class="panel-head"><h2 class="panel-title">받은 요청 목록</h2></div>
+                    <div id="received_request_content" style="padding: 20px;">
+                        <table id="received-table" style="display: none; width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f9fafb;">
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">날짜</th>
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">보내는 지점</th>
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">품목</th>
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">수량</th>
+                                    <th style="padding: 14px 18px; text-align: center; border-bottom: 1px solid #e5e7eb;">액션</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div id="received-empty" style="text-align: center; padding: 40px; color: #6b7280;">
+                            <p>받은 요청이 없습니다.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 교환 내역 탭 -->
+            <div id="tab-content-swap_history" class="tab-content">
+                <section class="panel">
+                    <div class="panel-head"><h2 class="panel-title">교환 내역</h2></div>
+                    <div id="swap_history_content" style="padding: 20px;">
+                        <table id="history-table" style="display: none; width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f9fafb;">
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">날짜</th>
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">상대방 지점</th>
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">품목</th>
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">수량</th>
+                                    <th style="padding: 14px 18px; text-align: left; border-bottom: 1px solid #e5e7eb;">상태</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div id="history-empty" style="text-align: center; padding: 40px; color: #6b7280;">
+                            <p>교환 내역이 없습니다.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
+    </div>
+</div>
+
+<!-- 재고 요청 모달 -->
+<div id="requestModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 25px rgba(0,0,0,0.15);">
+        <h3 style="margin-top: 0; font-size: 1.25rem; font-weight: 700; margin-bottom: 20px;">재고 교환 요청</h3>
+
+        <div style="display: grid; gap: 16px; margin-bottom: 24px;">
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 700; color: #374151; margin-bottom: 6px;">받는 지점</label>
+                <div id="modalBranchName" style="padding: 10px 13px; border: 1px solid #cfd6dd; border-radius: 12px; background: #f3f4f6;">-</div>
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 700; color: #374151; margin-bottom: 6px;">품목</label>
+                <div id="modalMaterialName" style="padding: 10px 13px; border: 1px solid #cfd6dd; border-radius: 12px; background: #f3f4f6;">-</div>
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.875rem; font-weight: 700; color: #374151; margin-bottom: 6px;">요청 수량</label>
+                <div id="modalQty" style="padding: 10px 13px; border: 1px solid #cfd6dd; border-radius: 12px; background: #f3f4f6;">-</div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 12px;">
+            <button id="modalCancelBtn" style="flex: 1; height: 38px; border: 1px solid #d1d5db; border-radius: 12px; background: white; color: #111827; font-weight: 700; cursor: pointer;">취소</button>
+            <button id="modalRequestBtn" style="flex: 1; height: 38px; border: none; border-radius: 12px; background: var(--green); color: white; font-weight: 700; cursor: pointer;">요청하기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 수락 확인 모달 -->
+<div id="confirmModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; padding: 24px; max-width: 450px; width: 90%; box-shadow: 0 20px 25px rgba(0,0,0,0.15);">
+        <h3 style="margin-top: 0; font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; color: #111827;">재고 교환 수락</h3>
+        <p id="confirmMessage" style="margin: 0 0 24px 0; color: #6b7280; font-size: 0.95rem; line-height: 1.6;"></p>
+
+        <div style="display: flex; gap: 12px;">
+            <button id="confirmCancelBtn" style="flex: 1; height: 38px; border: 1px solid #d1d5db; border-radius: 12px; background: white; color: #111827; font-weight: 700; cursor: pointer;">취소</button>
+            <button id="confirmApproveBtn" style="flex: 1; height: 38px; border: none; border-radius: 12px; background: var(--green); color: white; font-weight: 700; cursor: pointer;">수락 하기</button>
+        </div>
+    </div>
+</div>
     </div>
 </div>
 <script>
     // 🟢 1. 최상단에 컨텍스트 경로를 안전하게 자바스크립트 변수로 선언!
     const CTX = "<%= request.getContextPath() %>";
+
+    // 모달 관련 변수
+    let currentSwapData = null;
+    let currentConfirmSwapId = null;
 
     document.addEventListener('DOMContentLoaded', function () {
         const materialGroupSelect = document.getElementById('materialGroup');
@@ -142,8 +253,33 @@
         const resultTableBody = document.querySelector('#result-table tbody');
         const mapHead = document.getElementById('map-head');
         const tableHead = document.getElementById('table-head');
+        const requestModal = document.getElementById('requestModal');
+        const confirmModal = document.getElementById('confirmModal');
         let map;
         let markers = [];
+
+        // 모달 관련 요소
+        const modalBranchName = document.getElementById('modalBranchName');
+        const modalMaterialName = document.getElementById('modalMaterialName');
+        const modalQty = document.getElementById('modalQty');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const modalRequestBtn = document.getElementById('modalRequestBtn');
+        const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+        const confirmApproveBtn = document.getElementById('confirmApproveBtn');
+        const confirmMessage = document.getElementById('confirmMessage');
+
+        // 이벤트 위임: '보낸 요청' 탭의 취소 버튼 처리를 위한 이벤트 리스너
+        const sendRequestContent = document.getElementById('send_request_content');
+        sendRequestContent.addEventListener('click', function(event) {
+            const target = event.target;
+            // 클릭된 요소가 'cancel-btn' 클래스를 가지고 있는지 확인
+            if (target.classList.contains('cancel-btn')) {
+                const swapId = target.dataset.swapId; // data-swap-id 속성 값 가져오기
+                if (swapId) {
+                    cancelSwapRequest(swapId);
+                }
+            }
+        });
 
         // 재료 그룹 불러오기
         function loadMaterialGroups() {
@@ -219,14 +355,20 @@
                 return;
             }
 
+            const qtyValue = document.getElementById('qty').value;
+            const materialCode = itemSelect.value;
+            const materialName = itemSelect.options[itemSelect.selectedIndex].text;
+
             resultTableBody.innerHTML = '';
-            mapHead.innerHTML = `주변 지점 지도 <small>(\${data.length}개 지점 발견)</small>`;
-            tableHead.innerHTML = `상세 지점 정보 <small>(\${data.length}개)</small>`;
+            // 변경된 부분: 백틱을 일반 문자열과 변수 결합으로 수정
+            mapHead.innerHTML = '주변 지점 지도 <small>(' + data.length + '개 지점 발견)</small>';
+            tableHead.innerHTML = '상세 지점 정보 <small>(' + data.length + '개)</small>';
 
             markers.forEach(marker => marker.setMap(null));
             markers = [];
 
             if (data.length === 0) {
+                alert('설정한 거리와 재고 조건에 맞는 지점이 없습니다.');
                 resultTableBody.innerHTML = '<tr><td colspan="5" class="no-result">검색 조건에 맞는 지점이 없습니다.</td></tr>';
                 const mapContainer = document.getElementById('map');
                 if (mapContainer) mapContainer.innerHTML = '';
@@ -243,21 +385,35 @@
 
             data.forEach(branch => {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>\${branch.branchName}</td>
-                    <td>\${branch.address}</td>
-                    <td>\${branch.distance.toFixed(2)}</td>
-                    <td style="text-align:center">\${Math.floor(branch.currentQty)}</td>
-                    <td style="text-align:center;"><button class="ask" onclick="requestStock('\${branch.branchCode}')">요청하기</button></td>
-                `;
+                // 변경된 부분: 백틱을 일반 따옴표와 + 기호 결합으로 수정
+                row.innerHTML =
+                    '<td>' + branch.branchName + '</td>' +
+                    '<td>' + branch.address + '</td>' +
+                    '<td>' + branch.distance.toFixed(2) + '</td>' +
+                    '<td style="text-align:center">' + Math.floor(branch.currentQty) + '</td>' +
+                    '<td style="text-align:center;"><button class="ask" onclick="openRequestModal(\'' + branch.branchCode + '\', \'' + branch.branchName + '\', \'' + materialCode + '\', \'' + materialName + '\', \'' + qtyValue + '\')">요청하기</button></td>';
+
                 resultTableBody.appendChild(row);
 
                 const position = new kakao.maps.LatLng(branch.lat, branch.lng);
                 const marker = new kakao.maps.Marker({ map: map, position: position });
-                const infowindow = new kakao.maps.InfoWindow({ content: `<div style="padding:5px;font-size:12px;"><b>\${branch.branchName}</b><br>재고: \${Math.floor(branch.currentQty)}개</div>` });
+                // 변경된 부분: InfoWindow 내용 수정
+                const infowindow = new kakao.maps.InfoWindow({ content: '<div style="padding:5px;font-size:12px;"><b>' + branch.branchName + '</b><br>재고: ' + Math.floor(branch.currentQty) + '개</div>' });
 
                 kakao.maps.event.addListener(marker, 'mouseover', () => infowindow.open(map, marker));
                 kakao.maps.event.addListener(marker, 'mouseout', () => infowindow.close());
+
+                // 마커 클릭 시 모달 띄우기 (클로저를 통해 각 마커의 정보를 캡처)
+                kakao.maps.event.addListener(marker, 'click', (() => {
+                    const branchCode = branch.branchCode;
+                    const branchName = branch.branchName;
+                    const code = materialCode;
+                    const name = materialName;
+                    const qty = qtyValue;
+                    return function() {
+                        openRequestModal(branchCode, branchName, code, name, qty);
+                    };
+                })());
 
                 markers.push(marker);
                 bounds.extend(position);
@@ -266,9 +422,98 @@
             map.setBounds(bounds);
         }
 
-        window.requestStock = function(branchCode) {
-            alert(`지점 코드 \${branchCode}에 재고 교환 요청을 보냅니다. (구현 필요)`);
+        // 모달 열기
+        window.openRequestModal = function(branchCode, branchName, materialCode, materialName, qty) {
+            currentSwapData = {
+                resBranchCode: branchCode,
+                branchName: branchName,
+                materialCode: materialCode,
+                materialName: materialName,
+                qty: qty
+            };
+
+            modalBranchName.textContent = branchName;
+            modalMaterialName.textContent = materialName;
+            modalQty.textContent = qty + '개';
+            requestModal.style.display = 'flex';
         };
+
+        // 모달 취소
+        modalCancelBtn.addEventListener('click', function() {
+            requestModal.style.display = 'none';
+            currentSwapData = null;
+        });
+
+        // 모달 요청하기
+        modalRequestBtn.addEventListener('click', function() {
+            if (!currentSwapData) return;
+
+            const params = new URLSearchParams();
+            params.append('action', 'createSwapRequest');
+            params.append('resBranchCode', currentSwapData.resBranchCode);
+            params.append('materialCode', currentSwapData.materialCode);
+            params.append('qty', currentSwapData.qty);
+
+            fetch(CTX + '/branch/swap', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('재고 요청이 생성되었습니다!');
+                    requestModal.style.display = 'none';
+                    currentSwapData = null;
+                } else {
+                    alert(data.message || '요청 생성에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('요청 생성 오류:', error);
+                alert('요청 생성 중 오류가 발생했습니다.');
+            });
+        });
+
+        // 확인 모달 취소
+        confirmCancelBtn.addEventListener('click', function() {
+            confirmModal.style.display = 'none';
+            currentConfirmSwapId = null;
+        });
+
+        // 확인 모달 수락
+        confirmApproveBtn.addEventListener('click', function() {
+            if (currentConfirmSwapId === null) return;
+
+            const params = new URLSearchParams();
+            params.append('action', 'approveSwapRequest');
+            params.append('swapId', currentConfirmSwapId);
+
+            fetch(CTX + '/branch/swap', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('재고 요청을 수락했습니다!');
+                    confirmModal.style.display = 'none';
+                    currentConfirmSwapId = null;
+                    loadReceivedRequests(); // 목록 새로고침
+                } else {
+                    alert(data.message || '수락에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('수락 오류:', error);
+                alert('수락 중 오류가 발생했습니다.');
+            });
+        });
 
         // 탭 기능
         const tabs = document.querySelectorAll('.tab');
@@ -277,6 +522,15 @@
             tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.tab === tabName));
             tabContents.forEach(content => content.classList.toggle('active', content.id === 'tab-content-' + tabName));
             window.history.pushState({tab: tabName}, '', '?tab=' + tabName);
+
+            // 탭 전환 시 해당 데이터 로드
+            if (tabName === 'send_request') {
+                loadSentRequests();
+            } else if (tabName === 'received_request') {
+                loadReceivedRequests();
+            } else if (tabName === 'swap_history') {
+                loadSwapHistory();
+            }
         }
         tabs.forEach(tab => {
             tab.addEventListener('click', (e) => {
@@ -287,8 +541,239 @@
         const initialTab = new URLSearchParams(window.location.search).get('tab') || 'check_stock';
         showTab(initialTab);
 
+        // 보낸 요청 로드
+        function loadSentRequests() {
+            fetch(CTX + '/branch/swap?action=getSentRequests')
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('sent-table');
+                    const tbody = table.querySelector('tbody');
+                    const empty = document.getElementById('sent-empty');
+
+                    tbody.innerHTML = '';
+
+                    if (data.length === 0) {
+                        table.style.display = 'none';
+                        empty.style.display = 'block';
+                    } else {
+                        empty.style.display = 'none';
+                        table.style.display = 'table';
+
+                        data.forEach(req => {
+                            const statusText = getStatusText(req.status);
+                            const row = document.createElement('tr');
+                            // 변경된 부분: 백틱 제거 후 + 기호 결합으로 수정
+                            row.innerHTML =
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' + req.reqDate + '</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' + req.resBranchName + '</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' + req.materialName + '</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' + Math.floor(req.qty) + '개</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' +
+                                '<span style="display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8125rem; font-weight: 700; ' + getStatusStyle(req.status) + '">' + statusText + '</span>' +
+                                '</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb; text-align: center;">' +
+                                (req.status === 'PENDING' ? '<button class="cancel-btn" data-swap-id="' + req.swapId + '" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8125rem;">취소</button>' : '-') +
+                                '</td>';
+                            tbody.appendChild(row);
+                        });
+                    }
+                    // 배지 업데이트
+                    updateBadges();
+                })
+                .catch(error => console.error('보낸 요청 로드 오류:', error));
+        }
+
+        // 받은 요청 로드
+        function loadReceivedRequests() {
+            fetch(CTX + '/branch/swap?action=getReceivedRequests')
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('received-table');
+                    const tbody = table.querySelector('tbody');
+                    const empty = document.getElementById('received-empty');
+
+                    tbody.innerHTML = '';
+
+                    if (data.length === 0) {
+                        table.style.display = 'none';
+                        empty.style.display = 'block';
+                    } else {
+                        empty.style.display = 'none';
+                        table.style.display = 'table';
+
+                        data.forEach(req => {
+                            const row = document.createElement('tr');
+                            // 변경된 부분: 따옴표 에스케이프(\')와 일반 텍스트 결합 활용
+                            row.innerHTML =
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' + req.reqDate + '</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' + req.reqBranchName + '</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' + req.materialName + '</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' + Math.floor(req.qty) + '개</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb; text-align: center;">' +
+                                '<button onclick="openConfirmModal(' + req.swapId + ', \'' + req.reqBranchName + '\', \'' + req.materialName + '\', \'' + req.qty + '\')" style="background: var(--green); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8125rem; margin-right: 6px;">수락</button>' +
+                                '<button onclick="rejectSwapRequest(' + req.swapId + ')" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8125rem;">거절</button>' +
+                                '</td>';
+                            tbody.appendChild(row);
+                        });
+                    }
+                    // 배지 업데이트
+                    updateBadges();
+                })
+                .catch(error => console.error('받은 요청 로드 오류:', error));
+        }
+
+        // 교환 내역 로드
+        function loadSwapHistory() {
+            fetch(CTX + '/branch/swap?action=getSwapHistory')
+                .then(response => response.json())
+                .then(data => {
+                    const table = document.getElementById('history-table');
+                    const tbody = table.querySelector('tbody');
+                    const empty = document.getElementById('history-empty');
+
+                    tbody.innerHTML = '';
+
+                    if (data.length === 0) {
+                        table.style.display = 'none';
+                        empty.style.display = 'block';
+                    } else {
+                        empty.style.display = 'none';
+                        table.style.display = 'table';
+
+                        data.forEach(req => {
+                            const statusText = getStatusText(req.status);
+                            const row = document.createElement('tr');
+                            // 삼항 연산자를 괄호로 묶고 문자열 결합 처리
+                            row.innerHTML =
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' + req.reqDate + '</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' + (req.reqBranchName === '' ? req.resBranchName : req.reqBranchName) + '</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' + req.materialName + '</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' + Math.floor(req.qty) + '개</td>' +
+                                '<td style="padding: 14px 18px; border-bottom: 1px solid #e5e7eb;">' +
+                                '<span style="display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8125rem; font-weight: 700; ' + getStatusStyle(req.status) + '">' + statusText + '</span>' +
+                                '</td>';
+                            tbody.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => console.error('교환 내역 로드 오류:', error));
+        }
+
+        // 상태 텍스트 변환
+        function getStatusText(status) {
+            const statusMap = {
+                'PENDING': '대기 중',
+                'APPROVED': '수락됨',
+                'COMPLETED': '완료',
+                'REJECTED': '거절됨'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 상태 스타일 반환
+        function getStatusStyle(status) {
+            switch(status) {
+                case 'PENDING':
+                    return 'background: #fef3c7; color: #92400e;';
+                case 'APPROVED':
+                    return 'background: #dcfce7; color: #166534;';
+                case 'COMPLETED':
+                    return 'background: #dcfce7; color: #166534;';
+                case 'REJECTED':
+                    return 'background: #fee2e2; color: #991b1b;';
+                default:
+                    return 'background: #e5e7eb; color: #374151;';
+            }
+        }
+
+        // 배지 업데이트
+        function updateBadges() {
+            // 보낸 요청 배지 업데이트
+            fetch(CTX + '/branch/swap?action=getSentRequests')
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelectorAll('.tab[data-tab="send_request"] .badge').forEach(badge => {
+                        badge.textContent = data.length;
+                    });
+                })
+                .catch(error => console.error('보낸 요청 배지 업데이트 오류:', error));
+
+            // 받은 요청 배지 업데이트
+            fetch(CTX + '/branch/swap?action=getReceivedRequests')
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelectorAll('.tab[data-tab="received_request"] .badge').forEach(badge => {
+                        badge.textContent = data.length;
+                    });
+                })
+                .catch(error => console.error('받은 요청 배지 업데이트 오류:', error));
+        }
+
+        // 전역 함수들
+        window.openConfirmModal = function(swapId, branchName, materialName, qty) {
+            currentConfirmSwapId = swapId;
+            confirmMessage.textContent = branchName + '에서 ' + materialName + ' ' + Math.floor(qty) + '개 교환 요청을 수락하시겠습니까?';
+            confirmModal.style.display = 'flex';
+        };
+
+        window.rejectSwapRequest = function(swapId) {
+            if (!confirm('이 요청을 거절하시겠습니까?')) return;
+
+            const params = new URLSearchParams();
+            params.append('action', 'rejectSwapRequest');
+            params.append('swapId', swapId);
+
+            fetch(CTX + '/branch/swap', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('요청이 거절되었습니다.');
+                    loadReceivedRequests();
+                } else {
+                    alert(data.message || '거절에 실패했습니다.');
+                }
+            })
+            .catch(error => console.error('거절 오류:', error));
+        };
+
+        window.cancelSwapRequest = function(swapId) {
+            if (!confirm('이 요청을 취소하시겠습니까?')) return;
+
+            const params = new URLSearchParams();
+            params.append('action', 'cancelSwapRequest');
+            params.append('swapId', swapId);
+
+            fetch(CTX + '/branch/swap', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('요청이 취소되었습니다.');
+                    loadSentRequests();
+                } else {
+                    alert(data.message || '취소에 실패했습니다.');
+                }
+            })
+            .catch(error => console.error('취소 오류:', error));
+        };
+
         // 초기 재료 그룹 로딩 실행
         loadMaterialGroups();
+        // 페이지 로드 시 배지 즉시 업데이트
+        updateBadges();
+        // 약간의 딜레이 후 다시 업데이트 (확실하게)
+        setTimeout(updateBadges, 500);
     });
 </script>
 </body>

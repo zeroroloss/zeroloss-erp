@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dto.AccountDTO;
 import dto.branch.swap.MaterialDto;
 import dto.branch.swap.MaterialGroupDto;
+import dto.branch.swap.SwapRequestDto;
 import dto.branch.swap.SwapStockSearchRequestDto;
 import dto.branch.swap.SwapStockSearchResultDto;
 import service.branch.swap.SwapService;
@@ -47,12 +48,53 @@ public class SwapController extends HttpServlet {
             return;
         }
 
+        AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
+
         if ("search".equals(action)) {
-            AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
             handleSearchRequest(request, response, loginUser.getBranchCode());
+        } else if ("getSentRequests".equals(action)) {
+            handleGetSentRequests(request, response, loginUser.getBranchCode());
+        } else if ("getReceivedRequests".equals(action)) {
+            handleGetReceivedRequests(request, response, loginUser.getBranchCode());
+        } else if ("getSwapHistory".equals(action)) {
+            handleGetSwapHistory(request, response, loginUser.getBranchCode());
         } else {
             // action이 없거나 다른 값이면 기본 페이지로 포워딩
             request.getRequestDispatcher("/branch/swap/main.jsp").forward(request, response);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("loginUser") == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("{\"error\": \"로그인이 필요합니다.\"}");
+            return;
+        }
+
+        AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
+        int currentBranchCode = loginUser.getBranchCode();
+
+        try {
+            if ("createSwapRequest".equals(action)) {
+                handleCreateSwapRequest(request, response, currentBranchCode);
+            } else if ("approveSwapRequest".equals(action)) {
+                handleApproveSwapRequest(request, response, currentBranchCode);
+            } else if ("rejectSwapRequest".equals(action)) {
+                handleRejectSwapRequest(request, response);
+            } else if ("cancelSwapRequest".equals(action)) {
+                handleCancelSwapRequest(request, response);
+            } else {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write("{\"error\": \"알 수 없는 요청입니다.\"}");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"error\": \"서버 오류가 발생했습니다.\"}");
         }
     }
 
@@ -108,4 +150,127 @@ public class SwapController extends HttpServlet {
             response.getWriter().write("{\"error\": \"재료 목록을 불러오는 중 오류가 발생했습니다.\"}");
         }
     }
+
+    private void handleCreateSwapRequest(HttpServletRequest request, HttpServletResponse response, int currentBranchCode) throws IOException {
+        try {
+            int resBranchCode = Integer.parseInt(request.getParameter("resBranchCode"));
+            String materialCode = request.getParameter("materialCode");
+            double qty = Double.parseDouble(request.getParameter("qty"));
+
+            boolean success = swapService.createSwapRequest(currentBranchCode, resBranchCode, materialCode, qty);
+
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            if (success) {
+                response.getWriter().write("{\"success\": true, \"message\": \"재고 요청이 생성되었습니다.\"}");
+            } else {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("{\"success\": false, \"message\": \"요청 생성에 실패했습니다.\"}");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"success\": false, \"message\": \"요청 생성 중 오류가 발생했습니다.\"}");
+        }
+    }
+
+    private void handleGetSentRequests(HttpServletRequest request, HttpServletResponse response, int branchCode) throws IOException {
+        try {
+            List<SwapRequestDto> result = swapService.getSentRequests(branchCode);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(gson.toJson(result));
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"error\": \"보낸 요청을 불러오는 중 오류가 발생했습니다.\"}");
+        }
+    }
+
+    private void handleGetReceivedRequests(HttpServletRequest request, HttpServletResponse response, int branchCode) throws IOException {
+        try {
+            List<SwapRequestDto> result = swapService.getReceivedRequests(branchCode);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(gson.toJson(result));
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"error\": \"받은 요청을 불러오는 중 오류가 발생했습니다.\"}");
+        }
+    }
+
+    private void handleGetSwapHistory(HttpServletRequest request, HttpServletResponse response, int branchCode) throws IOException {
+        try {
+            List<SwapRequestDto> result = swapService.getSwapHistory(branchCode);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            response.getWriter().write(gson.toJson(result));
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"error\": \"교환 내역을 불러오는 중 오류가 발생했습니다.\"}");
+        }
+    }
+
+    private void handleApproveSwapRequest(HttpServletRequest request, HttpServletResponse response, int currentBranchCode) throws IOException {
+        try {
+            int swapId = Integer.parseInt(request.getParameter("swapId"));
+            boolean success = swapService.approveSwapRequest(swapId);
+
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            if (success) {
+                response.getWriter().write("{\"success\": true, \"message\": \"요청이 수락되었습니다.\"}");
+            } else {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("{\"success\": false, \"message\": \"요청 수락에 실패했습니다.\"}");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"success\": false, \"message\": \"요청 수락 중 오류가 발생했습니다.\"}");
+        }
+    }
+
+    private void handleRejectSwapRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            int swapId = Integer.parseInt(request.getParameter("swapId"));
+            boolean success = swapService.rejectSwapRequest(swapId);
+
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            if (success) {
+                response.getWriter().write("{\"success\": true, \"message\": \"요청이 거절되었습니다.\"}");
+            } else {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("{\"success\": false, \"message\": \"요청 거절에 실패했습니다.\"}");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"success\": false, \"message\": \"요청 거절 중 오류가 발생했습니다.\"}");
+        }
+    }
+
+    private void handleCancelSwapRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            int swapId = Integer.parseInt(request.getParameter("swapId"));
+            boolean success = swapService.cancelSwapRequest(swapId);
+
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            if (success) {
+                response.getWriter().write("{\"success\": true, \"message\": \"요청이 취소되었습니다.\"}");
+            } else {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("{\"success\": false, \"message\": \"요청 취소에 실패했습니다.\"}");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("{\"success\": false, \"message\": \"요청 취소 중 오류가 발생했습니다.\"}");
+        }
+    }
 }
+

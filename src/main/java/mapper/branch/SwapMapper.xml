@@ -22,6 +22,7 @@
             branch_stock bs ON b.branch_code = bs.branch_code
         WHERE
             b.branch_code != #{currentBranchCode}
+            AND b.branch_code != 1
             AND bs.material_code = #{materialCode}
             AND bs.current_qty >= #{requiredQty}
             AND b.status = 'ACTIVE'
@@ -51,5 +52,149 @@
         WHERE material_group_id = #{materialGroupId}
         ORDER BY material_name;
     </select>
+
+    <!-- 재고 교환 요청 생성 -->
+    <insert id="createSwapRequest" parameterType="map">
+        INSERT INTO material_swap (req_branch_code, res_branch_code, material_code, qty, status)
+        VALUES (#{reqBranchCode}, #{resBranchCode}, #{materialCode}, #{qty}, 'PENDING')
+    </insert>
+
+    <!-- 보낸 요청 조회 -->
+    <select id="getSentRequests" parameterType="int" resultType="dto.branch.swap.SwapRequestDto">
+        SELECT
+            ms.swap_id AS swapId,
+            ms.req_branch_code AS reqBranchCode,
+            b1.name AS reqBranchName,
+            ms.res_branch_code AS resBranchCode,
+            b2.name AS resBranchName,
+            ms.material_code AS materialCode,
+            m.material_name AS materialName,
+            ms.qty,
+            ms.status,
+            DATE_FORMAT(ms.req_date, '%Y-%m-%d %H:%i') AS reqDate,
+            b2.address,
+            (6371 * ACOS(
+                    COS(RADIANS(b1.lat)) * COS(RADIANS(b2.lat)) *
+                    COS(RADIANS(b2.lng) - RADIANS(b1.lng)) +
+                    SIN(RADIANS(b1.lat)) * SIN(RADIANS(b2.lat))
+                )) AS distance
+        FROM material_swap ms
+        JOIN branch b1 ON ms.req_branch_code = b1.branch_code
+        JOIN branch b2 ON ms.res_branch_code = b2.branch_code
+        JOIN material m ON ms.material_code = m.material_code
+        WHERE ms.req_branch_code = #{branchCode}
+            AND b2.branch_code != 1
+        ORDER BY ms.req_date DESC
+    </select>
+
+    <!-- 받은 요청 조회 -->
+    <select id="getReceivedRequests" parameterType="int" resultType="dto.branch.swap.SwapRequestDto">
+        SELECT
+            ms.swap_id AS swapId,
+            ms.req_branch_code AS reqBranchCode,
+            b1.name AS reqBranchName,
+            ms.res_branch_code AS resBranchCode,
+            b2.name AS resBranchName,
+            ms.material_code AS materialCode,
+            m.material_name AS materialName,
+            ms.qty,
+            ms.status,
+            DATE_FORMAT(ms.req_date, '%Y-%m-%d %H:%i') AS reqDate,
+            b1.address,
+            (6371 * ACOS(
+                    COS(RADIANS(b2.lat)) * COS(RADIANS(b1.lat)) *
+                    COS(RADIANS(b1.lng) - RADIANS(b2.lng)) +
+                    SIN(RADIANS(b2.lat)) * SIN(RADIANS(b1.lat))
+                )) AS distance
+        FROM material_swap ms
+        JOIN branch b1 ON ms.req_branch_code = b1.branch_code
+        JOIN branch b2 ON ms.res_branch_code = b2.branch_code
+        JOIN material m ON ms.material_code = m.material_code
+        WHERE ms.res_branch_code = #{branchCode}
+            AND ms.status = 'PENDING'
+            AND b1.branch_code != 1
+        ORDER BY ms.req_date DESC
+    </select>
+
+    <!-- 교환 내역 조회 -->
+    <select id="getSwapHistory" parameterType="int" resultType="dto.branch.swap.SwapRequestDto">
+        SELECT
+            ms.swap_id AS swapId,
+            ms.req_branch_code AS reqBranchCode,
+            b1.name AS reqBranchName,
+            ms.res_branch_code AS resBranchCode,
+            b2.name AS resBranchName,
+            ms.material_code AS materialCode,
+            m.material_name AS materialName,
+            ms.qty,
+            ms.status,
+            DATE_FORMAT(ms.req_date, '%Y-%m-%d %H:%i') AS reqDate,
+            CASE WHEN ms.req_branch_code = #{branchCode} THEN b2.address ELSE b1.address END AS address,
+            0 AS distance
+        FROM material_swap ms
+        JOIN branch b1 ON ms.req_branch_code = b1.branch_code
+        JOIN branch b2 ON ms.res_branch_code = b2.branch_code
+        JOIN material m ON ms.material_code = m.material_code
+        WHERE (ms.req_branch_code = #{branchCode} OR ms.res_branch_code = #{branchCode})
+            AND ms.status = 'COMPLETED'
+            AND b1.branch_code != 1
+            AND b2.branch_code != 1
+        ORDER BY ms.req_date DESC
+    </select>
+
+    <!-- 재고 교환 요청 수락 (상태만 업데이트, 재고는 Java에서 처리) -->
+    <update id="approveSwapRequest" parameterType="map">
+        UPDATE material_swap SET status = 'COMPLETED' WHERE swap_id = #{swapId} AND status = 'PENDING'
+    </update>
+
+    <!-- 재고 감소 (응답 지점) -->
+    <update id="decreaseStock" parameterType="map">
+        UPDATE branch_stock
+        SET current_qty = current_qty - #{qty}
+        WHERE branch_code = #{branchCode} AND material_code = #{materialCode} AND current_qty >= #{qty}
+    </update>
+
+    <!-- 재고 증가 (요청 지점) -->
+    <update id="increaseStock" parameterType="map">
+        UPDATE branch_stock
+        SET current_qty = current_qty + #{qty}
+        WHERE branch_code = #{branchCode} AND material_code = #{materialCode}
+    </update>
+
+    <!-- 재고 변동 이력 기록 -->
+    <insert id="recordStockChange" parameterType="map">
+        INSERT INTO branch_stock_change_history (branch_stock_code, change_amount, change_type, after_qty, changed_at)
+        VALUES (#{branchStockCode}, #{changeAmount}, #{changeType}, #{afterQty}, NOW())
+    </insert>
+
+    <!-- 재고 코드 조회 -->
+    <select id="getBranchStockCode" parameterType="map" resultType="string">
+        SELECT branch_stock_code FROM branch_stock
+        WHERE branch_code = #{branchCode} AND material_code = #{materialCode}
+        LIMIT 1
+    </select>
+
+    <!-- 스왑 요청 상세 조회 -->
+    <select id="getSwapRequestDetail" parameterType="int" resultType="dto.branch.swap.SwapRequestDto">
+        SELECT
+            swap_id AS swapId,
+            req_branch_code AS reqBranchCode,
+            res_branch_code AS resBranchCode,
+            material_code AS materialCode,
+            qty,
+            status
+        FROM material_swap
+        WHERE swap_id = #{value}
+    </select>
+
+    <!-- 재고 교환 요청 거절 -->
+    <update id="rejectSwapRequest" parameterType="int">
+        UPDATE material_swap SET status = 'REJECTED' WHERE swap_id = #{value} AND status = 'PENDING'
+    </update>
+
+    <!-- 재고 교환 요청 취소 -->
+    <update id="cancelSwapRequest" parameterType="int">
+        DELETE FROM material_swap WHERE swap_id = #{value} AND status = 'PENDING'
+    </update>
 
 </mapper>
