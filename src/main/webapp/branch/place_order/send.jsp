@@ -126,7 +126,7 @@ function sendAndClose() {
         alert('전송되었습니다.');
         window.parent.postMessage({ type: 'close-place-popup' }, '*');
         // location.href 는 window.parent(create.jsp) 브라우저창 URL을 변경 (클라이언트 사이드 redirect)
-        window.parent.location.href = '<%= request.getContextPath() %>/branch/place_order/create';
+        window.parent.location.href = '<%= request.getContextPath() %>/branch/place_order/draft';
     }).catch(function(err) {
         alert(err.message || '전송에 실패했습니다.');
     });

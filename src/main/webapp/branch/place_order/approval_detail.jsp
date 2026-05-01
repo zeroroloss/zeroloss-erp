@@ -143,7 +143,7 @@
             var poNo = getPoNo();
             if (!poNo) return;
 
-            var response = await fetch(contextPath + '/api/branch/place_order?action=detail&poNo=' + encodeURIComponent(poNo));
+            var response = await fetch(contextPath + '/api/branch/place_order/history?action=detail&poNo=' + encodeURIComponent(poNo));
             var payload  = await response.json();
             var data     = payload && payload.data ? payload.data : {};
 

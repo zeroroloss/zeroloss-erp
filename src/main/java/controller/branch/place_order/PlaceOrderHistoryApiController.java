@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,16 +18,13 @@ import com.google.gson.Gson;
 
 import dto.AccountDTO;
 import dto.branch.place_order.PlaceOrderHistoryDTO;
-import dto.branch.place_order.PlaceOrderDTO;
 import service.branch.place_order.PlaceOrderService;
 import service.branch.place_order.PlaceOrderServiceImpl;
-import util.GsonFactory;
 
-@WebServlet("/api/branch/place_order")
+@WebServlet("/api/branch/place_order/history")
 public class PlaceOrderHistoryApiController extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static final int DEFAULT_BRANCH_CODE = 1;
 
 	private static final String ACTION_DETAIL = "detail";
 	private static final String ACTION_CANCEL = "cancel";
@@ -45,8 +41,8 @@ public class PlaceOrderHistoryApiController extends HttpServlet {
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 	private final PlaceOrderService placeOrderService = new PlaceOrderServiceImpl();
-	private final Gson gson = GsonFactory.getGson();
-
+	private final Gson gson = new Gson();
+	
 	// 특정 발주 {poNo}의 발주 품목 상세
 	// "/api/branch/place_order?action=...&poNo=...&startDate=...&endDate=...&status=..."
 	@Override
@@ -64,7 +60,7 @@ public class PlaceOrderHistoryApiController extends HttpServlet {
 			String action = request.getParameter("action");
 			String poNo = request.getParameter("poNo");
 
-			// ~_detail.jsp 상세 조회
+			// A) ~_detail.jsp 상세 조회
 			if (ACTION_DETAIL.equals(action) || hasText(poNo)) {
 				if (!hasText(poNo)) {
 					sendResponse(response, 400, failBody("poNo는 필수입니다."));
@@ -81,61 +77,21 @@ public class PlaceOrderHistoryApiController extends HttpServlet {
 				return;
 			}
 
-			// history.jsp 조회하기
+			// B) 조회하기 버튼 - 발주내역 
 			String startDate = request.getParameter("startDate");
 			String endDate = request.getParameter("endDate");
 			if (!hasText(startDate) || !hasText(endDate)) {
 				LocalDate today = LocalDate.now();
 				LocalDate monthStart = today.withDayOfMonth(1);
 				LocalDate monthEnd = today.withDayOfMonth(today.lengthOfMonth());
+				
 				startDate = hasText(startDate) ? startDate : monthStart.format(DATE_FORMATTER);
 				endDate = hasText(endDate) ? endDate : monthEnd.format(DATE_FORMATTER);
 			}
-
+			Integer branchCode = resolveBranchCode(loginUser);
 			List<PlaceOrderHistoryDTO> historyList = placeOrderService.getPlaceOrderHistoryList(
-					resolveBranchCode(loginUser), startDate, endDate, request.getParameter("status"));
+					branchCode, startDate, endDate, request.getParameter("status"));
 			sendResponse(response, 200, successBody(historyList));
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			sendResponse(response, 500, errorBody(e.getMessage()));
-		}
-	}
-
-	// 발주서 작성
-	@Override
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		response.setContentType("application/json; charset=UTF-8");
-		request.setCharacterEncoding("UTF-8");
-
-		AccountDTO loginUser = getLoginUser(request);
-		if (loginUser == null) {
-			sendResponse(response, 401, failBody("로그인이 필요합니다."));
-			return;
-		}
-
-		String action = hasText(request.getParameter("action")) ? request.getParameter("action") : ACTION_SUBMIT;
-
-		try {
-			if (ACTION_CANCEL.equals(action)) {
-				String poNo = request.getParameter("poNo");
-				String rejectReason = request.getParameter("rejectReason");
-				boolean ok = placeOrderService.updatePlaceOrderStatus(poNo, STATUS_REJECTED, rejectReason);
-				sendResponse(response, ok ? 200 : 400,
-						ok ? successBodyWithMessage("취소 요청이 처리되었습니다.") : failBody("취소 요청 실패"));
-				return;
-			}
-
-			String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-			PlaceOrderDTO placeOrderRequestDTO = gson.fromJson(requestBody, PlaceOrderDTO.class);
-			if (placeOrderRequestDTO.getBranchCode() == null) {
-				placeOrderRequestDTO.setBranchCode(resolveBranchCode(loginUser));
-			}
-
-			// 발주 생성
-			boolean ok = placeOrderService.createPlaceOrder(placeOrderRequestDTO);
-			sendResponse(response, ok ? 200 : 400, ok ? successBodyWithMessage("발주가 저장되었습니다.") : failBody("발주 저장 실패"));
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -145,7 +101,7 @@ public class PlaceOrderHistoryApiController extends HttpServlet {
 
 	private int resolveBranchCode(AccountDTO loginUser) {
 		if (loginUser == null || loginUser.getBranchCode() == null) {
-			return DEFAULT_BRANCH_CODE;
+			throw new RuntimeException("유효하지 않은 계정입니다.");
 		}
 		return loginUser.getBranchCode();
 	}

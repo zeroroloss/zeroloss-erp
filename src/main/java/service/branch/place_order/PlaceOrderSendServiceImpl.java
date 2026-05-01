@@ -3,6 +3,7 @@ package service.branch.place_order;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.ibatis.session.SqlSession;
 
@@ -11,6 +12,7 @@ import dao.branch.place_order.PlaceOrderDAOImpl;
 import dao.branch.place_order.PlaceOrderDraftDAO;
 import dao.branch.place_order.PlaceOrderDraftDAOImpl;
 import dto.branch.place_order.PlaceOrderDTO;
+import dto.branch.place_order.PlaceOrderDetailDTO;
 import dto.branch.place_order.PlaceOrderDraftDTO;
 import dto.branch.place_order.PlaceOrderDraftDetailDTO;
 import util.MyBatisSqlSessionFactory;
@@ -30,14 +32,14 @@ public class PlaceOrderSendServiceImpl implements PlaceOrderSendService {
 
 			// 조회한 Draft의 DraftDetails 꺼내오기
 			Integer draftId = draftDTO.getDraftId();
-			List<PlaceOrderDraftDetailDTO> detailDTOs = draftDAO.findDraftDetails(sqlSession, draftId);
-			validateDraftDetails(detailDTOs);
+			List<PlaceOrderDraftDetailDTO> draftDetailDTOs = draftDAO.findDraftDetails(sqlSession, draftId);
+			validateDraftDetails(draftDetailDTOs);
 
 			// draft에 draftDetails 연결
-			draftDTO.setDetails(detailDTOs);
+			draftDTO.setDetails(draftDetailDTOs);
 
-			int totalCnt = detailDTOs.size();
-			int totalAmount = detailDTOs.stream().mapToInt(d -> d.getRequestedQty().intValue()).sum();
+			int totalCnt = draftDetailDTOs.size();
+			int totalAmount = draftDetailDTOs.stream().mapToInt(d -> d.getRequestedQty().intValue()).sum();
 			// 발주 DTO 생성
 			PlaceOrderDTO placeOrderDTO = new PlaceOrderDTO();
 			placeOrderDTO.setBranchCode(draftDTO.getBranchCode());
@@ -49,6 +51,10 @@ public class PlaceOrderSendServiceImpl implements PlaceOrderSendService {
 			// DB에서 주는 발주서 번호 반환
 			placeOrderDAO.insertPlaceOrder(sqlSession, placeOrderDTO);
 			Integer poId = placeOrderDTO.getPoId(); // MyBatis - useGeneratedKeys로 인해 DTO에 id를 가져나옴
+			
+			// 발주 처리 - 상세 내역 데이터 삽입
+			List<PlaceOrderDetailDTO> poDetailDTOs = convertToPlaceOrderDetails(draftDetailDTOs);
+			Integer insertedPODetailCnt = placeOrderDAO.insertPlaceOrderDetails(sqlSession, poId,  poDetailDTOs);
 
 			// 발주서 번호를 규칙에 맞게 UPDATE (DB에서 AUTO_INCREMENT된 poNo 변경)
 			String ruledPoNo = generatePoNo(poId);
@@ -126,5 +132,19 @@ public class PlaceOrderSendServiceImpl implements PlaceOrderSendService {
 	private String generatePoNo(Integer poId) {
 		String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
 		return "PO-" + time + "-" + String.format("%d", poId);
+	}
+	
+	// 임시발주상세 -> 발주상세로 전환
+	private List<PlaceOrderDetailDTO> convertToPlaceOrderDetails(List<PlaceOrderDraftDetailDTO> draftDetails) {
+	    return draftDetails.stream()
+	        .map(d -> {
+	            PlaceOrderDetailDTO od = new PlaceOrderDetailDTO();
+	            od.setMaterialCode(d.getMaterialCode());
+	            od.setRequestedQty(d.getRequestedQty());
+	            od.setApprovedQty(0);
+	            od.setRemainingQty(0);
+	            return od;
+	        })
+	        .collect(Collectors.toList());
 	}
 }

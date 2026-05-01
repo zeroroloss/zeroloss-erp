@@ -165,7 +165,7 @@
             // GET
             // /api/branch/place_order?action=detail&poNo= 
             // 발주 품목 상세 조회 (품목명, 요청수량, 물류창고 내 총 재고)
-            var response = await fetch(contextPath + '/api/branch/place_order?action=detail&poNo=' + encodeURIComponent(poNo));
+            var response = await fetch(contextPath + '/api/branch/place_order/history?action=detail&poNo=' + encodeURIComponent(poNo));
             var payload = await response.json();
             var data = payload && payload.data ? payload.data : {};
 

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.ibatis.session.SqlSession;
 
 import dto.branch.place_order.PlaceOrderDetailDTO;
+import dto.branch.place_order.PlaceOrderDraftDetailDTO;
 import dto.branch.place_order.PlaceOrderHistoryDTO;
 import dto.branch.place_order.PlaceOrderDTO;
 
@@ -37,20 +38,22 @@ public class PlaceOrderDAOImpl implements PlaceOrderDAO {
     }	
     
 	@Override
-	public String findPlaceOrderNo(SqlSession sqlSession, int placeOrderId) {
-		return sqlSession.selectOne(MAPPER_NAMESPACE + "findPlaceOrderNo", placeOrderId);
-	}
-
-    @Override
-    public int insertPlaceOrderDetails(SqlSession sqlSession, Integer poId, List<PlaceOrderDetailDTO> detailDTOs) {
+	public Integer insertPlaceOrderDetails(SqlSession sqlSession, Integer poId,
+											List<PlaceOrderDetailDTO> draftDetailDTOs) {
+		
         Map<String, Object> params = new HashMap<>();
         params.put("poId", poId);
-        params.put("details", detailDTOs);
+        params.put("details", draftDetailDTOs);
 
         int result = sqlSession.insert(MAPPER_NAMESPACE + "insertPlaceOrderDetails", params);
         sqlSession.commit();
         return result;
-    }
+	}
+    
+	@Override
+	public String findPlaceOrderNo(SqlSession sqlSession, int placeOrderId) {
+		return sqlSession.selectOne(MAPPER_NAMESPACE + "findPlaceOrderNo", placeOrderId);
+	}
 
     @Override
     public int updatePlaceOrderStatus(SqlSession sqlSession, Map<String, Object> params) {
@@ -65,5 +68,4 @@ public class PlaceOrderDAOImpl implements PlaceOrderDAO {
 		params.put("poNo", poNo);
 		return sqlSession.update(MAPPER_NAMESPACE + "updatePlaceOrderNo", params);
 	}
-
 }

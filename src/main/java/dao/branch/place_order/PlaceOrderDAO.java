@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.session.SqlSession;
 
 import dto.branch.place_order.PlaceOrderDetailDTO;
+import dto.branch.place_order.PlaceOrderDraftDetailDTO;
 import dto.branch.place_order.PlaceOrderHistoryDTO;
 import dto.branch.place_order.PlaceOrderDTO;
 
@@ -27,12 +28,13 @@ public interface PlaceOrderDAO {
     String findPlaceOrderNo(SqlSession sqlSession, int placeOrderId);
 
     // 발주서의 품목 상세 생성
-    int insertPlaceOrderDetails(SqlSession sqlSession, Integer poId, List<PlaceOrderDetailDTO> detailDTOs);
-
+	Integer insertPlaceOrderDetails(SqlSession sqlSession, Integer poId, List<PlaceOrderDetailDTO> draftDetailDTOs);
+	
     // 발주서 상태, 반려 사유 갱신
     int updatePlaceOrderStatus(SqlSession sqlSession, Map<String, Object> updateParams);
     
     // 발주서 번호 (pONo) 변경
 	int updatePlaceOrderNo(SqlSession sqlSession, Integer poId, String poNo);
+
 
 }

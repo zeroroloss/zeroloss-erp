@@ -90,27 +90,27 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 		            if (detail == null) continue;
 
 		            // 요청 수량
-		            BigDecimal requested = detail.getRequestedQty();
+		            Integer requested = detail.getRequestedQty();
 		            if (requested == null) {
-		                requested = BigDecimal.ZERO;
+		                requested = 0;
 		                detail.setRequestedQty(requested);
 		            }
 
 		            // 승인 수량
-		            BigDecimal approved = detail.getApprovedQty();
+		            Integer approved = detail.getApprovedQty();
 		            if (approved == null) {
 		                approved = STATUS_APPROVED.equals(history.getStatusCode())
 		                        ? requested
-		                        : BigDecimal.ZERO;
+		                        : 0;
 		                detail.setApprovedQty(approved);
 		            }
 
-		            // 잔여 수량
-		            BigDecimal remaining = detail.getRemainingQty();
+		            // 미승인 수량
+		            Integer remaining = detail.getRemainingQty();
 		            if (remaining == null) {
-		                remaining = requested.subtract(approved);
-		                if (remaining.compareTo(BigDecimal.ZERO) < 0) {
-		                    remaining = BigDecimal.ZERO;
+		                remaining = requested - approved;
+		                if (remaining < 0) {
+		                    throw new RuntimeException("미승인 수량이 0보다 작습니다.");
 		                }
 		                detail.setRemainingQty(remaining);
 		            }

@@ -161,6 +161,63 @@
 </div>
 </div>
 </div>
+
+<!-- 상세정보 모달 -->
+<div id="detailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" style="display: none;">
+    <div class="bg-white rounded-lg max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto">
+        <!-- 모달 헤더 -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h3 class="text-xl font-bold text-gray-900">발주서 상세정보</h3>
+                <p class="text-sm text-gray-500 mt-1" id="modalSubtitle"></p>
+            </div>
+            <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times w-6 h-6"></i>
+            </button>
+        </div>
+
+        <!-- 기본 정보 그리드 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 bg-gray-50 rounded-lg p-4">
+            <div><p class="text-sm text-gray-500">발주서번호</p>   <p class="font-semibold text-gray-900" id="detailPoNo"></p></div>
+            <div><p class="text-sm text-gray-500">상태</p>   <p class="font-semibold text-gray-900" id="detailStatus"></p></div>
+            <div><p class="text-sm text-gray-500">작성일시</p>   <p class="font-semibold text-gray-900" id="detailCreatedAt"></p></div>
+            <div><p class="text-sm text-gray-500">총 품목수</p>  <p class="font-semibold text-gray-900" id="detailItemCount"></p></div>
+            <div><p class="text-sm text-gray-500">총 수량</p>   <p class="font-semibold text-gray-900" id="detailTotalQty"></p></div>
+            <div><p class="text-sm text-gray-500">총 금액</p>   <p class="font-semibold text-gray-900" id="detailTotalAmount"></p></div>
+        </div>
+
+        <!-- 발주 상세 테이블 -->
+        <div>
+            <h4 class="font-semibold text-gray-900 mb-3">발주 상세</h4>
+            <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="text-left  py-3 px-4 text-sm font-semibold text-gray-900">재료코드</th>
+                            <th class="text-left  py-3 px-4 text-sm font-semibold text-gray-900">재료명</th>
+                            <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">신청수량</th>
+                            <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">승인수량</th>
+                            <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">남은수량</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 반려사유 (반려 상태일 때만) -->
+        <div id="rejectReasonDiv" class="hidden mt-6 p-4 bg-red-50 rounded-lg border border-red-200">
+            <p class="text-sm text-gray-500">반려 사유</p>
+            <p class="font-semibold text-red-700" id="detailRejectReason"></p>
+        </div>
+
+        <div class="flex justify-end mt-6">
+            <button onclick="closeDetailModal()"
+                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">닫기</button>
+        </div>
+    </div>
+</div>
+
 <div id="placeOrderPopupOverlay" class="place-order-popup-overlay" aria-hidden="true">
         <iframe id="placeOrderPopupFrame" class="place-order-popup-frame" title="발주 팝업"></iframe>
 </div>
@@ -230,7 +287,7 @@
 	};
 
     // =========================
-    // API
+    // 발주내역 조회하기 API
     // =========================
     async function fetchHistory() {
         const start = els.start.value;
@@ -239,7 +296,7 @@
         // 데이터 가져오기
         const res = await fetch(
 		    contextPath
-		    + '/api/branch/place_order?startDate='
+		    + '/api/branch/place_order/history?startDate='
 		    + encodeURIComponent(start)
 		    + '&endDate='
 		    + encodeURIComponent(end)
@@ -382,6 +439,72 @@
             };
         });
     }
+
+    // =========================
+    // 상세정보 모달
+    // =========================
+    async function openDetail(poNo) {
+        var tbody = document.getElementById('detailTableBody');
+        tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-gray-500">로딩 중...</td></tr>';
+        document.getElementById('detailModal').style.display = 'flex';
+
+        try {
+            var res = await fetch(contextPath + '/api/branch/place_order/history?action=detail&poNo=' + encodeURIComponent(poNo));
+            if (!res.ok) throw new Error('API 실패: ' + res.status);
+
+            var json = await res.json();
+            var data = json.data;
+
+            // 기본 정보 채우기
+            document.getElementById('detailPoNo').textContent = data.poNo;
+            document.getElementById('detailStatus').textContent = data.status || '-';
+            document.getElementById('detailCreatedAt').textContent = data.createdAt || '-';
+            document.getElementById('detailItemCount').textContent = (data.itemCount || 0) + '개';
+            document.getElementById('detailTotalQty').textContent = (data.totalQty || 0);
+            document.getElementById('detailTotalAmount').textContent = (data.totalAmount || 0) + '원';
+            document.getElementById('modalSubtitle').textContent = '발주번호: ' + data.poNo + ' · ' + (data.status || '-');
+
+            // 반려사유 표시 (REJECTED 상태일 때만)
+            var rejectDiv = document.getElementById('rejectReasonDiv');
+            if (data.status === 'REJECTED' && data.rejectReason) {
+                rejectDiv.classList.remove('hidden');
+                document.getElementById('detailRejectReason').textContent = data.rejectReason;
+            } else {
+                rejectDiv.classList.add('hidden');
+            }
+
+            // 발주 상세 테이블 렌더링
+            var details = data.details;
+            if (!details || !details.length) {
+                tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-gray-500">상세 항목이 없습니다.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            details.forEach(function(detail) {
+                var tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-100';
+                tr.innerHTML =
+                    '<td class="py-3 px-4 text-base text-gray-800 font-mono">' + (detail.materialCode || '-') + '</td>' +
+                    '<td class="py-3 px-4 text-base text-gray-800">' + (detail.materialName || '-') + '</td>' +
+                    '<td class="py-3 px-4 text-base text-right font-semibold text-gray-800">' + (detail.requestedQty || 0) + ' ' + (detail.unit || '') + '</td>' +
+                    '<td class="py-3 px-4 text-base text-right font-semibold text-gray-800">' + (detail.approvedQty || '-') + '</td>' +
+                    '<td class="py-3 px-4 text-base text-right font-semibold text-gray-800">' + (detail.remainingQty || '-') + '</td>';
+                tbody.appendChild(tr);
+            });
+
+        } catch (err) {
+            tbody.innerHTML = '<tr><td colspan="5" class="py-8 text-center text-red-500">데이터를 불러오지 못했습니다: ' + err.message + '</td></tr>';
+        }
+    }
+
+    function closeDetailModal() {
+        document.getElementById('detailModal').style.display = 'none';
+    }
+
+    document.getElementById('detailModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDetailModal();
+    });
 
     // =========================
     // 이벤트

@@ -1,6 +1,5 @@
 package dto.branch.place_order;
 
-import java.math.BigDecimal;
 
 // 발주 품목 상세
 public class PlaceOrderDetailDTO {
@@ -9,12 +8,36 @@ public class PlaceOrderDetailDTO {
     private Integer poId;
     private String materialCode;
     private String materialName;
-    private BigDecimal requestedQty;
-    private BigDecimal approvedQty;
-    private BigDecimal remainingQty;
+    private Integer requestedQty;
+    private Integer approvedQty;
+    private Integer remainingQty;
     private String unit;
 
-    public Integer getPoDetailId() {
+    public Integer getRequestedQty() {
+		return requestedQty;
+	}
+
+	public void setRequestedQty(Integer requestedQty) {
+		this.requestedQty = requestedQty;
+	}
+
+	public Integer getApprovedQty() {
+		return approvedQty;
+	}
+
+	public void setApprovedQty(Integer approvedQty) {
+		this.approvedQty = approvedQty;
+	}
+
+	public Integer getRemainingQty() {
+		return remainingQty;
+	}
+
+	public void setRemainingQty(Integer remainingQty) {
+		this.remainingQty = remainingQty;
+	}
+
+	public Integer getPoDetailId() {
         return poDetailId;
     }
 
@@ -54,28 +77,5 @@ public class PlaceOrderDetailDTO {
         this.materialCode = materialCode;
     }
 
-    public BigDecimal getRequestedQty() {
-        return requestedQty;
-    }
-
-    public void setRequestedQty(BigDecimal requestedQty) {
-        this.requestedQty = requestedQty;
-    }
-
-    public BigDecimal getApprovedQty() {
-        return approvedQty;
-    }
-
-    public void setApprovedQty(BigDecimal approvedQty) {
-        this.approvedQty = approvedQty;
-    }
-
-    public BigDecimal getRemainingQty() {
-        return remainingQty;
-    }
-
-    public void setRemainingQty(BigDecimal remainingQty) {
-        this.remainingQty = remainingQty;
-    }
     
 }
