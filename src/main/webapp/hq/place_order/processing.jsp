@@ -27,7 +27,7 @@
                         <i class="fas fa-triangle-exclamation w-6 h-6 text-yellow-600 flex-shrink-0"></i>
                         <div>
                             <h3 class="font-semibold text-yellow-900">처리 대기 중인 발주 요청</h3>
-                            <p class="text-sm text-yellow-700"><span class="font-bold" id="pendingCount">3</span>건의 발주 요청이 승인 대기 중입니다.</p>
+                            <p class="text-sm text-yellow-700"><span class="font-bold" id="pendingCount">0</span>건의 발주 요청이 승인 대기 중입니다.</p>
                         </div>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
                         <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
                             <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
                                 <h3 class="font-semibold text-gray-900">발주 요청 목록</h3>
-                                <p class="text-xs text-gray-500 mt-1"><span id="totalOrderCount">3</span>건의 발주 요청</p>
+                                <p class="text-xs text-gray-500 mt-1"><span id="totalOrderCount">0</span>건의 발주 요청</p>
                             </div>
                             <div class="divide-y divide-gray-200 max-h-[600px] overflow-y-auto" id="orderListContainer">
                                 <!-- 동적 생성 -->
@@ -217,50 +217,13 @@
     </div>
 
     <script>
+        const contextPath = '<%= request.getContextPath() %>';
+        const endpoint = contextPath + '/hq/place_order/processing';
+
         // 전역 상태
         let orders = [];
         let selectedOrder = null;
         let rejectionReason = '요청 수량이 안전 재고의 3배를 초과합니다';
-
-        // Mock 데이터
-        const mockOrders = [
-            {
-                id: '1',
-                orderNumber: 'PO-2026-0329-001',
-                branch: '강남점',
-                date: '2026-03-29 10:30',
-                status: 'pending',
-                items: [
-                    { id: 'i1', itemName: '소고기 패티', itemCode: 'MEAT-001', requestedQty: 55, adjustedQty: 55, unit: '개', currentStock: 45, safetyStock: 50 },
-                    { id: 'i2', itemName: '감자', itemCode: 'VEG-001', requestedQty: 85, adjustedQty: 85, unit: 'kg', currentStock: 15, safetyStock: 50 },
-                    { id: 'i3', itemName: '생크림', itemCode: 'DAIRY-001', requestedQty: 18, adjustedQty: 18, unit: 'L', currentStock: 12, safetyStock: 15 },
-                    { id: 'i4', itemName: '양상추', itemCode: 'VEG-002', requestedQty: 27, adjustedQty: 27, unit: 'kg', currentStock: 8, safetyStock: 20 }
-                ]
-            },
-            {
-                id: '2',
-                orderNumber: 'PO-2026-0329-002',
-                branch: '홍대점',
-                date: '2026-03-29 09:15',
-                status: 'pending',
-                items: [
-                    { id: 'i5', itemName: '버거빵', itemCode: 'BREAD-001', requestedQty: 80, adjustedQty: 80, unit: '개', currentStock: 120, safetyStock: 150 },
-                    { id: 'i6', itemName: '체다치즈', itemCode: 'DAIRY-002', requestedQty: 25, adjustedQty: 25, unit: '장', currentStock: 28, safetyStock: 25 },
-                    { id: 'i7', itemName: '식용유', itemCode: 'SAUCE-001', requestedQty: 15, adjustedQty: 15, unit: 'L', currentStock: 16, safetyStock: 15 }
-                ]
-            },
-            {
-                id: '3',
-                orderNumber: 'PO-2026-0329-003',
-                branch: '신촌점',
-                date: '2026-03-29 08:45',
-                status: 'pending',
-                items: [
-                    { id: 'i8', itemName: '소고기 패티', itemCode: 'MEAT-001', requestedQty: 45, adjustedQty: 45, unit: '개', currentStock: 30, safetyStock: 50 },
-                    { id: 'i9', itemName: '토마토', itemCode: 'VEG-003', requestedQty: 20, adjustedQty: 20, unit: 'kg', currentStock: 8, safetyStock: 15 }
-                ]
-            }
-        ];
 
         // 사이드바 토글
         function toggleSidebar() {
@@ -306,14 +269,117 @@
         // 백드롭 클릭 시 사이드바 닫기
         document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
 
+        function normalizeStatus(status) {
+            if (!status) return 'PENDING';
+            return String(status).toUpperCase();
+        }
+
         // 상태 배지 생성
         function getStatusBadge(status) {
-            if (status === 'pending') {
+            const normalized = normalizeStatus(status);
+
+            if (normalized === 'PENDING') {
                 return '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700"><i class="fas fa-hourglass-half w-3 h-3"></i>대기중</span>';
-            } else if (status === 'approved') {
+            } else if (normalized === 'APPROVED') {
                 return '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700"><i class="fas fa-check-circle w-3 h-3"></i>승인완료</span>';
-            } else if (status === 'rejected') {
+            } else if (normalized === 'REJECTED') {
                 return '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700"><i class="fas fa-circle-xmark w-3 h-3"></i>반려</span>';
+            }
+            return '<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">-</span>';
+        }
+
+        function toOrderView(row) {
+            return {
+                poId: row.poId,
+                orderNumber: row.poNo,
+                branch: row.branchName,
+                date: row.requestDate,
+                status: normalizeStatus(row.status),
+                totalMaterialCnt: row.totalMaterialCnt || 0,
+                totalRequestedQty: row.totalRequestedQty || 0,
+                details: []
+            };
+        }
+
+        async function fetchPendingOrders() {
+            const res = await fetch(endpoint + '?action=list');
+            const json = await res.json();
+            if (!res.ok || json.status !== 'success') {
+                throw new Error((json && json.message) || '목록 조회 실패');
+            }
+            const rows = Array.isArray(json.data) ? json.data : [];
+            return rows.map(toOrderView);
+        }
+
+        async function fetchOrderDetail(poNo) {
+            const res = await fetch(endpoint + '?action=detail&poNo=' + encodeURIComponent(poNo));
+            const json = await res.json();
+            if (!res.ok || json.status !== 'success') {
+                throw new Error((json && json.message) || '상세 조회 실패');
+            }
+
+            const data = json.data || {};
+            const details = Array.isArray(data.details) ? data.details : [];
+            return {
+                poId: data.poId,
+                orderNumber: data.poNo,
+                branch: data.branchName,
+                date: data.requestDate,
+                status: normalizeStatus(data.status),
+                rejectReason: data.rejectReason,
+                details: details.map(function(item) {
+                    return {
+                        poDetailId: item.poDetailId,
+                        itemCode: item.materialCode,
+                        itemName: item.materialName,
+                        requestedQty: Number(item.requestedQty || 0),
+                        adjustedQty: Number(item.approvedQty || 0),
+                        unit: item.unit || '',
+                        currentStock: Number(item.currentBranchStock || 0),
+                        safetyStock: Number(item.safeStockQty || 0)
+                    };
+                })
+            };
+        }
+
+        async function submitApprove(order) {
+            const payload = {
+                action: 'approve',
+                poNo: order.orderNumber,
+                details: (order.details || []).map(function(item) {
+                    return {
+                        poDetailId: item.poDetailId,
+                        approvedQty: Number(item.adjustedQty || 0)
+                    };
+                })
+            };
+
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+            if (!res.ok || json.status !== 'success') {
+                throw new Error((json && json.message) || '승인 실패');
+            }
+        }
+
+        async function submitReject(order, reason) {
+            const payload = {
+                action: 'reject',
+                poNo: order.orderNumber,
+                rejectReason: reason
+            };
+
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+            if (!res.ok || json.status !== 'success') {
+                throw new Error((json && json.message) || '반려 실패');
             }
         }
 
@@ -322,12 +388,12 @@
             const container = document.getElementById('orderListContainer');
             container.innerHTML = '';
 
-            // 대기중(pending) 상태의 주문만 필터링
-            const pendingOrders = orders.filter(function(order) { return order.status === 'pending'; });
+            // 대기중(PENDING) 상태의 주문만 필터링
+            const pendingOrders = orders.filter(function(order) { return normalizeStatus(order.status) === 'PENDING'; });
 
             pendingOrders.forEach(function(order) {
-                const totalQty = order.items.reduce(function(sum, item) { return sum + item.requestedQty; }, 0);
-                const isSelected = selectedOrder && selectedOrder.id === order.id;
+                const totalQty = order.totalRequestedQty || 0;
+                const isSelected = selectedOrder && selectedOrder.poId === order.poId;
                 const bgClass = isSelected ? 'bg-blue-50 border-l-4 border-blue-500' : 'hover:bg-gray-50';
 
                 const div = document.createElement('div');
@@ -335,7 +401,7 @@
                 div.onclick = function() { selectOrder(order); };
                 
                 const statusBadge = getStatusBadge(order.status);
-                const content = '<div class="space-y-2"><div class="flex items-start justify-between gap-2"><div class="flex-1 min-w-0"><h4 class="font-semibold text-sm text-gray-900 truncate">' + order.orderNumber + '</h4><div class="flex items-center gap-1 mt-1"><i class="fas fa-map-pin w-3 h-3 text-gray-400 flex-shrink-0"></i><span class="text-xs text-gray-600">' + order.branch + '</span></div></div>' + statusBadge + '</div><div class="flex items-center gap-1"><i class="fas fa-calendar w-3 h-3 text-gray-400"></i><span class="text-xs text-gray-500">' + order.date + '</span></div><div class="text-xs text-gray-600">품목 ' + order.items.length + '개 · 수량 합계 ' + totalQty + '</div></div>';
+                const content = '<div class="space-y-2"><div class="flex items-start justify-between gap-2"><div class="flex-1 min-w-0"><h4 class="font-semibold text-sm text-gray-900 truncate">' + order.orderNumber + '</h4><div class="flex items-center gap-1 mt-1"><i class="fas fa-map-pin w-3 h-3 text-gray-400 flex-shrink-0"></i><span class="text-xs text-gray-600">' + order.branch + '</span></div></div>' + statusBadge + '</div><div class="flex items-center gap-1"><i class="fas fa-calendar w-3 h-3 text-gray-400"></i><span class="text-xs text-gray-500">' + order.date + '</span></div><div class="text-xs text-gray-600">품목 ' + order.totalMaterialCnt + '개 · 수량 합계 ' + totalQty + '</div></div>';
                 div.innerHTML = content;
                 container.appendChild(div);
             });
@@ -346,10 +412,14 @@
         }
 
         // 발주 선택
-        function selectOrder(order) {
-            selectedOrder = order;
-            renderOrderList();
-            renderOrderDetail();
+        async function selectOrder(order) {
+            try {
+                selectedOrder = await fetchOrderDetail(order.orderNumber);
+                renderOrderList();
+                renderOrderDetail();
+            } catch (err) {
+                alert(err.message);
+            }
         }
 
         // 발주 상세 렌더링
@@ -371,17 +441,17 @@
             // 헤더 배경색 변경
             const headerSection = document.getElementById('headerSection');
             headerSection.className = 'px-6 py-4 border-b';
-            if (selectedOrder.status === 'pending') {
+            if (selectedOrder.status === 'PENDING') {
                 headerSection.classList.add('bg-yellow-50', 'border-yellow-200');
-            } else if (selectedOrder.status === 'approved') {
+            } else if (selectedOrder.status === 'APPROVED') {
                 headerSection.classList.add('bg-green-50', 'border-green-200');
-            } else if (selectedOrder.status === 'rejected') {
+            } else if (selectedOrder.status === 'REJECTED') {
                 headerSection.classList.add('bg-red-50', 'border-red-200');
             }
 
             // 액션 버튼 표시/숨김
             const actionButtons = document.getElementById('actionButtons');
-            if (selectedOrder.status === 'pending') {
+            if (selectedOrder.status === 'PENDING') {
                 actionButtons.style.display = 'flex';
             } else {
                 actionButtons.style.display = 'none';
@@ -391,7 +461,7 @@
             const tbody = document.getElementById('detailItemsTable');
             tbody.innerHTML = '';
 
-            selectedOrder.items.forEach(function(item) {
+            selectedOrder.details.forEach(function(item) {
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-gray-100';
 
@@ -401,8 +471,8 @@
                     : '<span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700"><i class="fas fa-check-circle w-3 h-3"></i>정상</span>';
 
                 let adjustedQtyHTML;
-                if (selectedOrder.status === 'pending') {
-                    adjustedQtyHTML = '<div class="flex items-center justify-center gap-2"><input type="number" value="' + item.adjustedQty + '" onchange="updateAdjustedQty(\'' + selectedOrder.id + '\', \'' + item.id + '\', this.value)" min="0" class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center font-semibold text-green-600 focus:ring-2 focus:ring-green-500 focus:border-transparent"><span class="text-gray-600">' + item.unit + '</span><i class="fas fa-edit w-4 h-4 text-gray-400"></i></div>';
+                if (selectedOrder.status === 'PENDING') {
+                    adjustedQtyHTML = '<div class="flex items-center justify-center gap-2"><input type="number" value="' + item.adjustedQty + '" onchange="updateAdjustedQty(' + item.poDetailId + ', this.value)" min="0" class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center font-semibold text-green-600 focus:ring-2 focus:ring-green-500 focus:border-transparent"><span class="text-gray-600">' + item.unit + '</span><i class="fas fa-edit w-4 h-4 text-gray-400"></i></div>';
                 } else {
                     adjustedQtyHTML = '<div class="text-center font-semibold text-green-600">' + item.adjustedQty + item.unit + '</div>';
                 }
@@ -413,34 +483,46 @@
             });
 
             // 요약 업데이트
-            const totalRequested = selectedOrder.items.reduce(function(sum, item) { return sum + item.requestedQty; }, 0);
-            const totalAdjusted = selectedOrder.items.reduce(function(sum, item) { return sum + item.adjustedQty; }, 0);
+            const totalRequested = selectedOrder.details.reduce(function(sum, item) { return sum + item.requestedQty; }, 0);
+            const totalAdjusted = selectedOrder.details.reduce(function(sum, item) { return sum + item.adjustedQty; }, 0);
 
-            document.getElementById('summaryItemCount').textContent = selectedOrder.items.length + '개';
+            document.getElementById('summaryItemCount').textContent = selectedOrder.details.length + '개';
             document.getElementById('summaryRequestedQty').textContent = totalRequested;
             document.getElementById('summaryAdjustedQty').textContent = totalAdjusted;
         }
 
         // 최종 확정 수량 업데이트
-        function updateAdjustedQty(orderId, itemId, newQty) {
-            orders.forEach(function(order) {
-                if (order.id === orderId) {
-                    order.items.forEach(function(item) {
-                        if (item.id === itemId) {
-                            item.adjustedQty = Number(newQty);
-                        }
-                    });
+        function updateAdjustedQty(poDetailId, newQty) {
+            if (!selectedOrder) return;
+
+            selectedOrder.details.forEach(function(item) {
+                if (item.poDetailId === poDetailId) {
+                    item.adjustedQty = Math.max(0, Number(newQty));
                 }
             });
+            renderOrderDetail();
+        }
 
-            if (selectedOrder && selectedOrder.id === orderId) {
-                selectedOrder.items.forEach(function(item) {
-                    if (item.id === itemId) {
-                        item.adjustedQty = Number(newQty);
-                    }
-                });
-                renderOrderDetail();
+        function removeSelectedOrderFromList() {
+            if (!selectedOrder) return;
+
+            const poId = selectedOrder.poId;
+            orders = orders.filter(function(order) { return order.poId !== poId; });
+            selectedOrder = null;
+            renderOrderList();
+            renderOrderDetail();
+        }
+
+        async function reloadPendingOrders() {
+            orders = await fetchPendingOrders();
+            if (selectedOrder) {
+                const exists = orders.some(function(order) { return order.poId === selectedOrder.poId; });
+                if (!exists) {
+                    selectedOrder = null;
+                }
             }
+            renderOrderList();
+            renderOrderDetail();
         }
 
         // 승인 모달 표시
@@ -449,8 +531,8 @@
 
             document.getElementById('approveOrderNumber').textContent = selectedOrder.orderNumber;
             document.getElementById('approveBranch').textContent = selectedOrder.branch;
-            document.getElementById('approveItemCount').textContent = selectedOrder.items.length + '개';
-            const totalQty = selectedOrder.items.reduce(function(sum, item) { return sum + item.adjustedQty; }, 0);
+            document.getElementById('approveItemCount').textContent = selectedOrder.details.length + '개';
+            const totalQty = selectedOrder.details.reduce(function(sum, item) { return sum + item.adjustedQty; }, 0);
             document.getElementById('approveTotalQty').textContent = totalQty;
             
             document.getElementById('approveModal').classList.remove('hidden');
@@ -462,20 +544,18 @@
         }
 
         // 승인 처리
-        function handleApprove() {
+        async function handleApprove() {
             if (!selectedOrder) return;
 
-            orders.forEach(function(order) {
-                if (order.id === selectedOrder.id) {
-                    order.status = 'approved';
-                    selectedOrder.status = 'approved';
-                }
-            });
-
-            alert(selectedOrder.branch + '의 발주서가 승인되었습니다. 출고 처리를 진행해주세요.');
-            closeApproveModal();
-            renderOrderList();
-            renderOrderDetail();
+            try {
+                await submitApprove(selectedOrder);
+                alert(selectedOrder.branch + '의 발주서가 승인되었습니다.');
+                closeApproveModal();
+                removeSelectedOrderFromList();
+                await reloadPendingOrders();
+            } catch (err) {
+                alert(err.message);
+            }
         }
 
         // 반려 모달 표시
@@ -509,7 +589,7 @@
         }
 
         // 반려 처리
-        function handleReject() {
+        async function handleReject() {
             if (!selectedOrder) return;
 
             let finalReason = rejectionReason;
@@ -522,17 +602,15 @@
                 return;
             }
 
-            orders.forEach(function(order) {
-                if (order.id === selectedOrder.id) {
-                    order.status = 'rejected';
-                    selectedOrder.status = 'rejected';
-                }
-            });
-
-            alert(selectedOrder.branch + '의 발주서가 반려되었습니다.');
-            closeRejectModal();
-            renderOrderList();
-            renderOrderDetail();
+            try {
+                await submitReject(selectedOrder, finalReason);
+                alert(selectedOrder.branch + '의 발주서가 반려되었습니다.');
+                closeRejectModal();
+                removeSelectedOrderFromList();
+                await reloadPendingOrders();
+            } catch (err) {
+                alert(err.message);
+            }
         }
 
         // 모달 외부 클릭 시 닫기
@@ -554,10 +632,12 @@
         });
 
         // 초기화
-        window.addEventListener('DOMContentLoaded', function() {
-            orders = mockOrders;
-            renderOrderList();
-            // 초기에는 선택 없음 - emptyView만 표시
+        window.addEventListener('DOMContentLoaded', async function() {
+            try {
+                await reloadPendingOrders();
+            } catch (err) {
+                alert(err.message);
+            }
         });
     </script>
 </body>

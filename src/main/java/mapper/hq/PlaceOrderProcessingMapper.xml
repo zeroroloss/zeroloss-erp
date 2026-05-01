@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.hq.place_order.PlaceOrderProcessingMapper">
+
+    <select id="selectPendingOrders" resultType="dto.hq.place_order.PlaceOrderProcessingDTO">
+        SELECT
+            p.po_id AS poId,
+            p.po_no AS poNo,
+            p.branch_code AS branchCode,
+            b.name AS branchName,
+            DATE_FORMAT(p.request_date, '%Y-%m-%d %H:%i') AS requestDate,
+            p.status AS status,
+            p.reject_reason AS rejectReason,
+            p.total_material_cnt AS totalMaterialCnt,
+            p.total_amount AS totalAmount,
+            COALESCE(CAST(SUM(pod.requested_qty) AS SIGNED), 0) AS totalRequestedQty
+        FROM place_order p
+        JOIN branch b
+            ON b.branch_code = p.branch_code
+        LEFT JOIN place_order_detail pod
+            ON pod.po_id = p.po_id
+        WHERE p.status = 'PENDING'
+        GROUP BY
+            p.po_id,
+            p.po_no,
+            p.branch_code,
+            b.name,
+            p.request_date,
+            p.status,
+            p.reject_reason,
+            p.total_material_cnt,
+            p.total_amount
+        ORDER BY p.request_date DESC, p.po_id DESC
+    </select>
+
+    <select id="selectOrderHeaderByPoNo" parameterType="string" resultType="dto.hq.place_order.PlaceOrderProcessingDTO">
+        SELECT
+            p.po_id AS poId,
+            p.po_no AS poNo,
+            p.branch_code AS branchCode,
+            b.name AS branchName,
+            DATE_FORMAT(p.request_date, '%Y-%m-%d %H:%i') AS requestDate,
+            p.status AS status,
+            p.reject_reason AS rejectReason,
+            p.total_material_cnt AS totalMaterialCnt,
+            p.total_amount AS totalAmount,
+            COALESCE(CAST(SUM(pod.requested_qty) AS SIGNED), 0) AS totalRequestedQty
+        FROM place_order p
+        JOIN branch b
+            ON b.branch_code = p.branch_code
+        LEFT JOIN place_order_detail pod
+            ON pod.po_id = p.po_id
+        WHERE p.po_no = #{value}
+        GROUP BY
+            p.po_id,
+            p.po_no,
+            p.branch_code,
+            b.name,
+            p.request_date,
+            p.status,
+            p.reject_reason,
+            p.total_material_cnt,
+            p.total_amount
+        LIMIT 1
+    </select>
+
+    <select id="selectOrderDetailsByPoNo" parameterType="string" resultType="dto.hq.place_order.PlaceOrderProcessingDetailDTO">
+        SELECT
+            pod.po_detail_id AS poDetailId,
+            pod.po_id AS poId,
+            pod.material_code AS materialCode,
+            m.material_name AS materialName,
+            m.unit AS unit,
+            CAST(pod.requested_qty AS SIGNED) AS requestedQty,
+            CAST(COALESCE(pod.approved_qty, 0) AS SIGNED) AS approvedQty,
+            CAST(COALESCE(pod.remaining_qty, 0) AS SIGNED) AS remainingQty,
+            COALESCE(CAST(bs.sum_qty AS SIGNED), 0) AS currentBranchStock,
+            COALESCE(CAST(bmss.safe_stock_qty AS SIGNED), 0) AS safeStockQty
+        FROM place_order p
+        JOIN place_order_detail pod
+            ON pod.po_id = p.po_id
+        JOIN material m
+            ON m.material_code = pod.material_code
+        LEFT JOIN (
+            SELECT branch_code, material_code, SUM(current_qty) AS sum_qty
+            FROM branch_stock
+            GROUP BY branch_code, material_code
+        ) bs
+            ON bs.branch_code = p.branch_code
+           AND bs.material_code = pod.material_code
+        LEFT JOIN branch_material_safety_stock bmss
+            ON bmss.branch_code = p.branch_code
+           AND bmss.material_code = pod.material_code
+        WHERE p.po_no = #{value}
+        ORDER BY pod.po_detail_id ASC
+    </select>
+
+    <update id="updateApprovedQtyByDetailId" parameterType="map">
+        UPDATE place_order_detail
+        SET approved_qty = #{approvedQty},
+            remaining_qty = CASE
+                WHEN requested_qty - #{approvedQty} &lt; 0 THEN 0
+                ELSE requested_qty - #{approvedQty}
+            END
+        WHERE po_detail_id = #{poDetailId}
+    </update>
+
+    <update id="updateOrderStatusApprove" parameterType="string">
+        UPDATE place_order
+        SET status = 'APPROVED',
+            reject_reason = NULL
+        WHERE po_no = #{value}
+          AND status = 'PENDING'
+    </update>
+
+    <update id="updateOrderStatusReject" parameterType="map">
+        UPDATE place_order
+        SET status = 'REJECTED',
+            reject_reason = #{rejectReason}
+        WHERE po_no = #{poNo}
+          AND status = 'PENDING'
+    </update>
+
+</mapper>
