@@ -33,7 +33,6 @@ public class WarehouseStockApiController extends HttpServlet {
         service = new WarehouseStockServiceImpl();
     }
 
-    @SuppressWarnings("unused")
 	@Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

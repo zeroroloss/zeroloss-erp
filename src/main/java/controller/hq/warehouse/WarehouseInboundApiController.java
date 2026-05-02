@@ -1,6 +1,9 @@
 package controller.hq.warehouse;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,11 +48,18 @@ public class WarehouseInboundApiController extends HttpServlet {
         if (categoryName == null) categoryName = "전체";
         if (itemName     == null) itemName     = "전체";
 
-        // 날짜 기본값: 당일
-        String today = new java.text.SimpleDateFormat("yyyy-MM-dd")
-                           .format(new java.util.Date());
-        if (startDate == null || startDate.isEmpty()) startDate = today;
+        // 오늘 날짜
+        Date now = new Date();
+        // 이번 달 1일 구하기
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(now);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+
+        String firstDayOfMonth = new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime());
+        String today = new SimpleDateFormat("yyyy-MM-dd").format(now);
+        if (startDate == null || startDate.isEmpty()) startDate = firstDayOfMonth;
         if (endDate   == null || endDate.isEmpty())   endDate   = today;
+
 
         try {
         	InboundSearchDTO searchDTO = new InboundSearchDTO();

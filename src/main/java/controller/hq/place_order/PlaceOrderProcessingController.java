@@ -123,7 +123,7 @@ public class PlaceOrderProcessingController extends HttpServlet {
 	        ));
 
 	    } catch (Exception e) {
-	        // 진짜 예상 못한 에러
+	        // 예상 못한 에러
 	        e.printStackTrace();
 	        writeJson(response, 500, failBody("서버 오류가 발생했습니다."));
 	    }

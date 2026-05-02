@@ -98,8 +98,7 @@ String priceJson = gson.toJson(materialPriceMap);
 						</select>
 					</div>
 					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">일자
-							범위</label>
+						<label class="block text-sm font-medium text-gray-700 mb-2">일자 범위</label>
 						<div class="flex flex-col sm:flex-row sm:items-center gap-2">
 							<input type="date" id="filterStartDate"
 								class="w-full min-w-0 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">

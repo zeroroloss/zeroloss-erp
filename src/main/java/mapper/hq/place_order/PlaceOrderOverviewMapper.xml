@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.hq.place_order.overview">
+
+	<select id="selectAllBranchNames" resultType="string">
+	    SELECT br.name
+	    FROM branch br
+	</select>
+
+    <select id="selectPlaceOrders" resultType="dto.hq.place_order.PlaceOrderOverviewDTO">
+    	SELECT
+    		po.po_id			AS poId,
+    		po.po_no			AS poNo,
+    		br.name				AS branchName,
+    		DATE_FORMAT(po.request_date, "%Y-%m-%d %H:%i:%s") AS requestedAt,
+    		
+    		COUNT(pod.po_detail_id)		AS totalItemCnt,
+    		COALESCE(SUM(pod.requested_qty), 0)		AS totalAmounts,
+    		
+    		po.status			AS status
+    		
+    	
+    	FROM place_order AS po
+    	JOIN branch br
+    	  ON po.branch_code = br.branch_code
+    	LEFT JOIN place_order_detail pod
+    	  ON po.po_id = pod.po_id
+    	
+    	<where>
+    		<!-- 지점 필터 -->
+    		<if test="branchName != null and branchName != ''">
+    			AND br.name = #{branchName}
+    		</if>
+    		<!-- 시작일 -->
+    		<if test="startDate != null and startDate != ''">
+    			AND DATE(po.request_date) >= #{startDate}
+    		</if>
+    		<!-- 종료일 -->
+    		<if test="endDate != null and endDate != ''">
+    			AND DATE(po.request_date) &lt;= #{endDate}
+    		</if>
+    	</where>
+    	
+    	GROUP BY po.po_id, po.po_no, br.name, po.request_date, po.status
+    	
+    	ORDER BY po.request_date DESC
+    </select>
+    
+<!-- 상세 조회 -->
+
+	<select id="selectPlaceOrderDetail" resultType="dto.hq.place_order.PlaceOrderOverviewDetailDTO">
+		SELECT
+		    po.po_id        AS poId,
+		    po.po_no        AS poNo,
+		    b.name   AS branchName,
+		    DATE_FORMAT(po.request_date, '%Y-%m-%d %H:%i:%s') AS requestedAt,
+		    po.status       AS status,
+		    po.total_material_cnt AS totalItemCnt,
+		    po.total_amount AS totalAmounts
+		    
+		FROM place_order po
+		JOIN branch b ON po.branch_code = b.branch_code
+		
+		WHERE po.po_id = #{poId}
+	</select>
+
+	<select id="selectPlaceOrderItems" resultType="dto.hq.place_order.PlaceOrderOverviewMaterialDTO">
+		SELECT
+		    m.material_name AS materialName,
+		    pod.requested_qty AS requestedQty,
+		
+		    COALESCE(SUM(bs.current_qty), 0) AS currentStock,
+		    COALESCE(bmss.safe_stock_qty, 0) AS safetyStock,
+		
+		    m.unit AS unit
+		
+		FROM place_order_detail pod
+		
+		JOIN place_order po
+		  ON pod.po_id = po.po_id
+		
+		JOIN material m 
+		  ON pod.material_code = m.material_code
+		
+		LEFT JOIN branch_stock bs 
+		  ON bs.material_code = pod.material_code
+		 AND bs.branch_code = po.branch_code
+		
+		LEFT JOIN branch_material_safety_stock bmss
+		  ON bmss.material_code = pod.material_code
+		 AND bmss.branch_code = po.branch_code
+		
+		WHERE pod.po_id = #{poId}
+		
+		GROUP BY 
+		    m.material_name,
+		    pod.requested_qty,
+		    bmss.safe_stock_qty,
+		    m.unit
+	</select>
+</mapper>

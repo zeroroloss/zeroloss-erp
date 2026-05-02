@@ -1,492 +1,479 @@
-﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>발주 요청 취합 및 조회 - ZERO LOSS 본사 관리 시스템</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>발주 요청 취합 및 조회 - ZERO LOSS 본사 관리 시스템</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+.sidebar-open .sidebar { transform: translateX(0); }
+
+.tab-link {
+    transition: all 0.15s ease;
+}
+
+.tab-link.active {
+    background: #f3f6ff;
+    color: #2563eb !important;
+    box-shadow: inset 0 -2px 0 #4f7dff;
+}
+</style>
+<!-- 넘어온 데이터를 js로 반들기 -->
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 </head>
+
 <body class="bg-gray-50">
-	    <%@ include file="/hq/common/sidebar.jsp" %>
-        <!-- 메인 콘텐츠 -->
-        <div class="lg:pl-72">
 
-            <!-- 페이지 콘텐츠 -->
-            <main class="p-6">
-                <!-- 헤더 -->
-                <div class="mb-6">
-                    <h2 class="text-3xl font-bold text-gray-900">발주 요청 취합 및 조회</h2>
-                    <p class="text-gray-500 mt-1">전체 지점의 발주 요청을 통합 관리하세요</p>
-                </div>
+<%@ include file="/hq/common/sidebar.jsp"%>
 
-                <!-- 필터 섹션 -->
-                <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">지점 선택</label>
-                            <select id="branchFilter" onchange="applyFilters()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <option value="">전체</option>
-                                <option value="강남점">강남점</option>
-                                <option value="홍대점">홍대점</option>
-                                <option value="신촌점">신촌점</option>
-                                <option value="이대점">이대점</option>
-                            </select>
-                        </div>
+<div class="lg:pl-72">
+    <main class="p-6">
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">일자 범위 선택</label>
-                            <div class="flex gap-2">
-                                <input type="date" id="startDate" value="2026-03-25" onchange="applyFilters()" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                                <span class="flex items-center text-gray-500">~</span>
-                                <input type="date" id="endDate" value="2026-03-29" onchange="applyFilters()" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 상태 버튼 -->
-                <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-                    <div class="flex flex-wrap gap-3" id="statusFilterButtons">
-                        <button type="button" data-status="all" onclick="setStatusFilter('all')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                            전체 발주요청 <span id="countAll" class="text-xs text-gray-500">0건</span>
-                        </button>
-                        <button type="button" data-status="pending" onclick="setStatusFilter('pending')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-yellow-200 text-sm font-medium text-yellow-700 hover:bg-yellow-50">
-                            대기 <span id="countPending" class="text-xs text-yellow-600">0건</span>
-                        </button>
-                        <button type="button" data-status="approved" onclick="setStatusFilter('approved')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-green-200 text-sm font-medium text-green-700 hover:bg-green-50">
-                            승인 <span id="countApproved" class="text-xs text-green-600">0건</span>
-                        </button>
-                        <button type="button" data-status="rejected" onclick="setStatusFilter('rejected')" class="status-filter-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 text-sm font-medium text-red-700 hover:bg-red-50">
-                            반려 <span id="countRejected" class="text-xs text-red-600">0건</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 발주 요청 목록 테이블 -->
-                <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                        <h3 class="font-semibold text-gray-900">발주 요청/이력</h3>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50 border-b border-gray-200">
-                                <tr>
-                                    <th class="text-left py-3 px-6 text-sm font-semibold text-gray-900">발주서 번호</th>
-                                    <th class="text-left py-3 px-6 text-sm font-semibold text-gray-900">요청 지점</th>
-                                    <th class="text-left py-3 px-6 text-sm font-semibold text-gray-900">요청 일시</th>
-                                    <th class="text-right py-3 px-6 text-sm font-semibold text-gray-900">품목 수</th>
-                                    <th class="text-right py-3 px-6 text-sm font-semibold text-gray-900">총 수량</th>
-                                    <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">상태</th>
-                                    <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">조회</th>
-                                </tr>
-                            </thead>
-                            <tbody id="orderTableBody">
-                                <!-- 동적 생성 -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div id="emptyState" class="py-12 text-center hidden">
-                        <i class="fas fa-folder-open w-16 h-16 text-gray-300 mx-auto mb-4" style="display: block;"></i>
-                        <p class="text-gray-500 text-lg mb-2">발주 요청이 없습니다</p>
-                        <p class="text-gray-400 text-sm">선택한 필터 조건에 해당하는 발주가 없습니다</p>
-                    </div>
-
-                    <!-- 페이지네이션 -->
-                    <div id="pagination" class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between hidden">
-                        <button onclick="previousPage()" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50" id="prevBtn">
-                            <i class="fas fa-chevron-left w-4 h-4"></i>
-                            이전
-                        </button>
-                        <p class="text-sm text-gray-500"><span id="currentPageNum">1</span> / <span id="totalPageNum">1</span></p>
-                        <button onclick="nextPage()" class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50" id="nextBtn">
-                            다음
-                            <i class="fas fa-chevron-right w-4 h-4"></i>
-                        </button>
-                    </div>
-                </div>
-            </main>
+        <!-- ===== 페이지 헤더 ===== -->
+        <div class="mb-6">
+            <h2 class="text-3xl font-bold text-gray-900">발주 요청 취합 및 조회</h2>
+            <p class="text-gray-500 mt-1">전체 지점의 발주 요청을 통합 관리하세요</p>
         </div>
-    </div>
 
-    <!-- 상세 정보 모달 -->
-    <div id="detailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between mb-6">
+        <!-- ===== 검색 필터 영역 ===== -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                    <h3 class="text-xl font-bold text-gray-900">발주서 상세 정보</h3>
-                    <p class="text-sm text-gray-500 mt-1" id="detailOrderNumber"></p>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">지점 선택</label>
+                    <select id="filterBranch"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+
+                        <option value="전체">전체</option>
+
+                        <c:if test="${not empty branchNames}">
+                            <c:forEach var="name" items="${branchNames}">
+                                <option value="${name}"
+                                    <c:if test="${param.branchName == name}">selected</c:if>>
+                                    ${name}
+                                </option>
+                            </c:forEach>
+                        </c:if>
+
+                    </select>
                 </div>
-                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600 text-lg">
-                    <i class="fas fa-times w-6 h-6"></i>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">일자 범위 선택</label>
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="filterStartDate"
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                        <span class="text-gray-500">~</span>
+                        <input type="date" id="filterEndDate"
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="applyFilters()"
+                    class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">조회하기</button>
+                <button onclick="resetFilters()"
+                    class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">초기화</button>
+            </div>
+        </div>
+
+        <!-- ===== 탭 UI ===== -->
+        <div class="bg-white rounded-lg border border-gray-200 mb-6 overflow-hidden">
+            <div class="grid grid-cols-4 border-b border-gray-200">
+                <a href="#" class="tab-link active text-center py-3 font-semibold text-gray-500" data-status="전체">
+                    전체 <span id="countAll">0건</span>
+                </a>
+                <a href="#" class="tab-link text-center py-3 font-semibold text-yellow-500" data-status="PENDING">
+                    대기 <span id="countPending" class="text-xs text-yellow-400">0건</span>
+                </a>
+                <a href="#" class="tab-link text-center py-3 font-semibold text-green-600" data-status="APPROVED">
+                    승인 <span id="countApproved" class="text-xs text-green-400">0건</span>
+                </a>
+                <a href="#" class="tab-link text-center py-3 font-semibold text-red-500" data-status="REJECTED">
+                    반려 <span id="countRejected" class="text-xs text-red-400">0건</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ===== 발주 요청 테이블 ===== -->
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div class="px-6 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                <h3 class="text-base font-semibold text-gray-900">발주 요청/이력</h3>
+                <p class="text-base text-gray-500">조회 건수 <span id="recordCount" class="font-semibold text-gray-700">0건</span></p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">발주서 번호</th>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">요청 지점</th>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">요청 일시</th>
+                            <th class="text-right  py-3 px-6 text-sm font-semibold text-gray-900">품목 수</th>
+                            <th class="text-right  py-3 px-6 text-sm font-semibold text-gray-900">총 수량</th>
+                            <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">상태</th>
+                            <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">상세조회</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody"></tbody>
+                </table>
+            </div>
+            <div id="emptyState" class="hidden py-12 text-center">
+                <i class="fas fa-folder-open text-4xl text-gray-300 mx-auto mb-4" style="display: block;"></i>
+                <p class="text-gray-500 text-lg mb-2">발주 요청이 없습니다</p>
+                <p class="text-gray-400 text-sm">선택한 필터 조건에 해당하는 발주가 없습니다</p>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div id="pagination" class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between hidden">
+                <button onclick="previousPage()" id="prevBtn"
+                    class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50">
+                    <i class="fas fa-chevron-left"></i> 이전
                 </button>
-            </div>
-
-            <div class="space-y-4 mb-6">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">요청 지점</label>
-                        <p class="font-semibold text-gray-900" id="detailBranch"></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">요청 일시</label>
-                        <p class="text-gray-900" id="detailDate"></p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">품목 수</label>
-                        <p class="text-lg font-semibold text-gray-900" id="detailItemCount"></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">총 요청 수량</label>
-                        <p class="text-lg font-semibold text-blue-600" id="detailTotalQty"></p>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-2">상태</label>
-                    <div id="detailStatus"></div>
-                </div>
-            </div>
-
-            <div id="itemsTable" class="hidden">
-                <h4 class="font-semibold text-gray-900 mb-3">발주 품목 상세</h4>
-                <div class="border border-gray-200 rounded-lg overflow-hidden">
-                    <table class="w-full">
-                        <thead class="bg-gray-50 border-b border-gray-200">
-                            <tr>
-                                <th class="text-left py-3 px-4 text-sm font-semibold text-gray-900">품목명</th>
-                                <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">요청 수량</th>
-                                <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">현재 재고</th>
-                            </tr>
-                        </thead>
-                        <tbody id="itemsTableBody">
-                            <!-- 동적 생성 -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="mt-6">
-                <button onclick="closeDetailModal()" class="w-full px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                    닫기
+                <p class="text-sm text-gray-500">
+                    <span id="currentPageNum">1</span> / <span id="totalPageNum">1</span>
+                </p>
+                <button onclick="nextPage()" id="nextBtn"
+                    class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50">
+                    다음 <i class="fas fa-chevron-right"></i>
                 </button>
             </div>
         </div>
+
+    </main>
+</div>
+
+<!-- ===== 상세정보 모달 ===== -->
+<div id="detailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+
+        <!-- 모달 헤더 -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h3 class="text-xl font-bold text-gray-900">발주서 상세 정보</h3>
+                <p class="text-sm text-gray-500 mt-1" id="modalSubtitle"></p>
+            </div>
+            <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times w-6 h-6"></i>
+            </button>
+        </div>
+
+        <!-- 기본 정보 그리드 -->
+        <div class="grid grid-cols-2 gap-4 mb-6 bg-gray-50 rounded-lg p-4">
+            <div><p class="text-sm text-gray-500">발주서 번호</p> <p class="font-semibold text-gray-900 mt-1" id="detailOrderNumber"></p></div>
+            <div><p class="text-sm text-gray-500">요청 지점</p>   <p class="font-semibold text-gray-900 mt-1" id="detailBranch"></p></div>
+            <div><p class="text-sm text-gray-500">요청 일시</p>   <p class="font-semibold text-gray-900 mt-1" id="detailDate"></p></div>
+            <div><p class="text-sm text-gray-500">상태</p>        <div id="detailStatus" class="mt-1"></div></div>
+            <div><p class="text-sm text-gray-500">품목 수</p>     <p class="font-semibold text-gray-900 mt-1" id="detailItemCount"></p></div>
+            <div><p class="text-sm text-gray-500">총 요청 수량</p><p class="font-semibold text-blue-600 mt-1" id="detailTotalQty"></p></div>
+        </div>
+
+        <!-- 발주 품목 테이블 -->
+        <div>
+            <h4 class="font-semibold text-gray-900 mb-3">발주 품목 상세</h4>
+            <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                <table class="w-full">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="text-left  py-3 px-4 text-sm font-semibold text-gray-900">품목명</th>
+                            <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">요청 수량</th>
+                            <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">현재 재고</th>
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex justify-end mt-6">
+            <button onclick="closeDetailModal()"
+                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">닫기</button>
+        </div>
     </div>
+</div>
 
-    <script>
-        // 전역 상태
-        let allOrders = [];
-        let filteredOrders = [];
-        let currentPage = 1;
-        const itemsPerPage = 10;
-        let currentStatusFilter = 'all';
+<script>
+    // ============================================================
+    // 상수 / 설정
+    // ============================================================
+    var STATUS_CONFIG = {
+        'PENDING':  { label: '대기', badgeClass: 'bg-yellow-100 text-yellow-700', rowClass: 'bg-yellow-50' },
+        'APPROVED': { label: '승인', badgeClass: 'bg-green-100 text-green-700',  rowClass: '' },
+        'REJECTED': { label: '반려', badgeClass: 'bg-red-100 text-red-700',      rowClass: 'bg-red-50' },
+        'default':  { label: '-',   badgeClass: 'bg-gray-100 text-gray-700',     rowClass: '' }
+    };
 
-        // Mock 데이터
-        const mockOrders = [
-            { id: '1', orderNumber: 'PO-2026-0329-001', branch: '강남점', date: '2026-03-29 10:30', status: 'pending', itemCount: 4, totalQty: 185, items: [
-                { itemName: '소고기 패티', requestedQty: 55, unit: '개', currentStock: 45, safetyStock: 50 },
-                { itemName: '감자', requestedQty: 85, unit: 'kg', currentStock: 15, safetyStock: 50 },
-                { itemName: '생크림', requestedQty: 18, unit: 'L', currentStock: 12, safetyStock: 15 },
-                { itemName: '양상추', requestedQty: 27, unit: 'kg', currentStock: 8, safetyStock: 20 }
-            ]},
-            { id: '2', orderNumber: 'PO-2026-0329-002', branch: '홍대점', date: '2026-03-29 09:15', status: 'pending', itemCount: 3, totalQty: 120, items: [
-                { itemName: '버거빵', requestedQty: 80, unit: '개', currentStock: 120, safetyStock: 150 },
-                { itemName: '체다치즈', requestedQty: 25, unit: '장', currentStock: 28, safetyStock: 25 },
-                { itemName: '식용유', requestedQty: 15, unit: 'L', currentStock: 16, safetyStock: 15 }
-            ]},
-            { id: '3', orderNumber: 'PO-2026-0329-003', branch: '신촌점', date: '2026-03-29 08:45', status: 'pending', itemCount: 5, totalQty: 210, items: [
-                { itemName: '소고기 패티', requestedQty: 45, unit: '개', currentStock: 30, safetyStock: 50 },
-                { itemName: '토마토', requestedQty: 20, unit: 'kg', currentStock: 8, safetyStock: 15 },
-                { itemName: '버거빵', requestedQty: 50, unit: '개', currentStock: 100, safetyStock: 120 },
-                { itemName: '감자', requestedQty: 60, unit: 'kg', currentStock: 20, safetyStock: 50 },
-                { itemName: '체다치즈', requestedQty: 35, unit: '장', currentStock: 15, safetyStock: 25 }
-            ]},
-            { id: '4', orderNumber: 'PO-2026-0328-001', branch: '강남점', date: '2026-03-28 14:20', status: 'approved', itemCount: 5, totalQty: 250, items: [
-                { itemName: '버거빵', requestedQty: 80, unit: '개', currentStock: 120, safetyStock: 150 },
-                { itemName: '소고기 패티', requestedQty: 60, unit: '개', currentStock: 50, safetyStock: 50 },
-                { itemName: '감자', requestedQty: 55, unit: 'kg', currentStock: 25, safetyStock: 50 },
-                { itemName: '생크림', requestedQty: 30, unit: 'L', currentStock: 20, safetyStock: 15 },
-                { itemName: '양상추', requestedQty: 25, unit: 'kg', currentStock: 10, safetyStock: 20 }
-            ]},
-            { id: '5', orderNumber: 'PO-2026-0328-002', branch: '이대점', date: '2026-03-28 11:30', status: 'approved', itemCount: 4, totalQty: 180, items: [
-                { itemName: '버거빵', requestedQty: 70, unit: '개', currentStock: 110, safetyStock: 150 },
-                { itemName: '체다치즈', requestedQty: 40, unit: '장', currentStock: 35, safetyStock: 25 },
-                { itemName: '생크림', requestedQty: 25, unit: 'L', currentStock: 18, safetyStock: 15 },
-                { itemName: '식용유', requestedQty: 45, unit: 'L', currentStock: 30, safetyStock: 15 }
-            ]},
-            { id: '6', orderNumber: 'PO-2026-0327-001', branch: '홍대점', date: '2026-03-27 16:45', status: 'approved', itemCount: 6, totalQty: 310, items: [
-                { itemName: '버거빵', requestedQty: 100, unit: '개', currentStock: 130, safetyStock: 150 },
-                { itemName: '소고기 패티', requestedQty: 80, unit: '개', currentStock: 60, safetyStock: 50 },
-                { itemName: '감자', requestedQty: 70, unit: 'kg', currentStock: 30, safetyStock: 50 },
-                { itemName: '체다치즈', requestedQty: 30, unit: '장', currentStock: 25, safetyStock: 25 },
-                { itemName: '생크림', requestedQty: 20, unit: 'L', currentStock: 15, safetyStock: 15 },
-                { itemName: '식용유', requestedQty: 10, unit: 'L', currentStock: 12, safetyStock: 15 }
-            ]},
-            { id: '7', orderNumber: 'PO-2026-0327-002', branch: '신촌점', date: '2026-03-27 11:00', status: 'rejected', itemCount: 4, totalQty: 180, items: [
-                { itemName: '버거빵', requestedQty: 60, unit: '개', currentStock: 90, safetyStock: 150 },
-                { itemName: '소고기 패티', requestedQty: 50, unit: '개', currentStock: 35, safetyStock: 50 },
-                { itemName: '감자', requestedQty: 40, unit: 'kg', currentStock: 15, safetyStock: 50 },
-                { itemName: '체다치즈', requestedQty: 30, unit: '장', currentStock: 20, safetyStock: 25 }
-            ]}
-        ];
+    // ============================================================
+    // 전역 상태
+    // ============================================================
+    var allOrders      = [];
+    var filteredOrders = [];
+    var currentStatusFilter = '전체';
+    var currentPage    = 1;
+    var itemsPerPage   = 10;
 
-        // 사이드바 토글
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const backdrop = document.getElementById('sidebarBackdrop');
-            const menuIcon = document.getElementById('menuIcon');
-            
-            sidebar.classList.toggle('-translate-x-full');
-            backdrop.classList.toggle('hidden');
-            
-            if (backdrop.classList.contains('hidden')) {
-                menuIcon.classList.remove('fa-xmark');
-                menuIcon.classList.add('fa-bars');
+    // ============================================================
+    // 사이드바 / 네비게이션
+    // ============================================================
+    function toggleSidebar() {
+        var sidebar  = document.getElementById('sidebar');
+        var backdrop = document.getElementById('sidebarBackdrop');
+        var menuIcon = document.getElementById('menuIcon');
+        if (!sidebar || !backdrop || !menuIcon) return;
+
+        sidebar.classList.toggle('-translate-x-full');
+        backdrop.classList.toggle('hidden');
+        var isOpen = !backdrop.classList.contains('hidden');
+        menuIcon.classList.toggle('fa-bars', !isOpen);
+        menuIcon.classList.toggle('fa-xmark', isOpen);
+    }
+
+    function toggleMenu(button) {
+        var submenu = button.nextElementSibling;
+        if (submenu && submenu.classList.contains('submenu')) {
+            submenu.classList.toggle('hidden');
+            var icon = button.querySelector('i:last-child');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-right');
+        }
+    }
+
+    function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
+
+    function logout() {
+        alert('로그아웃되었습니다.');
+        window.location.href = '<%=request.getContextPath()%>/common/login.jsp';
+    }
+
+    document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('button[onclick="toggleUserMenu()"]') && !e.target.closest('#userMenu')) {
+            document.getElementById('userMenu').classList.add('hidden');
+        }
+    });
+
+    // ============================================================
+    // 날짜 기본값 (이번달 1일 ~ 오늘)
+    // ============================================================
+    function initDateRange() {
+		var today = new Date();
+
+		var mm = String(today.getMonth() + 1).padStart(2, '0');
+		var dd = String(today.getDate()).padStart(2, '0');
+		var yyyy = today.getFullYear();
+		var firstDay = yyyy + '-' + mm + '-01';
+		var todayStr = yyyy + '-' + mm + '-' + dd;
+		document.getElementById('filterStartDate').value = firstDay;
+		document.getElementById('filterEndDate').value = todayStr;
+    }
+
+    // ============================================================
+    // 탭 / 상태 관리
+    // ============================================================
+    document.querySelectorAll('.tab-link').forEach(function(tab) {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            currentStatusFilter = this.getAttribute('data-status');
+            updateActiveTab();
+            applyStatusFilter();
+        });
+    });
+
+    function updateActiveTab() {
+        document.querySelectorAll('.tab-link').forEach(function(tab) {
+            if (tab.getAttribute('data-status') === currentStatusFilter) {
+                tab.classList.add('active');
             } else {
-                menuIcon.classList.remove('fa-bars');
-                menuIcon.classList.add('fa-xmark');
+                tab.classList.remove('active');
             }
-        }
+        });
+    }
 
-        // 메뉴 토글
-        function toggleMenu(button) {
-            const submenu = button.nextElementSibling;
-            const icon = button.querySelector('i:last-child');
-            
-            if (submenu && submenu.classList.contains('submenu')) {
-                submenu.classList.toggle('hidden');
-                icon.classList.toggle('fa-chevron-down');
-                icon.classList.toggle('fa-chevron-right');
+    function applyStatusFilter() {
+        filteredOrders = (currentStatusFilter === '전체')
+            ? allOrders
+            : allOrders.filter(function(o) { return o.status === currentStatusFilter; });
+        currentPage = 1;
+        renderTable();
+    }
+
+    function updateStatusCounts() {
+        var counts = { PENDING: 0, APPROVED: 0, REJECTED: 0 };
+        allOrders.forEach(function(o) { if (o.status in counts) counts[o.status]++; });
+        document.getElementById('countAll').textContent      = allOrders.length + '건';
+        document.getElementById('countPending').textContent  = counts.PENDING   + '건';
+        document.getElementById('countApproved').textContent = counts.APPROVED  + '건';
+        document.getElementById('countRejected').textContent = counts.REJECTED  + '건';
+    }
+
+    // ============================================================
+    // 데이터 조회 (API)
+    // ============================================================
+    async function applyFilters() {
+        console.log("🔥 applyFilters 실행됨");
+        var params = new URLSearchParams({
+            branchName:    document.getElementById('filterBranch').value,
+            startDate: document.getElementById('filterStartDate').value,
+            endDate:   document.getElementById('filterEndDate').value
+        });
+
+        try {
+            // 요청
+            var res = await fetch('<%=request.getContextPath()%>/api/hq/place_order/overview?' + params);
+            if (!res.ok) {
+                var errData = await res.json();
+                throw new Error(errData.message || 'HTTP ' + res.status);
             }
+            // 응답
+            var result = await res.json();
+            console.log(result.data);
+            if (!result || result.status != 'success') throw new Error((result && result.message) || '데이터 오류');
+
+            allOrders = result.data || [];
+            filteredOrders = (currentStatusFilter === '전체')
+                ? allOrders
+                : allOrders.filter(function(o) { return o.status === currentStatusFilter; });
+
+        } catch (err) {
+            console.error('발주 요청 조회 실패:', err);
+            allOrders      = [];
+            filteredOrders = [];
         }
 
-        // 사용자 메뉴 토글
-        function toggleUserMenu() {
-            document.getElementById('userMenu').classList.toggle('hidden');
+        currentPage = 1;
+        renderTable();
+        updateStatusCounts();
+        updateActiveTab();
+    }
+
+    function resetFilters() {
+        document.getElementById('filterBranch').value = '전체';
+        initDateRange();
+        currentStatusFilter = '전체';
+        updateActiveTab();
+        applyFilters();
+    }
+
+    // ============================================================
+    // 테이블 렌더링
+    // ============================================================
+    function renderTable() {
+        var tbody      = document.getElementById('orderTableBody');
+        var emptyState = document.getElementById('emptyState');
+        var pagination = document.getElementById('pagination');
+        tbody.innerHTML = '';
+
+        document.getElementById('recordCount').textContent = filteredOrders.length + '건';
+
+        if (filteredOrders.length === 0) {
+            emptyState.classList.remove('hidden');
+            pagination.classList.add('hidden');
+            return;
         }
 
-        // 로그아웃
-        function logout() {
-            alert('로그아웃되었습니다.');
-            window.location.href = '<%= request.getContextPath() %>/common/login.jsp';
+        emptyState.classList.add('hidden');
+
+        var start      = (currentPage - 1) * itemsPerPage;
+        var pageOrders = filteredOrders.slice(start, start + itemsPerPage);
+
+        pageOrders.forEach(function(order) {
+            var meta = STATUS_CONFIG[order.status] || STATUS_CONFIG['default'];
+            var tr   = document.createElement('tr');
+            tr.className = 'border-b border-gray-100 hover:bg-gray-50 ' + meta.rowClass;
+            tr.innerHTML =
+                '<td class="py-4 px-6 font-mono text-sm text-blue-600">' + order.poNo + '</td>' +
+                '<td class="py-4 px-6 font-medium text-gray-900"><i class="fas fa-map-pin text-gray-400 mr-2"></i>' + order.branchName + '</td>' +
+                '<td class="py-4 px-6 text-gray-700 text-sm"><i class="fas fa-calendar text-gray-400 mr-2"></i>' + order.requestedAt + '</td>' +
+                '<td class="py-4 px-6 text-right font-semibold text-gray-900">' + order.totalItemCnt + '개</td>' +
+                '<td class="py-4 px-6 text-right font-semibold text-blue-600">' + order.totalAmounts + '</td>' +
+                '<td class="py-4 px-6 text-center"><span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '">' + meta.label + '</span></td>' +
+                '<td class="py-4 px-6 text-center"><button onclick="openDetail(\'' + order.poId + '\')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"><i class="fas fa-eye"></i>상세조회</button></td>';
+            tbody.appendChild(tr);
+        });
+
+        // 페이지네이션
+        var totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+        if (totalPages > 1) {
+            pagination.classList.remove('hidden');
+            document.getElementById('currentPageNum').textContent = currentPage;
+            document.getElementById('totalPageNum').textContent   = totalPages;
+            document.getElementById('prevBtn').disabled = (currentPage === 1);
+            document.getElementById('nextBtn').disabled = (currentPage === totalPages);
+        } else {
+            pagination.classList.add('hidden');
         }
+    }
 
-        // 백드롭 클릭 시 사이드바 닫기
-        document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
+    function previousPage() {
+        if (currentPage > 1) { currentPage--; renderTable(); window.scrollTo(0, 0); }
+    }
+    function nextPage() {
+        if (currentPage < Math.ceil(filteredOrders.length / itemsPerPage)) { currentPage++; renderTable(); window.scrollTo(0, 0); }
+    }
 
-        // 상태 배지 생성
-        function getStatusBadge(status) {
-            if (status === 'pending') {
-                return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700"><i class="fas fa-hourglass-half w-3 h-3"></i>대기</span>';
-            } else if (status === 'approved') {
-                return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700"><i class="fas fa-check-circle w-3 h-3"></i>승인</span>';
-            } else if (status === 'rejected') {
-                return '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700"><i class="fas fa-circle-xmark w-3 h-3"></i>반려</span>';
-            }
-        }
+    // ============================================================
+    // 상세정보 모달
+    // ============================================================
+    async function openDetail(orderId) {
+        var tbody = document.getElementById('itemsTableBody');
+        tbody.innerHTML = '<tr><td colspan="3" class="py-8 text-center text-gray-500">로딩 중...</td></tr>';
+        document.getElementById('detailModal').classList.remove('hidden');
 
-        // 상태 필터 설정
-        function setStatusFilter(status) {
-            currentStatusFilter = status;
-            updateStatusButtonStyles();
-            applyFilters();
-            updateStatusCounts();
-        }
+        try {
+            var res = await fetch('<%=request.getContextPath()%>/api/hq/place_order/overview/' + encodeURIComponent(orderId));
+            if (!res.ok) throw new Error('API 실패: ' + res.status);
 
-        // 상태 버튼 스타일 업데이트
-        function updateStatusButtonStyles() {
-            document.querySelectorAll('.status-filter-btn').forEach(button => {
-                const status = button.getAttribute('data-status');
-                button.classList.remove('bg-yellow-50', 'bg-green-50', 'bg-red-50', 'border-yellow-200', 'border-green-200', 'border-red-200', 'text-yellow-700', 'text-green-700', 'text-red-700');
-                button.classList.remove('bg-gray-900', 'text-white', 'border-gray-900');
-                button.classList.add('border-gray-300', 'text-gray-700');
+            var json   = await res.json();
+            var data   = json.data;
+            var meta   = STATUS_CONFIG[data.status] || STATUS_CONFIG['default'];
 
-                if (status === currentStatusFilter) {
-                    if (status === 'all') {
-                        button.classList.add('bg-gray-900', 'text-white', 'border-gray-900');
-                    } else if (status === 'pending') {
-                        button.classList.add('bg-yellow-50', 'border-yellow-200', 'text-yellow-700');
-                    } else if (status === 'approved') {
-                        button.classList.add('bg-green-50', 'border-green-200', 'text-green-700');
-                    } else if (status === 'rejected') {
-                        button.classList.add('bg-red-50', 'border-red-200', 'text-red-700');
-                    }
-                }
-            });
-        }
+            // 기본 정보
+            document.getElementById('modalSubtitle').textContent    = data.branchName + ' · ' + data.poNo;
+            document.getElementById('detailOrderNumber').textContent = data.poNo;
+            document.getElementById('detailBranch').textContent      = data.branchName;
+            document.getElementById('detailDate').textContent        = data.requestedAt;
+            document.getElementById('detailItemCount').textContent   = data.totalItemCnt + '개';
+            document.getElementById('detailTotalQty').textContent    = data.totalAmounts;
 
-        // 필터 적용
-        function applyFilters() {
-            const branch = document.getElementById('branchFilter').value;
-            const startDate = new Date(document.getElementById('startDate').value);
-            const endDate = new Date(document.getElementById('endDate').value);
-
-            filteredOrders = allOrders.filter(function(order) {
-                const orderDate = new Date(order.date.split(' ')[0]);
-                const matchBranch = !branch || order.branch === branch;
-                const matchStatus = currentStatusFilter === 'all' || order.status === currentStatusFilter;
-                const matchDate = orderDate >= startDate && orderDate <= endDate;
-                return matchBranch && matchStatus && matchDate;
-            });
-
-            currentPage = 1;
-            renderTable();
-        }
-
-        // 상태별 카운트 업데이트
-        function updateStatusCounts() {
-            const pending = allOrders.filter(function(o) { return o.status === 'pending'; }).length;
-            const approved = allOrders.filter(function(o) { return o.status === 'approved'; }).length;
-            const rejected = allOrders.filter(function(o) { return o.status === 'rejected'; }).length;
-            const all = allOrders.length;
-            
-            document.getElementById('countAll').textContent = all + '건';
-            document.getElementById('countPending').textContent = pending + '건';
-            document.getElementById('countApproved').textContent = approved + '건';
-            document.getElementById('countRejected').textContent = rejected + '건';
-        }
-
-        // 테이블 렌더링
-        function renderTable() {
-            const tbody = document.getElementById('orderTableBody');
-            const emptyState = document.getElementById('emptyState');
-            const pagination = document.getElementById('pagination');
-            const start = (currentPage - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            const pageOrders = filteredOrders.slice(start, end);
-
-            tbody.innerHTML = '';
-
-            if (filteredOrders.length === 0) {
-                emptyState.classList.remove('hidden');
-                pagination.classList.add('hidden');
+            // 품목 목록
+            var items = data.items || [];
+            if (items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="py-8 text-center text-gray-500">품목 정보가 없습니다</td></tr>';
                 return;
             }
 
-            emptyState.classList.add('hidden');
-
-            pageOrders.forEach(function(order) {
-                const tr = document.createElement('tr');
-                tr.className = 'border-b border-gray-100 hover:bg-gray-50';
-                if (order.status === 'pending') tr.className += ' bg-yellow-50';
-                if (order.status === 'rejected') tr.className += ' bg-red-50';
-
-                const rowHTML = '<td class="py-4 px-6 font-mono text-sm text-blue-600">' + order.orderNumber + '</td>' +
-                    '<td class="py-4 px-6 font-medium text-gray-900"><i class="fas fa-map-pin w-4 h-4 text-gray-400 mr-2"></i>' + order.branch + '</td>' +
-                    '<td class="py-4 px-6 text-gray-700"><i class="fas fa-calendar w-4 h-4 text-gray-400 mr-2"></i>' + order.date + '</td>' +
-                    '<td class="py-4 px-6 text-right font-semibold text-gray-900">' + order.itemCount + '개</td>' +
-                    '<td class="py-4 px-6 text-right font-semibold text-blue-600">' + order.totalQty + '</td>' +
-                    '<td class="py-4 px-6 text-center">' + getStatusBadge(order.status) + '</td>' +
-                    '<td class="py-4 px-6 text-center"><button onclick="showDetailModal(\'' + order.id + '\')" class="inline-flex items-center gap-1 px-3 py-1 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"><i class="fas fa-eye w-4 h-4"></i>조회</button></td>';
-
-                tr.innerHTML = rowHTML;
+            tbody.innerHTML = '';
+            items.forEach(function(item) {
+                var stockColor = (item.currentStock < item.safetyStock) ? 'text-red-600' : 'text-green-600';
+                var tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-100';
+                tr.innerHTML =
+                    '<td class="py-3 px-4 text-gray-900">' + item.materialName + '</td>' +
+                    '<td class="py-3 px-4 text-right font-semibold text-blue-600">' + item.requestedQty + item.unit + '</td>' +
+                    '<td class="py-3 px-4 text-right font-semibold ' + stockColor + '">' + item.currentStock + item.unit + '</td>';
                 tbody.appendChild(tr);
             });
 
-            // 페이지네이션 업데이트
-            const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-            if (totalPages > 1) {
-                pagination.classList.remove('hidden');
-                document.getElementById('currentPageNum').textContent = currentPage;
-                document.getElementById('totalPageNum').textContent = totalPages;
-                document.getElementById('prevBtn').disabled = currentPage === 1;
-                document.getElementById('nextBtn').disabled = currentPage === totalPages;
-            } else {
-                pagination.classList.add('hidden');
-            }
+        } catch (err) {
+            tbody.innerHTML = '<tr><td colspan="3" class="py-8 text-center text-red-500">데이터를 불러오지 못했습니다: ' + err.message + '</td></tr>';
         }
+    }
 
-        // 페이지네이션
-        function previousPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                renderTable();
-                window.scrollTo(0, 0);
-            }
-        }
+    function closeDetailModal() {
+        document.getElementById('detailModal').classList.add('hidden');
+    }
 
-        function nextPage() {
-            const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderTable();
-                window.scrollTo(0, 0);
-            }
-        }
+    document.getElementById('detailModal').addEventListener('click', function(e) {
+        if (e.target == this) closeDetailModal();
+    });
 
-        // 상세 정보 모달 표시
-        function showDetailModal(orderId) {
-            const order = allOrders.find(function(o) { return o.id === orderId; });
-            if (!order) return;
-
-            document.getElementById('detailOrderNumber').textContent = order.orderNumber;
-            document.getElementById('detailBranch').textContent = order.branch;
-            document.getElementById('detailDate').textContent = order.date;
-            document.getElementById('detailItemCount').textContent = order.itemCount + '개';
-            document.getElementById('detailTotalQty').textContent = order.totalQty;
-            document.getElementById('detailStatus').innerHTML = getStatusBadge(order.status);
-
-            if (order.items && order.items.length > 0) {
-                const itemsTableBody = document.getElementById('itemsTableBody');
-                itemsTableBody.innerHTML = '';
-
-                order.items.forEach(function(item) {
-                    const tr = document.createElement('tr');
-                    tr.className = 'border-t border-gray-100';
-                    
-                    const stockColor = item.currentStock < item.safetyStock ? 'text-red-600' : 'text-green-600';
-                    const html = '<td class="py-3 px-4 text-gray-900">' + item.itemName + '</td>' +
-                        '<td class="py-3 px-4 text-right font-semibold text-blue-600">' + item.requestedQty + item.unit + '</td>' +
-                        '<td class="py-3 px-4 text-right font-semibold ' + stockColor + '">' + item.currentStock + item.unit + '</td>';
-                    
-                    tr.innerHTML = html;
-                    itemsTableBody.appendChild(tr);
-                });
-
-                document.getElementById('itemsTable').classList.remove('hidden');
-            } else {
-                document.getElementById('itemsTable').classList.add('hidden');
-            }
-
-            document.getElementById('detailModal').classList.remove('hidden');
-        }
-
-        // 상세 정보 모달 닫기
-        function closeDetailModal() {
-            document.getElementById('detailModal').classList.add('hidden');
-        }
-
-        // 모달 외부 클릭 시 닫기
-        document.getElementById('detailModal').addEventListener('click', function(e) {
-            if (e.target === this) closeDetailModal();
-        });
-
-        // 사용자 메뉴 외부 클릭 시 닫기
-        document.addEventListener('click', function(e) {
-            const userMenu = document.getElementById('userMenu');
-            if (!e.target.closest('button[onclick="toggleUserMenu()"]') && 
-                !e.target.closest('#userMenu')) {
-                userMenu.classList.add('hidden');
-            }
-        });
-
-        // 초기화
-        window.addEventListener('DOMContentLoaded', function() {
-            allOrders = mockOrders;
-            filteredOrders = allOrders;
-            updateStatusCounts();
-            updateStatusButtonStyles();
-            renderTable();
-        });
-    </script>
+    // ============================================================
+    // 초기화
+    // ============================================================
+    window.addEventListener('DOMContentLoaded', function() {
+        initDateRange();
+        updateActiveTab();
+        applyFilters();
+    });
+</script>
 </body>
 </html>
-
-
