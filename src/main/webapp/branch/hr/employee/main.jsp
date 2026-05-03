@@ -89,7 +89,7 @@
             type="button"
             class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
             <i class="fas fa-user-plus w-5 h-5"></i>
-            <span>신규 직원 등록</span>
+            <span>신규 알바생 등록</span>
           </button>
         </div>
 
@@ -151,7 +151,7 @@
 
                   <input
                     type="text"
-                    id="searchInput"
+                    id="searchInput" 
                     onkeydown="if(event.key === 'Enter') applyFilters();"
                     placeholder="검색어를 입력하세요"
                     class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
@@ -256,9 +256,16 @@
     	document.getElementById("pagination").innerHTML = "";
     }
     
+    function normalizeKeyword(value) {
+        return String(value || "")
+            .normalize("NFKC")
+            .trim()
+            .toLowerCase();
+    }
+    
     function renderEmployees() {
-        var searchTerm = document.getElementById("searchInput").value.toLowerCase();
-
+    	var searchTerm = normalizeKeyword(document.getElementById("searchInput").value);
+        
         var filtered = employees.filter(function(employee) {
             return (
                 String(employee.name || "").toLowerCase().includes(searchTerm) ||
@@ -429,14 +436,19 @@
         selectedEmployee = employees.find(function(emp) {
             return String(emp.empNo) === String(empNo);
         });
-        
-        if (!selectedEmployee) {
-            alert("직원 정보를 찾을 수 없습니다.");
-            return;
-        }
 
         resetEditMode();
 
+        var editModeBtn = document.getElementById("editModeBtn");
+
+        if (editModeBtn) {
+            if (selectedEmployee.positionCode === "POS_MGR" || selectedEmployee.positionCode === "POS_SUP") {
+                editModeBtn.classList.add("hidden");
+            } else {
+                editModeBtn.classList.remove("hidden");
+            }
+        }
+        
         setValue("editEmpNo", selectedEmployee.empNo);
         setValue("editEmpNoView", selectedEmployee.empNo);
         setValue("editName", selectedEmployee.name);
@@ -457,8 +469,15 @@
 
     function changeToEditMode() {
         document.querySelector("#editModal h3").innerText = "직원 정보 수정";
-        document.getElementById("editModeBtn").classList.add("hidden");
-        document.getElementById("saveBtn").classList.remove("hidden");
+        var editModeBtn = document.getElementById("editModeBtn");
+        var saveBtn = document.getElementById("saveBtn");
+        
+        if (editModeBtn) {
+            editModeBtn.classList.add("hidden");
+        }
+        if (saveBtn) {
+            saveBtn.classList.remove("hidden");
+        }
 
         document.querySelectorAll(".editable-field").forEach(function(field) {
             if (field.tagName === "SELECT") {
@@ -474,7 +493,10 @@
 
     function resetEditMode() {
         document.querySelector("#editModal h3").innerText = "직원 상세 조회";
-        document.getElementById("editModeBtn").classList.remove("hidden");
+        var editModeBtn = document.getElementById("editModeBtn");
+        if (editModeBtn) {
+            editModeBtn.classList.remove("hidden");
+        }
         document.getElementById("saveBtn").classList.add("hidden");
 
         document.querySelectorAll(".editable-field").forEach(function(field) {
