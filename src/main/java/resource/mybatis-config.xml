@@ -27,7 +27,8 @@
 	<mappers>
 		<mapper resource="mapper/AccountMapper.xml"/>
 		<mapper resource="mapper/BranchMapper.xml"/>
-		
+        <mapper resource="mapper/DispatchMapper.xml"/>
+
 		<mapper resource="mapper/hq/PlaceOrderQuantityLimitMapper.xml"/>
 		<mapper resource="mapper/hq/PlaceOrderProcessingMapper.xml"/>
 		<mapper resource="mapper/hq/place_order/PlaceOrderOverviewMapper.xml"/>

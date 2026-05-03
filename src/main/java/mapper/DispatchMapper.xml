@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.dispatchMapper">
+
+    <select id="getPendingOrders" resultType="dto.hq.delivery.DispatchOrderDto">
+        SELECT po.po_no AS poNo, po.branch_code AS branchCode, b.name AS branchName, b.region_code AS regionCode, r.name AS regionName, po.request_date AS requestDate, po.total_amount AS totalAmount, po.total_material_cnt AS totalMaterialCnt
+        FROM place_order po
+        JOIN branch b ON po.branch_code = b.branch_code
+        JOIN region r ON b.region_code = r.region_code
+        WHERE po.status = 'APPROVED'
+        ORDER BY po.request_date ASC;
+    </select>
+
+    <select id="getOrderDetailsByPoNo" parameterType="string" resultType="dto.hq.delivery.PlaceOrderDetailDto">
+        SELECT m.material_name as materialName, pod.requested_qty as requestedQty, pod.approved_qty as approvedQty, m.unit
+        FROM place_order_detail pod
+        JOIN material m ON pod.material_code = m.material_code
+        JOIN place_order po ON pod.po_id = po.po_id
+        WHERE po.po_no = #{poNo};
+    </select>
+
+    <select id="getAvailableDrivers" parameterType="string" resultType="dto.hq.delivery.DriverDto">
+        SELECT d.driver_id AS driverId, e.name, e.phone
+        FROM driver d
+        JOIN employee e ON d.emp_no = e.emp_no
+        WHERE d.is_active = TRUE AND d.region_code = #{regionCode};
+    </select>
+
+    <select id="getAvailableVehicles" resultType="dto.hq.delivery.VehicleDto">
+        SELECT v.vehicle_id AS vehicleId, v.plate_number AS plateNumber, v.capacity, v.temp_type AS tempType
+        FROM vehicle v
+        WHERE v.is_active = TRUE AND v.status = 'AVAILABLE';
+    </select>
+
+    <insert id="createDispatch" parameterType="map">
+        INSERT INTO dispatch (po_no, driver_id, vehicle_id, status)
+        VALUES (#{poNo}, #{driverId}, #{vehicleId}, 'IN_TRANSIT');
+    </insert>
+
+    <update id="updatePlaceOrderStatus" parameterType="map">
+        UPDATE place_order SET status = #{status} WHERE po_no = #{poNo};
+    </update>
+
+    <update id="updateVehicleStatus" parameterType="map">
+        UPDATE vehicle SET status = #{status} WHERE vehicle_id = #{vehicleId};
+    </update>
+
+    <select id="getAllRegions" resultType="dto.hq.delivery.RegionDto">
+        SELECT region_code as regionCode, name FROM region ORDER BY name;
+    </select>
+
+</mapper>
