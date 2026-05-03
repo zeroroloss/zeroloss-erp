@@ -10,8 +10,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import dto.branch.hr.BranchScheduleDTO;
+import dto.hq.hr.BranchOptionDTO;
 import dto.hq.hr.EmployeeDTO;
 import dto.hq.hr.HqScheduleDTO;
+import service.BranchService;
+import service.BranchServiceImpl;
+import service.branch.BranchScheduleService;
+import service.branch.BranchScheduleServiceImpl;
 import service.hq.HqScheduleService;
 import service.hq.HqScheduleServiceImpl;
 
@@ -22,6 +27,8 @@ import service.hq.HqScheduleServiceImpl;
 public class HqScheduleManagementController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private HqScheduleService scheduleService = new HqScheduleServiceImpl();
+	private BranchScheduleService branchScheduleService = new BranchScheduleServiceImpl();
+	private BranchService branchService = new BranchServiceImpl();
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -35,15 +42,18 @@ public class HqScheduleManagementController extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.setContentType("application/json; charset=UTF-8");
-		
 		try {
 			HqScheduleDTO schedule = new HqScheduleDTO();
+			BranchScheduleDTO branchSchedule = new BranchScheduleDTO();
+			List<BranchOptionDTO> branchNameList = branchService.searchBranchName();
 			List<HqScheduleDTO> scdList = scheduleService.searchScheduleList(schedule);
+			List<BranchScheduleDTO> branchscdList = branchScheduleService.searchBranchScheduleList(branchSchedule);
 			List<EmployeeDTO> hqEmpList = scheduleService.selectHqEmployee();
 			
+			request.setAttribute("branchNameList", branchNameList);
 			request.setAttribute("scheduleList", scdList);
 			request.setAttribute("hqEmployeeList", hqEmpList);
+			request.setAttribute("branchScheduleList", branchscdList);
 			request.getRequestDispatcher("/hq/hr/employee-schedule-management.jsp").forward(request, response);
 			return;
 		} catch(Exception e) {

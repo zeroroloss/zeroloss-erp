@@ -4,6 +4,10 @@
 
 <mapper namespace="mapper.branchoption">
 	<select id="selectBranchNameList" resultType="dto.hq.hr.BranchOptionDTO">
-		select branch_code as branchCode, name as branchName from branch order by branch_code
+		select branch_code as branchCode, name as branchName from branch 
+		where status = 'ACTIVE'
+		order by 
+			case when name = '본사' then 0 else 1 end,
+			name ASC
 	</select>
 </mapper>

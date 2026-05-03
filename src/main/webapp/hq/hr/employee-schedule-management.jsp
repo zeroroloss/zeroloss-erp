@@ -57,10 +57,30 @@
 	    .schedule-event:hover {
 	        opacity: 0.9;
 	    }
+	    .employee-name-link {
+		    cursor: pointer;
+		    text-decoration: underline;
+		    text-underline-offset: 2px;
+		    font-weight: 600;
+		}
+		
+		.employee-name-link:hover {
+		    opacity: 0.8;
+		}
+		.readonly-gray,
+		.readonly-gray:disabled,
+		.readonly-gray[readonly] {
+		    background-color: #f3f4f6 !important;
+		    color: #6b7280 !important;
+		    cursor: not-allowed !important;
+		}
 	    .type-OFF { background-color: #10b981; }
 	    .type-TRAINING { background-color: #a855f7; }
 	    .type-VISIT { background-color: #DC2626; }
 	    .type-BUSINESS_TRIP { background-color: #3b82f6; }
+	    .type-OPEN { background-color: #00853D; }
+		.type-MIDDLE { background-color: #2563eb; }
+		.type-CLOSE { background-color: #9333ea; }
 	
 	    /* 수정 모달 전용 */
 	    .modal-input,
@@ -138,10 +158,20 @@
                             <div class="flex items-center justify-between gap-4">
                             	<div>
                             		<h3 class="text-sm font-semibold text-gray-800">직원 검색</h3>
-                            		<p class="text-xs text-gray-500 mt-1">사번, 소속, 이름 기준으로 검색할 수 있습니다.</p>
+                            		<p class="text-xs text-gray-500 mt-1">사번, 이름 기준으로 검색할 수 있습니다.</p>
                             	</div>
                             	
                             	<div class="flex items-center gap-2">
+                            		<!-- 직영점 모드에서만 사용 -->
+								    <select id="branchSelect"
+								            class="hidden w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+								        <option value="">소속 선택</option>
+								        <c:forEach var="b" items="${branchNameList}">
+								        	<c:if test="${b.branchName ne '본사'}">
+								            	<option value="${b.branchCode}">${b.branchName}</option>
+								        	</c:if>
+								        </c:forEach>
+								    </select>
 					                <div class="relative w-80">
 					                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
                             			<input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="검색어를 입력하세요"class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
@@ -175,7 +205,7 @@
                         </div>
 
                         <!-- 캘린더 범례 -->
-                        <div class="flex items-center gap-6 mb-4 flex-wrap text-sm">
+                        <div id="legendArea" class="flex items-center gap-6 mb-4 flex-wrap text-sm">
                             <div class="flex items-center gap-2">
                                 <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
                                 <span class="text-gray-600">교육</span>
@@ -325,7 +355,7 @@
 	                </div>
 	            </div>
 	            
-	            <!-- 근무 시간 -->
+	            <!-- 근무 기간 -->
 	            <div>
 	                <label class="block text-sm font-medium text-gray-700 mb-2">기간</label>
 	                <div class="grid grid-cols-2 gap-4">
@@ -339,6 +369,21 @@
 	                    </div>
 	                </div>
 	            </div>
+	            
+	            <!-- 근무 시간 -->
+				<div id="editTimeArea">
+				    <label class="block text-sm font-medium text-gray-700 mb-2">근무 시간</label>
+				    <div class="grid grid-cols-2 gap-4">
+				        <div>
+				            <label class="block text-xs text-gray-500 mb-1">시작 시간</label>
+				            <input type="time" id="editStartTime" class="modal-input">
+				        </div>
+				        <div>
+				            <label class="block text-xs text-gray-500 mb-1">종료 시간</label>
+				            <input type="time" id="editEndTime" class="modal-input">
+				        </div>
+				    </div>
+				</div>
 
 	            <!-- 메모 -->
 	            <div>
@@ -385,8 +430,17 @@
 		var branchSchedules = [
 			<c:forEach var="b" items="${branchScheduleList}" varStatus="bt">
 			{
-				id: "${b.scheduleId}"
-			}
+				id: "${b.scheduleId}",
+				employeeId: "${b.empNo}",
+		        employee: "${b.empName}",
+		        branchCode: "${b.branchCode}",
+		        branch: "${b.branchName}",
+		        type: "${b.workType}",
+		        date: "${b.workDate}".substring(0,10),
+		        startTime: "${b.startTime}",
+		        endTime: "${b.endTime}",
+		        notes: "${b.memo}"
+			}<c:if test="${!bt.last}">,</c:if>
 			</c:forEach>
 		];
 		
@@ -394,6 +448,7 @@
 	    var currentDate = new Date();
 	    var selectedEmployees = [];
 	    var isSearched = false;
+	    var filteredBranchSchedules = [];
 	    
 	    var employees = [
 	    	<c:forEach var="e" items="${hqEmployeeList}" varStatus="st">
@@ -413,7 +468,7 @@
 	    });
 	
 	    function getCurrentSchedules() {
-	        return scheduleViewMode === 'hq' ? hqSchedules : branchSchedules;
+	        return scheduleViewMode === 'hq' ? hqSchedules : filteredBranchSchedules;
 	    }
 
 	    function changeScheduleView(mode) {
@@ -433,6 +488,12 @@
 	            hqBtn.className = 'flex items-center gap-2 bg-[#00853D] text-white border border-[#00853D] px-4 py-2.5 rounded-lg transition-colors';
 	            branchBtn.className = 'flex items-center gap-2 bg-white text-[#00853D] border border-[#00853D] px-4 py-2.5 rounded-lg hover:bg-[#00853D] hover:text-white transition-colors';
 
+	            document.getElementById('branchSelect').classList.add('hidden');
+	            document.getElementById('searchInput').disabled = false;
+	            document.getElementById('searchInput').value = '';
+	            document.getElementById('searchInput').placeholder = '사번, 이름을 입력하세요';
+	            document.getElementById('searchInput').classList.remove('bg-gray-100', 'cursor-not-allowed');
+	            
 	            renderCalendar();
 	        }
 
@@ -444,30 +505,57 @@
 	            hqBtn.className = 'flex items-center gap-2 bg-white text-[#00853D] border border-[#00853D] px-4 py-2.5 rounded-lg hover:bg-[#00853D] hover:text-white transition-colors';
 	            branchBtn.className = 'flex items-center gap-2 bg-[#00853D] text-white border border-[#00853D] px-4 py-2.5 rounded-lg transition-colors';
 
-	            branchSchedules = [];
+	            document.getElementById('branchSelect').classList.remove('hidden');
+	            document.getElementById('branchSelect').value = '';
+	            document.getElementById('searchInput').value = '';
+	            document.getElementById('searchInput').disabled = true;
+	            document.getElementById('searchInput').placeholder = '직영점 모드에서는 소속을 선택하세요';
+	            document.getElementById('searchInput').classList.add('bg-gray-100', 'cursor-not-allowed');
+
+	            filteredBranchSchedules = [];
+	            isSearched = false;
 	            renderCalendar();
-	            loadBranchSchedules();
 	        }
 	    }
 	    
-	    function loadBranchSchedules() {
-	        fetch('<%= request.getContextPath() %>/hq/hr/branchschedule?action=list')
-	            .then(function(res) {
-	                return res.json();
-	            })
-	            .then(function(data) {
-	                if (!data.success) {
-	                    alert(data.message || '직영점 스케줄 조회 실패');
-	                    return;
-	                }
+	    function normalizeDate(value) {
+	        if (!value) return '';
 
-	                branchSchedules = data.list;
-	                isSearched = true;
-	                renderCalendar();
-	            });
+	        return String(value)
+	            .trim()
+	            .replace(/\./g, '-')
+	            .substring(0, 10);
+	    }
+	    
+	    function normalizeTime(value) {
+	        if (!value) return '';
+
+	        return String(value)
+	            .trim()
+	            .substring(0, 5);
+	    }
+	    
+	    function makeNameLinks(scheduleArr) {
+	        var namesHtml = [];
+
+	        for (var i = 0; i < scheduleArr.length; i++) {
+	            var item = scheduleArr[i];
+
+	            namesHtml.push(
+	                '<span class="employee-name-link" ' +
+	                'onclick="event.stopPropagation(); viewSchedule(\'' + item.id + '\')" ' +
+	                'title="' + item.employee + ' 일정 조회">' +
+	                item.employee +
+	                '</span>'
+	            );
+	        }
+
+	        return namesHtml.join(', ');
 	    }
 	    
 	    function renderCalendar() {
+	    	renderLegend();
+	    	
 	        var year = currentDate.getFullYear();
 	        var month = currentDate.getMonth();
 	        var currentSchedules = isSearched ? getFilteredSchedules() : [];
@@ -531,10 +619,10 @@
 	
 	            var daySchedules = currentSchedules.filter(function(s) {
 	                if (scheduleViewMode === 'hq') {
-	                    return s.startDay <= dateStr && s.endDay >= dateStr;
+	                    return normalizeDate(s.startDay) <= dateStr && normalizeDate(s.endDay) >= dateStr;
 	                }
 
-	                return s.date === dateStr;
+	                return normalizeDate(s.date) === dateStr;
 	            });
 	
 	            var isToday = new Date().toLocaleDateString() === dayObj.date.toLocaleDateString();
@@ -547,19 +635,73 @@
 	            html += '<div class="' + cellClass + '" style="min-height:120px;" onclick="selectDateForModal(\'' + dateStr + '\')">';
 	            html += '<div class="text-xs font-medium mb-1 text-gray-900">' + dayObj.day + '</div>';
 	
-	            for (var k = 0; k < Math.min(daySchedules.length, 3); k++) {
-	                var s = daySchedules[k];
-	                var empName = s.employee.substring(0, 3);
-	
-	                html += '<div class="schedule-event type-' + s.type + '" onclick="event.stopPropagation(); viewSchedule(\'' + s.id + '\')" title="' + s.employee + ' - ' + s.type + '">';
-	                html += '<span class="text-xs font-semibold">' + empName + '</span> <span class="text-xs">' + s.type + '</span>';
+	            if (scheduleViewMode === 'branch') {
+	                var openSchedules = [];
+	                var middleSchedules = [];
+	                var closeSchedules = [];
+	                var offSchedules = [];
+
+	                for (var k = 0; k < daySchedules.length; k++) {
+	                    var bs = daySchedules[k];
+
+	                    if (bs.type === 'OPEN') {
+	                        openSchedules.push(bs);
+	                    } else if (bs.type === 'MIDDLE') {
+	                        middleSchedules.push(bs);
+	                    } else if (bs.type === 'CLOSE') {
+	                        closeSchedules.push(bs);
+	                    } else if (bs.type === 'OFF') {
+	                        offSchedules.push(bs);
+	                    }
+	                }
+
+	                html += '<div class="mt-2 space-y-1 text-xs">';
+
+	                if (openSchedules.length > 0) {
+	                    html += '<div class="schedule-event type-OPEN">';
+	                    html += '<span class="font-semibold">오픈</span> ';
+	                    html += makeNameLinks(openSchedules);
+	                    html += '</div>';
+	                }
+
+	                if (middleSchedules.length > 0) {
+	                    html += '<div class="schedule-event type-MIDDLE">';
+	                    html += '<span class="font-semibold">미들</span> ';
+	                    html += makeNameLinks(middleSchedules);
+	                    html += '</div>';
+	                }
+
+	                if (closeSchedules.length > 0) {
+	                    html += '<div class="schedule-event type-CLOSE">';
+	                    html += '<span class="font-semibold">마감</span> ';
+	                    html += makeNameLinks(closeSchedules);
+	                    html += '</div>';
+	                }
+
+	                if (offSchedules.length > 0) {
+	                    html += '<div class="schedule-event type-OFF">';
+	                    html += '<span class="font-semibold">휴무</span> ';
+	                    html += makeNameLinks(offSchedules);
+	                    html += '</div>';
+	                }
+
 	                html += '</div>';
+
+	            } else {
+	                for (var k = 0; k < Math.min(daySchedules.length, 3); k++) {
+	                    var s = daySchedules[k];
+	                    var empName = String(s.employee || '').substring(0, 3);
+	                    var workType = String(s.type || '');
+
+	                    html += '<div class="schedule-event type-' + workType + '" onclick="event.stopPropagation(); viewSchedule(\'' + s.id + '\')" title="' + s.employee + ' - ' + workType + '">';
+	                    html += '<span class="text-xs font-semibold">' + empName + '</span> <span class="text-xs">' + workType + '</span>';
+	                    html += '</div>';
+	                }
+
+	                if (daySchedules.length > 3) {
+	                    html += '<div class="text-xs text-gray-600 text-center font-medium mt-1">+' + (daySchedules.length - 3) + '개 더보기</div>';
+	                }
 	            }
-	
-	            if (daySchedules.length > 3) {
-	                html += '<div class="text-xs text-gray-600 text-center font-medium mt-1">+' + (daySchedules.length - 3) + '개 더보기</div>';
-	            }
-	
 	            html += '</div>';
 	        }
 	
@@ -567,6 +709,49 @@
 	        container.innerHTML = html;
 	        container.style.gridTemplateColumns = 'repeat(7, 1fr)';
 	        dayHeaders.style.gridTemplateColumns = 'repeat(7, 1fr)';
+	    }
+	    
+	    function renderLegend() {
+	        var legendArea = document.getElementById('legendArea');
+
+	        if (scheduleViewMode === 'branch') {
+	            legendArea.innerHTML =
+	                '<div class="flex items-center gap-2">' +
+	                    '<div class="w-3 h-3 bg-green-500 rounded-full"></div>' +
+	                    '<span class="text-gray-600">오픈</span>' +
+	                '</div>' +
+	                '<div class="flex items-center gap-2">' +
+	                    '<div class="w-3 h-3 bg-blue-500 rounded-full"></div>' +
+	                    '<span class="text-gray-600">미들</span>' +
+	                '</div>' +
+	                '<div class="flex items-center gap-2">' +
+	                    '<div class="w-3 h-3 bg-purple-500 rounded-full"></div>' +
+	                    '<span class="text-gray-600">마감</span>' +
+	                '</div>' +
+	                '<div class="flex items-center gap-2">' +
+	                    '<div class="w-3 h-3 bg-gray-500 rounded-full"></div>' +
+	                    '<span class="text-gray-600">휴무</span>' +
+	                '</div>';
+	            return;
+	        }
+
+	        legendArea.innerHTML =
+	            '<div class="flex items-center gap-2">' +
+	                '<div class="w-3 h-3 bg-purple-500 rounded-full"></div>' +
+	                '<span class="text-gray-600">교육</span>' +
+	            '</div>' +
+	            '<div class="flex items-center gap-2">' +
+	                '<div class="w-3 h-3 bg-blue-500 rounded-full"></div>' +
+	                '<span class="text-gray-600">출장</span>' +
+	            '</div>' +
+	            '<div class="flex items-center gap-2">' +
+	                '<div class="w-3 h-3 bg-red-500 rounded-full"></div>' +
+	                '<span class="text-gray-600">지점점검</span>' +
+	            '</div>' +
+	            '<div class="flex items-center gap-2">' +
+	                '<div class="w-3 h-3 bg-green-500 rounded-full"></div>' +
+	                '<span class="text-gray-600">휴가</span>' +
+	            '</div>';
 	    }
 	    
 	    function searchEmployeesByName() {
@@ -638,8 +823,12 @@
 	    }
 	    
 	    function getFilteredSchedules() {
+	    	if (scheduleViewMode === 'branch') {
+	            return filteredBranchSchedules;
+	        }
+
 	        var keyword = document.getElementById('searchInput').value.trim();
-	        var schedules = scheduleViewMode === 'hq' ? hqSchedules : branchSchedules;
+	        var schedules = hqSchedules;
 
 	        if (!keyword) {
 	            return schedules;
@@ -677,13 +866,36 @@
 	    }
 	
 	    function applyFilters() {
-	    	isSearched = true;
+	        if (scheduleViewMode === 'branch') {
+	            var branchCode = String(document.getElementById('branchSelect').value).trim();
+
+	            if (!branchCode) {
+	                alert('조회할 직영점을 선택하세요.');
+	                return;
+	            }
+
+	            filteredBranchSchedules = branchSchedules.filter(function(s) {
+	                return String(s.branchCode || '').trim() === branchCode;
+	            });
+
+	            isSearched = true;
+	            renderCalendar();
+	            return;
+	        }
+
+	        isSearched = true;
 	        renderCalendar();
 	    }
 	
 	    function resetFilters() {
 	    	isSearched = false;
 	        document.getElementById('searchInput').value = '';
+	        var branchSelect = document.getElementById('branchSelect');
+	        if (branchSelect) {
+	            branchSelect.value = '';
+	        }
+
+	        filteredBranchSchedules = [];
 	        renderCalendar();
 	    }
 	
@@ -777,14 +989,95 @@
 	            return;
 	        }
 	
+	    	setEditScheduleTypeOptions(scheduleViewMode);
+	    	
 	        document.getElementById('editScheduleId').value = schedule.id;
 	        document.getElementById('editEmployeeName').value = schedule.employee || '';
 	        document.getElementById('editScheduleType').value = schedule.type || '교육';
 	        document.getElementById('editStartDay').value = schedule.startDay || schedule.date || '';
 	        document.getElementById('editEndDay').value = schedule.endDay || schedule.date || '';
+	        document.getElementById('editStartTime').value = normalizeTime(schedule.startTime);
+	        document.getElementById('editEndTime').value = normalizeTime(schedule.endTime);
 	        document.getElementById('editNotes').value = schedule.notes || '';
-	
+	        
+	        var saveBtn = document.querySelector('#editModal button[onclick="updateSchedule()"]');
+	        var deleteBtn = document.querySelector('#editModal button[onclick="deleteSchedule()"]');
+
+	        if (scheduleViewMode === 'branch') {
+	        	document.getElementById('editTimeArea').classList.remove('hidden');
+	            document.querySelector('#editModal h3').textContent = '직영점 일정 조회';
+
+	            var editEmployeeName = document.getElementById('editEmployeeName');
+	            var editScheduleType = document.getElementById('editScheduleType');
+	            var editStartDay = document.getElementById('editStartDay');
+	            var editEndDay = document.getElementById('editEndDay');
+	            var editStartTime = document.getElementById('editStartTime');
+	            var editEndTime = document.getElementById('editEndTime');
+	            var editNotes = document.getElementById('editNotes');
+
+	            editEmployeeName.readOnly = true;
+	            editScheduleType.disabled = true;
+	            editStartDay.readOnly = true;
+	            editEndDay.readOnly = true;
+	            editStartTime.readOnly = true;
+	            editEndTime.readOnly = true;
+	            editNotes.readOnly = true;
+
+	            editEmployeeName.classList.add('readonly-gray');
+	            editScheduleType.classList.add('readonly-gray');
+	            editStartDay.classList.add('readonly-gray');
+	            editEndDay.classList.add('readonly-gray');
+	            editStartTime.classList.add('readonly-gray');
+	            editEndTime.classList.add('readonly-gray');
+	            editNotes.classList.add('readonly-gray');
+
+	            if (saveBtn) saveBtn.classList.add('hidden');
+	            if (deleteBtn) deleteBtn.classList.add('hidden');
+	        } else {
+	        	document.getElementById('editTimeArea').classList.add('hidden');
+	            document.querySelector('#editModal h3').textContent = '일정 수정';
+
+	            var editEmployeeName = document.getElementById('editEmployeeName');
+	            var editScheduleType = document.getElementById('editScheduleType');
+	            var editStartDay = document.getElementById('editStartDay');
+	            var editEndDay = document.getElementById('editEndDay');
+	            var editNotes = document.getElementById('editNotes');
+
+	            editEmployeeName.readOnly = true;
+	            editScheduleType.disabled = false;
+	            editStartDay.readOnly = false;
+	            editEndDay.readOnly = false;
+	            editNotes.readOnly = false;
+
+	            editEmployeeName.classList.add('readonly-gray');
+	            editScheduleType.classList.remove('readonly-gray');
+	            editStartDay.classList.remove('readonly-gray');
+	            editEndDay.classList.remove('readonly-gray');
+	            editNotes.classList.remove('readonly-gray');
+
+	            if (saveBtn) saveBtn.classList.remove('hidden');
+	            if (deleteBtn) deleteBtn.classList.remove('hidden');
+	        }
 	        document.getElementById('editModal').classList.remove('modal-hidden');
+	    }
+	    
+	    function setEditScheduleTypeOptions(mode) {
+	        var select = document.getElementById('editScheduleType');
+
+	        if (mode === 'branch') {
+	            select.innerHTML =
+	                '<option value="OPEN">오픈</option>' +
+	                '<option value="MIDDLE">미들</option>' +
+	                '<option value="CLOSE">마감</option>' +
+	                '<option value="OFF">휴무</option>';
+	            return;
+	        }
+
+	        select.innerHTML =
+	            '<option value="TRAINING">교육</option>' +
+	            '<option value="BUSINESS_TRIP">출장</option>' +
+	            '<option value="VISIT">지점점검</option>' +
+	            '<option value="OFF">휴가</option>';
 	    }
 	
 	    function closeEditModal() {
@@ -792,6 +1085,11 @@
 	    }
 	
 	    function updateSchedule() {
+	    	if (scheduleViewMode === 'branch') {
+	    	    alert('직영점 일정은 조회만 가능합니다.');
+	    	    return;
+	    	}
+	    	
 	        var scheduleId = document.getElementById('editScheduleId').value;
 	        var type = document.getElementById('editScheduleType').value;
 	        var notes = document.getElementById('editNotes').value;
@@ -835,6 +1133,11 @@
 	    }
 	
 	    function deleteSchedule() {
+	    	if (scheduleViewMode === 'branch') {
+	    	    alert('직영점 일정은 조회만 가능합니다.');
+	    	    return;
+	    	}
+	    	
 	        var scheduleId = document.getElementById('editScheduleId').value;
 	
 	        if (!confirm('이 일정을 삭제하시겠습니까?')) {

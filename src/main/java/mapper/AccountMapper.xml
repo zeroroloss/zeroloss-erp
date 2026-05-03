@@ -73,7 +73,7 @@
 	</update>
 	
 	<update id="updateAccount" parameterType="dto.AccountDTO">
-		UPDATE account SET role_id = #{roleId}, branch_code = #{branchCode}
+		UPDATE account SET role_id = #{roleId}, branch_code = #{branchCode}, status = #{status}
     	WHERE account_id = #{accountId}
 	</update>
 	

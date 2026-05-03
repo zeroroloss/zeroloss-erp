@@ -90,6 +90,17 @@
 					            </div>
 					
 					            <div class="flex items-center gap-2">
+					            	<!-- 소속명 선택 -->
+					                <select id="branchNameSelect"
+					                        class="w-44 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+					                    <option value="">전체 소속</option>
+										<c:forEach var="branch" items="${branchNameList}">
+										    <option value="${branch.branchName}">
+										        ${branch.branchName}
+										    </option>
+										</c:forEach>
+					                </select>
+					                
 					                <div class="relative w-80">
 					                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
 					                    <input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="검색어를 입력하세요"class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
@@ -210,7 +221,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">역할 변경</label>
                     <select id="editRoleId" name="editRoleId"
-				            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+				            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
 				        <option value="">선택하세요</option>
 				        <option value="1">본사 관리자</option>
 				        <option value="2">지점장</option>
@@ -226,6 +237,16 @@
                         <c:forEach var="branch" items="${branchNameList }">
                         	<option value="${branch.branchCode }" class="text-gray-900 bg-white">${branch.branchName}</option>
                         </c:forEach>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">상태</label>
+                    <select id="editStatus" name="editStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                        <option value="">선택하세요</option>
+                        <option value="ACTIVE">활성화</option>
+                        <option value="INACTIVE">비활성화</option>
+                        <option value="LOCKED">잠금</option>
                     </select>
                 </div>
 
@@ -257,7 +278,9 @@
             	id: "${account.accountId}",
                 name: "${account.userName}",
                 username: "${account.loginId}",
+                branchCode: "${account.branchCode}",
                 branch: "${account.branchName}",
+                roleId: "${account.roleId}",
                 role: "${account.roleName}",
                 status: "${account.status}",
                 isActive: "${account.status}" === "ACTIVE",
@@ -336,65 +359,93 @@
         
         function resetFilters() {
         	document.getElementById("searchInput").value="";
+        	document.getElementById('branchNameSelect').value = '';
         	currentPage = 1;
             clearAccountTable();
             document.getElementById("pagination").innerHTML = "";
         }
 
         function renderAccounts() {
-            var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            var searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+            var selectedBranchName = document.getElementById("branchNameSelect").value.trim();
+
             var filtered = accounts.filter(function(account) {
-                var matchesSearch = account.name.toLowerCase().includes(searchTerm) || 
-                                   account.username.toLowerCase().includes(searchTerm) || 
-                                   account.branch.toLowerCase().includes(searchTerm);
-                return matchesSearch;
+                var name = String(account.name || "").toLowerCase();
+                var username = String(account.username || "").toLowerCase();
+                var branch = String(account.branch || "").toLowerCase();
+                var role = String(account.role || "").toLowerCase();
+
+                // 검색어가 없으면 검색 조건은 전체 통과
+                var matchesSearch = searchTerm === "" ||
+                    name.includes(searchTerm) ||
+                    username.includes(searchTerm) ||
+                    branch.includes(searchTerm) ||
+                    role.includes(searchTerm);
+
+                // 소속 선택 안 했으면 소속 조건은 전체 통과
+                var matchesBranch = selectedBranchName === "" ||
+                    account.branch === selectedBranchName;
+
+                return matchesSearch && matchesBranch;
             });
-           
+
             var tbody = document.getElementById('accountTableBody');
+
             if (filtered.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">검색 결과가 없습니다.</td></tr>';
                 document.getElementById("pagination").innerHTML = "";
                 return;
             }
-            
-            var totalPages = Math.ceil(filtered.length/pageSize);
-            
-            if(currentPage > totalPages) {
-            	currentPage = totalPages;
+
+            var totalPages = Math.ceil(filtered.length / pageSize);
+
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
             }
-            
+
             var start = (currentPage - 1) * pageSize;
             var end = start + pageSize;
             var pageList = filtered.slice(start, end);
 
             tbody.innerHTML = pageList.map(function(account) {
-            	var isActive = account.status === "ACTIVE";
+                var isActive = account.status === "ACTIVE";
                 var roleColor = account.role === '본사 관리자' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
                 var statusColor = isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
                 var statusText = isActive ? '활성' : '비활성';
+
                 return '<tr class="hover:bg-gray-50">' +
                     '<td class="px-4 py-3 whitespace-nowrap">' +
                         '<div class="flex items-center gap-3">' +
-                            '<div class="w-8 h-8 rounded-full bg-[#00853D] flex items-center justify-center text-white font-semibold text-xs">' + account.name.charAt(0) + '</div>' +
+                            '<div class="w-8 h-8 rounded-full bg-[#00853D] flex items-center justify-center text-white font-semibold text-xs">' +
+                                (account.name ? account.name.charAt(0) : '-') +
+                            '</div>' +
                             '<div>' +
-                                '<div class="font-medium text-gray-900 text-sm">' + account.name + '</div>' +
-                                '<div class="text-xs text-gray-500">가입: ' + account.createdDate + '</div>' +
+                                '<div class="font-medium text-gray-900 text-sm">' + (account.name || '-') + '</div>' +
+                                '<div class="text-xs text-gray-500">가입: ' + (account.createdDate || '-') + '</div>' +
                             '</div>' +
                         '</div>' +
                     '</td>' +
+
                     '<td class="px-4 py-3 whitespace-nowrap">' +
-                        '<div class="text-sm text-gray-900">' + account.username + '</div>' +
+                        '<div class="text-sm text-gray-900">' + (account.username || '-') + '</div>' +
                         (account.lastLogin ? '<div class="text-xs text-gray-500">' + account.lastLogin + '</div>' : '') +
                     '</td>' +
-                    '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + account.branch + '</td>' +
+
+                    '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (account.branch || '-') + '</td>' +
+
                     '<td class="px-4 py-3 whitespace-nowrap">' +
-                        '<span class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full ' + roleColor + '">' + account.role + '</span>' +
+                        '<span class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full ' + roleColor + '">' +
+                            (account.role || '-') +
+                        '</span>' +
                     '</td>' +
+
                     '<td class="px-4 py-3 whitespace-nowrap">' +
                         '<button onclick="toggleActive(\'' + account.id + '\')" class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-lg transition-colors ' + statusColor + '">' +
-                            '<i class="fas fa-circle ' + (account.isActive ? 'text-green-600' : 'text-red-600') + '"></i>' + statusText +
+                            '<i class="fas fa-circle ' + (isActive ? 'text-green-600' : 'text-red-600') + '"></i>' +
+                            statusText +
                         '</button>' +
                     '</td>' +
+
                     '<td class="px-4 py-3 whitespace-nowrap">' +
                         '<div class="flex items-center gap-2">' +
                             '<button onclick="editAccountModal(\'' + account.id + '\')" class="text-blue-600 hover:text-blue-700" title="권한 변경">' +
@@ -404,6 +455,7 @@
                     '</td>' +
                 '</tr>';
             }).join('');
+
             renderPagination(totalPages);
         }
         
@@ -416,6 +468,7 @@
             if (!confirm("계정 상태를 변경하시겠습니까?")) {
                 return;
             }
+
             const params = new URLSearchParams();
             params.append("action", "statusToggle");
             params.append("accountId", accountId);
@@ -427,27 +480,50 @@
                 },
                 body: params.toString()
             })
-            .then(response => response.json())
-            .then(data => {
-            	if (data.success) {
-	            	const account = accounts.find(a => String(a.id) === String(accountId));
-	
-	                if (account) {
-	                    account.status = account.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-	                    account.isActive = account.status === "ACTIVE";
-	                }
-	
-	                renderAccounts();
-	                updateStats();
-	
-	            } else {
-	                alert(data.message || "상태 변경에 실패했습니다.");
-	            }
-	        })
-	        .catch(error => {
-	            console.error(error);
-	            location.href = "<%= request.getContextPath() %>/common/500.jsp";
-	        });
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error();
+                }
+
+                return response.json();
+            })
+            .then(function(data) {
+                if (data.success) {
+                    const account = accounts.find(function(a) {
+                        return String(a.id) === String(accountId);
+                    });
+
+                    if (account) {
+                        account.status = account.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+                        account.isActive = account.status === "ACTIVE";
+                    }
+
+                    renderAccounts();
+
+                    if (typeof updateStats === "function") {
+                        updateStats();
+                    }
+
+                    alert("계정 상태가 변경되었습니다.");
+                } else {
+                    alert(data.message || "계정 상태를 변경하지 못했습니다.");
+                }
+            })
+            .catch(function() {
+                alert("계정 상태 변경 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+            });
+        }
+        
+        function updateStats() {
+            var total = accounts.length;
+            var active = accounts.filter(function(account) {
+                return account.status === "ACTIVE";
+            }).length;
+            var inactive = total - active;
+
+            document.getElementById("totalCount").textContent = total;
+            document.getElementById("activeCount").textContent = active;
+            document.getElementById("inactiveCount").textContent = inactive;
         }
 
         function showAddModal() {
@@ -521,6 +597,7 @@
                     '</div>';
                 document.getElementById('editAccountInfo').innerHTML = info;
                 document.getElementById('editRoleId').value = selectedAccount.roleId;
+                document.getElementById('editStatus').value = selectedAccount.status;
                 document.getElementById('editBranchCode').value = selectedAccount.branchCode;
                 var modal = document.getElementById('editModal');
                 modal.classList.remove('modal-hidden');
@@ -536,6 +613,7 @@
             if (selectedAccount) {
             	const roleId = document.getElementById("editRoleId").value;
                 const branchCode = document.getElementById("editBranchCode").value;
+                const status = document.getElementById("editStatus").value;
 
                 if (!roleId) {
                     alert("역할을 선택해주세요.");
@@ -546,12 +624,18 @@
                     alert("소속 매장을 선택해주세요.");
                     return;
                 }
+                
+                if (!status) {
+                    alert("상태를 선택해주세요.");
+                    return;
+                }
 
                 const params = new URLSearchParams();
                 params.append("action", "update");
                 params.append("accountId", selectedAccount.id);
                 params.append("roleId", roleId);
                 params.append("branchCode", branchCode);
+                params.append("status", status);
 
                 fetch("<%= request.getContextPath() %>/hq/hr/main", {
                     method: "POST",
@@ -563,15 +647,18 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert("계정 정보가 수정되었습니다.");
-
                         selectedAccount.roleId = roleId;
                         selectedAccount.branchCode = branchCode;
+                        selectedAccount.status = status;
+                        selectedAccount.isActive = status === "ACTIVE";
                         selectedAccount.role = document.getElementById("editRoleId").selectedOptions[0].text;
                         selectedAccount.branch = document.getElementById("editBranchCode").selectedOptions[0].text;
 
                         closeEditModal();
                         renderAccounts();
+                        updateStats();
+                        
+                        alert("계정 정보가 수정되었습니다.");
                     } else {
                         alert(data.message || "계정 수정에 실패했습니다.");
                     }

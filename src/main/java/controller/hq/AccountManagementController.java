@@ -137,11 +137,13 @@ public class AccountManagementController extends HttpServlet {
 		int accountId = Integer.parseInt(request.getParameter("accountId"));
 	    int roleId = Integer.parseInt(request.getParameter("roleId"));
 	    int branchCode = Integer.parseInt(request.getParameter("branchCode"));
+	    String status = request.getParameter("status");
 
 	    AccountDTO account = new AccountDTO();
 	    account.setAccountId(accountId);
 	    account.setRoleId(roleId);
 	    account.setBranchCode(branchCode);
+	    account.setStatus(status);
 
 	    accountService.modifyAccount(account);
 
