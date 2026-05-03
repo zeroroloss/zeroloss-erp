@@ -100,10 +100,10 @@
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
                             <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">발주서 번호</th>
-                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">지점</th>
-                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">일시</th>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">지점명</th>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">출고 시점</th>
                             <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">처리자</th>
-                            <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">상태</th>
+                            <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">출고 상태</th>
                             <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">상세조회</th>
                         </tr>
                     </thead>
@@ -153,10 +153,10 @@
         <!-- 기본 정보 그리드 -->
         <div class="grid grid-cols-2 gap-4 mb-6 bg-gray-50 rounded-lg p-4">
             <div><p class="text-sm text-gray-500">발주서 번호</p>  <p class="font-mono text-blue-600 mt-1"     id="detailOrderId"></p></div>
-            <div><p class="text-sm text-gray-500">지점</p>         <p class="font-semibold text-gray-900 mt-1" id="detailBranch"></p></div>
-            <div><p class="text-sm text-gray-500">일시</p>         <p class="text-gray-900 mt-1"               id="detailDate"></p></div>
+            <div><p class="text-sm text-gray-500">지점명</p>         <p class="font-semibold text-gray-900 mt-1" id="detailBranch"></p></div>
+            <div><p class="text-sm text-gray-500">출고 시점</p>         <p class="text-gray-900 mt-1"               id="detailDate"></p></div>
             <div><p class="text-sm text-gray-500">처리자</p>       <p class="text-gray-900 mt-1"               id="detailHandler"></p></div>
-            <div><p class="text-sm text-gray-500">상태</p>         <div id="detailStatus" class="mt-1"></div></div>
+            <div><p class="text-sm text-gray-500">출고 상태</p>         <div id="detailStatus" class="mt-1"></div></div>
         </div>
 
         <!-- 품목 테이블 -->
@@ -367,7 +367,7 @@
             tr.innerHTML =
                 '<td class="py-4 px-6 font-mono text-sm text-blue-600">'    + record.poNo      + '</td>' +
                 '<td class="py-4 px-6 font-medium text-gray-900"><i class="fas fa-map-pin text-gray-400 mr-2"></i>' + record.branchName  + '</td>' +
-                '<td class="py-4 px-6 text-gray-700 text-sm"><i class="fas fa-calendar text-gray-400 mr-2"></i>'   + record.shippedAt  + '</td>' +
+                '<td class="py-4 px-6 text-gray-700 text-sm"><i class="fas fa-calendar text-gray-400 mr-2"></i>'   + record.outboundAt  + '</td>' +
                 '<td class="py-4 px-6 text-gray-700 text-sm">'              + (record.handler || '-') + '</td>' +
                 '<td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '"><i class="fas ' + meta.icon + '"></i>' + meta.label + '</span></td>' +
                 '<td class="py-4 px-6 text-center"><button onclick="openDetail(\'' + record.hqOutboundNo + '\')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"><i class="fas fa-eye"></i>상세조회</button></td>';
@@ -450,7 +450,7 @@
                     '<td class="py-3 px-4 font-medium text-gray-900">'       + item.itemName + '</td>' +
                     '<td class="py-3 px-4 text-sm"><span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">' + item.category + '</span></td>' +
                     '<td class="py-3 px-4 text-right font-semibold text-blue-600">'  + item.requestedQty + item.unit + '</td>' +
-                    '<td class="py-3 px-4 text-right font-semibold text-green-600">' + (item.confirmedQty != null ? item.confirmedQty : item.requestedQty) + item.unit + '</td>';
+                    '<td class="py-3 px-4 text-right font-semibold text-green-600">' + (item.confirmedQty != null ? item.confirmedQty : 0) + item.unit + '</td>';
                 if (!isCompleted) {
                     var stockClass = isInsufficient ? 'text-red-600' : 'text-green-600';
                     rowHtml += '<td class="py-3 px-4 text-right font-semibold ' + stockClass + '">' + item.warehouseStock + item.unit + '</td>';

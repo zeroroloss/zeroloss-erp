@@ -7,7 +7,7 @@ public class WarehouseOutboundDTO {
     private String branchName;
     private String status;
     private String handler;
-    private String shippedAt;
+    private String outboundAt;
 
     public Integer getHqOutboundNo() {
         return hqOutboundNo;
@@ -45,11 +45,11 @@ public class WarehouseOutboundDTO {
     public void setHandler(String handler) {
         this.handler = handler;
     }
-    public String getShippedAt() {
-        return shippedAt;
-    }
-    public void setShippedAt(String shippedAt) {
-        this.shippedAt = shippedAt;
-    }
+	public String getOutboundAt() {
+		return outboundAt;
+	}
+	public void setOutboundAt(String outboundAt) {
+		this.outboundAt = outboundAt;
+	}
 
 }
