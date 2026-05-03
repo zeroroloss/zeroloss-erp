@@ -46,4 +46,20 @@ public class PlaceOrderProcessingDaoImpl implements PlaceOrderProcessingDao {
     public int deductWarehouseStock(SqlSession sqlSession, Map<String, Object> param) throws Exception {
         return sqlSession.update(NAMESPACE + "deductWarehouseStock", param);
     }
+    
+    // 출고 내역
+    @Override
+    public int insertOutbound(SqlSession sqlSession, Map<String, Object> param) {
+        return sqlSession.insert(NAMESPACE + "insertOutbound", param);
+    }
+
+    @Override
+    public int insertOutboundDetail(SqlSession sqlSession, Map<String, Object> param) {
+        return sqlSession.insert(NAMESPACE + "insertOutboundDetail", param);
+    }
+
+	@Override
+	public String selectStockNoByMaterialCode(SqlSession sqlSession, String materialCode) {
+		return sqlSession.selectOne(NAMESPACE + "selectStockNoByMaterialCode", materialCode);
+	}
 }

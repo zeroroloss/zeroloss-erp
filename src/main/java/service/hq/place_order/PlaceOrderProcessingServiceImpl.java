@@ -50,7 +50,7 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
                 return false;
             }
 
-            // Get full details with material codes for inventory deduction
+            // 발주 상세
             List<PlaceOrderProcessingDetailDTO> fullDetails = dao.selectOrderDetailsByPoNo(sqlSession, poNo);
             if (fullDetails == null) {
                 fullDetails = new java.util.ArrayList<>();
@@ -94,6 +94,36 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
                 sqlSession.rollback();
                 return false;
             }
+            
+            // 1. 출고 헤더 생성
+            Map<String, Object> outboundParam = new HashMap<>();
+            outboundParam.put("poNo", poNo);
+            outboundParam.put("branchCode", header.getBranchCode());
+
+            dao.insertOutbound(sqlSession, outboundParam);
+
+            // PK 받아오기
+            Number key = (Number) outboundParam.get("hqOutboundNo");
+            Integer hqOutboundNo = key.intValue();
+            
+            // 2. 출고 상세 생성
+            for (PlaceOrderProcessingDetailDTO detail : fullDetails) {
+
+                int approvedQty = detail.getApprovedQty() == null ? 0 : detail.getApprovedQty();
+                if (approvedQty <= 0) continue;
+
+                Map<String, Object> param = new HashMap<>();
+                param.put("hqOutboundNo", hqOutboundNo);
+
+                // materialCode → stockNo 변환
+                String stockNo = dao.selectStockNoByMaterialCode(sqlSession, detail.getMaterialCode());
+                param.put("stockNo", stockNo);
+
+                param.put("qty", approvedQty);
+
+                dao.insertOutboundDetail(sqlSession, param);
+            }
+
 
             sqlSession.commit();
             return true;

@@ -22,4 +22,10 @@ public interface PlaceOrderProcessingDao {
     int updateApprovedQtyByDetailId(SqlSession sqlSession, Map<String, Object> param) throws Exception;
 
     int deductWarehouseStock(SqlSession sqlSession, Map<String, Object> param) throws Exception;
+    
+    // 출고 내역
+    int insertOutbound(SqlSession sqlSession, Map<String, Object> param);
+    int insertOutboundDetail(SqlSession sqlSession, Map<String, Object> param);
+
+	String selectStockNoByMaterialCode(SqlSession sqlSession, String materialCode);
 }

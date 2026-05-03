@@ -132,5 +132,43 @@
         WHERE material_code = #{materialCode}
           AND qty >= #{deductQty}
     </update>
+   
+<!-- 출고 내역 -->
+	<insert id="insertOutbound" parameterType="map" useGeneratedKeys="true" keyProperty="hqOutboundNo">
+	    INSERT INTO hq_outbound (
+	        po_no,
+	        branch_code,
+	        status,
+	        handler,
+	        shipped_at
+	    )
+	    VALUES (
+	        #{poNo},
+	        #{branchCode},
+	        'PENDING',
+	        NULL,
+	        NOW()
+	    )
+	</insert>
+	
+	<insert id="insertOutboundDetail" parameterType="map">
+	    INSERT INTO hq_outbound_detail (
+	        hq_outbound_no,
+	        stock_no,
+	        qty
+	    )
+	    VALUES (
+	        #{hqOutboundNo},
+	        #{stockNo},
+	        #{qty}
+	    )
+	</insert>
+<!-- stockNo 조회 -->
+	<select id="selectStockNoByMaterialCode" parameterType="string" resultType="string">
+	    SELECT stock_no
+	    FROM warehouse_stock
+	    WHERE material_code = #{value}
+	    LIMIT 1
+	</select>
 
 </mapper>
