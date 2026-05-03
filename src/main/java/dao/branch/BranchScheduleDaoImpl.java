@@ -25,11 +25,11 @@ public class BranchScheduleDaoImpl implements BranchScheduleDao {
 	}
 
 	@Override
-	public List<EmployeeDTO> selectBranchEmployee() throws Exception {
+	public List<EmployeeDTO> selectBranchEmployee(Integer branchCode) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		List<EmployeeDTO> empList = null;
 		try {
-			empList = sqlSession.selectList("mapper.branch.schedule.selectBranchEmployee");
+			empList = sqlSession.selectList("mapper.branch.schedule.selectBranchEmployee", branchCode);
 		} catch(Exception e) {
 			throw e;
 		} finally {
@@ -111,7 +111,7 @@ public class BranchScheduleDaoImpl implements BranchScheduleDao {
 	}
 
 	@Override
-	public void deleteRepeatSchedule(Integer repeatGroupId) throws Exception {
+	public void deleteRepeatSchedule(String repeatGroupId) throws Exception {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		try {
 			sqlSession.delete("mapper.branch.schedule.deleteRepeatSchedule", repeatGroupId);
@@ -129,7 +129,7 @@ public class BranchScheduleDaoImpl implements BranchScheduleDao {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
 		BranchScheduleDTO schedule = null;
 		try {
-			sqlSession.selectOne("mapper.branch.schedule.selectSchedule", scheduleId);
+			schedule = sqlSession.selectOne("mapper.branch.schedule.selectSchedule", scheduleId);
 		} catch(Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -137,6 +137,20 @@ public class BranchScheduleDaoImpl implements BranchScheduleDao {
 			sqlSession.close();
 		}
 		return schedule;
+	}
+
+	@Override
+	public void updateRepeatSchedule(BranchScheduleDTO schedule) throws Exception {
+		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
+		try {
+			sqlSession.update("mapper.branch.schedule.updateRepeatSchedule", schedule);
+			sqlSession.commit();
+		} catch(Exception e) {
+			sqlSession.rollback();
+			throw e;
+		} finally {
+			sqlSession.close();
+		}
 	}
 
 }

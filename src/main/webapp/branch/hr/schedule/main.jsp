@@ -69,6 +69,8 @@
 	.type-MIDDLE {background: #2563eb;}
 	.type-CLOSE {background: #9333ea;}
 	.type-OFF {background: #6b7280;}
+	.employee-name-link {cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-weight: 600}
+	.employee-name-link:hover {opacity: 0.8;}
 
     .modal-overlay { position: fixed; inset: 0; background: transparent; display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; z-index: 2000; }
     .modal-overlay.open { display: flex; }
@@ -131,7 +133,7 @@
 			            <div class="flex items-center justify-between gap-4">
 			              <div>
 			                <h3 class="text-sm font-semibold text-gray-800">직원 검색</h3>
-			                <p class="text-xs text-gray-500 mt-1">사번, 이름, 역할 기준으로 검색할 수 있습니다.</p>
+			                <p class="text-xs text-gray-500 mt-1">사번, 이름 기준으로 검색할 수 있습니다.</p>
 			              </div>
 			
 			              <div class="flex items-center gap-2">
@@ -229,15 +231,16 @@
 			startTime: "${s.startTime}",
 			endTime: "${s.endTime}",
 			isRepeat: "${s.isRepeat}",
-			repeatGroupId: "${repeatGroupId}",
+			repeatGroupId: "${s.repeatGroupId}",
 			notes: "${s.memo}"
 		}<c:if test="${!st.last}">,</c:if>
 		</c:forEach>
 	];
 	
 	var currentDate = new Date();
+	var isSearched = false;
     var employees = [
-    	<c:forEach var="e" items="${hqEmployeeList}" varStatus="st">
+    	<c:forEach var="e" items="${branchEmployeeList}" varStatus="st">
     	{
     		id: "${e.empNo}",
     		name: "${e.name}",
@@ -257,6 +260,24 @@
     	    showAddModal();
     	});
     });
+    
+    function makeNameLinks(scheduleArr) {
+    	var namesHtml = [];
+
+        for (var i = 0; i < scheduleArr.length; i++) {
+            var item = scheduleArr[i];
+
+            namesHtml.push(
+                '<span class="employee-name-link" ' +
+                'onclick="event.stopPropagation(); viewSchedule(\'' + item.id + '\')" ' +
+                'title="' + item.employee + ' 일정 수정">' +
+                item.employee +
+                '</span>'
+            );
+        }
+
+        return namesHtml.join(', ');
+    }
     
     function renderCalendar() {
         var year = currentDate.getFullYear();
@@ -334,19 +355,46 @@
             html += '<div class="' + cellClass + '" style="min-height:120px;" onclick="selectDateForModal(\'' + dateStr + '\')">';
             html += '<div class="text-xs font-medium mb-1 text-gray-900">' + dayObj.day + '</div>';
 
-            for (var k = 0; k < Math.min(daySchedules.length, 3); k++) {
-                var s = daySchedules[k];
-                var empName = s.employee.substring(0, 3);
+            var openSchedules = [];
+            var middleSchedules = [];
+            var closeSchedules = [];
 
-                html += '<div class="schedule-event type-' + s.type + '" onclick="event.stopPropagation(); viewSchedule(\'' + s.id + '\')" title="' + s.employee + ' - ' + s.type + '">';
-                html += '<span class="text-xs font-semibold">' + empName + '</span> <span class="text-xs">' + s.type + '</span>';
+            for (var k = 0; k < daySchedules.length; k++) {
+                var s = daySchedules[k];
+
+                if (s.type === 'OPEN') {
+                    openSchedules.push(s);
+                } else if (s.type === 'MIDDLE') {
+                    middleSchedules.push(s);
+                } else if (s.type === 'CLOSE') {
+                    closeSchedules.push(s);
+                }
+            }
+            
+            html += '<div class="mt-2 space-y-1 text-xs">';
+
+            if (openSchedules.length > 0) {
+                html += '<div class="schedule-event type-OPEN">';
+                html += '<span class="font-semibold">오픈</span> ';
+                html += makeNameLinks(openSchedules);
                 html += '</div>';
             }
 
-            if (daySchedules.length > 3) {
-                html += '<div class="text-xs text-gray-600 text-center font-medium mt-1">+' + (daySchedules.length - 3) + '개 더보기</div>';
+            if (middleSchedules.length > 0) {
+                html += '<div class="schedule-event type-MIDDLE">';
+                html += '<span class="font-semibold">미들</span> ';
+                html += makeNameLinks(middleSchedules);
+                html += '</div>';
             }
 
+            if (closeSchedules.length > 0) {
+                html += '<div class="schedule-event type-CLOSE">';
+                html += '<span class="font-semibold">마감</span> ';
+                html += makeNameLinks(closeSchedules);
+                html += '</div>';
+            }
+
+            html += '</div>';
             html += '</div>';
         }
 
@@ -383,24 +431,492 @@
         document.getElementById('addModal').classList.remove('modal-hidden');
     }
     
-    function closeAddModal() {
-    	document.getElementById("addModal").classList.add("modal-hidden");
-    }
-    
     function toggleRepeatOptions() {
         var isRepeat = document.getElementById('isRepeat').value;
         var weekdayOptions = document.getElementById('weekdayOptions');
 
-        if (isRepeat === '2') {
-            weekdayOptions.classList.remove('hidden');
-        } else {
+        var startDate = document.getElementById('startDate');
+        var endDate = document.getElementById('endDate');
+
+        if (isRepeat === '1') {
+            // 반복 없음: 하루 일정만 등록
             weekdayOptions.classList.add('hidden');
 
-            var checks = document.querySelectorAll('input[name="weekdayRepeat"]');
-            for (var i = 0; i < checks.length; i++) {
-                checks[i].checked = false;
+            endDate.value = startDate.value;
+            endDate.disabled = true;
+
+            clearWeekdayChecks();
+
+        } else if (isRepeat === '2') {
+            // 매주 반복: 기간 + 요일 선택
+            weekdayOptions.classList.remove('hidden');
+
+            endDate.disabled = false;
+
+        } else if (isRepeat === '3') {
+            // 매월 반복: 기간만 사용, 요일 선택 없음
+            weekdayOptions.classList.add('hidden');
+
+            endDate.disabled = false;
+
+            clearWeekdayChecks();
+        }
+    }
+    
+    function clearWeekdayChecks() {
+        var checks = document.querySelectorAll('input[name="weekdayRepeat"]');
+
+        for (var i = 0; i < checks.length; i++) {
+            checks[i].checked = false;
+        }
+    }
+    
+    function changeStartDate() {
+        var isRepeat = document.getElementById('isRepeat').value;
+        var startDate = document.getElementById('startDate');
+        var endDate = document.getElementById('endDate');
+
+        if (isRepeat === '1') {
+            endDate.value = startDate.value;
+        }
+    }
+    
+    function closeAddModal() {
+        document.getElementById("addModal").classList.add("modal-hidden");
+    }
+    
+    function saveSchedule() {
+    	var empNo = document.getElementById('empNo').value;
+        var empName = document.getElementById('empName').value;
+        var workType = document.getElementById('workType').value;
+        var startDate = document.getElementById('startDate').value;
+        var endDate = document.getElementById('endDate').value;
+        var startTime = document.getElementById('startTime').value;
+        var endTime = document.getElementById('endTime').value;
+        var isRepeat = document.getElementById('isRepeat').value;
+        
+        if (isRepeat === '1') {
+            endDate = startDate;
+        }
+
+        if (!empNo) {
+            alert('직원을 선택해주세요.');
+            return;
+        }
+
+        if (!startDate || !endDate) {
+            alert('기간을 선택해주세요.');
+            return;
+        }
+
+        if (startDate > endDate) {
+            alert('종료 날짜는 시작 날짜보다 빠를 수 없습니다.');
+            return;
+        }
+
+        if (!startTime || !endTime) {
+            alert('근무 시간을 입력해주세요.');
+            return;
+        }
+
+        if (startTime >= endTime) {
+            alert('종료 시간은 시작 시간보다 늦어야 합니다.');
+            return;
+        }
+
+        if (isRepeat === '2') {
+            var checkedDays = document.querySelectorAll('input[name="weekdayRepeat"]:checked');
+
+            if (checkedDays.length === 0) {
+                alert('반복 요일을 선택해주세요.');
+                return;
             }
         }
+
+        var params = new URLSearchParams();
+
+        params.append('action', 'add');
+        params.append('empNo', empNo);
+        params.append('empName', empName);
+        params.append('workType', workType);
+        params.append('startDate', startDate);
+        params.append('endDate', endDate);
+        params.append('startTime', startTime);
+        params.append('endTime', endTime);
+        params.append('isRepeat', isRepeat);
+        params.append('memo', document.getElementById('memo').value);
+
+        var checkedDays = document.querySelectorAll('input[name="weekdayRepeat"]:checked');
+
+        for (var i = 0; i < checkedDays.length; i++) {
+            params.append('weekdayRepeat', checkedDays[i].value);
+        }
+
+        fetch('<%= request.getContextPath() %>/branch/hr/branchschedule', {
+            method: 'POST',
+            body: params,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error('서버 응답 오류');
+            }
+
+            return response.json();
+        })
+        .then(function(result) {
+            if (!result.success) {
+                alert(result.message || '일정 추가에 실패했습니다.');
+                return;
+            }
+
+            addScheduleToCalendarFromInput();
+
+            isSearched = true;
+            renderCalendar();
+            closeAddModal();
+
+            alert(result.message || '일정이 추가되었습니다.');
+        })
+        .catch(function(error) {
+            console.error(error);
+            alert('일정 추가 중 오류가 발생했습니다.');
+        });
+    }
+    
+    function addWeeklyRepeatSchedules(tempId, empNo, empName, workType, startDate, endDate, startTime, endTime, isRepeat, memo) {
+        var checkedDays = document.querySelectorAll('input[name="weekdayRepeat"]:checked');
+        var selectedDays = [];
+
+        for (var i = 0; i < checkedDays.length; i++) {
+            selectedDays.push(Number(checkedDays[i].value));
+        }
+
+        var repeatGroupId = 'TEMP_GROUP_' + new Date().getTime();
+
+        var current = new Date(startDate);
+        var last = new Date(endDate);
+
+        while (current <= last) {
+            var day = current.getDay();
+
+            var weekdayValue;
+            if (day === 0) {
+                weekdayValue = 7;
+            } else {
+                weekdayValue = day;
+            }
+
+            if (selectedDays.includes(weekdayValue)) {
+                var dateStr =
+                    current.getFullYear() + '-' +
+                    String(current.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(current.getDate()).padStart(2, '0');
+
+                branchSchedules.push({
+                    id: tempId + '_' + dateStr,
+                    employeeId: empNo,
+                    employee: empName,
+                    workDate: dateStr,
+                    type: workType,
+                    title: workType,
+                    startTime: startTime,
+                    endTime: endTime,
+                    isRepeat: isRepeat,
+                    repeatGroupId: repeatGroupId,
+                    notes: memo
+                });
+            }
+
+            current.setDate(current.getDate() + 1);
+        }
+    }
+    
+    function addScheduleToCalendarFromInput() {
+        var empNo = document.getElementById('empNo').value;
+        var empName = document.getElementById('empName').value;
+        var workType = document.getElementById('workType').value;
+        var startDate = document.getElementById('startDate').value;
+        var endDate = document.getElementById('endDate').value;
+        var startTime = document.getElementById('startTime').value;
+        var endTime = document.getElementById('endTime').value;
+        var isRepeat = document.getElementById('isRepeat').value;
+        var memo = document.getElementById('memo').value;
+
+        if (isRepeat === '1') {
+            branchSchedules.push({
+                id: 'TEMP_' + new Date().getTime(),
+                employeeId: empNo,
+                employee: empName,
+                workDate: startDate,
+                type: workType,
+                title: workType,
+                startTime: startTime,
+                endTime: endTime,
+                isRepeat: isRepeat,
+                repeatGroupId: '',
+                notes: memo
+            });
+
+            return;
+        }
+
+        if (isRepeat === '2') {
+            addWeeklySchedulesToCalendar(empNo, empName, workType, startDate, endDate, startTime, endTime, isRepeat, memo);
+            return;
+        }
+
+        if (isRepeat === '3') {
+            addMonthlySchedulesToCalendar(empNo, empName, workType, startDate, endDate, startTime, endTime, isRepeat, memo);
+            return;
+        }
+    }
+    
+    // 매주 반복
+    function addWeeklySchedulesToCalendar(empNo, empName, workType, startDate, endDate, startTime, endTime, isRepeat, memo) {
+        var checkedDays = document.querySelectorAll('input[name="weekdayRepeat"]:checked');
+        var selectedDays = [];
+
+        for (var i = 0; i < checkedDays.length; i++) {
+            selectedDays.push(Number(checkedDays[i].value));
+        }
+
+        var repeatGroupId = 'TEMP_GROUP_' + new Date().getTime();
+
+        var current = new Date(startDate);
+        var last = new Date(endDate);
+
+        while (current <= last) {
+            var day = current.getDay();
+
+            var weekdayValue;
+            if (day === 0) {
+                weekdayValue = 7;
+            } else {
+                weekdayValue = day;
+            }
+
+            if (selectedDays.includes(weekdayValue)) {
+                var dateStr =
+                    current.getFullYear() + '-' +
+                    String(current.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(current.getDate()).padStart(2, '0');
+
+                branchSchedules.push({
+                    id: 'TEMP_' + dateStr + '_' + new Date().getTime(),
+                    employeeId: empNo,
+                    employee: empName,
+                    workDate: dateStr,
+                    type: workType,
+                    title: workType,
+                    startTime: startTime,
+                    endTime: endTime,
+                    isRepeat: isRepeat,
+                    repeatGroupId: repeatGroupId,
+                    notes: memo
+                });
+            }
+
+            current.setDate(current.getDate() + 1);
+        }
+    }
+    
+    // 매월 반복
+    function addMonthlySchedulesToCalendar(empNo, empName, workType, startDate, endDate, startTime, endTime, isRepeat, memo) {
+	    var repeatGroupId = 'TEMP_GROUP_' + new Date().getTime();
+	
+	    var start = new Date(startDate);
+	    var last = new Date(endDate);
+	
+	    var targetDay = start.getDate();
+	    var current = new Date(start);
+	
+	    while (current <= last) {
+	        if (current.getDate() === targetDay) {
+	            var dateStr =
+	                current.getFullYear() + '-' +
+	                String(current.getMonth() + 1).padStart(2, '0') + '-' +
+	                String(current.getDate()).padStart(2, '0');
+	
+	            branchSchedules.push({
+	                id: 'TEMP_' + dateStr + '_' + new Date().getTime(),
+	                employeeId: empNo,
+	                employee: empName,
+	                workDate: dateStr,
+	                type: workType,
+	                title: workType,
+	                startTime: startTime,
+	                endTime: endTime,
+	                isRepeat: isRepeat,
+	                repeatGroupId: repeatGroupId,
+	                notes: memo
+	            });
+	        }
+	
+	        current.setMonth(current.getMonth() + 1);
+	    }
+	}
+    
+    function updateSchedule(scope) {
+        var scheduleId = document.getElementById('editScheduleId').value;
+        var empNo = document.getElementById('editEmpNo').value;
+        var branchCode = document.getElementById('editBranchCode').value;
+        var repeatGroupId = document.getElementById('editRepeatGroupId').value;
+        var workType = document.getElementById('editWorkType').value;
+        var isRepeat = document.getElementById('editIsRepeat').value;
+        var workDate = document.getElementById('editWorkDate').value;
+        var startTime = document.getElementById('editStartTime').value;
+        var endTime = document.getElementById('editEndTime').value;
+        var memo = document.getElementById('editMemo').value;
+
+        if (!workDate) {
+            alert('근무 날짜를 선택해주세요.');
+            return;
+        }
+
+        if (!startTime || !endTime) {
+            alert('근무 시간을 입력해주세요.');
+            return;
+        }
+
+        if (startTime >= endTime) {
+            alert('종료 시간은 시작 시간보다 늦어야 합니다.');
+            return;
+        }
+
+        var params = new URLSearchParams();
+        params.append('action', 'modify');
+        params.append('scope', scope);
+        params.append('scheduleId', scheduleId);
+        params.append('empNo', empNo);
+        params.append('branchCode', branchCode);
+        params.append('repeatGroupId', repeatGroupId);
+        params.append('workType', workType);
+        params.append('isRepeat', isRepeat);
+        params.append('workDate', workDate);
+        params.append('startTime', startTime);
+        params.append('endTime', endTime);
+        params.append('memo', memo);
+
+        fetch('<%= request.getContextPath() %>/branch/hr/branchschedule', {
+            method: 'POST',
+            body: params,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            if (!result.success) {
+                alert(result.message || '일정 수정에 실패했습니다.');
+                return;
+            }
+
+            if (scope === 'ONE') {
+                var schedule = branchSchedules.find(function(s) {
+                    return String(s.id) === String(scheduleId);
+                });
+
+                if (schedule) {
+                    schedule.type = workType;
+                    schedule.title = workType;
+                    schedule.workDate = workDate;
+                    schedule.startTime = startTime;
+                    schedule.endTime = endTime;
+                    schedule.notes = memo;
+                }
+            } else {
+                for (var i = 0; i < branchSchedules.length; i++) {
+                    if (String(branchSchedules[i].repeatGroupId) === String(repeatGroupId)) {
+                        branchSchedules[i].type = workType;
+                        branchSchedules[i].title = workType;
+                        branchSchedules[i].startTime = startTime;
+                        branchSchedules[i].endTime = endTime;
+                        branchSchedules[i].notes = memo;
+                    }
+                }
+            }
+
+            renderCalendar();
+            closeEditModal();
+
+            alert(result.message || '일정이 수정되었습니다.');
+        })
+        .catch(function(error) {
+            console.error(error);
+            alert('일정 수정 중 오류가 발생했습니다.');
+        });
+    }
+    
+    function deleteSchedule(scope) {
+        var scheduleId = document.getElementById('editScheduleId').value;
+        var repeatGroupId = document.getElementById('editRepeatGroupId').value;
+
+        if (!scheduleId) {
+            alert('삭제할 일정을 찾을 수 없습니다.');
+            return;
+        }
+
+        var message = scope === 'ALL'
+            ? '반복 일정 전체를 삭제하시겠습니까?'
+            : '선택한 일정을 삭제하시겠습니까?';
+
+        if (!confirm(message)) {
+            return;
+        }
+
+        var params = new URLSearchParams();
+        params.append('action', 'delete');
+        params.append('scope', scope);
+        params.append('scheduleId', scheduleId);
+        params.append('repeatGroupId', repeatGroupId);
+
+        fetch('<%= request.getContextPath() %>/branch/hr/branchschedule', {
+            method: 'POST',
+            body: params,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            if (!result.success) {
+                alert(result.message || '일정 삭제에 실패했습니다.');
+                return;
+            }
+
+            if (scope === 'ONE') {
+                branchSchedules = branchSchedules.filter(function(s) {
+                    return String(s.id) !== String(scheduleId);
+                });
+            } else {
+                branchSchedules = branchSchedules.filter(function(s) {
+                    return String(s.repeatGroupId) !== String(repeatGroupId);
+                });
+            }
+
+            renderCalendar();
+            closeEditModal();
+
+            alert(result.message || '일정이 삭제되었습니다.');
+        })
+        .catch(function(error) {
+            console.error(error);
+            alert('일정 삭제 중 오류가 발생했습니다.');
+        });
+    }
+    
+    function closeEditModal() {
+        document.getElementById('editModal').classList.add('modal-hidden');
     }
     
     function searchEmployeesByName() {
@@ -429,7 +945,6 @@
             html += '<div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-semibold">' + emp.name.charAt(0) + '</div>';
             html += '<div class="text-sm">';
             html += '<span class="font-medium text-gray-900">' + emp.name + '</span>';
-            html += '<span class="text-gray-500 ml-1">(' + (emp.dept || '-') + ')</span>';
             html += '</div>';
             html += '</div>';
         }
@@ -472,6 +987,10 @@
     }
     
     function getFilteredSchedules() {
+    	if(!isSearched) {
+    		return [];
+    	}
+    	
         var keyword = document.getElementById('searchInput').value.trim();
         var schedules = branchSchedules;
 
@@ -508,11 +1027,13 @@
     }
     
     function applyFilters() {
+    	isSearched = true;
         renderCalendar();
     }
     
     function resetFilters() {
         document.getElementById('searchInput').value = '';
+        isSearched = false;
         renderCalendar();
     }
     
@@ -526,6 +1047,8 @@
             return;
         }
 
+        document.getElementById('editEmpNo').value = schedule.employeeId || '';
+        document.getElementById('editBranchCode').value = schedule.branchCode || '';
         document.getElementById('editScheduleId').value = schedule.id;
         document.getElementById('editRepeatGroupId').value = schedule.repeatGroupId || '';
         document.getElementById('editIsRepeat').value = schedule.isRepeat || '1';
@@ -533,8 +1056,8 @@
         document.getElementById('editEmployeeName').value = schedule.employee || '';
         document.getElementById('editWorkType').value = schedule.type || 'OPEN';
         document.getElementById('editWorkDate').value = schedule.workDate || '';
-        document.getElementById('editStartTime').value = schedule.startTime || '';
-        document.getElementById('editEndTime').value = schedule.endTime || '';
+        document.getElementById('editStartTime').value = (schedule.startTime || '').substring(0, 5);
+        document.getElementById('editEndTime').value = (schedule.endTime || '').substring(0, 5);
         document.getElementById('editMemo').value = schedule.notes || '';
 
         var isRepeat = String(schedule.isRepeat) !== '1';

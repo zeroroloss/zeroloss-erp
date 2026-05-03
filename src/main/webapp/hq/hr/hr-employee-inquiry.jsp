@@ -61,8 +61,8 @@
 					                <i class="fas fa-building w-6 h-6 text-blue-600"></i>
 					            </div>
 					            <div>
-					                <p class="text-sm text-gray-500">전체 소속</p>
-					                <p class="text-2xl font-bold text-gray-900 mt-1" id="totalBranch">${totalBranch}</p>
+					                <p class="text-sm text-gray-500">전체 직영점 수</p>
+					                <p class="text-2xl font-bold text-gray-900 mt-1" id="totalBranch">${totalBranch - 1}</p>
 					            </div>
 					        </div>
 					    </div>
@@ -87,10 +87,21 @@
                             <div class="flex items-center justify-between gap-4">
                             	<div>
                             		<h3 class="text-sm font-semibold text-gray-800">직원 검색</h3>
-                            		<p class="text-xs text-gray-500 mt-1">사번, 소속/부서, 이름 기준으로 검색할 수 있습니다.</p>
+                            		<p class="text-xs text-gray-500 mt-1">사번, 소속, 부서, 이름 기준으로 검색할 수 있습니다.</p>
                             	</div>
                             	
                             	<div class="flex items-center gap-2">
+                            		<!-- 소속명 선택 -->
+					                <select id="branchNameSelect"
+					                        class="w-44 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+					                    <option value="">전체 소속</option>
+										<c:forEach var="branch" items="${branchNameList}">
+										    <option value="${branch.branchName}">
+										        ${branch.branchName}
+										    </option>
+										</c:forEach>
+					                </select>
+                            	
 					                <div class="relative w-80">
 					                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
                             			<input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="검색어를 입력하세요"class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
@@ -109,8 +120,10 @@
 					            <thead class="bg-gray-50 border-b border-gray-200">
 					                <tr>
 					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">소속</th>
 					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">부서</th>
-					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">직급/역할</th>
+					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">직급</th>
+					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">역할</th>
 					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연락처</th>
 					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
 					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
@@ -419,41 +432,60 @@
 	    }
 	
 	    function renderEmployees() {
-	    	var searchTerm = document.getElementById("searchInput").value.toLowerCase();
+	    	var searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
+	        var selectedBranchName = document.getElementById("branchNameSelect").value.trim();
 
-	    	var filtered = employees.filter(function(employee) {
-	    	    var matchesSearch =
-	    	        employee.name.toLowerCase().includes(searchTerm) ||
-	    	        String(employee.empNo).toLowerCase().includes(searchTerm) ||
-	    	        employee.positionCode.toLowerCase().includes(searchTerm) ||
-	    	        employee.gradeCode.toLowerCase().includes(searchTerm) ||
-	    	        employee.dept.toLowerCase().includes(searchTerm);
+	        var filtered = employees.filter(function(employee) {
+	            var empNo = String(employee.empNo || "").toLowerCase();
+	            var name = String(employee.name || "").toLowerCase();
+	            var branchName = String(employee.branchName || "").toLowerCase();
+	            var dept = String(employee.dept || "").toLowerCase();
+	            var gradeName = String(employee.gradeName || "").toLowerCase();
+	            var gradeCode = String(employee.gradeCode || "").toLowerCase();
+	            var positionName = String(employee.positionName || "").toLowerCase();
+	            var positionCode = String(employee.positionCode || "").toLowerCase();
 
-	    	    return matchesSearch;
-	    	});
-	
+	            // 검색어가 비어 있으면 검색 조건은 통과
+	            var matchesSearch = searchTerm === "" ||
+	                empNo.includes(searchTerm) ||
+	                name.includes(searchTerm) ||
+	                branchName.includes(searchTerm) ||
+	                dept.includes(searchTerm) ||
+	                gradeName.includes(searchTerm) ||
+	                gradeCode.includes(searchTerm) ||
+	                positionName.includes(searchTerm) ||
+	                positionCode.includes(searchTerm);
+
+	            // 소속을 선택 안 했으면 소속 조건은 통과
+	            var matchesBranch = selectedBranchName === "" ||
+	                employee.branchName === selectedBranchName;
+
+	            // 검색 조건과 소속 조건을 둘 다 만족해야 함
+	            return matchesSearch && matchesBranch;
+	        });
+
 	        var tbody = document.getElementById('employeeTableBody');
-	
+
 	        if (filtered.length === 0) {
-	            tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">검색 결과가 없습니다.</td></tr>';
+	            tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-gray-500">검색 결과가 없습니다.</td></tr>';
 	            document.getElementById("pagination").innerHTML = "";
 	            return;
 	        }
-	
+
 	        var totalPages = Math.ceil(filtered.length / pageSize);
-	
+
 	        if (currentPage > totalPages) {
 	            currentPage = totalPages;
 	        }
-	
+
 	        var start = (currentPage - 1) * pageSize;
 	        var end = start + pageSize;
 	        var pageList = filtered.slice(start, end);
-	
+
 	        tbody.innerHTML = pageList.map(function(emp) {
 	            var statusText = '';
 	            var statusClass = '';
-	
+
 	            if (emp.status === 'ACTIVE') {
 	                statusText = '재직';
 	                statusClass = 'bg-green-100 text-green-700';
@@ -467,7 +499,7 @@
 	                statusText = emp.status || '-';
 	                statusClass = 'bg-gray-100 text-gray-700';
 	            }
-	
+
 	            return '<tr class="hover:bg-gray-50">' +
 	                '<td class="px-4 py-3 whitespace-nowrap">' +
 	                    '<div class="flex items-center gap-3">' +
@@ -480,25 +512,23 @@
 	                        '</div>' +
 	                    '</div>' +
 	                '</td>' +
-	
+
+	                '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.branchName || '-') + '</td>' +
 	                '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.dept || '-') + '</td>' +
-	
-	                '<td class="px-4 py-3 whitespace-nowrap">' +
-	                    '<div class="text-sm text-gray-900">' + (emp.gradeName || '-') + '</div>' +
-	                    '<div class="text-sm text-gray-900">' + (emp.positionName || '-') + '</div>' +
-	                '</td>' +
-	
+	                '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.gradeName || '-') + '</td>' +
+	                '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.positionName || '-') + '</td>' +
+
 	                '<td class="px-4 py-3 whitespace-nowrap">' +
 	                    '<div class="text-sm text-gray-900">' + (emp.phone || '-') + '</div>' +
 	                    '<div class="text-xs text-gray-500">' + (emp.email || '-') + '</div>' +
 	                '</td>' +
-	
+
 	                '<td class="px-4 py-3 whitespace-nowrap">' +
 	                    '<span class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full ' + statusClass + '">' +
 	                        statusText +
 	                    '</span>' +
 	                '</td>' +
-	
+
 	                '<td class="px-4 py-3 whitespace-nowrap">' +
 	                    '<button onclick="openEmployeeModal(\'' + emp.empNo + '\')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">' +
 	                        '상세보기' +
@@ -506,13 +536,13 @@
 	                '</td>' +
 	            '</tr>';
 	        }).join('');
-	
+
 	        renderPagination(totalPages);
 	    }
 	
 	    function clearEmployeeTable() {
 	        var tbody = document.getElementById('employeeTableBody');
-	        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">조회 버튼을 눌러 직원을 검색하세요.</td></tr>';
+	        tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-gray-500">조회 버튼을 눌러 직원을 검색하세요.</td></tr>';
 	    }
 	
 	    function saveEmployee() {
@@ -522,6 +552,7 @@
 	        params.append("empNo", document.getElementById("empNo").value);
 	        params.append("name", document.getElementById("name").value);
 	        params.append("branchCode", document.getElementById("branchCode").value);
+	        params.append("branchName", document.getElementById("branchName").value);
 	        params.append("dept", document.getElementById("dept").value);
 	        params.append("gradeCode", document.getElementById("gradeCode").value);
 	        params.append("positionCode", document.getElementById("positionCode").value);
@@ -672,6 +703,39 @@
 	            field.classList.remove("bg-gray-100", "text-gray-500", "cursor-not-allowed");
 	            field.classList.add("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
 	        });
+	        applyEditRestrictions();
+	    }
+	    
+	    function applyEditRestrictions() {
+	        if (!selectedEmployee) {
+	            return;
+	        }
+
+	        var branchName = String(selectedEmployee.branchName || "").trim();
+
+	        // 역할/직책 select
+	        var positionField = document.getElementById("editPositionCode");
+
+	        // 직급 select
+	        var gradeField = document.getElementById("editGradeCode");
+
+	        // 본사 소속이면 역할 수정 불가
+	        if (branchName === "본사") {
+	            if (positionField) {
+	                positionField.disabled = true;
+	                positionField.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed");
+	                positionField.classList.remove("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
+	            }
+	        }
+
+	        // 본사 소속이 아니면 직급 수정 불가
+	        if (branchName !== "본사") {
+	            if (gradeField) {
+	                gradeField.disabled = true;
+	                gradeField.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed");
+	                gradeField.classList.remove("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
+	            }
+	        }
 	    }
 	
 	    function resetEditMode() {
@@ -698,6 +762,7 @@
 
 	    function resetFilters() {
 	        document.getElementById("searchInput").value = "";
+	        document.getElementById('branchNameSelect').value = '';
 	        currentPage = 1;
 	        clearEmployeeTable();
 	        document.getElementById("pagination").innerHTML = "";

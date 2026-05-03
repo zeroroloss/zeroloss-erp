@@ -32,8 +32,6 @@ public class BranchScheduleServiceImpl implements BranchScheduleService {
 		}
 		
 		if(schedule.getIsRepeat() == 1) {
-			schedule.setWorkDate(schedule.getStartDate());
-			
 			if(scheduleDao.duplicateScdCnt(schedule)>0) {
 				throw new Exception ("이미 등록된 일정과 겹칩니다.");
 			}
@@ -55,31 +53,57 @@ public class BranchScheduleServiceImpl implements BranchScheduleService {
 		}
 	}
 	
-	private int insertWeeklyRepeat(BranchScheduleDTO schedule) throws Exception {
-	    int result = 0;
+	private void insertWeeklyRepeat(BranchScheduleDTO schedule) throws Exception {
+		String[] weekdays = schedule.getWeekdayRepeat();
 
-	    LocalDate start = schedule.getStartDate().toLocalDate();
-	    LocalDate end = schedule.getEndDate().toLocalDate();
+	    if (weekdays == null || weekdays.length == 0) {
+	        throw new Exception("반복 요일을 선택해주세요.");
+	    }
 
-	    while (!start.isAfter(end)) {
-	        int weekday = convertWeekday(start.getDayOfWeek());
+	    if (schedule.getStartDate() == null || schedule.getEndDate() == null) {
+	        throw new Exception("반복 기간을 선택해주세요.");
+	    }
 
-	        if (containsWeekday(schedule.getWeekdayRepeat(), weekday)) {
-	            BranchScheduleDTO copy = copySchedule(schedule);
-	            copy.setWorkDate(Date.valueOf(start));
+	    LocalDate startDate = schedule.getStartDate().toLocalDate();
+	    LocalDate endDate = schedule.getEndDate().toLocalDate();
+	    
+	    LocalDate current = startDate;
 
-	            if (scheduleDao.duplicateScdCnt(copy) > 0) {
+	    while (!current.isAfter(endDate)) {
+	        int dayOfWeek = current.getDayOfWeek().getValue(); // 월=1, 일=7
+
+	        boolean matched = false;
+
+	        for (int i = 0; i < weekdays.length; i++) {
+	            if (Integer.parseInt(weekdays[i]) == dayOfWeek) {
+	                matched = true;
+	                break;
+	            }
+	        }
+
+	        if (matched) {
+	            BranchScheduleDTO insertSchedule = new BranchScheduleDTO();
+
+	            insertSchedule.setEmpNo(schedule.getEmpNo());
+	            insertSchedule.setEmpName(schedule.getEmpName());
+	            insertSchedule.setBranchCode(schedule.getBranchCode());
+	            insertSchedule.setWorkDate(Date.valueOf(current));
+	            insertSchedule.setStartTime(schedule.getStartTime());
+	            insertSchedule.setEndTime(schedule.getEndTime());
+	            insertSchedule.setIsRepeat(schedule.getIsRepeat());
+	            insertSchedule.setRepeatGroupId(schedule.getRepeatGroupId());
+	            insertSchedule.setMemo(schedule.getMemo());
+	            insertSchedule.setWorkType(schedule.getWorkType());
+
+	            if (scheduleDao.duplicateScdCnt(insertSchedule) > 0) {
 	                throw new Exception("이미 등록된 일정과 겹칩니다.");
 	            }
 
-	            scheduleDao.insertSchedule(copy);
-	            result++;
+	            scheduleDao.insertSchedule(insertSchedule);
 	        }
 
-	        start = start.plusDays(1);
+	        current = current.plusDays(1);
 	    }
-
-	    return result;
 	}
 	
 	private int insertMonthlyRepeat(BranchScheduleDTO schedule) throws Exception {
@@ -156,8 +180,8 @@ public class BranchScheduleServiceImpl implements BranchScheduleService {
 	}
 
 	@Override
-	public List<EmployeeDTO> selectBranchEmployee() throws Exception {
-		return scheduleDao.selectBranchEmployee();
+	public List<EmployeeDTO> selectBranchEmployee(Integer branchCode) throws Exception {
+		return scheduleDao.selectBranchEmployee(branchCode);
 	}
 
 	@Override
@@ -167,15 +191,26 @@ public class BranchScheduleServiceImpl implements BranchScheduleService {
 
 	@Override
 	public void modifySchedule(BranchScheduleDTO schedule) throws Exception {
-		BranchScheduleDTO originSchedule = scheduleDao.selectSchedule(schedule.getScheduleId());
-		schedule.setEmpNo(originSchedule.getEmpNo());
-		schedule.setBranchCode(originSchedule.getBranchCode());
-		
-		Integer duplicateCnt = scheduleDao.duplicateScdCntForUpdate(schedule);
-		if(duplicateCnt > 0) {
-			throw new Exception("이미 등록된 일정과 겹칩니다.");
-		}
-		scheduleDao.updateSchedule(schedule);
+	    System.out.println("서비스 scheduleId = " + schedule.getScheduleId());
+
+	    BranchScheduleDTO originSchedule = scheduleDao.selectSchedule(schedule.getScheduleId());
+
+	    System.out.println("originSchedule = " + originSchedule);
+
+	    if (originSchedule == null) {
+	        throw new Exception("수정할 기존 일정을 찾을 수 없습니다. scheduleId=" + schedule.getScheduleId());
+	    }
+
+	    schedule.setEmpNo(originSchedule.getEmpNo());
+	    schedule.setBranchCode(originSchedule.getBranchCode());
+
+	    Integer duplicateCnt = scheduleDao.duplicateScdCntForUpdate(schedule);
+
+	    if (duplicateCnt != null && duplicateCnt > 0) {
+	        throw new Exception("이미 등록된 일정과 겹칩니다.");
+	    }
+
+	    scheduleDao.updateSchedule(schedule);
 	}
 
 	@Override
@@ -184,13 +219,18 @@ public class BranchScheduleServiceImpl implements BranchScheduleService {
 	}
 
 	@Override
-	public void removeRepeatSchedule(Integer repeatGroupId) throws Exception {
+	public void removeRepeatSchedule(String repeatGroupId) throws Exception {
 		scheduleDao.deleteRepeatSchedule(repeatGroupId);
 	}
 
 	@Override
 	public BranchScheduleDTO selectSchedule(Integer scheduleId) throws Exception {
 		return scheduleDao.selectSchedule(scheduleId);
+	}
+
+	@Override
+	public void modifyRepeatSchedule(BranchScheduleDTO schedule) throws Exception {
+		scheduleDao.updateRepeatSchedule(schedule);
 	}
 
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
-	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 	
 <mapper namespace="mapper.branch.schedule">
 	<insert id="insertSchedule" parameterType="dto.branch.hr.BranchScheduleDTO">
@@ -60,7 +61,11 @@
 	</select>
 	
 	<update id="updateSchedule" parameterType="dto.branch.hr.BranchScheduleDTO">
-		update branch_schedule set start_time = #{startTime}, end_time = #{endTime}, is_repeat=#{isRepeat}, repeat_group_id=#{repearGroupId}, memo = #{memo}, work_type = #{workType} where schedule_id = #{scheduleId}
+		update branch_schedule set work_date=#{workDate}, start_time = #{startTime}, end_time = #{endTime}, memo = #{memo}, work_type = #{workType} where schedule_id = #{scheduleId}
+	</update>
+	
+	<update id="updateRepeatSchedule" parameterType="dto.branch.hr.BranchScheduleDTO">
+		update branch_schedule set start_time=#{startTime}, end_time=#{endTime}, work_type=#{workType}, memo=#{memo} where repeat_group_id=#{repeatGroupId}
 	</update>
 	
 	<delete id="deleteSchedule" parameterType="Integer">

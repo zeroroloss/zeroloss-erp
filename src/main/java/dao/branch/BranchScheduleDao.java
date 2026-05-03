@@ -9,7 +9,7 @@ public interface BranchScheduleDao {
 	// 스케줄 추가(알바생)
 	void insertSchedule(BranchScheduleDTO schedule) throws Exception;
 	BranchScheduleDTO selectSchedule(Integer scheduleId) throws Exception;
-	List<EmployeeDTO> selectBranchEmployee() throws Exception;
+	List<EmployeeDTO> selectBranchEmployee(Integer branchCode) throws Exception;
 	
 	// 스케줄 리스트 조회
 	List<BranchScheduleDTO> selectBranchScheduleList(BranchScheduleDTO schedule) throws Exception;
@@ -20,8 +20,9 @@ public interface BranchScheduleDao {
 	
 	// 스케줄 수정
 	void updateSchedule(BranchScheduleDTO schedule) throws Exception;
+	void updateRepeatSchedule(BranchScheduleDTO schedule) throws Exception;
 	
 	// 스케줄 삭제
 	void deleteSchedule(Integer scheduleId) throws Exception;
-	void deleteRepeatSchedule(Integer repeatGroupId) throws Exception;
+	void deleteRepeatSchedule(String repeatGroupId) throws Exception;
 }

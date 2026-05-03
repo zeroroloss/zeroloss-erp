@@ -12,12 +12,12 @@
             <h3 class="text-lg font-bold text-gray-900">직원 상세 조회</h3>
 
             <div class="flex items-center gap-3">
-                <button type="button"
-                        id="editModeBtn"
-                        onclick="changeToEditMode()"
-                        class="px-4 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B2F] transition-colors">
-                    수정
-                </button>
+	            <button type="button"
+	                    id="editModeBtn"
+	                    onclick="changeToEditMode()"
+	                    class="px-4 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B2F] transition-colors">
+	                수정
+	            </button>
 
                 <button type="button"
                         onclick="closeEditModal()"
@@ -57,9 +57,6 @@
                             name="editPositionCode"
                             disabled
                             class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
-                        <option value="">선택 안 함</option>
-                        <option value="POS_MGR">점장</option>
-                        <option value="POS_SUP">매니저</option>
                         <option value="POS_STF">직원</option>
                         <option value="POS_PTM">알바</option>
                     </select>

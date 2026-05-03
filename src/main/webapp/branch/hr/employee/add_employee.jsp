@@ -8,7 +8,7 @@
          onclick="event.stopPropagation()">
 
         <div class="border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 bg-white z-10">
-            <h3 class="text-lg font-bold text-gray-900">신규 직원 등록</h3>
+            <h3 class="text-lg font-bold text-gray-900">신규 알바생 등록</h3>
             <button type="button" onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600">
                 <i class="fas fa-times w-5 h-5"></i>
             </button>
@@ -41,10 +41,6 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
                     <select id="positionCode" name="positionCode"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
-                        <option value="">선택 안 함</option>
-                        <option value="POS_MGR">점장</option>
-                        <option value="POS_SUP">매니저</option>
-                        <option value="POS_STF">직원</option>
                         <option value="POS_PTM">알바</option>
                     </select>
                 </div>
