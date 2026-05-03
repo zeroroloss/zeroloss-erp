@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.hq.warehouse.outbound">
+
+    <select id="selectAllBranchNames" resultType="string">
+        SELECT name
+        FROM branch
+        ORDER BY name
+    </select>
+
+	<select id="selectOutbounds" parameterType="map" resultType="dto.hq.warehouse.WarehouseOutboundDTO">
+	    SELECT 
+	    	h.hq_outbound_no as hqOutboundNo,
+	        h.po_no as poNo,
+	        b.branch_code as branchCode,
+	        b.name as branchName,
+	        CASE
+				WHEN h.status = 'PENDING'   THEN '출고대기'
+				WHEN h.status = 'PREPARING' THEN '준비중'
+				WHEN h.status = 'SHIPPED'   THEN '출고완료'
+				ELSE '-'
+			END AS status,
+	        h.handler as handler,
+	        DATE_FORMAT(h.shipped_at, '%Y-%m-%d %H:%i:%s') as outboundAt
+	    FROM hq_outbound h
+	    JOIN branch b ON h.branch_code = b.branch_code
+	
+	    <where>
+	        <if test="branchName != null">
+	            AND b.name = #{branchName}
+	        </if>
+	
+	        <if test="startDate != null and startDate != ''">
+	            AND h.shipped_at &gt;= CONCAT(#{startDate}, ' 00:00:00')
+	        </if>
+	
+	        <if test="endDate != null and endDate != ''">
+	            AND h.shipped_at &lt;= CONCAT(#{endDate}, ' 23:59:59')
+	        </if>
+	    </where>
+	
+	    ORDER BY h.hq_outbound_no DESC
+	</select>
+
+    <select id="selectOutboundDetail" parameterType="int" resultType="dto.hq.warehouse.WarehouseOutboundDetailDTO">
+        SELECT 
+        	h.hq_outbound_no as hqOutboundNo,
+            h.po_no as poNo,
+            h.branch_code as branchCode,
+            b.name as branchName,
+            CASE
+				WHEN h.status = 'PENDING'   THEN '출고대기'
+				WHEN h.status = 'PREPARING' THEN '준비중'
+				WHEN h.status = 'SHIPPED'   THEN '출고완료'
+				ELSE '-'
+			END AS status,
+            h.handler as handler,
+            DATE_FORMAT(h.shipped_at, '%Y-%m-%d %H:%i:%s') as outboundAt
+        FROM hq_outbound h
+        JOIN branch b ON h.branch_code = b.branch_code
+        WHERE h.hq_outbound_no = #{value}
+    </select>
+
+    <select id="selectOutboundItems"
+        parameterType="int"
+        resultType="dto.hq.warehouse.WarehouseOutboundItemDTO">
+	    SELECT
+	        m.material_code      AS itemCode,
+	        m.material_name      AS itemName,
+	        mg.group_name        AS category,
+	
+	        pod.requested_qty    AS requestedQty,   -- 발주 수량
+	        d.qty                AS confirmedQty,   -- 출고 수량
+	
+	        COALESCE(ws.qty, 0)  AS warehouseStock, -- 현재 재고
+	        m.unit               AS unit
+	
+	    FROM hq_outbound h
+	    <!-- 발주 -->
+	    JOIN place_order p
+	        ON h.po_no = p.po_no
+	    JOIN place_order_detail pod
+	        ON p.po_id = pod.po_id
+	    <!-- 출고 상세 -->
+	    LEFT JOIN hq_outbound_detail d
+	        ON h.hq_outbound_no = d.hq_outbound_no
+	       AND pod.material_code = (
+	            SELECT material_code
+	            FROM warehouse_stock
+	            WHERE stock_no = d.stock_no
+	            LIMIT 1
+	       )
+	    <!-- 재고 -->
+	    LEFT JOIN warehouse_stock ws
+	        ON ws.material_code = pod.material_code
+	    <!-- 자재 -->
+	    JOIN material m
+	        ON pod.material_code = m.material_code
+	    LEFT JOIN material_group mg
+	        ON m.material_group_id = mg.material_group_id
+	
+	    WHERE h.hq_outbound_no = #{value}
+	</select>
+
+</mapper>

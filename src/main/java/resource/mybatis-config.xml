@@ -35,6 +35,7 @@
 		<mapper resource="mapper/hq/HqScheduleMapper.xml"/>
 		<mapper resource="mapper/hq/BranchOptionMapper.xml"/>
 		<mapper resource="mapper/hq/WarehouseStockMapper.xml"/>
+		<mapper resource="mapper/hq/warehouse/WarehouseOutboundMapper.xml"/>
         <mapper resource="mapper/hq/BranchStockMapper.xml"/>
         <mapper resource="mapper/hq/BranchRiskMapper.xml"/>
         <mapper resource="mapper/hq/BranchSearchMapper.xml"/>

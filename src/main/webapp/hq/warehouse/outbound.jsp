@@ -9,17 +9,14 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 .sidebar-open .sidebar { transform: translateX(0); }
-
-.tab-link {
-    transition: all 0.15s ease;
-}
-
+.tab-link { transition: all 0.15s ease; }
 .tab-link.active {
     background: #f3f6ff;
     color: #2563eb !important;
     box-shadow: inset 0 -2px 0 #4f7dff;
 }
 </style>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 </head>
 <body class="bg-gray-50">
 
@@ -41,11 +38,22 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">지점 선택</label>
                     <select id="filterBranch"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+
                         <option value="전체">전체</option>
+
+                        <c:if test="${not empty branchNames}">
+                            <c:forEach var="name" items="${branchNames}">
+                                <option value="${name}"
+                                    <c:if test="${param.branchName == name}">selected</c:if>>
+                                    ${name}
+                                </option>
+                            </c:forEach>
+                        </c:if>
+
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">일자 범위</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">일자 범위 선택</label>
                     <div class="flex items-center gap-2">
                         <input type="date" id="filterStartDate"
                             class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
@@ -91,21 +99,36 @@
                 <table class="w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th class="text-left   py-4 px-6 text-sm font-semibold text-gray-900">발주서 번호</th>
-                            <th class="text-left   py-4 px-6 text-sm font-semibold text-gray-900">지점</th>
-                            <th class="text-left   py-4 px-6 text-sm font-semibold text-gray-900">일시</th>
-                            <th class="text-left   py-4 px-6 text-sm font-semibold text-gray-900">처리자</th>
-                            <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">상태</th>
-                            <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">상세조회</th>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">발주서 번호</th>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">지점</th>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">일시</th>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">처리자</th>
+                            <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">상태</th>
+                            <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">상세조회</th>
                         </tr>
                     </thead>
-                    <tbody id="releaseTableBody"></tbody>
+                    <tbody id="outboundTableBody"></tbody>
                 </table>
             </div>
             <div id="emptyState" class="hidden py-12 text-center">
                 <i class="fas fa-box text-4xl text-gray-300 mx-auto mb-4" style="display: block;"></i>
                 <p class="text-gray-500 text-lg mb-2">조회 결과가 없습니다</p>
-                <p class="text-gray-400 text-sm">다른 조건으로 검색해보세요</p>
+                <p class="text-gray-400 text-sm">선택한 필터 조건에 해당하는 출고 내역이 없습니다</p>
+            </div>
+
+            <!-- 페이지네이션 -->
+            <div id="pagination" class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between hidden">
+                <button onclick="previousPage()" id="prevBtn"
+                    class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50">
+                    <i class="fas fa-chevron-left"></i> 이전
+                </button>
+                <p class="text-sm text-gray-500">
+                    <span id="currentPageNum">1</span> / <span id="totalPageNum">1</span>
+                </p>
+                <button onclick="nextPage()" id="nextBtn"
+                    class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50">
+                    다음 <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
 
@@ -122,21 +145,24 @@
                 <h3 class="text-xl font-bold text-gray-900">발주/출고 상세보기</h3>
                 <p class="text-sm text-gray-500 mt-1" id="modalSubtitle"></p>
             </div>
-            <button onclick="closeDetailModal()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <i class="fas fa-times text-gray-500"></i>
+            <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times w-6 h-6"></i>
             </button>
         </div>
 
         <!-- 기본 정보 그리드 -->
-        <div class="bg-gray-50 rounded-lg p-4 mb-6">
-            <h4 class="font-semibold text-gray-900 mb-3" id="orderInfoTitle"></h4>
-            <div class="grid grid-cols-2 gap-4" id="orderInfoContent"></div>
+        <div class="grid grid-cols-2 gap-4 mb-6 bg-gray-50 rounded-lg p-4">
+            <div><p class="text-sm text-gray-500">발주서 번호</p>  <p class="font-mono text-blue-600 mt-1"     id="detailOrderId"></p></div>
+            <div><p class="text-sm text-gray-500">지점</p>         <p class="font-semibold text-gray-900 mt-1" id="detailBranch"></p></div>
+            <div><p class="text-sm text-gray-500">일시</p>         <p class="text-gray-900 mt-1"               id="detailDate"></p></div>
+            <div><p class="text-sm text-gray-500">처리자</p>       <p class="text-gray-900 mt-1"               id="detailHandler"></p></div>
+            <div><p class="text-sm text-gray-500">상태</p>         <div id="detailStatus" class="mt-1"></div></div>
         </div>
 
         <!-- 품목 테이블 -->
-        <div class="mb-6">
-            <h4 class="font-semibold text-gray-900 mb-3" id="itemsTitle"></h4>
-            <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <div>
+            <h4 class="font-semibold text-gray-900 mb-3" id="itemsTitle">품목 상세</h4>
+            <div class="overflow-x-auto border border-gray-200 rounded-lg">
                 <table class="w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr id="itemsTableHeader"></tr>
@@ -146,7 +172,7 @@
             </div>
         </div>
 
-        <div class="flex justify-end">
+        <div class="flex justify-end mt-6">
             <button onclick="closeDetailModal()"
                 class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">닫기</button>
         </div>
@@ -158,18 +184,20 @@
     // 상수 / 설정
     // ============================================================
     var STATUS_CONFIG = {
-        '출고대기': { label: '출고대기', badgeClass: 'bg-blue-100 text-blue-700',   icon: 'fa-box' },
+        '출고대기': { label: '출고대기', badgeClass: 'bg-blue-100 text-blue-700',    icon: 'fa-box' },
         '준비중':   { label: '준비중',   badgeClass: 'bg-yellow-100 text-yellow-700', icon: 'fa-hourglass-half' },
-        '출고완료': { label: '출고완료', badgeClass: 'bg-green-100 text-green-700',  icon: 'fa-check-circle' },
-        'default':  { label: '-',       badgeClass: 'bg-gray-100 text-gray-700',    icon: 'fa-circle' }
+        '출고완료': { label: '출고완료', badgeClass: 'bg-green-100 text-green-700',   icon: 'fa-check-circle' },
+        'default':  { label: '-',       badgeClass: 'bg-gray-100 text-gray-700',     icon: 'fa-circle' }
     };
 
     // ============================================================
     // 전역 상태
     // ============================================================
-    var allRecords     = [];
-    var filteredRecords = [];
+    var allRecords          = [];
+    var filteredRecords     = [];
     var currentStatusFilter = '전체';
+    var currentPage         = 1;
+    var itemsPerPage        = 10;
 
     // ============================================================
     // 사이드바 / 네비게이션
@@ -178,6 +206,8 @@
         var sidebar  = document.getElementById('sidebar');
         var backdrop = document.getElementById('sidebarBackdrop');
         var menuIcon = document.getElementById('menuIcon');
+        if (!sidebar || !backdrop || !menuIcon) return;
+
         sidebar.classList.toggle('-translate-x-full');
         backdrop.classList.toggle('hidden');
         var isOpen = !backdrop.classList.contains('hidden');
@@ -203,7 +233,6 @@
     }
 
     document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
-
     document.addEventListener('click', function(e) {
         if (!e.target.closest('button[onclick="toggleUserMenu()"]') && !e.target.closest('#userMenu')) {
             document.getElementById('userMenu').classList.add('hidden');
@@ -214,33 +243,12 @@
     // 날짜 기본값 (이번달 1일 ~ 오늘)
     // ============================================================
     function initDateRange() {
-		var today = new Date();
-		var mm = String(today.getMonth() + 1).padStart(2, '0');
-		var dd = String(today.getDate()).padStart(2, '0');
-		var yyyy = today.getFullYear();
-		var firstDay = yyyy + '-' + mm + '-01';
-		var todayStr = yyyy + '-' + mm + '-' + dd;
-		document.getElementById('filterStartDate').value = firstDay;
-		document.getElementById('filterEndDate').value = todayStr;
-    }
-
-    // ============================================================
-    // 지점 목록 동적 로드
-    // ============================================================
-    function loadBranches() {
-        fetch('<%=request.getContextPath()%>/api/hq/branches')
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                var branches = (data && data.status == 'success') ? (data.data || []) : [];
-                var select = document.getElementById('filterBranch');
-                branches.forEach(function(b) {
-                    var opt = document.createElement('option');
-                    opt.value = b.branchName;
-                    opt.textContent = b.branchName;
-                    select.appendChild(opt);
-                });
-            })
-            .catch(function(err) { console.error('지점 목록 로드 실패:', err); });
+        var today = new Date();
+        var mm    = String(today.getMonth() + 1).padStart(2, '0');
+        var dd    = String(today.getDate()).padStart(2, '0');
+        var yyyy  = today.getFullYear();
+        document.getElementById('filterStartDate').value = yyyy + '-' + mm + '-01';
+        document.getElementById('filterEndDate').value   = yyyy + '-' + mm + '-' + dd;
     }
 
     // ============================================================
@@ -269,6 +277,7 @@
         filteredRecords = (currentStatusFilter === '전체')
             ? allRecords
             : allRecords.filter(function(r) { return r.status === currentStatusFilter; });
+        currentPage = 1;
         renderTable();
     }
 
@@ -286,32 +295,37 @@
     // ============================================================
     async function applyFilters() {
         var params = new URLSearchParams({
-            branch:    document.getElementById('filterBranch').value,
-            startDate: document.getElementById('filterStartDate').value,
-            endDate:   document.getElementById('filterEndDate').value
+            branchName: document.getElementById('filterBranch').value,
+            startDate:  document.getElementById('filterStartDate').value,
+            endDate:    document.getElementById('filterEndDate').value
         });
 
         try {
-            var res = await fetch('<%=request.getContextPath()%>/api/hq/warehouse/release?' + params);
+            var res = await fetch('<%=request.getContextPath()%>/api/hq/warehouse/outbound?' + params);
+
             if (!res.ok) {
-                var errData = await res.json();
-                throw new Error(errData.message || 'HTTP ' + res.status);
+                let errMsg = 'HTTP ' + res.status;
+                try {
+                    const errData = await res.json();
+                    errMsg = errData.message || errMsg;
+                } catch (e) {}
+                throw new Error(errMsg);
             }
+
             var result = await res.json();
-            if (!result || result.status != 'success') throw new Error((result && result.message) || '데이터 오류');
+            if (!result || result.status != 'success') {
+                throw new Error((result && result.message) || '데이터 오류');
+            }
 
             allRecords = result.data || [];
-            filteredRecords = (currentStatusFilter === '전체')
-                ? allRecords
-                : allRecords.filter(function(r) { return r.status === currentStatusFilter; });
 
         } catch (err) {
             console.error('출고 목록 조회 실패:', err);
-            allRecords      = [];
-            filteredRecords = [];
+            allRecords = [];   // ⭐ 여기만 바꿈 (UI는 공통 처리)
         }
 
-        renderTable();
+        currentPage = 1;
+        applyStatusFilter();
         updateStatusCounts();
         updateActiveTab();
     }
@@ -328,81 +342,96 @@
     // 테이블 렌더링
     // ============================================================
     function renderTable() {
-        var tbody      = document.getElementById('releaseTableBody');
-        var emptyState = document.getElementById('emptyState');
+        var tbody       = document.getElementById('outboundTableBody');
+        var emptyState  = document.getElementById('emptyState');
+        var pagination  = document.getElementById('pagination');
         tbody.innerHTML = '';
 
         document.getElementById('recordCount').textContent = filteredRecords.length + '건';
 
         if (filteredRecords.length === 0) {
             emptyState.classList.remove('hidden');
+            pagination.classList.add('hidden');
             return;
         }
+
         emptyState.classList.add('hidden');
 
-        filteredRecords.forEach(function(record) {
+        var start       = (currentPage - 1) * itemsPerPage;
+        var pageRecords = filteredRecords.slice(start, start + itemsPerPage);
+
+        pageRecords.forEach(function(record) {
             var meta = STATUS_CONFIG[record.status] || STATUS_CONFIG['default'];
             var tr   = document.createElement('tr');
             tr.className = 'border-b border-gray-100 hover:bg-gray-50';
             tr.innerHTML =
-                '<td class="py-4 px-6 font-mono text-sm text-blue-600">' + record.orderId + '</td>' +
-                '<td class="py-4 px-6 font-medium text-gray-900"><div class="flex items-center gap-2"><i class="fas fa-map-pin text-gray-400"></i>' + record.branch + '</div></td>' +
-                '<td class="py-4 px-6 text-gray-700 text-sm"><div class="flex items-center gap-2"><i class="fas fa-calendar text-gray-400"></i>' + record.date + '</div></td>' +
-                '<td class="py-4 px-6 text-gray-700 text-sm">' + (record.handler || '-') + '</td>' +
+                '<td class="py-4 px-6 font-mono text-sm text-blue-600">'    + record.poNo      + '</td>' +
+                '<td class="py-4 px-6 font-medium text-gray-900"><i class="fas fa-map-pin text-gray-400 mr-2"></i>' + record.branchName  + '</td>' +
+                '<td class="py-4 px-6 text-gray-700 text-sm"><i class="fas fa-calendar text-gray-400 mr-2"></i>'   + record.shippedAt  + '</td>' +
+                '<td class="py-4 px-6 text-gray-700 text-sm">'              + (record.handler || '-') + '</td>' +
                 '<td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '"><i class="fas ' + meta.icon + '"></i>' + meta.label + '</span></td>' +
-                '<td class="py-4 px-6 text-center"><button onclick="openDetail(\'' + record.id + '\')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"><i class="fas fa-eye"></i>상세조회</button></td>';
+                '<td class="py-4 px-6 text-center"><button onclick="openDetail(\'' + record.hqOutboundNo + '\')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"><i class="fas fa-eye"></i>상세조회</button></td>';
             tbody.appendChild(tr);
         });
+
+        // 페이지네이션
+        var totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
+        if (totalPages > 1) {
+            pagination.classList.remove('hidden');
+            document.getElementById('currentPageNum').textContent = currentPage;
+            document.getElementById('totalPageNum').textContent   = totalPages;
+            document.getElementById('prevBtn').disabled = (currentPage === 1);
+            document.getElementById('nextBtn').disabled = (currentPage === totalPages);
+        } else {
+            pagination.classList.add('hidden');
+        }
+    }
+
+    function previousPage() {
+        if (currentPage > 1) { currentPage--; renderTable(); window.scrollTo(0, 0); }
+    }
+    function nextPage() {
+        var totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++; renderTable(); window.scrollTo(0, 0); 
+        }
     }
 
     // ============================================================
     // 상세보기 모달
     // ============================================================
-    async function openDetail(recordId) {
+    async function openDetail(outboundId) {
         var tbody = document.getElementById('itemsTableBody');
         tbody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-gray-500">로딩 중...</td></tr>';
-        document.getElementById('orderInfoContent').innerHTML = '';
         document.getElementById('detailModal').classList.remove('hidden');
 
         try {
-            var res = await fetch('<%=request.getContextPath()%>/api/hq/warehouse/release/' + encodeURIComponent(recordId));
+            var res = await fetch('<%=request.getContextPath()%>/api/hq/warehouse/outbound/' + encodeURIComponent(outboundId));
             if (!res.ok) throw new Error('API 실패: ' + res.status);
 
-            var json   = await res.json();
-            var data   = json.data;
+            var json        = await res.json();
+            var data        = json.data;
+            var meta        = STATUS_CONFIG[data.status] || STATUS_CONFIG['default'];
             var isCompleted = (data.status === '출고완료');
 
-            // 모달 서브타이틀
-            document.getElementById('modalSubtitle').textContent =
-                isCompleted ? '출고 완료 내역' : '발주 품목 및 출고 수량 정보';
-
             // 기본 정보
-            document.getElementById('orderInfoTitle').textContent = isCompleted ? '출고 정보' : '발주 정보';
-
-            var infoHtml = '';
-            infoHtml += '<div><p class="text-sm text-gray-500">발주서 번호</p><p class="font-mono text-blue-600 mt-1">' + data.orderId + '</p></div>';
-            infoHtml += '<div><p class="text-sm text-gray-500">' + (isCompleted ? '출고 지점' : '발주 요청 지점') + '</p><p class="font-semibold text-gray-900 mt-1">' + data.branch + '</p></div>';
-            infoHtml += '<div><p class="text-sm text-gray-500">' + (isCompleted ? '출고 일시' : '발주 요청일') + '</p><p class="text-gray-900 mt-1">' + data.date + '</p></div>';
-            if (isCompleted) {
-                infoHtml += '<div><p class="text-sm text-gray-500">처리자</p><p class="text-gray-900 mt-1">' + (data.handler || '-') + '</p></div>';
-            }
-            document.getElementById('orderInfoContent').innerHTML = infoHtml;
+            document.getElementById('modalSubtitle').textContent  = data.branchName + ' · ' + data.poNo;
+            document.getElementById('detailOrderId').textContent  = data.poNo;
+            document.getElementById('detailBranch').textContent   = data.branchName;
+            document.getElementById('detailDate').textContent     = data.outboundAt;
+            document.getElementById('detailHandler').textContent  = data.handler || '-';
+            document.getElementById('detailStatus').innerHTML =
+                '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '"><i class="fas ' + meta.icon + '"></i>' + meta.label + '</span>';
 
             // 품목 테이블 헤더
             document.getElementById('itemsTitle').textContent = isCompleted ? '출고 품목' : '발주 품목';
-
-            var headerHtml =
-                '<th class="text-left  py-3 px-4 text-sm font-semibold text-gray-900">품목코드</th>' +
-                '<th class="text-left  py-3 px-4 text-sm font-semibold text-gray-900">품목명</th>' +
-                '<th class="text-left  py-3 px-4 text-sm font-semibold text-gray-900">카테고리</th>' +
-                '<th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">발주 요청 수량</th>';
-            if (!isCompleted) {
-                headerHtml += '<th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">출고 수량</th>';
-                headerHtml += '<th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">창고 재고</th>';
-            } else {
-                headerHtml += '<th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">출고 수량</th>';
-            }
-            document.getElementById('itemsTableHeader').innerHTML = headerHtml;
+            document.getElementById('itemsTableHeader').innerHTML =
+                '<th class="text-left  py-3 px-4 text-sm font-semibold text-gray-900">품목코드</th>'       +
+                '<th class="text-left  py-3 px-4 text-sm font-semibold text-gray-900">품목명</th>'         +
+                '<th class="text-left  py-3 px-4 text-sm font-semibold text-gray-900">카테고리</th>'       +
+                '<th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">발주 요청 수량</th>' +
+                '<th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">출고 수량</th>'      +
+                (!isCompleted ? '<th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">창고 재고</th>' : '');
 
             // 품목 목록
             var items = data.items || [];
@@ -418,18 +447,14 @@
                 tr.className = 'border-b border-gray-100' + (isInsufficient ? ' bg-red-50' : '');
                 var rowHtml =
                     '<td class="py-3 px-4 font-mono text-sm text-gray-600">' + item.itemCode + '</td>' +
-                    '<td class="py-3 px-4 font-medium text-gray-900">' + item.itemName + '</td>' +
+                    '<td class="py-3 px-4 font-medium text-gray-900">'       + item.itemName + '</td>' +
                     '<td class="py-3 px-4 text-sm"><span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">' + item.category + '</span></td>' +
-                    '<td class="py-3 px-4 text-right font-semibold text-blue-600">' + item.requestedQty + item.unit + '</td>';
-
+                    '<td class="py-3 px-4 text-right font-semibold text-blue-600">'  + item.requestedQty + item.unit + '</td>' +
+                    '<td class="py-3 px-4 text-right font-semibold text-green-600">' + (item.confirmedQty != null ? item.confirmedQty : item.requestedQty) + item.unit + '</td>';
                 if (!isCompleted) {
                     var stockClass = isInsufficient ? 'text-red-600' : 'text-green-600';
-                    rowHtml += '<td class="py-3 px-4 text-right font-semibold text-green-600">' + (item.confirmedQty != null ? item.confirmedQty : item.requestedQty) + item.unit + '</td>';
                     rowHtml += '<td class="py-3 px-4 text-right font-semibold ' + stockClass + '">' + item.warehouseStock + item.unit + '</td>';
-                } else {
-                    rowHtml += '<td class="py-3 px-4 text-right font-semibold text-green-600">' + (item.confirmedQty != null ? item.confirmedQty : item.requestedQty) + item.unit + '</td>';
                 }
-
                 tr.innerHTML = rowHtml;
                 tbody.appendChild(tr);
             });
@@ -452,7 +477,6 @@
     // ============================================================
     window.addEventListener('DOMContentLoaded', function() {
         initDateRange();
-        loadBranches();
         updateActiveTab();
         applyFilters();
     });
