@@ -43,7 +43,8 @@
 		<mapper resource="mapper/hq/ReceipeMapper.xml"/>
         <mapper resource="mapper/hq/sales/HqSalesMapper.xml"/>
         <mapper resource="mapper/hq/sales/SalesRankingMapper.xml"/>
-        
+        <mapper resource="mapper/hq/DeliveryMapper.xml"/>
+
 		<mapper resource="mapper/branch/EmployeeMapper.xml"/>
 		<mapper resource="mapper/branch/BranchScheduleMapper.xml"/>
 		<mapper resource="mapper/branch/InquiryMapper.xml"/>

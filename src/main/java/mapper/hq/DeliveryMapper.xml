@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.deliveryMapper">
+
+    <!-- ================= DRIVER QUERIES ================= -->
+    <select id="getAllDrivers" resultType="dto.hq.delivery.DriverDto">
+        SELECT d.driver_id AS driverId, d.emp_no AS empNo, e.name, e.phone, d.region_code AS regionCode, r.name AS regionName, d.is_active AS active
+        FROM driver d
+        JOIN employee e ON d.emp_no = e.emp_no
+        JOIN region r ON d.region_code = r.region_code
+        ORDER BY d.driver_id DESC;
+    </select>
+
+    <select id="getDriverById" parameterType="int" resultType="dto.hq.delivery.DriverDto">
+        SELECT d.driver_id AS driverId, d.emp_no AS empNo, e.name, e.phone, d.region_code AS regionCode, r.name AS regionName, d.is_active AS active
+        FROM driver d
+        JOIN employee e ON d.emp_no = e.emp_no
+        JOIN region r ON d.region_code = r.region_code
+        WHERE d.driver_id = #{driverId};
+    </select>
+
+    <select id="getDriverCandidates" resultType="dto.hq.delivery.DriverCandidateDto">
+        SELECT e.emp_no as empNo, e.name
+        FROM employee e
+        WHERE e.grade_code = 'GR_DRV' AND e.emp_no NOT IN (SELECT d.emp_no FROM driver d);
+    </select>
+
+    <insert id="addDriver" parameterType="dto.hq.delivery.DriverDto">
+        INSERT INTO driver (emp_no, region_code, is_active)
+        VALUES (#{empNo}, #{regionCode}, #{active});
+    </insert>
+
+    <update id="updateDriver" parameterType="dto.hq.delivery.DriverDto">
+        UPDATE driver SET region_code = #{regionCode}, is_active = #{active}
+        WHERE driver_id = #{driverId};
+    </update>
+
+    <delete id="deleteDriver" parameterType="int">
+        DELETE FROM driver WHERE driver_id = #{driverId};
+    </delete>
+
+    <select id="getDispatchedCount" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM dispatch WHERE driver_id = #{driverId};
+    </select>
+
+    <!-- ================= VEHICLE QUERIES ================= -->
+    <select id="getAllVehicles" resultType="dto.hq.delivery.VehicleDto">
+        SELECT v.vehicle_id AS vehicleId, v.region_code AS regionCode, r.name AS regionName, v.plate_number AS plateNumber, v.capacity, v.temp_type AS tempType, v.status, v.is_active AS active
+        FROM vehicle v
+        JOIN region r ON v.region_code = r.region_code
+        ORDER BY v.vehicle_id DESC;
+    </select>
+
+    <select id="getVehicleById" parameterType="int" resultType="dto.hq.delivery.VehicleDto">
+        SELECT v.vehicle_id AS vehicleId, v.region_code AS regionCode, r.name AS regionName, v.plate_number AS plateNumber, v.capacity, v.temp_type AS tempType, v.status, v.is_active AS active
+        FROM vehicle v
+        JOIN region r ON v.region_code = r.region_code
+        WHERE v.vehicle_id = #{vehicleId};
+    </select>
+
+    <insert id="addVehicle" parameterType="dto.hq.delivery.VehicleDto">
+        INSERT INTO vehicle (region_code, plate_number, capacity, temp_type, status, is_active)
+        VALUES (#{regionCode}, #{plateNumber}, #{capacity}, #{tempType}, #{status}, #{active});
+    </insert>
+
+    <update id="updateVehicle" parameterType="dto.hq.delivery.VehicleDto">
+        UPDATE vehicle
+        SET region_code = #{regionCode},
+            plate_number = #{plateNumber},
+            capacity = #{capacity},
+            temp_type = #{tempType},
+            status = #{status},
+            is_active = #{active}
+        WHERE vehicle_id = #{vehicleId};
+    </update>
+
+    <delete id="deleteVehicle" parameterType="int">
+        DELETE FROM vehicle WHERE vehicle_id = #{vehicleId};
+    </delete>
+
+    <select id="getDispatchCountForVehicle" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM dispatch WHERE vehicle_id = #{vehicleId};
+    </select>
+
+    <!-- ================= COMMON QUERIES ================= -->
+    <select id="getAllRegions" resultType="dto.hq.delivery.RegionDto">
+        SELECT region_code as regionCode, name FROM region;
+    </select>
+
+</mapper>

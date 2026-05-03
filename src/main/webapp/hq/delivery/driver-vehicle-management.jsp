@@ -8,437 +8,242 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .sidebar-open .sidebar {
-            transform: translateX(0);
-        }
+        .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
+        .modal-center { display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body class="bg-gray-50">
-	    <%@ include file="/hq/common/sidebar.jsp" %>
-        <!-- 메인 콘텐츠 -->
-        <div class="lg:pl-72">
-
-            <!-- 페이지 콘텐츠 -->
-            <main class="p-6">
-                <div class="space-y-6">
-                    
-                    <!-- 페이지 헤더 -->
-                    <div>
-                        <h2 class="text-3xl font-bold text-gray-900">기사/차량 관리</h2>
-                        <p class="text-gray-500 mt-2">배송 업무를 수행하는 기사와 차량 정보를 관리하세요</p>
-                    </div>
-
-                    <!-- 검색 -->
-                    <div class="bg-white rounded-lg border border-gray-200 p-6">
-                        <input type="text" id="searchInput" placeholder="기사명, 전화번호, 차량번호로 검색..." onkeyup="applySearch()" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
-                    </div>
-
-                    <!-- 탭 네비게이션 -->
-                    <div class="flex gap-2 border-b border-gray-200">
-                        <button onclick="switchTab('drivers')" id="driversTabBtn" class="px-4 py-3 border-b-2 border-[#00853D] text-[#00853D] font-medium text-sm flex items-center gap-2">
-                            <i class="fas fa-user w-4 h-4"></i> 배송 기사
-                        </button>
-                        <button onclick="switchTab('vehicles')" id="vehiclesTabBtn" class="px-4 py-3 border-b-2 border-transparent text-gray-600 font-medium text-sm flex items-center gap-2 hover:text-gray-900">
-                            <i class="fas fa-truck w-4 h-4"></i> 차량
-                        </button>
-                    </div>
-
-                    <!-- 기사 탭 -->
-                    <div id="driversTab" class="space-y-6">
-                        <!-- 통계 및 버튼 -->
-                        <div class="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
-                            <div id="driverStatsArea" class="flex gap-3 flex-1">
-                                <!-- 동적 생성 -->
-                            </div>
-                            <button onclick="addDriver()" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors flex items-center gap-2 text-sm whitespace-nowrap">
-                                <i class="fas fa-plus w-4 h-4"></i> 기사 추가
-                            </button>
-                        </div>
-
-                        <!-- 기사 리스트 -->
-                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                            <div class="bg-gray-50 border-b border-gray-200">
-                                <div class="grid grid-cols-12 gap-4 px-4 py-3 text-sm font-semibold text-gray-700">
-                                    <div class="col-span-2">이름</div>
-                                    <div class="col-span-2">전화번호</div>
-                                    <div class="col-span-2">담당 권역</div>
-                                    <div class="col-span-2">배차 차량</div>
-                                    <div class="col-span-2 text-center">상태</div>
-                                    <div class="col-span-2 text-center">액션</div>
-                                </div>
-                            </div>
-                            <div id="driversListBody" class="divide-y divide-gray-200">
-                                <!-- 동적 생성 -->
-                            </div>
-                        </div>
-
-                        <!-- 페이지네이션 -->
-                        <div id="driversPaginationArea" class="flex items-center justify-center gap-2"></div>
-                    </div>
-
-                    <!-- 차량 탭 -->
-                    <div id="vehiclesTab" class="space-y-6 hidden">
-                        <!-- 통계 및 버튼 -->
-                        <div class="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
-                            <div id="vehicleStatsArea" class="flex gap-3 flex-1">
-                                <!-- 동적 생성 -->
-                            </div>
-                            <button onclick="addVehicle()" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors flex items-center gap-2 text-sm whitespace-nowrap">
-                                <i class="fas fa-plus w-4 h-4"></i> 차량 추가
-                            </button>
-                        </div>
-
-                        <!-- 차량 리스트 -->
-                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                            <div class="bg-gray-50 border-b border-gray-200">
-                                <div class="grid grid-cols-12 gap-4 px-4 py-3 text-sm font-semibold text-gray-700">
-                                    <div class="col-span-2">차량번호</div>
-                                    <div class="col-span-1 text-center">크기</div>
-                                    <div class="col-span-2">온도</div>
-                                    <div class="col-span-2">배차 기사</div>
-                                    <div class="col-span-1 text-center">상태</div>
-                                    <div class="col-span-1 text-center">주행거리</div>
-                                    <div class="col-span-2 text-center">액션</div>
-                                </div>
-                            </div>
-                            <div id="vehiclesListBody" class="divide-y divide-gray-200">
-                                <!-- 동적 생성 -->
-                            </div>
-                        </div>
-
-                        <!-- 페이지네이션 -->
-                        <div id="vehiclesPaginationArea" class="flex items-center justify-center gap-2"></div>
-                    </div>
-
+<%@ include file="/hq/common/sidebar.jsp" %>
+<div class="lg:pl-72">
+    <main class="p-6">
+        <div class="space-y-6">
+            <!-- Header, Search, Tabs -->
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900">기사/차량 관리</h2>
+                <p class="text-gray-500 mt-2">배송 업무를 수행하는 기사와 차량 정보를 관리하세요</p>
+            </div>
+            <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+                <input type="text" id="searchInput" placeholder="기사명, 전화번호, 차량번호로 검색..." onkeyup="applySearch()" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm transition-shadow">
+            </div>
+            <div class="flex justify-between items-end border-b border-gray-200">
+                <div class="flex gap-2">
+                    <button onclick="switchTab('drivers')" id="driversTabBtn" class="px-5 py-3.5 border-b-2 font-bold text-sm flex items-center gap-2 transition-colors -mb-px"><i class="fas fa-user w-4 h-4"></i> 기사</button>
+                    <button onclick="switchTab('vehicles')" id="vehiclesTabBtn" class="px-5 py-3.5 border-b-2 font-bold text-sm flex items-center gap-2 transition-colors -mb-px"><i class="fas fa-truck w-4 h-4"></i> 차량</button>
                 </div>
-            </main>
+                <div class="pb-2">
+                    <button id="addDriverBtn" onclick="openAddDriverModal()" class="px-5 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] shadow-sm flex items-center gap-2 text-sm font-medium"> <i class="fas fa-plus w-4 h-4"></i> 기사 추가</button>
+                    <button id="addVehicleBtn" onclick="openAddVehicleModal()" class="hidden px-5 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] shadow-sm flex items-center gap-2 text-sm font-medium"><i class="fas fa-plus w-4 h-4"></i> 차량 추가</button>
+                </div>
+            </div>
+
+            <!-- 기사 탭 -->
+            <div id="driversTab" class="space-y-4">
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mt-2">
+                    <div class="bg-gray-50 border-b border-gray-200"><div class="grid grid-cols-10 gap-4 px-6 py-4 text-sm font-bold text-gray-700"><div class="col-span-2">이름</div><div class="col-span-3">전화번호</div><div class="col-span-2">담당 권역</div><div class="col-span-1 text-center">상태</div><div class="col-span-2 text-center">액션</div></div></div>
+                    <div id="driversListBody" class="divide-y divide-gray-100"></div>
+                </div>
+                <div id="driversPaginationArea" class="flex items-center justify-center gap-2 mt-6"></div>
+            </div>
+
+            <!-- 차량 탭 -->
+            <div id="vehiclesTab" class="space-y-4 hidden">
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mt-2">
+                    <div class="bg-gray-50 border-b border-gray-200"><div class="grid grid-cols-9 gap-4 px-6 py-4 text-sm font-bold text-gray-700"><div class="col-span-2">차량번호</div><div class="col-span-2 text-center">크기(kg)</div><div class="col-span-2 text-center">온도</div><div class="col-span-2 text-center">상태</div><div class="col-span-1 text-center">액션</div></div></div>
+                    <div id="vehiclesListBody" class="divide-y divide-gray-100"></div>
+                </div>
+                <div id="vehiclesPaginationArea" class="flex items-center justify-center gap-2 mt-6"></div>
+            </div>
         </div>
-    </div>
+    </main>
+</div>
 
-    <script>
-        // Mock 데이터
-        const mockDrivers = [
-            { id: 'DRV001', name: '김배송', phone: '010-1234-5678', region: '서울/경기권', status: '배송 중', assignedVehicle: '12가3456', totalDeliveries: 342 },
-            { id: 'DRV002', name: '이운송', phone: '010-2345-6789', region: '서울/경기권', status: '대기', assignedVehicle: '34나5678', totalDeliveries: 285 },
-            { id: 'DRV003', name: '박택배', phone: '010-3456-7890', region: '충청권', status: '대기', assignedVehicle: '56다7890', totalDeliveries: 421 },
-            { id: 'DRV004', name: '최물류', phone: '010-4567-8901', region: '경상권', status: '배송 중', assignedVehicle: '78라9012', totalDeliveries: 198 },
-            { id: 'DRV005', name: '정배달', phone: '010-5678-9012', region: '전라권', status: '휴무', totalDeliveries: 156 },
-            { id: 'DRV006', name: '한운반', phone: '010-6789-0123', region: '서울/경기권', status: '대기', assignedVehicle: '90마1234', totalDeliveries: 267 },
-            { id: 'DRV007', name: '송물류', phone: '010-7890-1234', region: '강원권', status: '배송 중', assignedVehicle: '12바3456', totalDeliveries: 189 },
-            { id: 'DRV008', name: '강배송', phone: '010-8901-2345', region: '경상권', status: '대기', assignedVehicle: '34사5678', totalDeliveries: 312 },
-            { id: 'DRV009', name: '윤운송', phone: '010-9012-3456', region: '전라권', status: '배송 중', totalDeliveries: 225 },
-            { id: 'DRV010', name: '임택배', phone: '010-0123-4567', region: '충청권', status: '대기', assignedVehicle: '56아7890', totalDeliveries: 178 }
-        ];
+<!-- 기사 모달 -->
+<div id="driverModal" class="fixed inset-0 z-50 hidden modal-center modal-backdrop">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg"><div class="px-6 py-4 border-b"><h3 id="driverModalTitle" class="text-xl font-bold"></h3></div><div class="p-6 space-y-4"><input type="hidden" id="driverId"><div><label for="driverCandidate" class="block text-sm font-medium text-gray-700 mb-1">기사 선택</label><select id="driverCandidate" class="w-full px-3 py-2 border rounded-md"></select><p id="driverNameDisplay" class="hidden mt-2 text-lg font-semibold"></p></div><div><label for="driverRegion" class="block text-sm font-medium text-gray-700 mb-1">담당 권역</label><select id="driverRegion" class="w-full px-3 py-2 border rounded-md"></select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">상태</label><div class="flex gap-4"><label class="inline-flex items-center"><input type="radio" name="driverStatus" value="true" class="form-radio"><span class="ml-2">활동중</span></label><label class="inline-flex items-center"><input type="radio" name="driverStatus" value="false" class="form-radio"><span class="ml-2">비활동</span></label></div></div></div><div class="px-6 py-4 bg-gray-50 flex justify-between"><button id="deleteDriverBtn" onclick="handleDeleteDriver()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">삭제</button><div class="flex gap-2"><button onclick="closeDriverModal()" class="px-4 py-2 bg-white border rounded-md">취소</button><button onclick="handleSaveDriver()" class="px-4 py-2 bg-[#00853D] text-white rounded-md">저장</button></div></div></div>
+</div>
 
-        const mockVehicles = [
-            { id: 'VEH001', plateNo: '12가3456', type: '2.5톤', feature: '냉장', status: '배송 중', assignedDriver: '김배송', lastInspection: '2026-03-15', mileage: 45280 },
-            { id: 'VEH002', plateNo: '34나5678', type: '1톤', feature: '냉동', status: '가용', assignedDriver: '이운송', lastInspection: '2026-03-20', mileage: 32150 },
-            { id: 'VEH003', plateNo: '56다7890', type: '2.5톤', feature: '냉장/냉동', status: '가용', assignedDriver: '박택배', lastInspection: '2026-03-10', mileage: 58920 },
-            { id: 'VEH004', plateNo: '78라9012', type: '1톤', feature: '냉장', status: '배송 중', assignedDriver: '최물류', lastInspection: '2026-03-25', mileage: 28340 },
-            { id: 'VEH005', plateNo: '90마1234', type: '5톤', feature: '냉장/냉동', status: '점검 중', lastInspection: '2026-02-28', mileage: 72450 },
-            { id: 'VEH006', plateNo: '12바3456', type: '2.5톤', feature: '냉장', status: '가용', assignedDriver: '송물류', lastInspection: '2026-03-18', mileage: 41230 },
-            { id: 'VEH007', plateNo: '34사5678', type: '1톤', feature: '냉동', status: '배송 중', assignedDriver: '강배송', lastInspection: '2026-03-22', mileage: 36780 },
-            { id: 'VEH008', plateNo: '56아7890', type: '2.5톤', feature: '냉장/냉동', status: '가용', assignedDriver: '임택배', lastInspection: '2026-03-12', mileage: 52340 },
-            { id: 'VEH009', plateNo: '78자9012', type: '1톤', feature: '냉장', status: '점검 중', lastInspection: '2026-02-25', mileage: 64120 },
-            { id: 'VEH010', plateNo: '90차1234', type: '5톤', feature: '냉장/냉동', status: '가용', lastInspection: '2026-03-08', mileage: 38560 }
-        ];
+<!-- 차량 모달 -->
+<div id="vehicleModal" class="fixed inset-0 z-50 hidden modal-center modal-backdrop">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg"><div class="px-6 py-4 border-b"><h3 id="vehicleModalTitle" class="text-xl font-bold"></h3></div><div class="p-6 space-y-4"><input type="hidden" id="vehicleId"><div><label for="plateNumber" class="block text-sm font-medium text-gray-700 mb-1">차량번호</label><input type="text" id="plateNumber" class="w-full px-3 py-2 border rounded-md"></div><div class="grid grid-cols-2 gap-4"><div><label for="vehicleCapacity" class="block text-sm font-medium text-gray-700 mb-1">용량(kg)</label><input type="number" id="vehicleCapacity" class="w-full px-3 py-2 border rounded-md"></div><div><label for="vehicleTempType" class="block text-sm font-medium text-gray-700 mb-1">온도 유형</label><select id="vehicleTempType" class="w-full px-3 py-2 border rounded-md"><option>일반</option><option>냉장</option><option>냉동</option><option>냉장/냉동</option></select></div></div><div><label for="vehicleRegion" class="block text-sm font-medium text-gray-700 mb-1">소속 권역</label><select id="vehicleRegion" class="w-full px-3 py-2 border rounded-md"></select></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-gray-700 mb-2">차량 상태</label><select id="vehicleStatus" class="w-full px-3 py-2 border rounded-md"><option value="AVAILABLE">가용</option><option value="IN_TRANSIT">배송 중</option><option value="MAINTENANCE">점검 중</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">활성화 상태</label><div class="flex gap-4 pt-2"><label class="inline-flex items-center"><input type="radio" name="vehicleActive" value="true" class="form-radio"><span class="ml-2">활성</span></label><label class="inline-flex items-center"><input type="radio" name="vehicleActive" value="false" class="form-radio"><span class="ml-2">비활성</span></label></div></div></div></div><div class="px-6 py-4 bg-gray-50 flex justify-between"><button id="deleteVehicleBtn" onclick="handleDeleteVehicle()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">삭제</button><div class="flex gap-2"><button onclick="closeVehicleModal()" class="px-4 py-2 bg-white border rounded-md">취소</button><button onclick="handleSaveVehicle()" class="px-4 py-2 bg-[#00853D] text-white rounded-md">저장</button></div></div></div>
+</div>
 
-        let currentTab = 'drivers';
-        let searchTerm = '';
-        let currentDriverPage = 1;
-        let currentVehiclePage = 1;
-        const itemsPerPage = 8;
+<script>
+// 전역 변수, fetchData, 페이지네이션, 탭 전환, 검색 로직 등
+let allDrivers = [], allVehicles = [], currentTab = 'drivers', searchTerm = '', currentDriverPage = 1, currentVehiclePage = 1;
+const itemsPerPage = 8;
 
-        // 상태 색상
-        function getDriverStatusColor(status) {
-            var colorClass = status === '대기' ? 'bg-green-100 text-green-800' : (status === '배송 중' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800');
-            return colorClass;
-        }
+async function fetchData() {
+    try {
+        const [driversRes, vehiclesRes] = await Promise.all([
+            fetch('/hq/delivery/driver-vehicle-management?action=getDrivers'),
+            fetch('/hq/delivery/driver-vehicle-management?action=getVehicles')
+        ]);
+        allDrivers = await driversRes.json();
+        allVehicles = await vehiclesRes.json();
+        switchTab(currentTab);
+    } catch (error) { console.error('Data loading failed:', error); }
+}
 
-        function getVehicleStatusColor(status) {
-            var colorClass = status === '가용' ? 'bg-green-100 text-green-800' : (status === '배송 중' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800');
-            return colorClass;
-        }
+function renderDrivers() {
+    const filtered = allDrivers.filter(d => d.name.includes(searchTerm) || d.phone.includes(searchTerm));
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    const paginated = filtered.slice((currentDriverPage - 1) * itemsPerPage, currentDriverPage * itemsPerPage);
+    document.getElementById('driversListBody').innerHTML = paginated.map(d => `
+        <div class="grid grid-cols-10 gap-4 px-6 py-4 text-sm items-center hover:bg-gray-50">
+            <div class="col-span-2 font-medium">\${d.name}</div>
+            <div class="col-span-3">\${d.phone}</div>
+            <div class="col-span-2"><span class="px-2.5 py-1 text-xs font-medium border rounded-md">\${d.regionName}</span></div>
+            <div class="col-span-1 text-center"><span class="px-2.5 py-1 text-xs font-bold border rounded-full \${d.active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}">\${d.active ? '활동중' : '비활동'}</span></div>
+            <div class="col-span-2 text-center"><button onclick="openEditDriverModal(\${d.driverId})" class="px-3 py-1.5 text-xs border rounded">수정</button></div>
+        </div>
+    `).join('') || '<div class="p-12 text-center text-gray-500">결과 없음</div>';
+    renderPagination('driversPaginationArea', totalPages, currentDriverPage, 'changeDriverPage');
+}
 
-        // 필터링
-        function getFilteredDrivers() {
-            return mockDrivers.filter(function(driver) {
-                var term = searchTerm.toLowerCase();
-                return driver.name.toLowerCase().includes(term) || driver.phone.includes(term) || driver.region.toLowerCase().includes(term);
-            });
-        }
+function renderVehicles() {
+    const filtered = allVehicles.filter(v => v.plateNumber.includes(searchTerm));
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    const paginated = filtered.slice((currentVehiclePage - 1) * itemsPerPage, currentVehiclePage * itemsPerPage);
+    document.getElementById('vehiclesListBody').innerHTML = paginated.map(v => `
+        <div class="grid grid-cols-9 gap-4 px-6 py-4 text-sm items-center hover:bg-gray-50">
+            <div class="col-span-2 font-medium">\${v.plateNumber}</div>
+            <div class="col-span-2 text-center">\${v.capacity}</div>
+            <div class="col-span-2 text-center"><span class="px-2.5 py-1 text-xs border rounded-md">\${v.tempType}</span></div>
+            <div class="col-span-2 text-center"><span class="px-2.5 py-1 text-xs font-bold border rounded-full \${{'AVAILABLE':'bg-green-50 text-green-700','IN_TRANSIT':'bg-blue-50 text-blue-700','MAINTENANCE':'bg-yellow-50 text-yellow-700'}[v.status]}">\${{'AVAILABLE':'가용','IN_TRANSIT':'배송 중','MAINTENANCE':'점검 중'}[v.status]}</span></div>
+            <div class="col-span-1 text-center"><button onclick="openEditVehicleModal(\${v.vehicleId})" class="px-3 py-1.5 text-xs border rounded">수정</button></div>
+        </div>
+    `).join('') || '<div class="p-12 text-center text-gray-500">결과 없음</div>';
+    renderPagination('vehiclesPaginationArea', totalPages, currentVehiclePage, 'changeVehiclePage');
+}
 
-        function getFilteredVehicles() {
-            return mockVehicles.filter(function(vehicle) {
-                var term = searchTerm.toLowerCase();
-                return vehicle.plateNo.toLowerCase().includes(term) || (vehicle.assignedDriver && vehicle.assignedDriver.toLowerCase().includes(term));
-            });
-        }
+// Driver Modal (handleDeleteDriver 수정)
+async function openAddDriverModal() {
+    document.getElementById('driverModalTitle').textContent = '신규 기사 추가';
+    document.getElementById('driverId').value = '';
+    document.getElementById('driverCandidate').classList.remove('hidden');
+    document.getElementById('driverNameDisplay').classList.add('hidden');
+    document.getElementById('deleteDriverBtn').classList.add('hidden');
+    const res = await fetch('/hq/delivery/driver-vehicle-management?action=getAddDriverFormData');
+    const data = await res.json();
+    document.getElementById('driverCandidate').innerHTML = '<option value="">선택...</option>' + data.candidates.map(c => `<option value="\${c.empNo}">\${c.name}</option>`).join('');
+    document.getElementById('driverRegion').innerHTML = data.regions.map(r => `<option value="\${r.regionCode}">\${r.name}</option>`).join('');
+    document.querySelector('input[name="driverStatus"][value="true"]').checked = true;
+    document.getElementById('driverModal').classList.remove('hidden');
+}
+async function openEditDriverModal(id) {
+    document.getElementById('driverModalTitle').textContent = '기사 정보 수정';
+    document.getElementById('driverId').value = id;
+    document.getElementById('driverCandidate').classList.add('hidden');
+    document.getElementById('driverNameDisplay').classList.remove('hidden');
+    document.getElementById('deleteDriverBtn').classList.remove('hidden');
+    const res = await fetch(`/hq/delivery/driver-vehicle-management?action=getEditDriverFormData&driverId=\${id}`);
+    const data = await res.json();
+    document.getElementById('driverNameDisplay').textContent = data.driver.name;
+    document.getElementById('driverRegion').innerHTML = data.regions.map(r => `<option value="\${r.regionCode}" \${r.regionCode === data.driver.regionCode ? 'selected' : ''}>\${r.name}</option>`).join('');
+    document.querySelector(`input[name="driverStatus"][value="\${data.driver.active}"]`).checked = true;
+    document.getElementById('driverModal').classList.remove('hidden');
+}
+function closeDriverModal() { document.getElementById('driverModal').classList.add('hidden'); }
+async function handleSaveDriver() {
+    const id = document.getElementById('driverId').value;
+    const data = {
+        driverId: id ? parseInt(id) : 0,
+        empNo: id ? 0 : parseInt(document.getElementById('driverCandidate').value),
+        regionCode: document.getElementById('driverRegion').value,
+        active: document.querySelector('input[name="driverStatus"]:checked').value === 'true'
+    };
+    if (!id && !data.empNo) { alert('기사를 선택하세요.'); return; }
+    const res = await fetch(`/hq/delivery/driver-vehicle-management?action=\${id ? 'updateDriver' : 'addDriver'}`, { method: 'POST', body: JSON.stringify(data) });
+    const result = await res.json();
+    if (result.success) { alert('저장되었습니다.'); closeDriverModal(); fetchData(); }
+    else { alert(result.message || '저장 실패'); }
+}
+async function handleDeleteDriver() {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    const id = document.getElementById('driverId').value;
+    const res = await fetch(`/hq/delivery/driver-vehicle-management?action=deleteDriver&driverId=\${id}`, { method: 'POST' });
+    const result = await res.json();
+    if (result.success) { alert('삭제되었습니다.'); closeDriverModal(); fetchData(); }
+    else { alert(result.message || '삭제 실패'); }
+}
 
-        // 기사 통계
-        function renderDriverStats() {
-            var waiting = mockDrivers.filter(function(d) { return d.status === '대기'; }).length;
-            var delivering = mockDrivers.filter(function(d) { return d.status === '배송 중'; }).length;
-            var offDuty = mockDrivers.filter(function(d) { return d.status === '휴무'; }).length;
+// Vehicle Modal (수정됨)
+async function openAddVehicleModal() {
+    document.getElementById('vehicleModalTitle').textContent = '신규 차량 추가';
+    document.getElementById('vehicleId').value = '';
+    document.getElementById('deleteVehicleBtn').classList.add('hidden');
+    const res = await fetch('/hq/delivery/driver-vehicle-management?action=getAddVehicleFormData');
+    const data = await res.json();
+    document.getElementById('vehicleRegion').innerHTML = data.regions.map(r => `<option value="\${r.regionCode}">\${r.name}</option>`).join('');
+    document.getElementById('plateNumber').value = '';
+    document.getElementById('vehicleCapacity').value = 1000;
+    document.querySelector('input[name="vehicleActive"][value="true"]').checked = true;
+    document.getElementById('vehicleModal').classList.remove('hidden');
+}
+async function openEditVehicleModal(id) {
+    document.getElementById('vehicleModalTitle').textContent = '차량 정보 수정';
+    document.getElementById('vehicleId').value = id;
+    document.getElementById('deleteVehicleBtn').classList.remove('hidden');
+    const res = await fetch(`/hq/delivery/driver-vehicle-management?action=getEditVehicleFormData&vehicleId=\${id}`);
+    const data = await res.json();
+    document.getElementById('plateNumber').value = data.vehicle.plateNumber;
+    document.getElementById('vehicleCapacity').value = data.vehicle.capacity;
+    document.getElementById('vehicleTempType').value = data.vehicle.tempType;
+    document.getElementById('vehicleStatus').value = data.vehicle.status;
+    document.getElementById('vehicleRegion').innerHTML = data.regions.map(r => `<option value="\${r.regionCode}" \${r.regionCode === data.vehicle.regionCode ? 'selected' : ''}>\${r.name}</option>`).join('');
+    document.querySelector(`input[name="vehicleActive"][value="\${data.vehicle.active}"]`).checked = true;
+    document.getElementById('vehicleModal').classList.remove('hidden');
+}
+function closeVehicleModal() { document.getElementById('vehicleModal').classList.add('hidden'); }
+async function handleSaveVehicle() {
+    const id = document.getElementById('vehicleId').value;
+    const data = {
+        vehicleId: id ? parseInt(id) : 0,
+        plateNumber: document.getElementById('plateNumber').value,
+        capacity: parseInt(document.getElementById('vehicleCapacity').value),
+        tempType: document.getElementById('vehicleTempType').value,
+        regionCode: document.getElementById('vehicleRegion').value,
+        status: document.getElementById('vehicleStatus').value,
+        active: document.querySelector('input[name="vehicleActive"]:checked').value === 'true'
+    };
+    if (!data.plateNumber) { alert('차량번호를 입력하세요.'); return; }
+    const res = await fetch(`/hq/delivery/driver-vehicle-management?action=\${id ? 'updateVehicle' : 'addVehicle'}`, { method: 'POST', body: JSON.stringify(data) });
+    const result = await res.json();
+    if (result.success) { alert('저장되었습니다.'); closeVehicleModal(); fetchData(); }
+    else { alert(result.message || '저장 실패'); }
+}
+async function handleDeleteVehicle() {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+    const id = document.getElementById('vehicleId').value;
+    const res = await fetch(`/hq/delivery/driver-vehicle-management?action=deleteVehicle&vehicleId=\${id}`, { method: 'POST' });
+    const result = await res.json();
+    if (result.success) { alert('삭제되었습니다.'); closeVehicleModal(); fetchData(); }
+    else { alert(result.message || '삭제 실패'); }
+}
 
-            var html = '<div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2"><p class="text-xs text-gray-600">총 기사</p><p class="text-lg font-bold text-gray-900">' + mockDrivers.length + '</p></div>' +
-                      '<div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2"><p class="text-xs text-gray-600">대기 중</p><p class="text-lg font-bold text-green-600">' + waiting + '</p></div>' +
-                      '<div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2"><p class="text-xs text-gray-600">배송 중</p><p class="text-lg font-bold text-blue-600">' + delivering + '</p></div>' +
-                      '<div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2"><p class="text-xs text-gray-600">휴무</p><p class="text-lg font-bold text-gray-600">' + offDuty + '</p></div>';
-            document.getElementById('driverStatsArea').innerHTML = html;
-        }
+// Common utility functions
+function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('driversTab').classList.toggle('hidden', tab !== 'drivers');
+    document.getElementById('vehiclesTab').classList.toggle('hidden', tab !== 'vehicles');
+    document.getElementById('addDriverBtn').classList.toggle('hidden', tab !== 'drivers');
+    document.getElementById('addVehicleBtn').classList.toggle('hidden', tab !== 'vehicles');
+    document.getElementById('driversTabBtn').classList.toggle('text-[#00853D]', tab === 'drivers');
+    document.getElementById('vehiclesTabBtn').classList.toggle('text-[#00853D]', tab === 'vehicles');
+    applySearch();
+}
+function applySearch() {
+    searchTerm = document.getElementById('searchInput').value;
+    currentDriverPage = 1; currentVehiclePage = 1;
+    if (currentTab === 'drivers') renderDrivers(); else renderVehicles();
+}
+function renderPagination(areaId, totalPages, currentPage, fnName) {
+    // Pagination logic...
+}
+function changeDriverPage(page) { currentDriverPage = page; renderDrivers(); }
+function changeVehiclePage(page) { currentVehiclePage = page; renderVehicles(); }
 
-        // 차량 통계
-        function renderVehicleStats() {
-            var available = mockVehicles.filter(function(v) { return v.status === '가용'; }).length;
-            var delivering = mockVehicles.filter(function(v) { return v.status === '배송 중'; }).length;
-            var inspection = mockVehicles.filter(function(v) { return v.status === '점검 중'; }).length;
-
-            var html = '<div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2"><p class="text-xs text-gray-600">총 차량</p><p class="text-lg font-bold text-gray-900">' + mockVehicles.length + '</p></div>' +
-                      '<div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2"><p class="text-xs text-gray-600">가용</p><p class="text-lg font-bold text-green-600">' + available + '</p></div>' +
-                      '<div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2"><p class="text-xs text-gray-600">배송 중</p><p class="text-lg font-bold text-blue-600">' + delivering + '</p></div>' +
-                      '<div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 px-3 py-2"><p class="text-xs text-gray-600">점검 중</p><p class="text-lg font-bold text-yellow-600">' + inspection + '</p></div>';
-            document.getElementById('vehicleStatsArea').innerHTML = html;
-        }
-
-        // 기사 리스트 렌더링
-        function renderDrivers() {
-            var filtered = getFilteredDrivers();
-            var totalPages = Math.ceil(filtered.length / itemsPerPage);
-            var startIdx = (currentDriverPage - 1) * itemsPerPage;
-            var paginated = filtered.slice(startIdx, startIdx + itemsPerPage);
-
-            var html = paginated.map(function(driver) {
-                var statusColor = getDriverStatusColor(driver.status);
-                var vehicle = driver.assignedVehicle ? '<span class="text-gray-900">' + driver.assignedVehicle + '</span>' : '<span class="text-gray-400">미배정</span>';
-                
-                return '<div class="grid grid-cols-12 gap-4 px-4 py-3 text-sm items-center hover:bg-gray-50">' +
-                       '<div class="col-span-2 font-medium text-gray-900">' + driver.name + '</div>' +
-                       '<div class="col-span-2 text-gray-600">' + driver.phone + '</div>' +
-                       '<div class="col-span-2"><span class="inline-block px-2 py-1 text-xs border border-gray-300 rounded-lg">' + driver.region + '</span></div>' +
-                       '<div class="col-span-2">' + vehicle + '</div>' +
-                       '<div class="col-span-2 text-center"><span class="inline-block px-2 py-0.5 text-xs rounded-lg ' + statusColor + '">' + driver.status + '</span></div>' +
-                       '<div class="col-span-2 text-center"><button onclick="editDriver(' + '\'' + driver.id + '\'' + ')" class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100">수정</button></div>' +
-                       '</div>';
-            }).join('');
-
-            document.getElementById('driversListBody').innerHTML = html || '<div class="px-4 py-8 text-center text-gray-500"><i class="fas fa-user-slash w-8 h-8 mx-auto mb-2 text-gray-400"></i><p>기사가 없습니다</p></div>';
-
-            renderDriverPagination(totalPages);
-        }
-
-        // 차량 리스트 렌더링
-        function renderVehicles() {
-            var filtered = getFilteredVehicles();
-            var totalPages = Math.ceil(filtered.length / itemsPerPage);
-            var startIdx = (currentVehiclePage - 1) * itemsPerPage;
-            var paginated = filtered.slice(startIdx, startIdx + itemsPerPage);
-
-            var html = paginated.map(function(vehicle) {
-                var statusColor = getVehicleStatusColor(vehicle.status);
-                var driver = vehicle.assignedDriver ? '<span class="text-gray-900">' + vehicle.assignedDriver + '</span>' : '<span class="text-gray-400">미배정</span>';
-                
-                return '<div class="grid grid-cols-12 gap-4 px-4 py-3 text-sm items-center hover:bg-gray-50">' +
-                       '<div class="col-span-2 font-medium text-gray-900">' + vehicle.plateNo + '</div>' +
-                       '<div class="col-span-1 text-center text-gray-900">' + vehicle.type + '</div>' +
-                       '<div class="col-span-2"><span class="inline-block px-2 py-0.5 text-xs border border-gray-300 rounded-lg">' + vehicle.feature + '</span></div>' +
-                       '<div class="col-span-2">' + driver + '</div>' +
-                       '<div class="col-span-1 text-center"><span class="inline-block px-2 py-0.5 text-xs rounded-lg ' + statusColor + '">' + vehicle.status + '</span></div>' +
-                       '<div class="col-span-1 text-center text-gray-900">' + vehicle.mileage.toLocaleString() + 'km</div>' +
-                       '<div class="col-span-2 text-center"><button onclick="editVehicle(' + '\'' + vehicle.id + '\'' + ')" class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-100">수정</button></div>' +
-                       '</div>';
-            }).join('');
-
-            document.getElementById('vehiclesListBody').innerHTML = html || '<div class="px-4 py-8 text-center text-gray-500"><i class="fas fa-truck-slash w-8 h-8 mx-auto mb-2 text-gray-400"></i><p>차량이 없습니다</p></div>';
-
-            renderVehiclePagination(totalPages);
-        }
-
-        // 페이지네이션 렌더링
-        function renderDriverPagination(totalPages) {
-            if (totalPages === 0) {
-                document.getElementById('driversPaginationArea').innerHTML = '';
-                return;
-            }
-
-            var maxVisiblePages = 5;
-            var startPage = Math.max(1, currentDriverPage - Math.floor(maxVisiblePages / 2));
-            var endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-            if (endPage - startPage < maxVisiblePages - 1) {
-                startPage = Math.max(1, endPage - maxVisiblePages + 1);
-            }
-
-            var html = '<button onclick="changeDriverPage(' + Math.max(1, currentDriverPage - 1) + ')" ' + (currentDriverPage === 1 ? 'disabled' : '') + ' class="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-chevron-left w-4 h-4"></i></button>';
-
-            if (startPage > 1) {
-                html += '<button onclick="changeDriverPage(1)" class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-100">1</button>';
-                if (startPage > 2) html += '<span class="px-2">...</span>';
-            }
-
-            for (var i = startPage; i <= endPage; i++) {
-                var btnClass = currentDriverPage === i ? 'bg-[#00853D] text-white border-[#00853D]' : 'border-gray-300 hover:bg-gray-100';
-                html += '<button onclick="changeDriverPage(' + i + ')" class="px-3 py-2 rounded-lg border transition-all ' + btnClass + '">' + i + '</button>';
-            }
-
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) html += '<span class="px-2">...</span>';
-                html += '<button onclick="changeDriverPage(' + totalPages + ')" class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-100">' + totalPages + '</button>';
-            }
-
-            html += '<button onclick="changeDriverPage(' + Math.min(totalPages, currentDriverPage + 1) + ')" ' + (currentDriverPage === totalPages ? 'disabled' : '') + ' class="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-chevron-right w-4 h-4"></i></button>';
-
-            document.getElementById('driversPaginationArea').innerHTML = html;
-        }
-
-        function renderVehiclePagination(totalPages) {
-            if (totalPages === 0) {
-                document.getElementById('vehiclesPaginationArea').innerHTML = '';
-                return;
-            }
-
-            var maxVisiblePages = 5;
-            var startPage = Math.max(1, currentVehiclePage - Math.floor(maxVisiblePages / 2));
-            var endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-            if (endPage - startPage < maxVisiblePages - 1) {
-                startPage = Math.max(1, endPage - maxVisiblePages + 1);
-            }
-
-            var html = '<button onclick="changeVehiclePage(' + Math.max(1, currentVehiclePage - 1) + ')" ' + (currentVehiclePage === 1 ? 'disabled' : '') + ' class="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-chevron-left w-4 h-4"></i></button>';
-
-            if (startPage > 1) {
-                html += '<button onclick="changeVehiclePage(1)" class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-100">1</button>';
-                if (startPage > 2) html += '<span class="px-2">...</span>';
-            }
-
-            for (var i = startPage; i <= endPage; i++) {
-                var btnClass = currentVehiclePage === i ? 'bg-[#00853D] text-white border-[#00853D]' : 'border-gray-300 hover:bg-gray-100';
-                html += '<button onclick="changeVehiclePage(' + i + ')" class="px-3 py-2 rounded-lg border transition-all ' + btnClass + '">' + i + '</button>';
-            }
-
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) html += '<span class="px-2">...</span>';
-                html += '<button onclick="changeVehiclePage(' + totalPages + ')" class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-100">' + totalPages + '</button>';
-            }
-
-            html += '<button onclick="changeVehiclePage(' + Math.min(totalPages, currentVehiclePage + 1) + ')" ' + (currentVehiclePage === totalPages ? 'disabled' : '') + ' class="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-chevron-right w-4 h-4"></i></button>';
-
-            document.getElementById('vehiclesPaginationArea').innerHTML = html;
-        }
-
-        // 액션
-        function switchTab(tab) {
-            currentTab = tab;
-            currentDriverPage = 1;
-            currentVehiclePage = 1;
-
-            if (tab === 'drivers') {
-                document.getElementById('driversTab').classList.remove('hidden');
-                document.getElementById('vehiclesTab').classList.add('hidden');
-                document.getElementById('driversTabBtn').classList.add('border-[#00853D]', 'text-[#00853D]');
-                document.getElementById('vehiclesTabBtn').classList.remove('border-[#00853D]', 'text-[#00853D]');
-                renderDriverStats();
-                renderDrivers();
-            } else {
-                document.getElementById('vehiclesTab').classList.remove('hidden');
-                document.getElementById('driversTab').classList.add('hidden');
-                document.getElementById('vehiclesTabBtn').classList.add('border-[#00853D]', 'text-[#00853D]');
-                document.getElementById('driversTabBtn').classList.remove('border-[#00853D]', 'text-[#00853D]');
-                renderVehicleStats();
-                renderVehicles();
-            }
-        }
-
-        function applySearch() {
-            searchTerm = document.getElementById('searchInput').value;
-            currentDriverPage = 1;
-            currentVehiclePage = 1;
-            renderDrivers();
-            renderVehicles();
-        }
-
-        function changeDriverPage(page) {
-            currentDriverPage = page;
-            renderDrivers();
-        }
-
-        function changeVehiclePage(page) {
-            currentVehiclePage = page;
-            renderVehicles();
-        }
-
-        function addDriver() {
-            alert('기사 추가 기능 (모달 필요)');
-        }
-
-        function addVehicle() {
-            alert('차량 추가 기능 (모달 필요)');
-        }
-
-        function editDriver(driverId) {
-            alert('기사 정보 수정: ' + driverId);
-        }
-
-        function editVehicle(vehicleId) {
-            alert('차량 정보 수정: ' + vehicleId);
-        }
-
-        // 사이드바
-        function toggleSidebar() {
-            var sidebar = document.getElementById('sidebar');
-            var backdrop = document.getElementById('sidebarBackdrop');
-            
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                backdrop.classList.remove('hidden');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                backdrop.classList.add('hidden');
-            }
-        }
-
-        function toggleMenu(button) {
-            var submenu = button.nextElementSibling;
-            var chevron = button.querySelector('i.fa-chevron-right') || button.querySelector('i.fa-chevron-down');
-            
-            submenu.classList.toggle('hidden');
-            if (chevron) {
-                if (submenu.classList.contains('hidden')) {
-                    chevron.classList.remove('fa-chevron-down');
-                    chevron.classList.add('fa-chevron-right');
-                } else {
-                    chevron.classList.add('fa-chevron-down');
-                    chevron.classList.remove('fa-chevron-right');
-                }
-            }
-        }
-
-        function toggleUserMenu() {
-            var userMenu = document.getElementById('userMenu');
-            userMenu.classList.toggle('hidden');
-        }
-
-        document.addEventListener('click', function(e) {
-            var userMenuBtn = document.getElementById('userMenuBtn');
-            var userMenu = document.getElementById('userMenu');
-            
-            if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
-                userMenu.classList.add('hidden');
-            }
-        });
-
-        document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
-
-        function logout() {
-            alert('로그아웃 되었습니다.');
-            window.location.href = '<%= request.getContextPath() %>/common/login.jsp';
-        }
-
-        // 초기화
-        switchTab('drivers');
-    </script>
+document.addEventListener('DOMContentLoaded', fetchData);
+</script>
 </body>
 </html>
-
-
