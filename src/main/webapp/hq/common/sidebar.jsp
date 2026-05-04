@@ -33,16 +33,16 @@
     boolean placeOrderItemLimitActive = uri.endsWith("/hq/place_order/order_quantity_limit.jsp");
 
     boolean salesGroup = uri.contains("/hq/sales/");
-    boolean salesDetailActive = uri.endsWith("/hq/sales/sales-detail.jsp");
-    boolean salesRankingActive = uri.endsWith("/hq/sales/sales-ranking.jsp");
-    boolean salesHeadquartersActive = uri.endsWith("/hq/sales/sales-headquarters.jsp");
+    boolean salesDetailActive = uri.endsWith("/hq/sales/detail") || uri.endsWith("/hq/sales/sales-detail.jsp");
+    boolean salesRankingActive = uri.endsWith("/hq/sales/ranking") || uri.endsWith("/hq/sales/sales-ranking.jsp");
+    boolean salesHeadquartersActive = uri.endsWith("/hq/sales/headquarters") || uri.endsWith("/hq/sales/sales-headquarters.jsp");
 
     boolean deliveryGroup = uri.contains("/hq/delivery/");
-    boolean deliveryInquiryActive = uri.endsWith("/hq/delivery/delivery-inquiry.jsp");
-    boolean dispatchManagementActive = uri.endsWith("/hq/delivery/dispatch-management.jsp");
-    boolean driverVehicleActive = uri.endsWith("/hq/delivery/driver-vehicle-management.jsp");
+    boolean deliveryInquiryActive = uri.endsWith("/hq/delivery/inquiry") || uri.endsWith("/hq/delivery/delivery-inquiry.jsp");
+    boolean dispatchManagementActive = uri.endsWith("/hq/delivery/dispatch") || uri.endsWith("/hq/delivery/dispatch-management.jsp");
+    boolean driverVehicleActive = uri.endsWith("/hq/delivery/driver-vehicle") || uri.endsWith("/hq/delivery/driver-vehicle-management.jsp");
 
-    boolean recipeActive = uri.endsWith("/hq/recipe/recipe-management.jsp");
+    boolean recipeActive = uri.endsWith("/hq/recipe/management") || uri.endsWith("/hq/recipe/recipe-management.jsp");
 
     boolean supportGroup = uri.contains("/hq/support/");
     boolean branchSearchActive = uri.endsWith("/hq/support/branch-search.jsp");
@@ -217,9 +217,9 @@
             <i class="fas <%= salesGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
         </button>
         <div class="submenu <%= salesGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
-            <a href="<%= cp %>/hq/sales/sales-headquarters.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesHeadquartersActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 매출 조회</a>
-            <a href="<%= cp %>/hq/sales/sales-detail.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesDetailActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">직영점 매출 조회</a>
-            <a href="<%= cp %>/hq/sales/sales-ranking.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesRankingActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">전사 매출 랭킹</a>
+            <a href="<%= cp %>/hq/sales/headquarters" class="block px-4 py-2 rounded-lg text-sm <%= salesHeadquartersActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">본사 매출 조회</a>
+            <a href="<%= cp %>/hq/sales/detail" class="block px-4 py-2 rounded-lg text-sm <%= salesDetailActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">직영점 매출 조회</a>
+            <a href="<%= cp %>/hq/sales/ranking" class="block px-4 py-2 rounded-lg text-sm <%= salesRankingActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">전사 매출 랭킹</a>
         </div>
 
         <button onclick="toggleMenu(this)" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg <%= deliveryGroup ? "bg-gray-100 text-gray-700" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
@@ -230,12 +230,12 @@
             <i class="fas <%= deliveryGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
         </button>
         <div class="submenu <%= deliveryGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
-            <a href="<%= cp %>/hq/delivery/delivery-inquiry.jsp" class="block px-4 py-2 rounded-lg text-sm <%= deliveryInquiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">배송 조회</a>
-            <a href="<%= cp %>/hq/delivery/dispatch-management.jsp" class="block px-4 py-2 rounded-lg text-sm <%= dispatchManagementActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">배차 관리</a>
-            <a href="<%= cp %>/hq/delivery/driver-vehicle-management.jsp" class="block px-4 py-2 rounded-lg text-sm <%= driverVehicleActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">기사/차량 관리</a>
+            <a href="<%= cp %>/hq/delivery/inquiry" class="block px-4 py-2 rounded-lg text-sm <%= deliveryInquiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">배송 조회</a>
+            <a href="<%= cp %>/hq/delivery/dispatch" class="block px-4 py-2 rounded-lg text-sm <%= dispatchManagementActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">배차 관리</a>
+            <a href="<%= cp %>/hq/delivery/driver-vehicle" class="block px-4 py-2 rounded-lg text-sm <%= driverVehicleActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">기사/차량 관리</a>
         </div>
 
-        <a href="<%= cp %>/hq/recipe/recipe-management.jsp" class="flex items-center gap-3 px-3 py-2.5 rounded-lg <%= recipeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
+        <a href="<%= cp %>/hq/recipe/management" class="flex items-center gap-3 px-3 py-2.5 rounded-lg <%= recipeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
             <i class="fas fa-book w-5 h-5"></i>
             <span class="text-sm">레시피 관리</span>
         </a>
