@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="mapper.branch.inboundMapper">
+
+	<resultMap id="inboundMap" type="dto.branch.inbound.InboundProcessingDTO">
+	    <id property="poId" column="po_id"/>
+	    <result property="poNo" column="po_no"/>
+	    <result property="requestedAt" column="request_date"/>
+	    <result property="status" column="status"/>
+	    <result property="outboundAt" column="outboundAt"/>
+	
+	    <collection property="items" ofType="dto.branch.inbound.InboundProcessingItemDTO">
+	        <result property="materialCode" column="material_code"/>
+	        <result property="materialName" column="material_name"/>
+	        <result property="category" column="group_name"/>
+	        <result property="requestedQty" column="requested_qty"/>
+	        <result property="outboundQty" column="outboundQty"/>
+	        <result property="unit" column="unit"/>
+	        <result property="expiryDate" column="expiry_date"/>
+	    </collection>
+	</resultMap>
+
+	<select id="selectInboundsToProcess" resultMap="inboundMap">
+		SELECT 
+			po.po_id,
+			po.po_no,
+			po.request_date,
+			po.status,
+			
+			m.material_code,
+			m.material_name,
+			m.unit,
+			mg.group_name,
+			
+			pod.requested_qty,
+			hod.qty 				outboundQty,
+			ho.shipped_at			outboundAt,
+			
+			ws.expiry_date
+			
+		FROM place_order po
+		
+		JOIN place_order_detail pod 
+			ON po.po_id = pod.po_id
+		
+		JOIN material m 
+			ON pod.material_code = m.material_code
+		
+		JOIN material_group mg 
+			ON m.material_group_id = mg.material_group_id
+		
+		<!-- 출고 정보 -->
+		LEFT JOIN hq_outbound ho 
+			ON ho.po_no = po.po_no
+		
+		LEFT JOIN hq_outbound_detail hod
+    		ON ho.hq_outbound_no = hod.hq_outbound_no
+		
+		
+		<!-- 유통기한 -->
+		LEFT JOIN warehouse_stock ws
+			ON hod.stock_no = ws.stock_no
+		
+		WHERE po.status = 'DELIVERED'
+		
+		ORDER BY po.po_id DESC
+		
+	</select>
+</mapper>

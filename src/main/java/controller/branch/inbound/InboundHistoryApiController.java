@@ -7,11 +7,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet("/branch/inbound/history")
-public class InboundHistoryController extends HttpServlet {
+@WebServlet("/api/branch/inbound/history")
+public class InboundHistoryApiController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
-    public InboundHistoryController() {
+    public InboundHistoryApiController() {
         super();
     }
 

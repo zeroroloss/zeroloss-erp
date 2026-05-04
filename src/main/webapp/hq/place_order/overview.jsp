@@ -105,9 +105,9 @@
                 <table class="w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">발주서 번호</th>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">발주 번호</th>
                             <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">요청 지점</th>
-                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">요청 일시</th>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">요청 시점</th>
                             <th class="text-right  py-3 px-6 text-sm font-semibold text-gray-900">품목 수</th>
                             <th class="text-right  py-3 px-6 text-sm font-semibold text-gray-900">총 수량</th>
                             <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">상태</th>
@@ -159,9 +159,9 @@
 
         <!-- 기본 정보 그리드 -->
         <div class="grid grid-cols-2 gap-4 mb-6 bg-gray-50 rounded-lg p-4">
-            <div><p class="text-sm text-gray-500">발주서 번호</p> <p class="font-semibold text-gray-900 mt-1" id="detailOrderNumber"></p></div>
+            <div><p class="text-sm text-gray-500">발주 번호</p> <p class="font-semibold text-gray-900 mt-1" id="detailOrderNumber"></p></div>
             <div><p class="text-sm text-gray-500">요청 지점</p>   <p class="font-semibold text-gray-900 mt-1" id="detailBranch"></p></div>
-            <div><p class="text-sm text-gray-500">요청 일시</p>   <p class="font-semibold text-gray-900 mt-1" id="detailDate"></p></div>
+            <div><p class="text-sm text-gray-500">요청 시점</p>   <p class="font-semibold text-gray-900 mt-1" id="detailDate"></p></div>
             <div><p class="text-sm text-gray-500">상태</p>        <div id="detailStatus" class="mt-1"></div></div>
             <div><p class="text-sm text-gray-500">품목 수</p>     <p class="font-semibold text-gray-900 mt-1" id="detailItemCount"></p></div>
             <div><p class="text-sm text-gray-500">총 요청 수량</p><p class="font-semibold text-blue-600 mt-1" id="detailTotalQty"></p></div>
