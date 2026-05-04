@@ -43,6 +43,7 @@
 		<if test="endDate != null and endDate != ''">
 			AND DATE(bsch.changed_at) &lt;= #{endDate}
 		</if>
+		
 		ORDER BY bsch.changed_at DESC
 		LIMIT #{pageSize} OFFSET #{offset}
 	</select>
