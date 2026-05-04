@@ -117,7 +117,7 @@
                     </div>
                     <h4 class="text-lg font-bold text-gray-900 mb-2">직영점 통합 관리</h4>
                     <p class="text-sm text-gray-600 mb-4">전국 직영점의 영업 현황과 실시간 매출을 통합 관리합니다</p>
-                    <a href="#" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
+                    <a href="<%= request.getContextPath() %>/hq/support/branch-search.jsp" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
                         바로가기
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -136,7 +136,7 @@
                     </div>
                     <h4 class="text-lg font-bold text-gray-900 mb-2">매출 관리</h4>
                     <p class="text-sm text-gray-600 mb-4">전체 지점의 실시간 매출 조회 및 기간별 매출 분석</p>
-                    <a href="#" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
+                    <a href="<%= request.getContextPath() %>/hq/sales/sales-headquarters.jsp" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
                         바로가기
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -155,7 +155,7 @@
                     </div>
                     <h4 class="text-lg font-bold text-gray-900 mb-2">발주 관리</h4>
                     <p class="text-sm text-gray-600 mb-4">지점 발주 요청 취합, 승인/반려 및 품목별 수량 설정</p>
-                    <a href="#" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
+                    <a href="<%= request.getContextPath() %>/hq/place_order/overview" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
                         바로가기
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -174,7 +174,7 @@
                     </div>
                     <h4 class="text-lg font-bold text-gray-900 mb-2">배송 관리</h4>
                     <p class="text-sm text-gray-600 mb-4">배송 상태 통합 트래킹 및 반품 처리</p>
-                    <a href="#" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
+                    <a href="<%= request.getContextPath() %>/hq/delivery/delivery-inquiry.jsp" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
                         바로가기
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -193,7 +193,7 @@
                     </div>
                     <h4 class="text-lg font-bold text-gray-900 mb-2">재고 관리</h4>
                     <p class="text-sm text-gray-600 mb-4">전지점 품목 통합 조회 및 본사 물류창고 관리</p>
-                    <a href="#" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
+                    <a href="<%= request.getContextPath() %>/hq/branch_stock/stock" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
                         바로가기
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -212,7 +212,7 @@
                     </div>
                     <h4 class="text-lg font-bold text-gray-900 mb-2">레시피 관리</h4>
                     <p class="text-sm text-gray-600 mb-4">신규 레시피 등록, 수정 및 원가 분석</p>
-                    <a href="#" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
+                    <a href="<%= request.getContextPath() %>/hq/recipe/recipe-management.jsp" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
                         바로가기
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -231,7 +231,7 @@
                     </div>
                     <h4 class="text-lg font-bold text-gray-900 mb-2">인사 및 권한 관리</h4>
                     <p class="text-sm text-gray-600 mb-4">본사 및 지점별 직원 정보, 계정 발급 및 권한 관리</p>
-                    <a href="#" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
+                    <a href="<%= request.getContextPath() %>/hq/hr/employee" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
                         바로가기
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -241,160 +241,166 @@
         </div>
 
         <!-- 하단 섹션: 최근 알림 & TOP 5 점 -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            <!-- 최근 알림 -->
-            <div class="bg-white rounded-xl border-2 border-[#00853D]/10 p-6 shadow-sm">
-                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
-                    최근 알림
-                </h3>
-                <div class="space-y-3">
-                    <!-- 알림 1: 경고 -->
-                    <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <div class="w-8 h-8 rounded-lg bg-[#FFD100]/20 text-[#F5C400] flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-triangle-exclamation text-sm"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm text-gray-900">강남점 재고 부족 알림 (김치 외 3품목)</p>
-                            <p class="text-xs text-gray-500 mt-1">10분 전</p>
-                        </div>
-                    </div>
-
-                    <!-- 알림 2: 성공 -->
-                    <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <div class="w-8 h-8 rounded-lg bg-[#00853D]/10 text-[#00853D] flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-circle-check text-sm"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm text-gray-900">이번 주 전사 매출 목표 120% 달성</p>
-                            <p class="text-xs text-gray-500 mt-1">1시간 전</p>
-                        </div>
-                    </div>
-
-                    <!-- 알림 3: 정보 -->
-                    <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <div class="w-8 h-8 rounded-lg bg-[#00A94F]/10 text-[#00A94F] flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-info-circle text-sm"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm text-gray-900">5개 지점 발주 요청 승인 대기 중</p>
-                            <p class="text-xs text-gray-500 mt-1">2시간 전</p>
-                        </div>
-                    </div>
-
-                    <!-- 알림 4: 경고 -->
-                    <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <div class="w-8 h-8 rounded-lg bg-[#FFD100]/20 text-[#F5C400] flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-triangle-exclamation text-sm"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm text-gray-900">부산 해운대점 배송 지연 발생</p>
-                            <p class="text-xs text-gray-500 mt-1">3시간 전</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 이번 달 TOP 5 점 -->
-            <div class="bg-white rounded-xl border-2 border-[#00853D]/10 p-6 shadow-sm">
-                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
-                    이번 달 TOP 5 점
-                </h3>
-                <div class="space-y-3">
-                    <!-- 1위 -->
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm bg-[#FFD100] text-[#00853D]">
-                                1
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">강남점</p>
-                                <p class="text-sm text-gray-500">매출: ₩125,000,000</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1 text-[#00853D]">
-                            <i class="fas fa-arrow-trend-up text-sm"></i>
-                            <span class="text-sm font-medium">+18.5%</span>
-                        </div>
-                    </div>
-
-                    <!-- 2위 -->
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm bg-[#00A94F] text-white">
-                                2
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">홍대점</p>
-                                <p class="text-sm text-gray-500">매출: ₩118,000,000</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1 text-[#00853D]">
-                            <i class="fas fa-arrow-trend-up text-sm"></i>
-                            <span class="text-sm font-medium">+15.2%</span>
-                        </div>
-                    </div>
-
-                    <!-- 3위 -->
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm bg-[#00853D] text-white">
-                                3
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">잠실점</p>
-                                <p class="text-sm text-gray-500">매출: ₩112,000,000</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1 text-[#00853D]">
-                            <i class="fas fa-arrow-trend-up text-sm"></i>
-                            <span class="text-sm font-medium">+12.8%</span>
-                        </div>
-                    </div>
-
-                    <!-- 4위 -->
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm bg-[#006B2F] text-white">
-                                4
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">판교점</p>
-                                <p class="text-sm text-gray-500">매출: ₩108,000,000</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1 text-[#00853D]">
-                            <i class="fas fa-arrow-trend-up text-sm"></i>
-                            <span class="text-sm font-medium">+16.3%</span>
-                        </div>
-                    </div>
-
-                    <!-- 5위 -->
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm bg-[#006B2F] text-white">
-                                5
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900">여의도점</p>
-                                <p class="text-sm text-gray-500">매출: ₩95,000,000</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1 text-[#00853D]">
-                            <i class="fas fa-arrow-trend-up text-sm"></i>
-                            <span class="text-sm font-medium">+9.5%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-                </div>
-
-            </main>
-        </div>
-    </div>
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+		
+		    <!-- 최근 알림 -->
+		    <div class="bg-white rounded-xl border-2 border-[#00853D]/10 p-6 shadow-sm">
+		        <div class="flex items-center justify-between mb-4">
+		            <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+		                <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
+		                최근 알림
+		            </h3>
+		
+		            <a href="<%= request.getContextPath() %>/hq/common/notification.jsp"
+		               class="inline-flex items-center gap-1 text-sm font-medium text-[#00853D] hover:text-[#006B2F] transition-all whitespace-nowrap">
+		                바로가기
+		                <i class="fas fa-arrow-right text-xs"></i>
+		            </a>
+		        </div>
+		
+		        <div class="space-y-3">
+		            <!-- 알림 1: 경고 -->
+		            <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+		                <div class="w-8 h-8 rounded-lg bg-[#FFD100]/20 text-[#F5C400] flex items-center justify-center flex-shrink-0">
+		                    <i class="fas fa-triangle-exclamation text-sm"></i>
+		                </div>
+		                <div class="flex-1 min-w-0">
+		                    <p class="text-sm text-gray-900">강남점 재고 부족 알림 (김치 외 3품목)</p>
+		                    <p class="text-xs text-gray-500 mt-1">10분 전</p>
+		                </div>
+		            </div>
+		
+		            <!-- 알림 2: 성공 -->
+		            <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+		                <div class="w-8 h-8 rounded-lg bg-[#00853D]/10 text-[#00853D] flex items-center justify-center flex-shrink-0">
+		                    <i class="fas fa-circle-check text-sm"></i>
+		                </div>
+		                <div class="flex-1 min-w-0">
+		                    <p class="text-sm text-gray-900">이번 주 전사 매출 목표 120% 달성</p>
+		                    <p class="text-xs text-gray-500 mt-1">1시간 전</p>
+		                </div>
+		            </div>
+		
+		            <!-- 알림 3: 정보 -->
+		            <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+		                <div class="w-8 h-8 rounded-lg bg-[#00A94F]/10 text-[#00A94F] flex items-center justify-center flex-shrink-0">
+		                    <i class="fas fa-info-circle text-sm"></i>
+		                </div>
+		                <div class="flex-1 min-w-0">
+		                    <p class="text-sm text-gray-900">5개 지점 발주 요청 승인 대기 중</p>
+		                    <p class="text-xs text-gray-500 mt-1">2시간 전</p>
+		                </div>
+		            </div>
+		
+		            <!-- 알림 4: 경고 -->
+		            <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+		                <div class="w-8 h-8 rounded-lg bg-[#FFD100]/20 text-[#F5C400] flex items-center justify-center flex-shrink-0">
+		                    <i class="fas fa-triangle-exclamation text-sm"></i>
+		                </div>
+		                <div class="flex-1 min-w-0">
+		                    <p class="text-sm text-gray-900">부산 해운대점 배송 지연 발생</p>
+		                    <p class="text-xs text-gray-500 mt-1">3시간 전</p>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		
+		    <!-- 이번 달 TOP 5 점 -->
+		    <div class="bg-white rounded-xl border-2 border-[#00853D]/10 p-6 shadow-sm">
+		        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+		            <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
+		            이번 달 TOP 5 점
+		        </h3>
+		
+		        <div class="space-y-3">
+		            <!-- 1위 -->
+		            <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+		                <div class="flex items-center gap-3">
+		                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm bg-[#FFD100] text-[#00853D]">
+		                        1
+		                    </div>
+		                    <div>
+		                        <p class="font-medium text-gray-900">강남점</p>
+		                        <p class="text-sm text-gray-500">매출: ₩125,000,000</p>
+		                    </div>
+		                </div>
+		                <div class="flex items-center gap-1 text-[#00853D]">
+		                    <i class="fas fa-arrow-trend-up text-sm"></i>
+		                    <span class="text-sm font-medium">+18.5%</span>
+		                </div>
+		            </div>
+		
+		            <!-- 2위 -->
+		            <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+		                <div class="flex items-center gap-3">
+		                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm bg-[#00A94F] text-white">
+		                        2
+		                    </div>
+		                    <div>
+		                        <p class="font-medium text-gray-900">홍대점</p>
+		                        <p class="text-sm text-gray-500">매출: ₩118,000,000</p>
+		                    </div>
+		                </div>
+		                <div class="flex items-center gap-1 text-[#00853D]">
+		                    <i class="fas fa-arrow-trend-up text-sm"></i>
+		                    <span class="text-sm font-medium">+15.2%</span>
+		                </div>
+		            </div>
+		
+		            <!-- 3위 -->
+		            <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+		                <div class="flex items-center gap-3">
+		                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm bg-[#00853D] text-white">
+		                        3
+		                    </div>
+		                    <div>
+		                        <p class="font-medium text-gray-900">잠실점</p>
+		                        <p class="text-sm text-gray-500">매출: ₩112,000,000</p>
+		                    </div>
+		                </div>
+		                <div class="flex items-center gap-1 text-[#00853D]">
+		                    <i class="fas fa-arrow-trend-up text-sm"></i>
+		                    <span class="text-sm font-medium">+12.8%</span>
+		                </div>
+		            </div>
+		
+		            <!-- 4위 -->
+		            <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+		                <div class="flex items-center gap-3">
+		                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm bg-[#006B2F] text-white">
+		                        4
+		                    </div>
+		                    <div>
+		                        <p class="font-medium text-gray-900">판교점</p>
+		                        <p class="text-sm text-gray-500">매출: ₩108,000,000</p>
+		                    </div>
+		                </div>
+		                <div class="flex items-center gap-1 text-[#00853D]">
+		                    <i class="fas fa-arrow-trend-up text-sm"></i>
+		                    <span class="text-sm font-medium">+16.3%</span>
+		                </div>
+		            </div>
+		
+		            <!-- 5위 -->
+		            <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+		                <div class="flex items-center gap-3">
+		                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-sm bg-[#006B2F] text-white">
+		                        5
+		                    </div>
+		                    <div>
+		                        <p class="font-medium text-gray-900">여의도점</p>
+		                        <p class="text-sm text-gray-500">매출: ₩95,000,000</p>
+		                    </div>
+		                </div>
+		                <div class="flex items-center gap-1 text-[#00853D]">
+		                    <i class="fas fa-arrow-trend-up text-sm"></i>
+		                    <span class="text-sm font-medium">+9.5%</span>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		
+		</div>
 
     <script>
         // 사이드바 토글

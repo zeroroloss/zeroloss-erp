@@ -78,7 +78,7 @@
 
     <div class="p-6 border-b border-gray-200">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border-2 border-[#00853D]">
                 <img src="<%= request.getContextPath() %>/upload/images/logo.png" alt="로고" class="w-full h-full object-cover">
             </div>
 

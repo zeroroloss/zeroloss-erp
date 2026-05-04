@@ -56,11 +56,6 @@
 			        errorUrl = request.getContextPath() + "/common/login.jsp";
 			    }
 			%>
-			            
-                <button onclick="location.reload()" class="flex items-center justify-center gap-2 bg-[#00853D] text-white px-8 py-3 rounded-lg hover:bg-[#006B2F] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                    <i class="fas fa-sync text-lg"></i>
-                    새로고침
-                </button>
                 <%
 				    String cp = request.getContextPath();
 				    Object branchNameObj = session.getAttribute("branchName");
@@ -70,10 +65,15 @@
 				            : cp + "/branch/main/home.jsp";
 				%>
                 <a href="<%= homeUrl %>" 
-                	class="flex items-center justify-center gap-2 bg-white text-[#00853D] px-8 py-3 rounded-lg border-2 border-[#00853D] hover:bg-[#00853D] hover:text-white transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                	class="flex items-center justify-center gap-2 bg-[#00853D] text-white px-8 py-3 rounded-lg hover:bg-[#006B2F] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                     <i class="fas fa-home text-lg"></i>
                     홈으로 돌아가기
                 </a>
+			            
+                <button onclick="window.history.back()" class="flex items-center justify-center gap-2 bg-white text-[#00853D] px-8 py-3 rounded-lg border-2 border-[#00853D] hover:bg-[#00853D] hover:text-white transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                    이전 페이지로
+                </button>
             </div>
 
             <!-- 도움말 -->

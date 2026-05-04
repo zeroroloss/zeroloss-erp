@@ -108,7 +108,7 @@
                 </div>
                 <h4 class="text-lg font-bold text-gray-900 mb-2">발주서 작성</h4>
                 <p class="text-sm text-gray-600 mb-4">새로운 발주 요청 생성</p>
-                <a href="/branch/purchase_order/create.jsp" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
+                <a href="<%= request.getContextPath()%>/branch/place_order/draft" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
                     바로가기
                     <i class="fas fa-arrow-right"></i>
                 </a>
@@ -123,7 +123,7 @@
                 </div>
                 <h4 class="text-lg font-bold text-gray-900 mb-2">재고 현황</h4>
                 <p class="text-sm text-gray-600 mb-4">실시간 재고 확인</p>
-                <a href="/branch/stock/stock.jsp" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
+                <a href="<%= request.getContextPath()%>/branch/stock" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
                     바로가기
                     <i class="fas fa-arrow-right"></i>
                 </a>
@@ -138,7 +138,7 @@
                 </div>
                 <h4 class="text-lg font-bold text-gray-900 mb-2">재고 교환</h4>
                 <p class="text-sm text-gray-600 mb-4">주변 지점에 재고 지원 요청</p>
-                <a href="/branch/swap/main.jsp" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
+                <a href="<%= request.getContextPath()%>/branch/swap/main.jsp?tab=check_stock" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
                     바로가기
                     <i class="fas fa-arrow-right"></i>
                 </a>
@@ -153,7 +153,7 @@
                 </div>
                 <h4 class="text-lg font-bold text-gray-900 mb-2">매출 조회</h4>
                 <p class="text-sm text-gray-600 mb-4">오늘 매출 상세 분석</p>
-                <a href="/branch/sales/branch_sales/main.jsp" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
+                <a href="<%= request.getContextPath()%>/branch/sales/branch_sales/sales-detail.jsp" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
                     바로가기
                     <i class="fas fa-arrow-right"></i>
                 </a>

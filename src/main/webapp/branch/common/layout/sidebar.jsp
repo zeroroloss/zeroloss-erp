@@ -54,7 +54,7 @@ boolean inquiryActive = uri.contains("/branch/support/branch-inquiries.jsp");
 	
     <div class="p-6 border-b border-gray-200">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border-2 border-[#00853D]">
 			    <img src="<%= request.getContextPath() %>/upload/images/logo.png" alt="로고" class="w-full h-full object-cover">
 			</div>
             <%
@@ -141,7 +141,7 @@ boolean inquiryActive = uri.contains("/branch/support/branch-inquiries.jsp");
             <a href="<%= request.getContextPath() %>/branch/sales/branch_sales/sales-detail.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesDetailActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">매출 조회</a>
             <a href="<%= request.getContextPath() %>/branch/sales/sales_rank/menu_rank.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesRankActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">매출 순위</a>
         </div>
-
+        
         <a href="<%= request.getContextPath() %>/branch/swap/main.jsp" class="flex items-center gap-3 px-3 py-2.5 rounded-lg <%= swapActive ? "bg-[#00853D] text-white font-medium" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
             <i class="fas fa-right-left w-5 h-5"></i>
             <span class="text-sm">재고 교환/요청</span>
