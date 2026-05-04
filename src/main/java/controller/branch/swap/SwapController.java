@@ -59,8 +59,8 @@ public class SwapController extends HttpServlet {
         } else if ("getSwapHistory".equals(action)) {
             handleGetSwapHistory(request, response, loginUser.getBranchCode());
         } else {
-            // action이 없거나 다른 값이면 기본 페이지로 포워딩
-            request.getRequestDispatcher("/branch/swap/main.jsp").forward(request, response);
+            // action이 없거나 다른 값이면 페이지 컨트롤러로 이동
+            response.sendRedirect(request.getContextPath() + "/branch/swap/main");
         }
     }
 

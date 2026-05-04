@@ -41,8 +41,8 @@ boolean hrEmployeeActive = uri.contains("/branch/hr/employee/");
 boolean hrScheduleActive = uri.contains("/branch/hr/schedule/");
 
 boolean supportGroup = uri.contains("/branch/support/");
-boolean noticeActive = uri.contains("/branch/support/branch-notices.jsp");
-boolean inquiryActive = uri.contains("/branch/support/branch-inquiries.jsp");
+boolean noticeActive = uri.contains("/branch/support/notices") || uri.contains("/branch/support/branch-notices.jsp");
+boolean inquiryActive = uri.contains("/branch/support/inquiries") || uri.contains("/branch/support/branch-inquiries.jsp");
 %>
 <div id="sidebarBackdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
 
@@ -207,7 +207,7 @@ boolean inquiryActive = uri.contains("/branch/support/branch-inquiries.jsp");
             <a href="<%= request.getContextPath() %>/branch/sales/ranking" class="block px-4 py-2 rounded-lg text-sm <%= salesRankActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">매출 순위</a>
         </div>
         
-        <a href="<%= request.getContextPath() %>/branch/swap/main.jsp" class="flex items-center gap-3 px-3 py-2.5 rounded-lg <%= swapActive ? "bg-[#00853D] text-white font-medium" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
+        <a href="<%= request.getContextPath() %>/branch/swap/main" class="flex items-center gap-3 px-3 py-2.5 rounded-lg <%= swapActive ? "bg-[#00853D] text-white font-medium" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
             <i class="fas fa-right-left w-5 h-5"></i>
             <span class="text-sm">재고 교환/요청</span>
         </a>
@@ -237,8 +237,8 @@ boolean inquiryActive = uri.contains("/branch/support/branch-inquiries.jsp");
             <i class="fas <%= supportGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
         </button>
         <div class="submenu <%= supportGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
-            <a href="<%= request.getContextPath() %>/branch/support/branch-notices.jsp" class="block px-4 py-2 rounded-lg text-sm <%= noticeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">공지사항</a>
-            <a href="<%= request.getContextPath() %>/branch/support/branch-inquiries.jsp" class="block px-4 py-2 rounded-lg text-sm <%= inquiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">문의사항</a>
+            <a href="<%= request.getContextPath() %>/branch/support/notices" class="block px-4 py-2 rounded-lg text-sm <%= noticeActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">공지사항</a>
+            <a href="<%= request.getContextPath() %>/branch/support/inquiries" class="block px-4 py-2 rounded-lg text-sm <%= inquiryActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">문의사항</a>
         </div>
     </nav>
     <!-- 로그아웃 -->
