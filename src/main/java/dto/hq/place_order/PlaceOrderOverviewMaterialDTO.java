@@ -3,8 +3,10 @@ package dto.hq.place_order;
 public class PlaceOrderOverviewMaterialDTO {
 	private String materialName;
 	private Double requestedQty;
+	private Double approvedQty;
 	private Double currentStock;
 	private Double safetyStock;
+	private String rejectReason;
 	private String unit;
 	
 	@Override
@@ -25,6 +27,12 @@ public class PlaceOrderOverviewMaterialDTO {
 	public void setRequestedQty(Double requestedQty) {
 		this.requestedQty = requestedQty;
 	}
+	public Double getApprovedQty() {
+		return approvedQty;
+	}
+	public void setApprovedQty(Double approvedQty) {
+		this.approvedQty = approvedQty;
+	}
 	public Double getCurrentStock() {
 		return currentStock;
 	}
@@ -36,6 +44,12 @@ public class PlaceOrderOverviewMaterialDTO {
 	}
 	public void setSafetyStock(Double safetyStock) {
 		this.safetyStock = safetyStock;
+	}
+	public String getRejectReason() {
+		return rejectReason;
+	}
+	public void setRejectReason(String rejectReason) {
+		this.rejectReason = rejectReason;
 	}
 	public String getUnit() {
 		return unit;

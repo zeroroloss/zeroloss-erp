@@ -57,6 +57,7 @@
 		    b.name   AS branchName,
 		    DATE_FORMAT(po.request_date, '%Y-%m-%d %H:%i:%s') AS requestedAt,
 		    po.status       AS status,
+		    po.reject_reason AS rejectReason,
 		    po.total_material_cnt AS totalItemCnt,
 		    po.total_amount AS totalAmounts
 		    
@@ -70,9 +71,11 @@
 		SELECT
 		    m.material_name AS materialName,
 		    pod.requested_qty AS requestedQty,
+		    CAST(COALESCE(pod.approved_qty, 0) AS SIGNED) AS approvedQty,
 		
 		    COALESCE(SUM(bs.current_qty), 0) AS currentStock,
 		    COALESCE(bmss.safe_stock_qty, 0) AS safetyStock,
+		    po.reject_reason AS rejectReason,
 		
 		    m.unit AS unit
 		
@@ -97,7 +100,9 @@
 		GROUP BY 
 		    m.material_name,
 		    pod.requested_qty,
+		    pod.approved_qty,
 		    bmss.safe_stock_qty,
+		    po.reject_reason,
 		    m.unit
 	</select>
 </mapper>

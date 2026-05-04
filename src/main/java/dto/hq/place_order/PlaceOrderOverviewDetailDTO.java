@@ -8,6 +8,7 @@ public class PlaceOrderOverviewDetailDTO {
 	private String branchName;
 	private String requestedAt;
 	private String status;
+	private String rejectReason;
 	private Integer totalItemCnt;
 	private Integer totalAmounts;
 
@@ -53,6 +54,14 @@ public class PlaceOrderOverviewDetailDTO {
 		this.status = status;
 	}
 
+	public String getRejectReason() {
+		return rejectReason;
+	}
+
+	public void setRejectReason(String rejectReason) {
+		this.rejectReason = rejectReason;
+	}
+
 	public Integer getTotalItemCnt() {
 		return totalItemCnt;
 	}
@@ -80,7 +89,7 @@ public class PlaceOrderOverviewDetailDTO {
 	@Override
 	public String toString() {
 		return "PlaceOrderOverviewDetailDTO [poId=" + poId + ", poNo=" + poNo + ", branchName=" + branchName
-				+ ", requestedAt=" + requestedAt + ", status=" + status + ", totalItemCnt=" + totalItemCnt
+				+ ", requestedAt=" + requestedAt + ", status=" + status + ", rejectReason=" + rejectReason + ", totalItemCnt=" + totalItemCnt
 				+ ", totalAmounts=" + totalAmounts + ", items=" + items + "]";
 	}
 
