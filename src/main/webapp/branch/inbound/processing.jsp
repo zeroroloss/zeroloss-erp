@@ -187,13 +187,15 @@ body {
 .items-table {
 	width: 100%;
 	border-collapse: collapse;
+    text-align: center;
 }
 
 .items-table th, .items-table td {
-	padding: 13px 14px;
-	border-bottom: 1px solid #edf0f5;
-	font-size: 14px;
-	text-align: left;
+    padding: 13px 14px;
+    border-bottom: 1px solid #edf0f5;
+    font-size: 14px;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .items-table th {
@@ -210,6 +212,7 @@ body {
 	border: 1px solid #d6dae3;
 	border-radius: 10px;
 	font-size: 14px;
+    text-align: center;
 }
 
 .items-table input.qty-warn {
@@ -472,11 +475,17 @@ body {
 		list.forEach(order => {
 			const itemsHtml = (order.items || []).map(item => {
 				return '<tr>' +
+                    '<td data-label="재고번호">' + escapeHtml(item.stockNo || '-') + '</td>' +
 					'<td data-label="품목명">' + escapeHtml(item.materialName || '-') + '</td>' +
 					'<td data-label="카테고리">' + escapeHtml(item.category || '-') + '</td>' +
 					'<td data-label="발주 수량" class="center">' + escapeHtml((item.requestedQty ?? 0) + ' ' + (item.unit || '')) + '</td>' +
-                    '<td data-label="본사 출고 수량" class="center">' + escapeHtml((item.outboundQty ?? 0) + + ' ' + (item.unit || '')) + '</td>' +
-					'<td data-label="입고 수량" class="center"><input type="number" value="' + escapeHtml((item.outboundQty ?? 0) + ' ' + (item.unit || '')) + '" /></td>' +    
+                    '<td data-label="본사 출고 수량" class="center">' + escapeHtml((item.outboundQty ?? 0) + ' ' + (item.unit || '')) + '</td>' +
+					'<td data-label="입고 수량" class="center">' +
+                        '<div style="display:flex; align-items:center; gap:4px; justify-content:center;">' +
+                            '<input type="number" value="' + escapeHtml(item.outboundQty ?? 0) + '" style="width:80px;" />' +
+                            '<span>' + escapeHtml(item.unit || '') + '</span>' +
+                        '</div>' +
+                    '</td>' +    
 					'<td data-label="유통기한">' + escapeHtml(item.expiryDate || '-') + '</td>' +
 					'<td data-label="비고"><input type="text" value="' + escapeHtml('') + '" /></td>' +
 				'</tr>';
@@ -499,7 +508,7 @@ body {
 						'<h2 class="section-title">입고 품목</h2>' +
 						'<table class="items-table"><thead>' +
 							'<tr>' +
-								'<th>품목명</th><th>카테고리</th><th class="center">발주 수량</th><th class="center">본사 출고 수량</th><th class="center">입고 수량</th><th>유통기한</th><th>비고</th>' +
+								'<th>재고 번호</th><th>품목명</th><th>카테고리</th><th class="center">발주 수량</th><th class="center">본사 출고 수량</th><th class="center">입고 수량</th><th>유통기한</th><th>비고</th>' +
 							'</tr></thead><tbody>' + itemsHtml + '</tbody></table>' +
 						'<div class="actions"><button class="btn btn-confirm">입고 확정</button></div>' +
 					'</div>' +

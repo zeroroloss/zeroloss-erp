@@ -68,22 +68,25 @@
 
     <select id="selectOrderDetailsByPoNo" parameterType="string" resultType="dto.hq.place_order.PlaceOrderProcessingDetailDTO">
         SELECT
-            pod.po_detail_id AS poDetailId,
-            pod.po_id AS poId,
-            pod.material_code AS materialCode,
-            m.material_name AS materialName,
-            m.unit AS unit,
-            CAST(pod.requested_qty AS SIGNED) AS requestedQty,
-            CAST(COALESCE(pod.approved_qty, 0) AS SIGNED) AS approvedQty,
-            CAST(COALESCE(pod.remaining_qty, 0) AS SIGNED) AS remainingQty,
-            COALESCE(CAST(bs.sum_qty AS SIGNED), 0) AS currentBranchStock,
-            COALESCE(CAST(bmss.safe_stock_qty AS SIGNED), 0) AS safeStockQty,
-            COALESCE(CAST(ws.qty AS SIGNED), 0) AS warehouseStockQty
+            pod.po_detail_id 									AS poDetailId,
+            pod.po_id 											AS poId,
+            pod.material_code 									AS materialCode,
+            m.material_name 									AS materialName,
+            m.unit 												AS unit,
+            CAST(pod.requested_qty AS SIGNED) 					AS requestedQty,
+            CAST(COALESCE(pod.approved_qty, 0) AS SIGNED) 		AS approvedQty,
+            CAST(COALESCE(pod.remaining_qty, 0) AS SIGNED) 		AS remainingQty,
+            COALESCE(CAST(bs.sum_qty AS SIGNED), 0) 			AS currentBranchStock,
+            COALESCE(CAST(bmss.safe_stock_qty AS SIGNED), 0) 	AS safeStockQty,
+            COALESCE(CAST(ws.qty AS SIGNED), 0) 				AS warehouseStockQty
         FROM place_order p
+        
         JOIN place_order_detail pod
             ON pod.po_id = p.po_id
+            
         JOIN material m
             ON m.material_code = pod.material_code
+            
         LEFT JOIN (
             SELECT branch_code, material_code, SUM(current_qty) AS sum_qty
             FROM branch_stock
@@ -91,11 +94,20 @@
         ) bs
             ON bs.branch_code = p.branch_code
            AND bs.material_code = pod.material_code
+        
         LEFT JOIN branch_material_safety_stock bmss
             ON bmss.branch_code = p.branch_code
            AND bmss.material_code = pod.material_code
-        LEFT JOIN warehouse_stock ws
-            ON ws.material_code = pod.material_code
+        
+        <!-- warehouse_stock을 집계해서 1줄로 만든 후 JOIN 하기 -->
+        LEFT JOIN (
+		    SELECT material_code, SUM(qty) AS qty
+		    FROM warehouse_stock
+		    WHERE status = 'AVAILABLE'
+		    GROUP BY material_code
+		) ws
+			ON ws.material_code = pod.material_code
+            
         WHERE p.po_no = #{value}
         ORDER BY pod.po_detail_id ASC
     </select>
@@ -126,13 +138,41 @@
           AND status = 'PENDING'
     </update>
 
-    <update id="deductWarehouseStock" parameterType="map">
-        UPDATE warehouse_stock
-        SET qty = qty - #{deductQty}
-        WHERE material_code = #{materialCode}
-          AND qty >= #{deductQty}
-    </update>
-   
+<!-- ========================================================= -->
+<!-- [ 출고 처리 (본사 재고 감소)] -->
+<!-- 재료 코드의 모든 재고들 정렬하여 조회하기 -->
+	<select id="selectStockLotsByMaterialCode" parameterType="string" resultType="map">
+		SELECT
+			stock_no,
+			qty,
+			expiry_date
+		FROM warehouse_stock
+		WHERE material_code = #{value}
+		  AND status = 'AVAILABLE'
+		  AND qty > 0
+	  	ORDER BY
+	  	  expiry_date ASC,		<!-- 유통기한 빠른 순 -->
+	  	  received_at ASC		<!-- 먼저 입고된 것 순 -->
+	</select>
+	
+<!-- 재고 번호로 감소시키기 (본사 물류창고 재고를.)  -->
+	<update id="deductWarehouseStockByStockNo" parameterType="map">
+		UPDATE warehouse_stock
+		SET qty = qty - #{deductQty}
+		WHERE stock_no = #{stockNo}
+		  AND qty >= #{deductQty}
+		  AND status = 'AVAILABLE'
+	</update>
+	
+<!-- 재고가 0이 되면, 상태 변경까지 하기 -->
+	<update id="updateStockStatusIfEmpty" parameterType="string">
+		UPDATE warehouse_stock
+		SET status = 'OUT_OF_STOCK'
+		WHERE stock_no = #{value}
+		  AND qty = 0
+	</update>
+	
+<!-- ========================================================= -->   
 <!-- 출고 내역 -->
 	<insert id="insertOutbound" parameterType="map" useGeneratedKeys="true" keyProperty="hqOutboundNo">
 	    INSERT INTO hq_outbound (
@@ -163,12 +203,6 @@
 	        #{qty}
 	    )
 	</insert>
-<!-- stockNo 조회 -->
-	<select id="selectStockNoByMaterialCode" parameterType="string" resultType="string">
-	    SELECT stock_no
-	    FROM warehouse_stock
-	    WHERE material_code = #{value}
-	    LIMIT 1
-	</select>
+	
 
 </mapper>

@@ -19,6 +19,7 @@
 	        <result property="requestedQty" column="requested_qty"/>
 	        <result property="outboundQty" column="outboundQty"/>
 	        <result property="unit" column="unit"/>
+	        <result property="stockNo" column="stock_no"/>
 	        <result property="expiryDate" column="expiry_date"/>
 	    </collection>
 	</resultMap>
@@ -39,6 +40,7 @@
 			hod.qty 				outboundQty,
 			ho.shipped_at			outboundAt,
 			
+			hod.stock_no
 			ws.expiry_date
 			
 		FROM place_order po

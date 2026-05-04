@@ -41,12 +41,25 @@ public class PlaceOrderProcessingDaoImpl implements PlaceOrderProcessingDao {
     public int updateApprovedQtyByDetailId(SqlSession sqlSession, Map<String, Object> param) throws Exception {
         return sqlSession.update(NAMESPACE + "updateApprovedQtyByDetailId", param);
     }
+    
+    // ====================================
+    // 출고 처리 - 재고 감소
+    @Override
+    public List<Map<String, Object>> selectStockLotsByMaterialCode(SqlSession sqlSession, String materialCode) {
+        return sqlSession.selectList(NAMESPACE + "selectStockLotsByMaterialCode", materialCode);
+    }
 
     @Override
-    public int deductWarehouseStock(SqlSession sqlSession, Map<String, Object> param) throws Exception {
-        return sqlSession.update(NAMESPACE + "deductWarehouseStock", param);
+    public int deductWarehouseStockByStockNo(SqlSession sqlSession, Map<String, Object> param) {
+        return sqlSession.update(NAMESPACE + "deductWarehouseStockByStockNo", param);
     }
-    
+
+    @Override
+    public int updateStockStatusIfEmpty(SqlSession sqlSession, String stockNo) {
+        return sqlSession.update(NAMESPACE + "updateStockStatusIfEmpty", stockNo);
+    }
+
+    // ====================================
     // 출고 내역
     @Override
     public int insertOutbound(SqlSession sqlSession, Map<String, Object> param) {
@@ -58,8 +71,6 @@ public class PlaceOrderProcessingDaoImpl implements PlaceOrderProcessingDao {
         return sqlSession.insert(NAMESPACE + "insertOutboundDetail", param);
     }
 
-	@Override
-	public String selectStockNoByMaterialCode(SqlSession sqlSession, String materialCode) {
-		return sqlSession.selectOne(NAMESPACE + "selectStockNoByMaterialCode", materialCode);
-	}
+
+
 }

@@ -11,18 +11,17 @@ public class InboundProcessingItemDTO {
 	BigDecimal outboundQty;		// 출고된 수량
 	BigDecimal receivedQty; 	// 받은 수량
 	String unit;				// 단위
+	String stockNo;				// 재고 번호
 	
 	String expiryDate; 		// 유통기한 일자
 	String note; 			// 비고
-	
 	@Override
 	public String toString() {
 		return "InboundProcessingItemDTO [materialCode=" + materialCode + ", materialName=" + materialName
 				+ ", category=" + category + ", requestedQty=" + requestedQty + ", outboundQty=" + outboundQty
-				+ ", receivedQty=" + receivedQty + ", unit=" + unit + ", expiryDate=" + expiryDate + ", note=" + note
-				+ "]";
+				+ ", receivedQty=" + receivedQty + ", unit=" + unit + ", stockNo=" + stockNo + ", expiryDate="
+				+ expiryDate + ", note=" + note + "]";
 	}
-	
 	public String getMaterialCode() {
 		return materialCode;
 	}
@@ -65,6 +64,12 @@ public class InboundProcessingItemDTO {
 	public void setUnit(String unit) {
 		this.unit = unit;
 	}
+	public String getStockNo() {
+		return stockNo;
+	}
+	public void setStockNo(String stockNo) {
+		this.stockNo = stockNo;
+	}
 	public String getExpiryDate() {
 		return expiryDate;
 	}
@@ -77,7 +82,6 @@ public class InboundProcessingItemDTO {
 	public void setNote(String note) {
 		this.note = note;
 	}
-	
 	
 	
 }
