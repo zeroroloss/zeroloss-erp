@@ -47,4 +47,10 @@ public class PlaceOrderOverviewServiceImpl implements PlaceOrderOverviewService 
 		    return detail;
 	    }
 	}
+
+	@Override
+	public Integer selectPendingCnt() throws Exception {
+		Integer cnt = dao.selectPendingCnt();
+		return cnt;
+	}
 }

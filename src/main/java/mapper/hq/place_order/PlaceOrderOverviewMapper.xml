@@ -100,4 +100,9 @@
 		    bmss.safe_stock_qty,
 		    m.unit
 	</select>
+	
+	<!-- 메인 페이지 발주 수 -->
+	<select id="selectPendingCnt" resultType="Integer">
+		select count(po_id) as totalPending from place_order where status = 'PENDING'
+	</select>
 </mapper>

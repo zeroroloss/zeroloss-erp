@@ -20,4 +20,6 @@ public interface PlaceOrderOverviewDao {
 	PlaceOrderOverviewDetailDTO findDetailByPoId(SqlSession sqlSession, int poId);
 	List<PlaceOrderOverviewMaterialDTO> findDetailItemsByPoId(SqlSession sqlSession, int poId);
 
+	// 메인페이지 발주 수
+	Integer selectPendingCnt() throws Exception;
 }

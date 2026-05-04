@@ -40,6 +40,4 @@ public interface PlaceOrderDAO {
     
     // 발주서 번호 (pONo) 변경
 	int updatePlaceOrderNo(SqlSession sqlSession, Integer poId, String poNo);
-
-
 }

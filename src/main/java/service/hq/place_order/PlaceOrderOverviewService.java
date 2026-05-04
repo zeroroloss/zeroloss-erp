@@ -14,4 +14,5 @@ public interface PlaceOrderOverviewService {
 
 	PlaceOrderOverviewDetailDTO findDetailByPoId(int poId);
 
+	Integer selectPendingCnt() throws Exception;
 }
