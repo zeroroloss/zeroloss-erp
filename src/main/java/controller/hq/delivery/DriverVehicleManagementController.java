@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet("/hq/delivery/driver-vehicle-management")
+@WebServlet(urlPatterns = {"/hq/delivery/driver-vehicle", "/hq/delivery/driver-vehicle-management"})
 public class DriverVehicleManagementController extends HttpServlet {
     private final DeliveryService deliveryService = new DeliveryServiceImpl();
     private final Gson gson = new GsonBuilder().serializeNulls().create();

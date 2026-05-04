@@ -44,6 +44,9 @@ public class DispatchController extends HttpServlet {
                     String regionCode = req.getParameter("regionCode");
                     result = dispatchService.getDispatchModalData(regionCode);
                     break;
+                case "getDeliveries":
+                    result = dispatchService.getAllDispatches();
+                    break;
                 default:
                      resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid action");
                      return;

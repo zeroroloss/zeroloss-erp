@@ -170,15 +170,15 @@
         <!-- 발주 품목 테이블 -->
         <div>
             <h4 class="font-semibold text-gray-900 mb-3">발주 품목 상세</h4>
+            <!-- 반려 사유 영역 -->
+            <div id="rejectReasonBox"
+		         class="hidden mb-3 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+		    </div>
+		    <!-- 상세 정보 테이블 -->
             <div class="overflow-x-auto border border-gray-200 rounded-lg">
                 <table class="w-full">
-                    <thead class="bg-gray-50 border-b border-gray-200">
-                        <tr>
-                            <th class="text-left  py-3 px-4 text-sm font-semibold text-gray-900">품목명</th>
-                            <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">요청 수량</th>
-                            <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">현재 재고</th>
-                        </tr>
-                    </thead>
+                    <!-- 동적으로 발주 상태별 상세조회 테이블 변경됨 -->
+                    <thead id="itemsTableHead" class="bg-gray-50 border-b border-gray-200"></thead>
                     <tbody id="itemsTableBody"></tbody>
                 </table>
             </div>
@@ -244,10 +244,17 @@
         window.location.href = '<%=request.getContextPath()%>/common/login.jsp';
     }
 
-    document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
+    var backdrop = document.getElementById('sidebarBackdrop');
+    if (backdrop) {
+        backdrop.addEventListener('click', toggleSidebar);
+    }
     document.addEventListener('click', function(e) {
+        var userMenu = document.getElementById('userMenu');
+
+        if (!userMenu) return;
+
         if (!e.target.closest('button[onclick="toggleUserMenu()"]') && !e.target.closest('#userMenu')) {
-            document.getElementById('userMenu').classList.add('hidden');
+            userMenu.classList.add('hidden');
         }
     });
 
@@ -309,7 +316,7 @@
     // 데이터 조회 (API)
     // ============================================================
     async function applyFilters() {
-        console.log("🔥 applyFilters 실행됨");
+        console.log("applyFilters 실행됨");
         var params = new URLSearchParams({
             branchName:    document.getElementById('filterBranch').value,
             startDate: document.getElementById('filterStartDate').value,
@@ -320,12 +327,16 @@
             // 요청
             var res = await fetch('<%=request.getContextPath()%>/api/hq/place_order/overview?' + params);
             if (!res.ok) {
-                var errData = await res.json();
-                throw new Error(errData.message || 'HTTP ' + res.status);
+            	let errData = {};
+            	try {
+	                errData = await res.json();            		
+            	} catch (e) {
+            		throw new Error(errData.message || 'HTTP ' + res.status);
+            	}
             }
             // 응답
             var result = await res.json();
-            console.log(result.data);
+            console.log('응답 데이터:', result.data);
             if (!result || result.status != 'success') throw new Error((result && result.message) || '데이터 오류');
 
             allOrders = result.data || [];
@@ -413,18 +424,109 @@
     // ============================================================
     // 상세정보 모달
     // ============================================================
+    function getDetailTableConfig(status) {
+        if (status === 'APPROVED') {
+            return {
+                colspan: 4,
+                head: `
+                    <tr>
+                        <th class="text-left py-3 px-4 text-sm font-semibold">품목명</th>
+                        <th class="text-right py-3 px-4 text-sm font-semibold">요청 수량</th>
+                        <th class="text-right py-3 px-4 text-sm font-semibold">승인 수량</th>
+                        <th class="text-right py-3 px-4 text-sm font-semibold">미승인 수량</th>
+                    </tr>`
+            };
+        }
+
+        if (status === 'REJECTED') {
+            return {
+                colspan: 2,
+                head: `
+                    <tr>
+                        <th class="text-left py-3 px-4 text-sm font-semibold">품목명</th>
+                        <th class="text-right py-3 px-4 text-sm font-semibold">요청 수량</th>
+                    </tr>`
+            };
+        }
+
+        return {
+            colspan: 4,
+            head: `
+                <tr>
+                    <th class="text-left py-3 px-4 text-sm font-semibold">품목명</th>
+                    <th class="text-right py-3 px-4 text-sm font-semibold">요청 수량</th>
+                    <th class="text-right py-3 px-4 text-sm font-semibold">지점 현재 재고</th>
+                    <th class="text-right py-3 px-4 text-sm font-semibold">지점 안전 재고</th>
+                </tr>`
+        };
+    }
+
+    function renderDetailRow(item, status, rejectReason) {
+        console.log(item);
+        console.log(status);
+
+        // 값 안전 처리 (null/undefined 방지)
+        var name          = item.materialName || '';
+        var requestedQty  = item.requestedQty || 0;
+        var approvedQty   = Number(item.approvedQty || 0);
+        var currentStock  = item.currentStock || 0;
+        var safetyStock   = item.safetyStock || 0;
+        var unit          = item.unit || '';
+
+        if (status === 'APPROVED') {
+            var rejectedQty = Math.max(0, Number(requestedQty) - approvedQty);
+
+            return ''
+                + '<td class="py-3 px-4">' + name + '</td>'
+                + '<td class="py-3 px-4 text-right">' + requestedQty + unit + '</td>'
+                + '<td class="py-3 px-4 text-right text-green-600 font-semibold">' + approvedQty + unit + '</td>'
+                + '<td class="py-3 px-4 text-right text-red-500 font-semibold">' + rejectedQty + unit + '</td>';
+        }
+
+        if (status === 'REJECTED') {
+            return ''
+                + '<td class="py-3 px-4">' + name + '</td>'
+                + '<td class="py-3 px-4 text-right">' + requestedQty + unit + '</td>';
+        }
+
+        // PENDING (기본)
+        var stockColor = (Number(currentStock) < Number(safetyStock))
+            ? 'text-red-600'
+            : 'text-green-600';
+
+        return ''
+            + '<td class="py-3 px-4">' + name + '</td>'
+            + '<td class="py-3 px-4 text-right font-semibold text-blue-600">' + requestedQty + unit + '</td>'
+            + '<td class="py-3 px-4 text-right font-semibold ' + stockColor + '">' + currentStock + unit + '</td>'
+            + '<td class="py-3 px-4 text-right text-gray-700">' + safetyStock + unit + '</td>';
+    }
+
     async function openDetail(orderId) {
+        var thead = document.getElementById('itemsTableHead');
         var tbody = document.getElementById('itemsTableBody');
-        tbody.innerHTML = '<tr><td colspan="3" class="py-8 text-center text-gray-500">로딩 중...</td></tr>';
         document.getElementById('detailModal').classList.remove('hidden');
+
+        // 로딩
+        thead.innerHTML = '';
+        tbody.innerHTML = '<tr><td class="py-8 text-center text-gray-500">로딩 중...</td></tr>';
 
         try {
             var res = await fetch('<%=request.getContextPath()%>/api/hq/place_order/overview/' + encodeURIComponent(orderId));
-            if (!res.ok) throw new Error('API 실패: ' + res.status);
+            var json;
+            try {
+                json = await res.json();
+            } catch (e) {
+                throw new Error("JSON 파싱 실패");
+            }
 
-            var json   = await res.json();
+            if (!res.ok || !json || json.status !== 'success') {
+                throw new Error((json && json.message) || ('API 실패: ' + res.status));
+            }
+
             var data   = json.data;
             var meta   = STATUS_CONFIG[data.status] || STATUS_CONFIG['default'];
+            var status = data.status; // 발주 상태
+            var tableConfig = getDetailTableConfig(status);
 
             // 기본 정보
             document.getElementById('modalSubtitle').textContent    = data.branchName + ' · ' + data.poNo;
@@ -433,28 +535,50 @@
             document.getElementById('detailDate').textContent        = data.requestedAt;
             document.getElementById('detailItemCount').textContent   = data.totalItemCnt + '개';
             document.getElementById('detailTotalQty').textContent    = data.totalAmounts;
+            document.getElementById('detailStatus').innerHTML =
+                `<span class="inline-flex px-3 py-1 rounded-full text-xs font-medium ${meta.badgeClass}">
+                    ${meta.label}
+                </span>`;
+            /* 반려 사유 */
+            var rejectReasonBox = document.getElementById('rejectReasonBox');
+
+            if (status === 'REJECTED') {
+                rejectReasonBox.classList.remove('hidden');
+                rejectReasonBox.innerText = '반려 사유 : ' + data.rejectReason || '-';
+            } else {
+                rejectReasonBox.classList.add('hidden');
+                rejectReasonBox.innerText = '';
+            }
 
             // 품목 목록
             var items = data.items || [];
             if (items.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="py-8 text-center text-gray-500">품목 정보가 없습니다</td></tr>';
+                thead.innerHTML = tableConfig.head;
+                tbody.innerHTML = `<tr><td colspan="${tableConfig.colspan}" class="py-8 text-center text-gray-500">품목 정보가 없습니다</td></tr>`;
                 return;
             }
 
+            thead.innerHTML = tableConfig.head;
             tbody.innerHTML = '';
+
+            // 바디 구성
+            var rejectReason = data.rejectReason || '';
             items.forEach(function(item) {
-                var stockColor = (item.currentStock < item.safetyStock) ? 'text-red-600' : 'text-green-600';
+                const html = renderDetailRow(item, status, rejectReason);
                 var tr = document.createElement('tr');
-                tr.className = 'border-b border-gray-100';
-                tr.innerHTML =
-                    '<td class="py-3 px-4 text-gray-900">' + item.materialName + '</td>' +
-                    '<td class="py-3 px-4 text-right font-semibold text-blue-600">' + item.requestedQty + item.unit + '</td>' +
-                    '<td class="py-3 px-4 text-right font-semibold ' + stockColor + '">' + item.currentStock + item.unit + '</td>';
+                tr.innerHTML = html;
                 tbody.appendChild(tr);
             });
 
         } catch (err) {
-            tbody.innerHTML = '<tr><td colspan="3" class="py-8 text-center text-red-500">데이터를 불러오지 못했습니다: ' + err.message + '</td></tr>';
+            console.error('상세 조회 실패:', err);
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="1" class="py-8 text-center text-red-500">
+                        데이터를 불러오지 못했습니다: ${err.message}
+                    </td>
+                </tr>`;
         }
     }
 

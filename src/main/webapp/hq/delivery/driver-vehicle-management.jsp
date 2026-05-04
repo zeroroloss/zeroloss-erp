@@ -48,7 +48,7 @@
             <!-- 차량 탭 -->
             <div id="vehiclesTab" class="space-y-4 hidden">
                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mt-2">
-                    <div class="bg-gray-50 border-b border-gray-200"><div class="grid grid-cols-9 gap-4 px-6 py-4 text-sm font-bold text-gray-700"><div class="col-span-2">차량번호</div><div class="col-span-2 text-center">크기(kg)</div><div class="col-span-2 text-center">온도</div><div class="col-span-2 text-center">상태</div><div class="col-span-1 text-center">액션</div></div></div>
+                    <div class="bg-gray-50 border-b border-gray-200"><div class="grid grid-cols-10 gap-4 px-6 py-4 text-sm font-bold text-gray-700"><div class="col-span-2">차량번호</div><div class="col-span-2 text-center">크기(kg)</div><div class="col-span-2 text-center">온도</div><div class="col-span-2 text-center">활성화 상태</div><div class="col-span-1 text-center">상태</div><div class="col-span-1 text-center">액션</div></div></div>
                     <div id="vehiclesListBody" class="divide-y divide-gray-100"></div>
                 </div>
                 <div id="vehiclesPaginationArea" class="flex items-center justify-center gap-2 mt-6"></div>
@@ -71,12 +71,13 @@
 // 전역 변수, fetchData, 페이지네이션, 탭 전환, 검색 로직 등
 let allDrivers = [], allVehicles = [], currentTab = 'drivers', searchTerm = '', currentDriverPage = 1, currentVehiclePage = 1;
 const itemsPerPage = 8;
+const contextPath = '<%=request.getContextPath()%>';
 
 async function fetchData() {
     try {
         const [driversRes, vehiclesRes] = await Promise.all([
-            fetch('/hq/delivery/driver-vehicle-management?action=getDrivers'),
-            fetch('/hq/delivery/driver-vehicle-management?action=getVehicles')
+            fetch(contextPath + '/hq/delivery/driver-vehicle?action=getDrivers'),
+            fetch(contextPath + '/hq/delivery/driver-vehicle?action=getVehicles')
         ]);
         allDrivers = await driversRes.json();
         allVehicles = await vehiclesRes.json();
@@ -105,11 +106,12 @@ function renderVehicles() {
     const totalPages = Math.ceil(filtered.length / itemsPerPage);
     const paginated = filtered.slice((currentVehiclePage - 1) * itemsPerPage, currentVehiclePage * itemsPerPage);
     document.getElementById('vehiclesListBody').innerHTML = paginated.map(v => `
-        <div class="grid grid-cols-9 gap-4 px-6 py-4 text-sm items-center hover:bg-gray-50">
+        <div class="grid grid-cols-10 gap-4 px-6 py-4 text-sm items-center hover:bg-gray-50">
             <div class="col-span-2 font-medium">\${v.plateNumber}</div>
             <div class="col-span-2 text-center">\${v.capacity}</div>
             <div class="col-span-2 text-center"><span class="px-2.5 py-1 text-xs border rounded-md">\${v.tempType}</span></div>
-            <div class="col-span-2 text-center"><span class="px-2.5 py-1 text-xs font-bold border rounded-full \${{'AVAILABLE':'bg-green-50 text-green-700','IN_TRANSIT':'bg-blue-50 text-blue-700','MAINTENANCE':'bg-yellow-50 text-yellow-700'}[v.status]}">\${{'AVAILABLE':'가용','IN_TRANSIT':'배송 중','MAINTENANCE':'점검 중'}[v.status]}</span></div>
+            <div class="col-span-2 text-center"><span class="px-2.5 py-1 text-xs font-bold border rounded-full whitespace-nowrap \${v.active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}">\${v.active ? '활성' : '비활성'}</span></div>
+            <div class="col-span-1 text-center"><span class="px-2.5 py-1 text-xs font-bold border rounded-full \${{'AVAILABLE':'bg-green-50 text-green-700','IN_TRANSIT':'bg-blue-50 text-blue-700','MAINTENANCE':'bg-yellow-50 text-yellow-700'}[v.status]}">\${{'AVAILABLE':'가용','IN_TRANSIT':'배송 중','MAINTENANCE':'점검 중'}[v.status]}</span></div>
             <div class="col-span-1 text-center"><button onclick="openEditVehicleModal(\${v.vehicleId})" class="px-3 py-1.5 text-xs border rounded">수정</button></div>
         </div>
     `).join('') || '<div class="p-12 text-center text-gray-500">결과 없음</div>';
@@ -123,10 +125,10 @@ async function openAddDriverModal() {
     document.getElementById('driverCandidate').classList.remove('hidden');
     document.getElementById('driverNameDisplay').classList.add('hidden');
     document.getElementById('deleteDriverBtn').classList.add('hidden');
-    const res = await fetch('/hq/delivery/driver-vehicle-management?action=getAddDriverFormData');
+    const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=getAddDriverFormData');
     const data = await res.json();
-    document.getElementById('driverCandidate').innerHTML = '<option value="">선택...</option>' + data.candidates.map(c => `<option value="\${c.empNo}">\${c.name}</option>`).join('');
-    document.getElementById('driverRegion').innerHTML = data.regions.map(r => `<option value="\${r.regionCode}">\${r.name}</option>`).join('');
+    document.getElementById('driverCandidate').innerHTML = '<option value="">선택...</option>' + data.candidates.map(function(c) { return '<option value="' + c.empNo + '">' + c.name + '</option>'; }).join('');
+    document.getElementById('driverRegion').innerHTML = data.regions.map(function(r) { return '<option value="' + r.regionCode + '">' + r.name + '</option>'; }).join('');
     document.querySelector('input[name="driverStatus"][value="true"]').checked = true;
     document.getElementById('driverModal').classList.remove('hidden');
 }
@@ -136,11 +138,11 @@ async function openEditDriverModal(id) {
     document.getElementById('driverCandidate').classList.add('hidden');
     document.getElementById('driverNameDisplay').classList.remove('hidden');
     document.getElementById('deleteDriverBtn').classList.remove('hidden');
-    const res = await fetch(`/hq/delivery/driver-vehicle-management?action=getEditDriverFormData&driverId=\${id}`);
+    const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=getEditDriverFormData&driverId=' + id);
     const data = await res.json();
     document.getElementById('driverNameDisplay').textContent = data.driver.name;
-    document.getElementById('driverRegion').innerHTML = data.regions.map(r => `<option value="\${r.regionCode}" \${r.regionCode === data.driver.regionCode ? 'selected' : ''}>\${r.name}</option>`).join('');
-    document.querySelector(`input[name="driverStatus"][value="\${data.driver.active}"]`).checked = true;
+    document.getElementById('driverRegion').innerHTML = data.regions.map(function(r) { return '<option value="' + r.regionCode + '" ' + (r.regionCode === data.driver.regionCode ? 'selected' : '') + '>' + r.name + '</option>'; }).join('');
+    document.querySelector('input[name="driverStatus"][value="' + data.driver.active + '"]').checked = true;
     document.getElementById('driverModal').classList.remove('hidden');
 }
 function closeDriverModal() { document.getElementById('driverModal').classList.add('hidden'); }
@@ -153,7 +155,7 @@ async function handleSaveDriver() {
         active: document.querySelector('input[name="driverStatus"]:checked').value === 'true'
     };
     if (!id && !data.empNo) { alert('기사를 선택하세요.'); return; }
-    const res = await fetch(`/hq/delivery/driver-vehicle-management?action=\${id ? 'updateDriver' : 'addDriver'}`, { method: 'POST', body: JSON.stringify(data) });
+    const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=' + (id ? 'updateDriver' : 'addDriver'), { method: 'POST', body: JSON.stringify(data) });
     const result = await res.json();
     if (result.success) { alert('저장되었습니다.'); closeDriverModal(); fetchData(); }
     else { alert(result.message || '저장 실패'); }
@@ -161,7 +163,7 @@ async function handleSaveDriver() {
 async function handleDeleteDriver() {
     if (!confirm('정말 삭제하시겠습니까?')) return;
     const id = document.getElementById('driverId').value;
-    const res = await fetch(`/hq/delivery/driver-vehicle-management?action=deleteDriver&driverId=\${id}`, { method: 'POST' });
+    const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=deleteDriver&driverId=' + id, { method: 'POST' });
     const result = await res.json();
     if (result.success) { alert('삭제되었습니다.'); closeDriverModal(); fetchData(); }
     else { alert(result.message || '삭제 실패'); }
@@ -172,9 +174,9 @@ async function openAddVehicleModal() {
     document.getElementById('vehicleModalTitle').textContent = '신규 차량 추가';
     document.getElementById('vehicleId').value = '';
     document.getElementById('deleteVehicleBtn').classList.add('hidden');
-    const res = await fetch('/hq/delivery/driver-vehicle-management?action=getAddVehicleFormData');
+    const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=getAddVehicleFormData');
     const data = await res.json();
-    document.getElementById('vehicleRegion').innerHTML = data.regions.map(r => `<option value="\${r.regionCode}">\${r.name}</option>`).join('');
+    document.getElementById('vehicleRegion').innerHTML = data.regions.map(function(r) { return '<option value="' + r.regionCode + '">' + r.name + '</option>'; }).join('');
     document.getElementById('plateNumber').value = '';
     document.getElementById('vehicleCapacity').value = 1000;
     document.querySelector('input[name="vehicleActive"][value="true"]').checked = true;
@@ -184,14 +186,14 @@ async function openEditVehicleModal(id) {
     document.getElementById('vehicleModalTitle').textContent = '차량 정보 수정';
     document.getElementById('vehicleId').value = id;
     document.getElementById('deleteVehicleBtn').classList.remove('hidden');
-    const res = await fetch(`/hq/delivery/driver-vehicle-management?action=getEditVehicleFormData&vehicleId=\${id}`);
+    const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=getEditVehicleFormData&vehicleId=' + id);
     const data = await res.json();
     document.getElementById('plateNumber').value = data.vehicle.plateNumber;
     document.getElementById('vehicleCapacity').value = data.vehicle.capacity;
     document.getElementById('vehicleTempType').value = data.vehicle.tempType;
     document.getElementById('vehicleStatus').value = data.vehicle.status;
-    document.getElementById('vehicleRegion').innerHTML = data.regions.map(r => `<option value="\${r.regionCode}" \${r.regionCode === data.vehicle.regionCode ? 'selected' : ''}>\${r.name}</option>`).join('');
-    document.querySelector(`input[name="vehicleActive"][value="\${data.vehicle.active}"]`).checked = true;
+    document.getElementById('vehicleRegion').innerHTML = data.regions.map(function(r) { return '<option value="' + r.regionCode + '" ' + (r.regionCode === data.vehicle.regionCode ? 'selected' : '') + '>' + r.name + '</option>'; }).join('');
+    document.querySelector('input[name="vehicleActive"][value="' + data.vehicle.active + '"]').checked = true;
     document.getElementById('vehicleModal').classList.remove('hidden');
 }
 function closeVehicleModal() { document.getElementById('vehicleModal').classList.add('hidden'); }
@@ -207,7 +209,7 @@ async function handleSaveVehicle() {
         active: document.querySelector('input[name="vehicleActive"]:checked').value === 'true'
     };
     if (!data.plateNumber) { alert('차량번호를 입력하세요.'); return; }
-    const res = await fetch(`/hq/delivery/driver-vehicle-management?action=\${id ? 'updateVehicle' : 'addVehicle'}`, { method: 'POST', body: JSON.stringify(data) });
+    const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=' + (id ? 'updateVehicle' : 'addVehicle'), { method: 'POST', body: JSON.stringify(data) });
     const result = await res.json();
     if (result.success) { alert('저장되었습니다.'); closeVehicleModal(); fetchData(); }
     else { alert(result.message || '저장 실패'); }
@@ -215,7 +217,7 @@ async function handleSaveVehicle() {
 async function handleDeleteVehicle() {
     if (!confirm('정말 삭제하시겠습니까?')) return;
     const id = document.getElementById('vehicleId').value;
-    const res = await fetch(`/hq/delivery/driver-vehicle-management?action=deleteVehicle&vehicleId=\${id}`, { method: 'POST' });
+    const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=deleteVehicle&vehicleId=' + id, { method: 'POST' });
     const result = await res.json();
     if (result.success) { alert('삭제되었습니다.'); closeVehicleModal(); fetchData(); }
     else { alert(result.message || '삭제 실패'); }

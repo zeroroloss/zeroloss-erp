@@ -10,5 +10,6 @@ public interface DispatchService {
     Map<String, Object> getDispatchPageData();
     List<PlaceOrderDetailDto> getOrderDetails(String poNo);
     Map<String, Object> getDispatchModalData(String regionCode);
+    List<dto.hq.delivery.DispatchDeliveryDto> getAllDispatches();
     void createDispatch(DispatchCreationDto dispatchCreationDto);
 }

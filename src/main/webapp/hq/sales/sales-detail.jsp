@@ -105,12 +105,10 @@
         .is-hidden { display:none !important; }
     </style>
 </head>
-<body>
-<div class="zl-app">
-    <%@ include file="/hq/common/sidebar.jsp" %>
-    <div class="zl-content">
-        <%-- <%@ include file="/hq/common/layout/topbar.jsp" %> --%>
-        <main class="p-6">
+<body class="bg-gray-50">
+<%@ include file="/hq/common/sidebar.jsp" %>
+<div class="lg:pl-72">
+    <main class="p-6">
             <header class="head">
                 <h1 class="text-3xl font-bold">직영점 매출 조회</h1>
                 <p>일별, 기간별, 시간대별, 메뉴별 매출 데이터를 조회하고 분석합니다.</p>

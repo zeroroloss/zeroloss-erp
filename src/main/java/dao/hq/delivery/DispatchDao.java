@@ -14,6 +14,7 @@ public interface DispatchDao {
     List<PlaceOrderDetailDto> getOrderDetailsByPoNo(@Param("poNo") String poNo);
     List<DriverDto> getAvailableDrivers(@Param("regionCode") String regionCode);
     List<VehicleDto> getAvailableVehicles();
+    List<dto.hq.delivery.DispatchDeliveryDto> getAllDispatches();
     void createDispatch(int driverId, int vehicleId, String poNo);
     void updatePlaceOrderStatus(@Param("poNo") String poNo, @Param("status") String status);
     void updateVehicleStatus(@Param("vehicleId") int vehicleId, @Param("status") String status);

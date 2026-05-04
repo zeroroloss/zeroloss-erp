@@ -51,4 +51,22 @@
         SELECT region_code as regionCode, name FROM region ORDER BY name;
     </select>
 
+    <select id="selectAllDispatches" resultType="dto.hq.delivery.DispatchDeliveryDto">
+        SELECT d.delivery_id AS deliveryId,
+               d.po_no AS poNo,
+               b.name AS branchName,
+               e.name AS driverName,
+               v.plate_number AS vehiclePlate,
+               d.status AS dispatchStatus,
+               po.status AS placeOrderStatus,
+               po.request_date AS requestDate
+        FROM dispatch d
+        JOIN place_order po ON d.po_no = po.po_no
+        JOIN branch b ON po.branch_code = b.branch_code
+        LEFT JOIN driver dr ON d.driver_id = dr.driver_id
+        LEFT JOIN employee e ON dr.emp_no = e.emp_no
+        LEFT JOIN vehicle v ON d.vehicle_id = v.vehicle_id
+        ORDER BY d.delivery_id DESC;
+    </select>
+
 </mapper>

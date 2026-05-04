@@ -270,7 +270,7 @@
                 const itemName = item.branchName || item.menuName || item.name || '알 수 없음';
 
                 return '<div class="rank-item">' +
-                    '<div class="rank-no">' + rank + '</div>' +
+                    '<div class="rank-no">' + rank + '위</div>' +
                     '<div class="item-main">' +
                     '<div class="item-name">' + itemName + '</div>' +
                     '</div>' +
@@ -295,14 +295,20 @@
                     : numValue.toLocaleString('ko-KR') + '건(개)';
             };
 
-            if (hourlyData && hourlyData.length > 0) {
-                hourlyData.forEach(item => {
+            const getMetricValue = (item) => Number((currentSort === 'sales' ? item.totalSales : item.totalQuantity) || 0);
+            const sortByMetricDesc = (list) => (list || []).slice().sort((a, b) => getMetricValue(b) - getMetricValue(a));
+
+            const sortedHourlyData = sortByMetricDesc(hourlyData);
+            const sortedDailyData = sortByMetricDesc(dailyData);
+
+            if (sortedHourlyData.length > 0) {
+                sortedHourlyData.forEach((item, index) => {
                     const div = document.createElement('div');
                     div.className = 'rank-item';
                     div.innerHTML =
-                        '<div class="rank-no">' + item.hour + '시</div>' +
+                        '<div class="rank-no">' + (index + 1) + '위</div>' +
                         '<div class="item-main">' +
-                        '<div class="item-name">총 ' + (currentSort === 'sales' ? '매출' : '판매량') + '</div>' +
+                        '<div class="item-name">' + item.hour + '시</div>' +
                         '</div>' +
                         '<div class="item-value">' + formatValue(item) + '</div>';
                     hourlyTrendList.appendChild(div);
@@ -311,14 +317,14 @@
                 hourlyTrendList.innerHTML = '<div class="no-data">조회된 시간별 데이터가 없습니다.</div>';
             }
 
-            if (dailyData && dailyData.length > 0) {
-                dailyData.forEach(item => {
+            if (sortedDailyData.length > 0) {
+                sortedDailyData.forEach((item, index) => {
                     const div = document.createElement('div');
                     div.className = 'rank-item';
                     div.innerHTML =
-                        '<div class="rank-no">' + item.dayName + '</div>' +
+                        '<div class="rank-no">' + (index + 1) + '위</div>' +
                         '<div class="item-main">' +
-                        '<div class="item-name">총 ' + (currentSort === 'sales' ? '매출' : '판매량') + '</div>' +
+                        '<div class="item-name">' + item.dayName + '</div>' +
                         '</div>' +
                         '<div class="item-value">' + formatValue(item) + '</div>';
                     dailyTrendList.appendChild(div);

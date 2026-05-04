@@ -38,6 +38,11 @@ public class DispatchServiceImpl implements DispatchService {
     }
 
     @Override
+    public List<dto.hq.delivery.DispatchDeliveryDto> getAllDispatches() {
+        return dispatchDao.getAllDispatches();
+    }
+
+    @Override
     public void createDispatch(DispatchCreationDto dto) {
         try (SqlSession session = sqlSessionFactory.openSession(false)) {
             try {
@@ -49,7 +54,7 @@ public class DispatchServiceImpl implements DispatchService {
 
                 Map<String, Object> orderParams = new HashMap<>();
                 orderParams.put("poNo", dto.getPoNo());
-                orderParams.put("status", "SHIPPING");
+                orderParams.put("status", "DELIVERED");
                 session.update("mapper.dispatchMapper.updatePlaceOrderStatus", orderParams);
 
                 Map<String, Object> vehicleParams = new HashMap<>();
