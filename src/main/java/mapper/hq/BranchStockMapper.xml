@@ -106,10 +106,14 @@
 
 <select id="selectMaterialList"
 	resultType="dto.hq.branch_stock.MaterialDTO">
-	SELECT
-	material_code AS materialCode,
-	material_name AS materialName
-	FROM material
+	SELECT material_code AS materialCode,
+       material_name AS materialName
+FROM material
+WHERE material_group_id = 1
+ORDER BY
+    REPLACE(material_name, 'L', ''),
+    LENGTH(material_name),
+    material_name;
 </select>
 
 <select id="selectMaterialByCategory" parameterType="int"
@@ -120,6 +124,7 @@
 	m.material_name AS materialName
 	FROM material m
 	WHERE m.material_group_id = #{materialGroupId}
+	ORDER BY material_name;
 
 </select>
 </mapper>

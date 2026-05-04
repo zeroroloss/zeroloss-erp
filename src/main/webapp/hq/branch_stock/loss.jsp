@@ -11,6 +11,13 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- flatpickr -->
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+
 <style>
 .sidebar-open .sidebar {
 	transform: translateX(0);
@@ -18,6 +25,52 @@
 
 .sidebar-open #sidebarBackdrop {
 	display: block;
+}
+
+.date-picker-wrap {
+	position: relative;
+}
+
+.date-picker-wrap input {
+	padding-left: 42px !important;
+	background-image:
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af'%3E%3Cpath fill-rule='evenodd' d='M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2z' clip-rule='evenodd' /%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: 12px center;
+	background-size: 20px;
+}
+
+/* flatpickr 커스텀 컬러 */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover {
+	background: #00853d !important;
+	border-color: #00853d !important;
+}
+
+.flatpickr-day.today {
+	border-color: #00853d !important;
+}
+
+.flatpickr-day:hover {
+	background: #e7f4ec !important;
+}
+
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+	color: #111 !important;
+}
+
+.flatpickr-day.selected {
+	color: #fff !important;
+}
+
+.flatpickr-calendar.arrowTop:before,
+.flatpickr-calendar.arrowTop:after {
+	border-bottom-color: #fff !important;
 }
 </style>
 </head>
@@ -52,16 +105,23 @@
 
 					<!-- 시작 날짜 -->
 					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">시작
-							날짜</label> <input type="date" id="startDate" value="${startDate}"
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+						<label class="block text-sm font-medium text-gray-700 mb-2">시작 날짜</label>
+						<div class="date-picker-wrap">
+							<input type="text" id="startDate" value="${startDate}"
+								placeholder="시작일 선택"
+								class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+						</div>
 					</div>
 
 					<!-- 종료 날짜 -->
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-2">종료
-							날짜</label> <input type="date" id="endDate" value="${endDate}"
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+							날짜</label>
+						<div class="date-picker-wrap">
+							<input type="text" id="endDate" value="${endDate}"
+								placeholder="종료일 선택"
+								class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+						</div>
 					</div>
 				</div>
 
@@ -164,6 +224,23 @@
 
 	<script>
 	const contextPath = "${contextPath}";
+	
+	flatpickr.localize(flatpickr.l10ns.ko);
+
+	const commonDateConfig = {
+		dateFormat: "Y-m-d",
+		allowInput: true
+	};
+
+	flatpickr("#startDate", {
+		...commonDateConfig,
+		defaultDate: document.getElementById("startDate").value || "today"
+	});
+
+	flatpickr("#endDate", {
+		...commonDateConfig,
+		defaultDate: document.getElementById("endDate").value || "today"
+	});
 	
         // 전역 상태
         let filteredExpiryData = [];
