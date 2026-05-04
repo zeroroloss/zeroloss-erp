@@ -86,7 +86,7 @@
 <%
 	LocalDate today = LocalDate.now();
 	String defaultStartDate = today.withDayOfMonth(1).toString();
-	String defaultEndDate   = today.withDayOfMonth(today.lengthOfMonth()).toString();
+	String defaultEndDate   = today.toString();
 %>
 </head>
 <body>
@@ -115,7 +115,7 @@
 				</select>
 			</div>
 			<div class="field">
-				<label>일자 범위</label>
+				<label>변동 시점</label>
 				<div class="date-range">
 					<input type="date" id="filterStartDate" value="<%= defaultStartDate %>">
 					<span>~</span>
@@ -418,6 +418,16 @@
 	/* ── 초기 실행 ── */
 	loadCategoryList();
 	loadTabData('history', 1);
+	
+	// 날짜 범위 제한
+	document.getElementById('filterStartDate').addEventListener('change', function() {
+	    document.getElementById('filterEndDate').min = this.value;
+	});
+	document.getElementById('filterEndDate').addEventListener('change', function() {
+	    document.getElementById('filterStartDate').max = this.value;
+	});
+	document.getElementById('filterEndDate').min = defaultStartDate;
+	document.getElementById('filterStartDate').max = defaultEndDate;
 })();
 </script>
 </body>
