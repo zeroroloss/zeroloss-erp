@@ -140,7 +140,7 @@
 
     async function applyFilters() {
         const searchTerm = document.getElementById('searchInput').value;
-        const url = ctx + '/hq/support/branch-search?region=' + encodeURIComponent(selectedRegion) + '&keyword=' + encodeURIComponent(searchTerm);
+        const url = ctx + '/hq/support/branch-search-data?region=' + encodeURIComponent(selectedRegion) + '&keyword=' + encodeURIComponent(searchTerm);
         try {
             const response = await fetch(url);
             if (!response.ok) throw new Error("서버 에러 발생!");
@@ -298,7 +298,7 @@
         const action = editingBranchId ? 'update' : 'create';
 
         try {
-            const response = await fetch(ctx + `/hq/support/branch-search?action=\${action}`, {
+            const response = await fetch(ctx + `/hq/support/branch-search-data?action=\${action}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(branchData)
@@ -321,7 +321,7 @@
         if(!confirm('정말로 이 지점을 삭제하시겠습니까? 삭제 시 관련된 데이터가 손실될 수 있습니다.')) return;
 
         try {
-            const response = await fetch(ctx + `/hq/support/branch-search?action=delete&id=\${branchId}`, { method: 'POST' });
+            const response = await fetch(ctx + `/hq/support/branch-search-data?action=delete&id=\${branchId}`, { method: 'POST' });
             if(response.ok) {
                 alert('지점이 삭제되었습니다.');
                 closeDetailModal();

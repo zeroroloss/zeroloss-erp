@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@WebServlet("/hq/support/branch-search")
+@WebServlet("/hq/support/branch-search-data")
 public class BranchSearchController extends HttpServlet {
 
     private final BranchSearchService branchSearchService = new BranchSearchServiceImpl();
@@ -36,7 +36,7 @@ public class BranchSearchController extends HttpServlet {
             resp.getWriter().write(gson.toJson(branches));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            getServletContext().log("직영점 조회 처리 중 오류", e);
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             Map<String, String> errorRes = new HashMap<>();
             errorRes.put("error", e.getClass().getSimpleName());
@@ -77,7 +77,7 @@ public class BranchSearchController extends HttpServlet {
             resp.getWriter().write("{\"status\":\"success\"}");
 
         } catch (Exception e) {
-            e.printStackTrace();
+            getServletContext().log("직영점 등록/수정/삭제 처리 중 오류", e);
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().write("{\"status\":\"error\", \"message\":\"" + e.getMessage() + "\"}");
         }

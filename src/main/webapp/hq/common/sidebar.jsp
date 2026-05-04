@@ -45,9 +45,9 @@
     boolean recipeActive = uri.endsWith("/hq/recipe/management") || uri.endsWith("/hq/recipe/recipe-management.jsp");
 
     boolean supportGroup = uri.contains("/hq/support/");
-    boolean branchSearchActive = uri.endsWith("/hq/support/branch-search.jsp");
-    boolean hqNoticesActive = uri.endsWith("/hq/support/headquarters-notices.jsp");
-    boolean hqInquiriesActive = uri.endsWith("/hq/support/headquarters-inquiries.jsp") || uri.endsWith("/hq/support/inquiries");
+    boolean branchSearchActive = uri.endsWith("/hq/support/branch-search") || uri.endsWith("/hq/support/branch-search.jsp");
+    boolean hqNoticesActive = uri.endsWith("/hq/support/notices") || uri.endsWith("/hq/support/headquarters-notices.jsp");
+    boolean hqInquiriesActive = uri.endsWith("/hq/support/inquiries") || uri.endsWith("/hq/support/headquarters-inquiries.jsp");
 
     boolean hrGroup = uri.contains("/hq/hr/");
     boolean hrInquiryActive = uri.endsWith("/hq/hr/hr-employee-inquiry.jsp");
@@ -248,8 +248,8 @@
             <i class="fas <%= supportGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
         </button>
         <div class="submenu <%= supportGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
-            <a href="<%= cp %>/hq/support/branch-search.jsp" class="block px-4 py-2 rounded-lg text-sm <%= branchSearchActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">직영점 관리</a>
-            <a href="<%= cp %>/hq/support/headquarters-notices.jsp" class="block px-4 py-2 rounded-lg text-sm <%= hqNoticesActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">공지사항</a>
+            <a href="<%= cp %>/hq/support/branch-search" class="block px-4 py-2 rounded-lg text-sm <%= branchSearchActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">직영점 관리</a>
+            <a href="<%= cp %>/hq/support/notices" class="block px-4 py-2 rounded-lg text-sm <%= hqNoticesActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">공지사항</a>
             <a href="<%= cp %>/hq/support/inquiries" class="block px-4 py-2 rounded-lg text-sm <%= hqInquiriesActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">문의사항</a>
         </div>
 
