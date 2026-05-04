@@ -42,11 +42,33 @@
 			background-size: 20px;
 		}
 
-		/* flatpickr 색상 커스텀 */
-		.flatpickr-day.selected,
-		.flatpickr-day.selected:hover { background: #00853d; border-color: #00853d; }
-		.flatpickr-day.today { border-color: #00853d; }
-		.flatpickr-day.today:hover { background: #e6f4ee; }
+		/* flatpickr 커스텀 컬러 */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day.selected:hover,
+.flatpickr-day.startRange:hover,
+.flatpickr-day.endRange:hover {
+    background: #00853d !important;
+    border-color: #00853d !important;
+}
+.flatpickr-day.today {
+    border-color: #00853d !important;
+}
+.flatpickr-day:hover {
+    background: #e7f4ec !important;
+}
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+    color: #111 !important;
+}
+.flatpickr-day.selected {
+    color: #fff !important;
+}
+.flatpickr-calendar.arrowTop:before,
+.flatpickr-calendar.arrowTop:after {
+    border-bottom-color: #fff !important;
+}
 
 		.filter-btn { height: 40px; padding: 0 18px; border: 0; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 		.filter-btn.primary { background: #00853d; color: #fff; }
