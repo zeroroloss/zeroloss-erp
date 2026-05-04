@@ -151,102 +151,122 @@
 					    </div>
 					</div>
 
-                    <!-- 필터 섹션 -->
-                    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <div class="flex flex-col gap-4">
-                            <!-- 검색 -->
-                            <div class="flex items-center justify-between gap-4">
-                            	<div>
-                            		<h3 class="text-sm font-semibold text-gray-800">직원 검색</h3>
-                            		<p class="text-xs text-gray-500 mt-1">사번, 이름 기준으로 검색할 수 있습니다.</p>
-                            	</div>
-                            	
-                            	<div class="flex items-center gap-2">
-                            		<!-- 직영점 모드에서만 사용 -->
-								    <select id="branchSelect"
-								            class="hidden w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
-								        <option value="">소속 선택</option>
-								        <c:forEach var="b" items="${branchNameList}">
-								        	<c:if test="${b.branchName ne '본사'}">
-								            	<option value="${b.branchCode}">${b.branchName}</option>
-								        	</c:if>
-								        </c:forEach>
-								    </select>
-					                <div class="relative w-80">
-					                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                            			<input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="검색어를 입력하세요"class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+					<!-- 캘린더 카드 전체 -->
+					<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+					
+					    <!-- 캘린더 상단 헤더 + 필터 -->
+					    <div class="p-5 border-b border-gray-200">
+					        <div class="flex flex-col gap-4">
+					
+					            <!-- 1줄: 월 이동 / 제목 / 오늘 버튼 -->
+					            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+					                <div class="flex items-center gap-3">
+					                    <button type="button"
+					                            onclick="previousPeriod()"
+					                            class="w-9 h-9 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors">
+					                        <i class="fas fa-chevron-left text-xs"></i>
+					                    </button>
+					
+					                    <h3 id="calendarTitle" class="text-lg font-bold text-gray-900 min-w-[120px] text-center">
+					                        2026년 4월
+					                    </h3>
+					
+					                    <button type="button"
+					                            onclick="nextPeriod()"
+					                            class="w-9 h-9 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors">
+					                        <i class="fas fa-chevron-right text-xs"></i>
+					                    </button>
+					
+					                    <button type="button"
+					                            onclick="goToday()"
+					                            class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm font-medium hover:bg-[#00853D] hover:text-white hover:border-[#00853D] outline-none transition-all">
+					                        오늘
+					                    </button>
 					                </div>
-                            		<button type="button" onclick="applyFilters()" class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">조회</button>
-					                <button type="button" onclick="resetFilters()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">초기화</button>
+					
+					                <!-- 오른쪽: 직원 검색 필터 -->
+					                <div class="flex flex-wrap items-center gap-2">
+					                    <!-- 직영점 모드에서만 사용 -->
+					                    <select id="branchSelect"
+					                            class="hidden w-40 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+					                        <option value="">소속 선택</option>
+					                        <c:forEach var="b" items="${branchNameList}">
+					                            <c:if test="${b.branchName ne '본사'}">
+					                                <option value="${b.branchCode}">${b.branchName}</option>
+					                            </c:if>
+					                        </c:forEach>
+					                    </select>
+					
+					                    <div class="relative w-80">
+					                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+					                        <input type="text"
+					                               id="searchInput"
+					                               onkeydown="if(event.key === 'Enter') applyFilters();"
+					                               placeholder="사번, 이름을 입력하세요"
+					                               class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+					                    </div>
+					
+					                    <button type="button"
+					                            onclick="applyFilters()"
+					                            class="px-4 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">
+					                        조회
+					                    </button>
+					
+					                    <button type="button"
+					                            onclick="resetFilters()"
+					                            class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+					                        초기화
+					                    </button>
+					                </div>
+					            </div>
+					
+					            <!-- 캘린더 범례 -->
+					            <div id="legendArea" class="flex items-center gap-5 flex-wrap text-sm">
+					                <div class="flex items-center gap-2">
+					                    <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+					                    <span class="text-gray-600">교육</span>
+					                </div>
+					                <div class="flex items-center gap-2">
+					                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+					                    <span class="text-gray-600">출장</span>
+					                </div>
+					                <div class="flex items-center gap-2">
+					                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+					                    <span class="text-gray-600">지점점검</span>
+					                </div>
+					                <div class="flex items-center gap-2">
+					                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+					                    <span class="text-gray-600">휴가</span>
+					                </div>
+					            </div>
+					
+					        </div>
+					    </div>
+					
+					    <!-- 캘린더 그리드 -->
+					    <div class="p-5">
+					        <div class="border border-gray-200 rounded-lg overflow-hidden">
+					            <!-- 요일 헤더 -->
+					            <div id="dayHeaders" class="calendar-grid gap-0 bg-gray-50">
+					                <div class="day-header">일</div>
+					                <div class="day-header">월</div>
+					                <div class="day-header">화</div>
+					                <div class="day-header">수</div>
+					                <div class="day-header">목</div>
+					                <div class="day-header">금</div>
+					                <div class="day-header">토</div>
+					            </div>
+					
+					            <!-- 캘린더 셀 -->
+					            <div id="calendarContainer" class="calendar-grid gap-0">
+					                <!-- renderCalendar()에서 동적으로 생성됨 -->
 					            </div>
 					        </div>
 					    </div>
 					</div>
-
-                    <!-- 캘린더 컨트롤 -->
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="flex items-center gap-4">
-                                <button onclick="previousPeriod()" class="p-2 rounded-lg hover:bg-gray-100">
-                                    <i class="fas fa-chevron-left w-5 h-5"></i>
-                                </button>
-                                
-                                <h3 id="monthTitle" class="text-lg font-semibold text-gray-900 min-w-64 text-center">2026년 4월</h3>
-                                <button onclick="nextPeriod()" class="p-2 rounded-lg hover:bg-gray-100">
-                                    <i class="fas fa-chevron-right w-5 h-5"></i>
-                                </button>
-                            </div>
-                            <div>
-                                <button onclick="goToday()"
-							        class="px-4 py-2 text-sm font-medium bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors">
-							        오늘
-							    </button>
-                            </div>
-                        </div>
-
-                        <!-- 캘린더 범례 -->
-                        <div id="legendArea" class="flex items-center gap-6 mb-4 flex-wrap text-sm">
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
-                                <span class="text-gray-600">교육</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                                <span class="text-gray-600">출장</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                                <span class="text-gray-600">지점점검</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                                <span class="text-gray-600">휴가</span>
-                            </div>
-                        </div>
-
-                        <!-- 캘린더 그리드 -->
-                        <div class="border border-gray-200 rounded-lg overflow-hidden">
-                            <!-- 요일 헤더 -->
-                            <div id="dayHeaders" class="calendar-grid gap-0 bg-gray-50">
-                                <div class="day-header">일</div>
-                                <div class="day-header">월</div>
-                                <div class="day-header">화</div>
-                                <div class="day-header">수</div>
-                                <div class="day-header">목</div>
-                                <div class="day-header">금</div>
-                                <div class="day-header">토</div>
-                            </div>
-
-                            <!-- 캘린더 셀 -->
-                            <div id="calendarContainer" class="calendar-grid gap-0">
-                                <!-- 동적으로 생성됨 -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
+				</div>
+			</main>
+		</div>
 
     <!-- 일정 추가 모달 -->
     <div id="addModal" class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onclick="if(event.target === this) closeAddModal()">
@@ -560,7 +580,7 @@
 	        var month = currentDate.getMonth();
 	        var currentSchedules = isSearched ? getFilteredSchedules() : [];
 	
-	        document.getElementById('monthTitle').textContent = year + '년 ' + (month + 1) + '월';
+	        document.getElementById('calendarTitle').textContent = year + '년 ' + (month + 1) + '월';
 	
 	        var dayHeaders = document.getElementById('dayHeaders');
 	        dayHeaders.innerHTML =
