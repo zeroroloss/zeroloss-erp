@@ -6,6 +6,12 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>재고 변동</title>
+
+	<!-- flatpickr -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+
 	<style>
 		body { margin: 0; font-family: "Malgun Gothic", sans-serif; background: #f4f7fb; color: #111827; }
 		.wrap { width: 100%; max-width: none; margin: 0; }
@@ -14,14 +20,35 @@
 		.page-sub { margin: 8px 0 0; font-size: 15px; color: #6b7280; }
 
 		.filter-card { margin-top: 10px; background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 14px 16px; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04); }
-		.filter-line { display: grid; grid-template-columns: 1.1fr 1.1fr 1.8fr; gap: 16px; }
+
+		/* 필터 + 버튼 한 줄 */
+		.filter-line { display: flex; align-items: flex-end; gap: 16px; }
+		.filter-fields { display: grid; grid-template-columns: 1.1fr 1.1fr 1.8fr; gap: 16px; flex: 1; }
+		.filter-actions { display: flex; gap: 10px; flex-shrink: 0; }
+
 		.field label { display: block; font-size: 14px; font-weight: 700; color: #374151; margin-bottom: 8px; }
-		.field select, .field input[type="date"] { width: 100%; box-sizing: border-box; height: 40px; border: 1px solid #d5dae4; border-radius: 10px; padding: 0 14px; font-size: 14px; color: #111827; background: #fff; }
+		.field select, .field input[type="text"] { width: 100%; box-sizing: border-box; height: 40px; border: 1px solid #d5dae4; border-radius: 10px; padding: 0 14px; font-size: 14px; color: #111827; background: #fff; }
 		.date-range { display: flex; align-items: center; gap: 8px; }
-		.date-range input { flex: 1; }
 		.date-range span { color: #6b7280; flex-shrink: 0; }
-		.filter-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-		.filter-btn { height: 40px; padding: 0 18px; border: 0; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+		/* flatpickr 아이콘 */
+		.date-picker-wrap { position: relative; flex: 1; }
+		.date-picker-wrap input {
+			width: 100%; box-sizing: border-box;
+			padding-left: 38px !important;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af'%3E%3Cpath fill-rule='evenodd' d='M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zM4.5 6.75A1.25 1.25 0 015.75 5.5h8.5A1.25 1.25 0 0115.5 6.75v8.5A1.25 1.25 0 0114.25 16.5h-8.5A1.25 1.25 0 014.5 15.25v-8.5zM7 10a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm-6 3a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z' clip-rule='evenodd' /%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-position: 10px center;
+			background-size: 20px;
+		}
+
+		/* flatpickr 색상 커스텀 */
+		.flatpickr-day.selected,
+		.flatpickr-day.selected:hover { background: #00853d; border-color: #00853d; }
+		.flatpickr-day.today { border-color: #00853d; }
+		.flatpickr-day.today:hover { background: #e6f4ee; }
+
+		.filter-btn { height: 40px; padding: 0 18px; border: 0; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 		.filter-btn.primary { background: #00853d; color: #fff; }
 		.filter-btn.primary:hover { background: #006b2f; }
 		.filter-btn.secondary { background: #eef2f7; color: #374151; }
@@ -40,7 +67,6 @@
 		.panel-head-info .panel-title { margin: 0; font-size: 18px; font-weight: 700; color: #111827; }
 		.panel-head-info .panel-sub   { margin: 4px 0 0; font-size: 13px; color: #6b7280; }
 
-		/* 재고 번호 검색 */
 		.stock-search { position: relative; }
 		.stock-search input { height: 34px; padding: 0 12px 0 32px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 13px; width: 200px; background: #fff; color: #111827; }
 		.stock-search input:focus { outline: none; border-color: #00853d; }
@@ -51,7 +77,6 @@
 		table { width: 100%; border-collapse: collapse; }
 		th, td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; text-align: left; font-size: 13px; }
 		th { background: #f8fafc; color: #374151; font-weight: 700; }
-		.center { text-align: center; }
 
 		.badge { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
 		.badge-INBOUND     { background: #dcfce7; color: #166534; }
@@ -75,11 +100,10 @@
 		.page-btn { min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; color: #374151; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
 		.page-btn:hover { background: #f3f4f6; }
 		.page-btn.active { background: #00853d; color: #fff; border-color: #00853d; }
-		.page-btn:disabled { background: #f9fafb; color: #d1d5db; cursor: not-allowed; }
 		.page-info { font-size: 12px; color: #6b7280; margin: 0 8px; }
 
-		@media (max-width: 1000px) { .filter-line { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-		@media (max-width: 640px)  { .filter-line { grid-template-columns: 1fr; } .tabs { grid-template-columns: 1fr; } .tab-link { height: 46px; } }
+		@media (max-width: 1000px) { .filter-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .filter-line { flex-wrap: wrap; } }
+		@media (max-width: 640px)  { .filter-fields { grid-template-columns: 1fr; } .filter-actions { width: 100%; } .tabs { grid-template-columns: 1fr; } .tab-link { height: 46px; } }
 	</style>
 
 <%@ include file="/branch/common/layout/layout_head.jsp" %>
@@ -102,34 +126,42 @@
 
 	<div class="filter-card">
 		<div class="filter-line">
-			<div class="field">
-				<label for="categoryFilter">카테고리</label>
-				<select id="categoryFilter" onchange="onCategoryChange()">
-					<option value="">전체</option>
-				</select>
-			</div>
-			<div class="field">
-				<label for="itemFilter">품목명</label>
-				<select id="itemFilter">
-					<option value="">전체</option>
-				</select>
-			</div>
-			<div class="field">
-				<label>변동 시점</label>
-				<div class="date-range">
-					<input type="date" id="filterStartDate" value="<%= defaultStartDate %>">
-					<span>~</span>
-					<input type="date" id="filterEndDate" value="<%= defaultEndDate %>">
+			<!-- 필터 필드 -->
+			<div class="filter-fields">
+				<div class="field">
+					<label for="categoryFilter">카테고리</label>
+					<select id="categoryFilter" onchange="onCategoryChange()">
+						<option value="">전체</option>
+					</select>
+				</div>
+				<div class="field">
+					<label for="itemFilter">품목명</label>
+					<select id="itemFilter">
+						<option value="">전체</option>
+					</select>
+				</div>
+				<div class="field">
+					<label>변동 시점</label>
+					<div class="date-range">
+						<div class="date-picker-wrap">
+							<input type="text" id="filterStartDate" placeholder="시작일" readonly>
+						</div>
+						<span>~</span>
+						<div class="date-picker-wrap">
+							<input type="text" id="filterEndDate" placeholder="종료일" readonly>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
-		<div class="filter-actions">
-			<button type="button" class="filter-btn primary"   onclick="applyFilters()">조회하기</button>
-			<button type="button" class="filter-btn secondary" onclick="resetFilters()">초기화</button>
+			<!-- 버튼 오른쪽 정렬 -->
+			<div class="filter-actions">
+				<button type="button" class="filter-btn primary"   onclick="applyFilters()">조회하기</button>
+				<button type="button" class="filter-btn secondary" onclick="resetFilters()">초기화</button>
+			</div>
 		</div>
 	</div>
 
-	<div class="table-card">
+	<div class="table-card" id="tableCard" style="display:none;">
 		<div class="tabs">
 			<button class="tab-link active"   data-tab="history"  onclick="switchTab('history')">변동 이력</button>
 			<button class="tab-link disposal" data-tab="disposal" onclick="switchTab('disposal')">폐기 내역</button>
@@ -388,46 +420,68 @@
 		var wrap = document.getElementById(wrapperId);
 		if (!total || total <= 1) { wrap.style.display = 'none'; return; }
 		wrap.style.display = 'flex';
+
+		var PAGE_SIZE  = 5;
+		var blockStart = Math.floor((page - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+		var blockEnd   = Math.min(blockStart + PAGE_SIZE - 1, total);
+
 		var html = '';
-		html += '<button class="page-btn" onclick="loadTabData(\'' + tab + '\',' + (page - 1) + ')"' + (page <= 1 ? ' disabled' : '') + '>＜</button>';
-		var startPage = Math.max(1, page - 2);
-		var endPage   = Math.min(total, startPage + 4);
-		if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
-		for (var i = startPage; i <= endPage; i++) {
-			html += '<button class="page-btn' + (i === page ? ' active' : '') + '" onclick="loadTabData(\'' + tab + '\',' + i + ')">' + i + '</button>';
+
+		// 맨 첫 페이지
+		html += '<button class="page-btn" onclick="loadTabData(\'' + tab + '\', 1)"><i class="fas fa-angles-left" style="font-size:11px"></i></button>';
+		// 이전 블록
+		html += '<button class="page-btn" onclick="loadTabData(\'' + tab + '\', ' + (blockStart - 1) + ')"><i class="fas fa-chevron-left" style="font-size:11px"></i></button>';
+		// 페이지 번호
+		for (var i = blockStart; i <= blockEnd; i++) {
+			html += '<button class="page-btn' + (i === page ? ' active' : '') + '" onclick="loadTabData(\'' + tab + '\', ' + i + ')">' + i + '</button>';
 		}
-		html += '<button class="page-btn" onclick="loadTabData(\'' + tab + '\',' + (page + 1) + ')"' + (page >= total ? ' disabled' : '') + '>＞</button>';
-		html += '<span class="page-info">총 ' + totalCount + '건</span>';
+		// 다음 블록
+		html += '<button class="page-btn" onclick="loadTabData(\'' + tab + '\', ' + (blockEnd + 1) + ')"><i class="fas fa-chevron-right" style="font-size:11px"></i></button>';
+		// 맨 마지막 페이지
+		html += '<button class="page-btn" onclick="loadTabData(\'' + tab + '\', ' + total + ')"><i class="fas fa-angles-right" style="font-size:11px"></i></button>';
+
 		wrap.innerHTML = html;
 	}
 
 	/* ── 필터 ── */
-	window.applyFilters = function () { loadTabData(currentTab, 1); };
-	window.loadTabData  = loadTabData;
+	window.applyFilters = function () {
+		document.getElementById('tableCard').style.display = 'block';
+		loadTabData(currentTab, 1);
+	};
+	window.loadTabData = loadTabData;
 
 	window.resetFilters = function () {
 		document.getElementById('categoryFilter').value = '';
 		document.getElementById('itemFilter').innerHTML = '<option value="">전체</option>';
-		document.getElementById('filterStartDate').value = defaultStartDate;
-		document.getElementById('filterEndDate').value   = defaultEndDate;
 		document.getElementById('historyStockSearch').value  = '';
 		document.getElementById('disposalStockSearch').value = '';
-		loadTabData(currentTab, 1);
+		document.getElementById('tableCard').style.display = 'none';
+		document.getElementById('filterStartDate')._flatpickr.setDate(defaultStartDate);
+		document.getElementById('filterEndDate')._flatpickr.setDate(defaultEndDate);
+		document.getElementById('filterEndDate')._flatpickr.set('minDate', null);
+		document.getElementById('filterStartDate')._flatpickr.set('maxDate', null);
 	};
 
 	/* ── 초기 실행 ── */
 	loadCategoryList();
-	loadTabData('history', 1);
-	
-	// 날짜 범위 제한
-	document.getElementById('filterStartDate').addEventListener('change', function() {
-	    document.getElementById('filterEndDate').min = this.value;
+
+	flatpickr('#filterStartDate', {
+		locale: 'ko',
+		dateFormat: 'Y-m-d',
+		defaultDate: defaultStartDate,
+		onChange: function(selectedDates, dateStr) {
+			document.getElementById('filterEndDate')._flatpickr.set('minDate', dateStr);
+		}
 	});
-	document.getElementById('filterEndDate').addEventListener('change', function() {
-	    document.getElementById('filterStartDate').max = this.value;
+
+	flatpickr('#filterEndDate', {
+		locale: 'ko',
+		dateFormat: 'Y-m-d',
+		defaultDate: defaultEndDate,
+		onChange: function(selectedDates, dateStr) {
+			document.getElementById('filterStartDate')._flatpickr.set('maxDate', dateStr);
+		}
 	});
-	document.getElementById('filterEndDate').min = defaultStartDate;
-	document.getElementById('filterStartDate').max = defaultEndDate;
 })();
 </script>
 </body>

@@ -18,6 +18,7 @@
         .btn-primary { background: #00853d; color: #fff; }
         .btn-muted { background: #eef2f7; color: #374151; }
 
+        /* ── 핵심: 그리드 아이템은 왼쪽래퍼 + 상세패널 2개만 ── */
         .stock-layout { display: grid; grid-template-columns: 1fr; gap: 14px; align-items: start; }
         .stock-layout.panel-open { grid-template-columns: 1fr 360px; }
 
@@ -67,6 +68,9 @@
 
         .empty { padding: 24px 14px; text-align: center; color: #6b7280; font-size: 13px; }
 
+        /* 페이징 */
+        #pagingWrap { display: none; justify-content: center; padding: 16px 14px; }
+        
         .detail-panel { display: none; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; flex-direction: column; position: sticky; top: 16px; max-height: calc(100vh - 80px); min-width: 0; }
         .detail-panel.open { display: flex; }
         .dp-head { padding: 14px 16px; border-bottom: 1px solid #eef2f7; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
@@ -139,13 +143,6 @@
         .mbtn-cancel { background: #eef2f7; color: #374151; }
         .mbtn-danger { background: #dc2626; color: #fff; }
 
-        .paging-wrap { display: flex; justify-content: center; align-items: center; gap: 4px; padding: 14px; }
-        .page-btn { min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; color: #374151; font-size: 13px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .page-btn:hover { background: #f3f4f6; }
-        .page-btn.active { background: #00853d; color: #fff; border-color: #00853d; }
-        .page-btn:disabled { background: #f9fafb; color: #d1d5db; cursor: not-allowed; }
-        .page-info { font-size: 12px; color: #6b7280; margin: 0 8px; }
-
         @media (max-width: 900px) { .filters { grid-template-columns: 1fr 1fr; } }
         @media (max-width: 640px) { .filters { grid-template-columns: 1fr; } .btn { height: 38px; } }
     </style>
@@ -180,36 +177,42 @@
     </div>
 
     <div class="stock-layout" id="stockLayout">
-        <div class="panel">
-            <div class="panel-head">
-                <h2 class="panel-title">재고 목록</h2>
-                <p class="panel-sub">유통기한 임박 행 강조 · 품목 클릭 시 우측에서 상세 확인</p>
-                <div class="sort-row">
-                    <button type="button" id="sortReceivedBtn" class="sort-btn active" onclick="onSortClick('receivedAt')">입고 시점 오름차순</button>
-                    <button type="button" id="sortExpireBtn"   class="sort-btn"        onclick="onSortClick('expireDate')">유통기한 오름차순</button>
+
+        <!-- ★ 왼쪽 래퍼: 테이블 패널 + 페이징을 하나로 묶음 -->
+        <div>
+            <div class="panel">
+                <div class="panel-head">
+                    <h2 class="panel-title">재고 목록</h2>
+                    <p class="panel-sub">유통기한 임박 행 강조 · 품목 클릭 시 우측에서 상세 확인</p>
+                    <div class="sort-row">
+                        <button type="button" id="sortReceivedBtn" class="sort-btn active" onclick="onSortClick('receivedAt')">입고 시점 오름차순</button>
+                        <button type="button" id="sortExpireBtn"   class="sort-btn"        onclick="onSortClick('expireDate')">유통기한 오름차순</button>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <colgroup><col><col><col><col><col><col><col></colgroup>
+                        <thead>
+                            <tr>
+                                <th>재고 번호</th>
+                                <th>카테고리</th>
+                                <th>품목명</th>
+                                <th>입고 시점</th>
+                                <th>유통기한</th>
+                                <th>현재 수량</th>
+                                <th>상태</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stockTableBody"></tbody>
+                    </table>
+                    <div id="stockEmpty" class="empty" style="display:none;">조회 결과가 없습니다.</div>
                 </div>
             </div>
-            <div class="table-wrap">
-                <table>
-                    <colgroup><col><col><col><col><col><col><col></colgroup>
-                    <thead>
-                        <tr>
-                            <th>재고 번호</th>
-                            <th>카테고리</th>
-                            <th>품목명</th>
-                            <th>입고 시점</th>
-                            <th>유통기한</th>
-                            <th>현재 수량</th>
-                            <th>상태</th>
-                        </tr>
-                    </thead>
-                    <tbody id="stockTableBody"></tbody>
-                </table>
-                <div id="stockEmpty" class="empty" style="display:none;">조회 결과가 없습니다.</div>
-                <div class="paging-wrap" id="pagingWrap" style="display:none;"></div>
-            </div>
+            <!-- ★ 페이징: panel 바깥, 왼쪽 래퍼 안 -->
+            <div id="pagingWrap"></div>
         </div>
 
+        <!-- ★ 오른쪽: 상세 패널 -->
         <div class="detail-panel" id="detailPanel">
             <div class="dp-head">
                 <div>
@@ -235,6 +238,7 @@
             </div>
             <div class="dp-body" id="dpBody"></div>
         </div>
+
     </div>
 </div>
 </main>
@@ -261,17 +265,16 @@
     TODAY.setHours(0, 0, 0, 0);
     var contextPath = '<%=request.getContextPath()%>';
 
-    var stockData          = [];
-    var filteredData       = [];
-    var currentPage        = 1;
-    var totalPages         = 1;
-    var selectedStockNo    = null;
+    var stockData           = [];
+    var filteredData        = [];
+    var currentPage         = 1;
+    var totalPages          = 1;
+    var selectedStockNo     = null;
     var currentModalStockNo = null;
-    var sortState          = { field: 'receivedAt', direction: 'asc' };
+    var sortState           = { field: 'receivedAt', direction: 'asc' };
 
-    function parseDate(s) { return new Date(String(s).replace(' ', 'T')); }
     function daysUntil(dateStr) {
-        var d = new Date(dateStr); d.setHours(0,0,0,0);
+        var d = new Date(dateStr); d.setHours(0, 0, 0, 0);
         return Math.ceil((d - TODAY) / 86400000);
     }
     function isExpired(dateStr) { return daysUntil(dateStr) <= 0; }
@@ -410,6 +413,42 @@
         });
     }
 
+    function renderPaging(totalCount, page, total) {
+        var wrap = document.getElementById('pagingWrap');
+        if (total <= 1) { wrap.style.display = 'none'; return; }
+        wrap.style.display = 'flex';
+
+        var PAGE_SIZE  = 5;
+        var blockStart = Math.floor((page - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+        var blockEnd   = Math.min(blockStart + PAGE_SIZE - 1, total);
+
+        var base   = 'w-8 h-8 flex items-center justify-center border rounded-lg text-sm hover:bg-gray-100';
+        var active = 'w-8 h-8 flex items-center justify-center border rounded-lg text-sm bg-[#00853D] text-white font-bold';
+        var arrow  = 'w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-gray-100';
+
+        var html = '<div class="flex justify-center items-center gap-1">';
+
+     	// 맨 첫 페이지
+      html += '<button class="' + arrow + '" onclick="loadStockList(1)"><i class="fas fa-angles-left text-xs"></i></button>';
+
+        // 이전 블록
+        html += '<button class="' + arrow + '" onclick="loadStockList(' + (blockStart - 1) + ')"><i class="fas fa-chevron-left text-xs"></i></button>';
+
+        // 페이지 번호
+        for (var i = blockStart; i <= blockEnd; i++) {
+            html += '<button class="' + (i === page ? active : base) + '" onclick="loadStockList(' + i + ')">' + i + '</button>';
+        }
+
+        // 다음 블록
+        html += '<button class="' + arrow + '" onclick="loadStockList(' + (blockEnd + 1) + ')"><i class="fas fa-chevron-right text-xs"></i></button>';
+
+    	// 맨 마지막 페이지
+        html += '<button class="' + arrow + '" onclick="loadStockList(' + total + ')"><i class="fas fa-angles-right text-xs"></i></button>';
+
+        html += '</div>';
+        wrap.innerHTML = html;
+    }
+
     window.selectStock = function (branchStockCode) {
         if (selectedStockNo === branchStockCode) { closePanel(); return; }
         selectedStockNo = branchStockCode;
@@ -439,23 +478,23 @@
             subEl.className = 'dp-total-sub';
         }
 
-        document.getElementById('dpSaf').textContent        = safetyQty ? safetyQty + ' ' + clicked.unit : '미설정';
-        document.getElementById('dpProgFill').style.width   = pct + '%';
+        document.getElementById('dpSaf').textContent           = safetyQty ? safetyQty + ' ' + clicked.unit : '미설정';
+        document.getElementById('dpProgFill').style.width      = pct + '%';
         document.getElementById('dpProgFill').style.background = st.color;
-        document.getElementById('dpPct').textContent        = safetyQty ? Math.round(validQty / safetyQty * 100) + '%' : '-';
-        document.getElementById('dpPct').style.color        = st.color;
-        document.getElementById('dpBadge').textContent      = st.label;
-        document.getElementById('dpBadge').className        = 'badge ' + st.cls;
+        document.getElementById('dpPct').textContent           = safetyQty ? Math.round(validQty / safetyQty * 100) + '%' : '-';
+        document.getElementById('dpPct').style.color           = st.color;
+        document.getElementById('dpBadge').textContent         = st.label;
+        document.getElementById('dpBadge').className           = 'badge ' + st.cls;
 
         var html = '';
 
         if (validList.length) {
             html += '<div class="dp-sec-title">유효 재고 ' + validList.length + '건</div>';
             validList.forEach(function (x) {
-                var es    = getExpiryStatus(x.expireDate);
-                var d     = daysUntil(x.expireDate);
+                var es     = getExpiryStatus(x.expireDate);
+                var d      = daysUntil(x.expireDate);
                 var dayCls = d <= 3 ? 'lot-days-r' : d <= 7 ? 'lot-days-a' : 'lot-days-g';
-                var isCur = x.branchStockCode === branchStockCode;
+                var isCur  = x.branchStockCode === branchStockCode;
                 html +=
                     '<div class="lot-card ' + es.lotCls + (isCur ? ' lot-sel' : '') + '">' +
                         '<div class="lot-no">' + escapeHtml(x.branchStockCode) + (isCur ? ' · 현재 선택' : '') + '</div>' +
@@ -483,7 +522,7 @@
                     '<div class="disposal-banner-sub">아래 폐기 등록 버튼을 눌러 처리해 주세요.</div>' +
                 '</div>';
             expiredList.forEach(function (x) {
-                var d     = daysUntil(x.expireDate);
+                var d    = daysUntil(x.expireDate);
                 var isCur = x.branchStockCode === branchStockCode;
                 html +=
                     '<div class="lot-card lot-expired' + (isCur ? ' lot-sel' : '') + '">' +
@@ -508,23 +547,6 @@
         document.getElementById('stockLayout').classList.add('panel-open');
         renderTable();
     };
-
-    function renderPaging(totalCount, page, total) {
-        var wrap = document.getElementById('pagingWrap');
-        if (total <= 1) { wrap.style.display = 'none'; return; }
-        wrap.style.display = 'flex';
-        var html = '';
-        html += '<button class="page-btn" onclick="loadStockList(' + (page - 1) + ')"' + (page <= 1 ? ' disabled' : '') + '>＜</button>';
-        var startPage = Math.max(1, page - 2);
-        var endPage   = Math.min(total, startPage + 4);
-        if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
-        for (var i = startPage; i <= endPage; i++) {
-            html += '<button class="page-btn' + (i === page ? ' active' : '') + '" onclick="loadStockList(' + i + ')">' + i + '</button>';
-        }
-        html += '<button class="page-btn" onclick="loadStockList(' + (page + 1) + ')"' + (page >= total ? ' disabled' : '') + '>＞</button>';
-        html += '<span class="page-info">총 ' + totalCount + '건</span>';
-        wrap.innerHTML = html;
-    }
 
     window.closePanel = function () {
         selectedStockNo = null;
@@ -628,7 +650,7 @@
 
     /* ── 초기 실행 ── */
     loadCategoryList();
-    loadStockList(1);
+    /* loadStockList(1); */
 })();
 </script>
 </body>
