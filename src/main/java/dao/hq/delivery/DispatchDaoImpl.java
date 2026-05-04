@@ -45,6 +45,13 @@ public class DispatchDaoImpl implements DispatchDao {
     }
 
     @Override
+    public List<dto.hq.delivery.DispatchDeliveryDto> getAllDispatches() {
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            return session.selectList("mapper.dispatchMapper.selectAllDispatches");
+        }
+    }
+
+    @Override
     public void createDispatch(int driverId, int vehicleId, String poNo) {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             Map<String, Object> params = new HashMap<>();
