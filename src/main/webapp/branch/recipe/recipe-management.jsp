@@ -226,7 +226,7 @@
 
              return `
                  <div class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onclick="viewRecipe('\${recipe.id}')">
-                     <div class="relative h-48"><img src="\${displayImage}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"><div class="absolute top-2 right-2">\${statusBadge}</div><div class="absolute top-2 left-2"><span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">\${recipe.category}</span></div></div>
+                     <div class="relative h-48"><img src="\${displayImage}" class="w-full h-full object-contain bg-white"  onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"><div class="absolute top-2 right-2">\${statusBadge}</div><div class="absolute top-2 left-2"><span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">\${recipe.category}</span></div></div>
                      <div class="p-4"><h3 class="font-semibold text-lg text-gray-900 mb-2">\${recipe.name}</h3><p class="text-sm text-gray-500 mb-3 line-clamp-2">\${recipe.description || '-'}</p>
                      <div class="flex items-center justify-between text-sm"><div><span class="text-gray-500">판매가</span><p class="font-semibold text-gray-900">₩\${recipe.price.toLocaleString()}</p></div><div><span class="text-gray-500">원가</span><p class="font-semibold text-orange-600">₩\${(recipe.cost || 0).toLocaleString()}</p></div></div>
                      </div></div>`;
