@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const rank = index + 1;
             return `
             <div class="rank-item">
-                <div class="rank-no">\${rank}</div>
+                <div class="rank-no">\${rank}위</div>
                 <div class="item-main">
                     <div class="item-name">\${item.name}</div>
                     <div class="item-meta">\${item.meta || ''}</div>

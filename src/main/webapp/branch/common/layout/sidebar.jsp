@@ -30,8 +30,8 @@ boolean orderHistoryActive = uri.contains("/branch/place_order/history");
 boolean orderDraftCreateActive = uri.contains("/branch/place_order/draft");
 
 boolean salesGroup = uri.contains("/branch/sales/");
-boolean salesDetailActive = uri.contains("/branch/sales/branch_sales/sales-detail.jsp");
-boolean salesRankActive = uri.contains("/branch/sales/sales_rank/");
+boolean salesDetailActive = uri.contains("/branch/sales/detail") || uri.contains("/branch/sales/branch_sales/sales-detail.jsp");
+boolean salesRankActive = uri.contains("/branch/sales/ranking") || uri.contains("/branch/sales/sales_rank/menu_rank.jsp");
 
 boolean swapActive = uri.contains("/branch/swap/");
 boolean recipeActive = uri.endsWith("/branch/recipe/management") || uri.endsWith("/branch/recipe/recipe-management.jsp");
@@ -203,8 +203,8 @@ boolean inquiryActive = uri.contains("/branch/support/branch-inquiries.jsp");
             <i class="fas <%= salesGroup ? "fa-chevron-down" : "fa-chevron-right" %> w-4 h-4"></i>
         </button>
         <div class="submenu <%= salesGroup ? "" : "hidden" %> ml-4 mt-1 space-y-1">
-            <a href="<%= request.getContextPath() %>/branch/sales/branch_sales/sales-detail.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesDetailActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">매출 조회</a>
-            <a href="<%= request.getContextPath() %>/branch/sales/sales_rank/menu_rank.jsp" class="block px-4 py-2 rounded-lg text-sm <%= salesRankActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">매출 순위</a>
+            <a href="<%= request.getContextPath() %>/branch/sales/detail" class="block px-4 py-2 rounded-lg text-sm <%= salesDetailActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">매출 조회</a>
+            <a href="<%= request.getContextPath() %>/branch/sales/ranking" class="block px-4 py-2 rounded-lg text-sm <%= salesRankActive ? "bg-[#00853D] text-white font-medium" : "text-gray-600 hover:bg-gray-100" %>">매출 순위</a>
         </div>
         
         <a href="<%= request.getContextPath() %>/branch/swap/main.jsp" class="flex items-center gap-3 px-3 py-2.5 rounded-lg <%= swapActive ? "bg-[#00853D] text-white font-medium" : "text-gray-700 hover:bg-gray-100" %> transition-colors">
