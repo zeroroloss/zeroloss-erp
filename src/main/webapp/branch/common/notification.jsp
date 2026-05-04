@@ -373,57 +373,56 @@
                     '<p class="text-gray-500">조회된 알림이 없습니다.</p>' +
                 '</div>';
         } else {
-            notificationList.innerHTML = currentNotifications.map(notification => {
-                const typeClass = getTypeColor(notification.type);
-                const statusClass = getStatusColor(notification.isRead);
+        	notificationList.innerHTML = currentNotifications.map(function(notification) {
+        	    const typeClass = getTypeColor(notification.type);
+        	    const statusClass = getStatusColor(notification.isRead);
 
-                const readStyle = notification.isRead ? 'opacity-70' : '';
-                const iconClass = notification.isRead ? 'fa-envelope-open text-gray-400' : 'fa-envelope text-red-500';
+        	    const readStyle = notification.isRead ? 'opacity-70' : '';
+        	    const iconClass = notification.isRead ? 'fa-envelope-open text-gray-400' : 'fa-envelope text-red-500';
 
-                return `
-                    <div class="bg-white rounded-lg border border-gray-200 p-6 notification-item cursor-pointer hover:shadow-lg ${readStyle}"
-                         onclick="viewNotification(${notification.notificationId})">
+        	    return '' +
+        	        '<div class="bg-white rounded-lg border border-gray-200 p-6 notification-item cursor-pointer hover:shadow-lg ' + readStyle + '"' +
+        	        ' onclick="viewNotification(' + notification.notificationId + ')">' +
 
-                        <div class="flex items-start gap-4">
-                            <div class="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                                <i class="fas ${iconClass}"></i>
-                            </div>
+        	            '<div class="flex items-start gap-4">' +
+        	                '<div class="w-11 h-11 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">' +
+        	                    '<i class="fas ' + iconClass + '"></i>' +
+        	                '</div>' +
 
-                            <div class="flex-1 space-y-2">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="inline-block px-3 py-1 rounded text-sm font-medium ${typeClass}">
-                                        ${notification.type}
-                                    </span>
+        	                '<div class="flex-1 space-y-2">' +
+        	                    '<div class="flex items-center gap-2 flex-wrap">' +
+        	                        '<span class="inline-block px-3 py-1 rounded text-sm font-medium ' + typeClass + '">' +
+        	                            notification.type +
+        	                        '</span>' +
 
-                                    <span class="inline-block px-3 py-1 rounded text-sm font-medium ${statusClass}">
-                                        ${getStatusText(notification.isRead)}
-                                    </span>
+        	                        '<span class="inline-block px-3 py-1 rounded text-sm font-medium ' + statusClass + '">' +
+        	                            getStatusText(notification.isRead) +
+        	                        '</span>' +
 
-                                    <h3 class="font-bold text-lg text-gray-900">
-                                        ${notification.title}
-                                    </h3>
-                                </div>
+        	                        '<h3 class="font-bold text-lg text-gray-900">' +
+        	                            notification.title +
+        	                        '</h3>' +
+        	                    '</div>' +
 
-                                <p class="text-gray-600 line-clamp-2">
-                                    ${notification.content}
-                                </p>
+        	                    '<p class="text-gray-600 line-clamp-2">' +
+        	                        notification.content +
+        	                    '</p>' +
 
-                                <div class="flex items-center gap-4 text-sm text-gray-500">
-                                    <span>
-                                        <i class="fas fa-calendar mr-1"></i>
-                                        ${formatDate(notification.createdAt)}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+        	                    '<div class="flex items-center gap-4 text-sm text-gray-500">' +
+        	                        '<span>' +
+        	                            '<i class="fas fa-calendar mr-1"></i>' +
+        	                            formatDate(notification.createdAt) +
+        	                        '</span>' +
+        	                    '</div>' +
+        	                '</div>' +
+        	            '</div>' +
+        	        '</div>';
+        	}).join('');
         }
 
         document.getElementById('prevBtn').disabled = currentPage === 1;
         document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
-        document.getElementById('pageInfo').innerText = `${totalPages === 0 ? 0 : currentPage} / ${totalPages}`;
+        document.getElementById('pageInfo').innerText = (totalPages === 0 ? 0 : currentPage) + ' / ' + totalPages;
     }
 
     function formatDate(dateValue) {
