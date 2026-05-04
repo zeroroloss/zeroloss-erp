@@ -1,4 +1,5 @@
 ﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.text.NumberFormat, java.util.Locale" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -58,7 +59,15 @@
 				            </div>
 				
 				            <div class="min-w-0">
-				                <p class="text-lg font-bold text-gray-900 leading-tight">₩</p>
+				            	<%
+								    Object monthlySalesObj = request.getAttribute("monthlySales");
+								    long monthlySales = 0;
+								    if (monthlySalesObj instanceof Number) {
+								        monthlySales = ((Number) monthlySalesObj).longValue();
+								    }
+								    NumberFormat nf = NumberFormat.getInstance(Locale.KOREA);
+								%>
+				                <p class="text-lg font-bold text-gray-900 leading-tight">₩<%= nf.format(monthlySales) %></p>
 				                <p class="text-sm text-gray-600 mt-0.5">전사 매출 (월)</p>
 				            </div>
 				        </div>
@@ -147,7 +156,7 @@
 				                <div>
 				                    <h4 class="text-base font-bold text-gray-900 mb-1">매출 관리</h4>
 				                    <p class="text-sm text-gray-600 mb-3 leading-relaxed">전체 지점의 실시간 매출 조회 및 기간별 매출 분석</p>
-				                    <a href="<%= request.getContextPath() %>/hq/sales/sales-headquarters.jsp"
+				                    <a href="<%= request.getContextPath() %>/hq/sales/headquarters"
 				                       class="inline-flex items-center gap-1.5 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-2.5 transition-all">
 				                        바로가기
 				                        <i class="fas fa-arrow-right text-xs"></i>
@@ -165,7 +174,7 @@
 				                <div>
 				                    <h4 class="text-base font-bold text-gray-900 mb-1">배송 관리</h4>
 				                    <p class="text-sm text-gray-600 mb-3 leading-relaxed">배송 상태 통합 트래킹 및 반품 처리</p>
-				                    <a href="<%= request.getContextPath() %>/hq/delivery/delivery-inquiry.jsp"
+				                    <a href="<%= request.getContextPath() %>/hq/delivery/inquiry"
 				                       class="inline-flex items-center gap-1.5 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-2.5 transition-all">
 				                        바로가기
 				                        <i class="fas fa-arrow-right text-xs"></i>
@@ -183,7 +192,7 @@
 				                <div>
 				                    <h4 class="text-base font-bold text-gray-900 mb-1">직영점 통합 관리</h4>
 				                    <p class="text-sm text-gray-600 mb-3 leading-relaxed">전국 직영점의 영업 현황과 실시간 매출 통합 관리</p>
-				                    <a href="<%= request.getContextPath() %>/hq/support/branch-search.jsp"
+				                    <a href="<%= request.getContextPath() %>/hq/support/branch-search"
 				                       class="inline-flex items-center gap-1.5 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-2.5 transition-all">
 				                        바로가기
 				                        <i class="fas fa-arrow-right text-xs"></i>
@@ -397,5 +406,3 @@
     </script>
 </body>
 </html>
-
-

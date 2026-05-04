@@ -70,8 +70,13 @@ public class RecipeManagementController extends HttpServlet {
             if ("save".equals(action)) {
                 result = saveRecipeAction(request);
             } else if ("delete".equals(action)) {
-                boolean success = recipeService.deleteRecipe(request.getParameter("id"));
-                result.put("success", success);
+                try {
+                    boolean success = recipeService.deleteRecipe(request.getParameter("id"));
+                    result.put("success", success);
+                } catch (RuntimeException e) {
+                    result.put("success", false);
+                    result.put("message", e.getMessage());
+                }
             }
             response.getWriter().write(gson.toJson(result));
         } catch (Exception e) {
@@ -125,4 +130,3 @@ public class RecipeManagementController extends HttpServlet {
         return result;
     }
 }
-

@@ -3,9 +3,11 @@ package service.hq;
 import dao.hq.RecipeDao;
 import dao.hq.RecipeDaoImpl;
 import dto.*;
+import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.session.SqlSession;
 import util.MyBatisSqlSessionFactory;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,6 +143,17 @@ public class RecipeServiceImpl implements RecipeService {
             recipeDao.deleteRecipe(session, id);
             session.commit();
             return true;
+        } catch (PersistenceException e) {
+            session.rollback();
+            // 원인 예외를 확인하여 SQLIntegrityConstraintViolationException인지 확인
+            Throwable cause = e.getCause();
+            if (cause instanceof SQLIntegrityConstraintViolationException) {
+                // 이 예외는 "판매 중인 레시피"와 관련이 있을 가능성이 높음
+                throw new RuntimeException("판매 내역이 존재하는 레시피는 삭제할 수 없습니다.");
+            }
+            // 그 외 다른 DB 관련 예외
+            e.printStackTrace();
+            return false;
         } catch (Exception e) {
             session.rollback();
             e.printStackTrace();

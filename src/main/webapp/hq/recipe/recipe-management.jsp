@@ -550,15 +550,26 @@
     }
 
     async function deleteRecipeFromView() {
-        if (!confirm('삭제하시겠습니까?')) return;
+        if (!confirm('정말로 이 레시피를 삭제하시겠습니까?')) return;
+
         try {
-            const res = await fetch(ctx + `/RecipeManagementController?action=delete&id=\${selectedRecipeForView.id}`, { method: 'POST' });
-            if ((await res.json()).success) {
-                alert('삭제 완료');
+            const response = await fetch(ctx + `/RecipeManagementController?action=delete&id=\${selectedRecipeForView.id}`, {
+                method: 'POST'
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                alert('레시피가 성공적으로 삭제되었습니다.');
                 closeModals();
-                fetchRecipes();
+                fetchRecipes(); // 목록 새로고침
+            } else {
+                // 서버에서 제공하는 메시지가 있으면 그 메시지를, 없으면 기본 메시지를 보여줍니다.
+                alert(result.message || '레시피 삭제에 실패했습니다.');
             }
-        } catch (e) { alert('삭제 실패'); }
+        } catch (error) {
+            console.error('삭제 중 오류 발생:', error);
+            alert('레시피 삭제 중 오류가 발생했습니다. 네트워크 연결을 확인해주세요.');
+        }
     }
 
     // Image Upload Functions

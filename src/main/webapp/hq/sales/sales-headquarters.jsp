@@ -106,7 +106,7 @@
                                 <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
                                     <i class="fas fa-dollar-sign w-5 h-5 text-blue-600"></i>
                                 </div>
-                                <p class="text-sm text-gray-500">전지점 통합 총 매출</p>
+                                <p class="text-sm text-gray-500">전지점 통합 총 매출(일)</p>
                             </div>
                             <p class="text-2xl font-bold text-gray-900" id="totalSalesToday">₩0</p>
                         </div>
