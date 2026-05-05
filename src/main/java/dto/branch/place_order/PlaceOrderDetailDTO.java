@@ -13,6 +13,13 @@ public class PlaceOrderDetailDTO {
     private Integer remainingQty;
     private String unit;
 
+    @Override
+	public String toString() {
+		return "PlaceOrderDetailDTO [poDetailId=" + poDetailId + ", poId=" + poId + ", materialCode=" + materialCode
+				+ ", materialName=" + materialName + ", requestedQty=" + requestedQty + ", approvedQty=" + approvedQty
+				+ ", remainingQty=" + remainingQty + ", unit=" + unit + "]";
+	}
+
     public Integer getRequestedQty() {
 		return requestedQty;
 	}
@@ -69,7 +76,7 @@ public class PlaceOrderDetailDTO {
         this.poId = poId;
     }
 
-    public String getMaterialCode() {
+	public String getMaterialCode() {
         return materialCode;
     }
 

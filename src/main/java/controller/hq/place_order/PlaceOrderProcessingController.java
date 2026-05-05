@@ -110,14 +110,17 @@ public class PlaceOrderProcessingController extends HttpServlet {
 
 	    } catch (IllegalArgumentException e) {
 	        // 입력값 문제
+	    	e.printStackTrace();
 	        writeJson(response, 400, failBody(e.getMessage()));
 
 	    } catch (IllegalStateException e) {
 	        // 상태 문제 (비즈니스 룰)
+	    	e.printStackTrace();
 	        writeJson(response, 409, failBody(e.getMessage()));
 
 	    } catch (RuntimeException e) {
 	        // 서비스 내부 에러 (재고 부족 등)
+	    	e.printStackTrace();
 	        writeJson(response, 500, failBody(
 	                e.getMessage() != null ? e.getMessage() : "서버 처리 중 오류가 발생했습니다."
 	        ));

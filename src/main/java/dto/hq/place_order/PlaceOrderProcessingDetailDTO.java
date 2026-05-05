@@ -18,7 +18,16 @@ public class PlaceOrderProcessingDetailDTO {
     private Integer safeStockQty;
     private Integer warehouseStockQty;
 
-    public static List<PlaceOrderProcessingDetailDTO> from(Object rawDetails) {
+    @Override
+	public String toString() {
+		return "PlaceOrderProcessingDetailDTO [poDetailId=" + poDetailId + ", poId=" + poId + ", materialCode="
+				+ materialCode + ", materialName=" + materialName + ", unit=" + unit + ", requestedQty=" + requestedQty
+				+ ", approvedQty=" + approvedQty + ", remainingQty=" + remainingQty + ", currentBranchStock="
+				+ currentBranchStock + ", safeStockQty=" + safeStockQty + ", warehouseStockQty=" + warehouseStockQty
+				+ "]" + "\n";
+	}
+
+	public static List<PlaceOrderProcessingDetailDTO> from(Object rawDetails) {
         List<PlaceOrderProcessingDetailDTO> details = new ArrayList<>();
         if (!(rawDetails instanceof List)) {
             return details;

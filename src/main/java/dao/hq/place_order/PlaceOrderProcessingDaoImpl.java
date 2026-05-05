@@ -71,6 +71,16 @@ public class PlaceOrderProcessingDaoImpl implements PlaceOrderProcessingDao {
         return sqlSession.insert(NAMESPACE + "insertOutboundDetail", param);
     }
 
+	@Override
+	public Map<String, Object> selectStockByStockNo(SqlSession sqlSession, String stockNo) {        
+		return sqlSession.selectOne(NAMESPACE + "selectStockByStockNo", stockNo);
+	}
+
+	@Override
+	public int insertStockHistory(SqlSession sqlSession, Map<String, Object> param) {
+        return sqlSession.insert(NAMESPACE + "insertStockHistory", param);
+	}
+
 
 
 }

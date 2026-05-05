@@ -174,7 +174,8 @@
 	
 <!-- ========================================================= -->   
 <!-- 출고 내역 -->
-	<insert id="insertOutbound" parameterType="map" useGeneratedKeys="true" keyProperty="hqOutboundNo">
+	<insert id="insertOutbound" parameterType="map" 
+			useGeneratedKeys="true" keyProperty="hqOutboundNo"  keyColumn="hq_outbound_no">
 	    INSERT INTO hq_outbound (
 	        po_no,
 	        branch_code,
@@ -204,5 +205,27 @@
 	    )
 	</insert>
 	
+	<select id="selectStockByStockNo" parameterType="string" resultType="map">
+	    SELECT
+	        stock_no,
+	        qty
+	    FROM warehouse_stock
+	    WHERE stock_no = #{value}
+	</select>
+	
+	<insert id="insertStockHistory">
+		INSERT INTO warehouse_stock_change_history (
+		    stock_no,
+		    change_type,
+		    change_amount,
+		    after_qty
+		)
+		VALUES (
+		    #{stockNo},
+		    #{status},
+		    #{changeAmount},
+		    #{afterQty}
+		)
+	</insert>
 
 </mapper>

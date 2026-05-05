@@ -9,6 +9,8 @@ import dto.hq.place_order.PlaceOrderProcessingDTO;
 import dto.hq.place_order.PlaceOrderProcessingDetailDTO;
 
 public interface PlaceOrderProcessingDao {
+	
+	// 발주
     List<PlaceOrderProcessingDTO> selectPendingOrders(SqlSession sqlSession) throws Exception;
 
     PlaceOrderProcessingDTO selectOrderHeaderByPoNo(SqlSession sqlSession, String poNo) throws Exception;
@@ -29,4 +31,8 @@ public interface PlaceOrderProcessingDao {
     // 출고 내역
     int insertOutbound(SqlSession sqlSession, Map<String, Object> param);
     int insertOutboundDetail(SqlSession sqlSession, Map<String, Object> param);
+    
+    // 재고
+    Map<String, Object> selectStockByStockNo(SqlSession sqlSession, String stockNo);
+    int insertStockHistory(SqlSession sqlSession, Map<String, Object> param);
 }

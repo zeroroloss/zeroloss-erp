@@ -87,7 +87,7 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 
 		    // 2) 상세 조회
 		    List<PlaceOrderDetailDTO> details = placeOrderDAO.selectPlaceOrderDetails(sqlSession, poNo);
-
+		    System.out.println("getPlaceOrderDetail - 상세조회: " + details);
 		    if (details != null) {
 		        for (PlaceOrderDetailDTO detail : details) {
 		            if (detail == null) continue;

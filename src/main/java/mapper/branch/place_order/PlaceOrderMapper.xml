@@ -120,7 +120,9 @@
             m.material_name,
             m.unit,
             pod.requested_qty,
-            pod.approved_qty
+            pod.approved_qty,
+            pod.remaining_qty
+            
         FROM place_order_detail pod
         JOIN material m ON m.material_code = pod.material_code
         JOIN place_order p ON p.po_id = pod.po_id
