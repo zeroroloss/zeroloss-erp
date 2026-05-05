@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.branch.InboundHistoryMapper">
+
+	<resultMap id="inboundHistoryResultMap" type="dto.branch.inbound.InboundHistoryDTO">
+		<id property="inboundId" column="inbound_id" />
+		<result property="poNo" column="po_no" />
+		<result property="receivedAt" column="received_at" />
+		<result property="itemCount" column="item_count" />
+		<result property="totalAmount" column="total_amount" />
+	</resultMap>
+
+	<resultMap id="inboundHistoryItemResultMap" type="dto.branch.inbound.InboundHistoryItemDTO">
+		<result property="branchStockCode" column="branch_stock_code" />
+		<result property="categoryName" column="category_name" />
+		<result property="materialName" column="material_name" />
+		<result property="receivedQty" column="received_qty" />
+		<result property="unit" column="unit" />
+	</resultMap>
+
+	<select id="selectInboundHistoryList" parameterType="map" resultMap="inboundHistoryResultMap">
+		SELECT
+			bsi.inbound_id,
+			po.po_no,
+			DATE_FORMAT(bsi.received_at, '%Y-%m-%d %H:%i') AS received_at,
+			COUNT(DISTINCT bsid.inbound_detail_id) AS item_count,
+			COALESCE(SUM(bsid.qty * IFNULL(m.material_price, 0)), 0) AS total_amount
+		FROM branch_stock_inbound bsi
+		JOIN hq_outbound ho
+			ON ho.hq_outbound_no = bsi.hq_outbound_no
+		JOIN place_order po
+			ON po.po_no = ho.po_no
+		JOIN branch_stock_inbound_detail bsid
+			ON bsid.inbound_id = bsi.inbound_id
+		JOIN branch_stock bs
+			ON bs.branch_stock_code = bsid.branch_stock_code
+		JOIN material m
+			ON m.material_code = bs.material_code
+		WHERE bsi.branch_code = #{branchCode}
+		  AND DATE(bsi.received_at) &gt;= #{startDate}
+		  AND DATE(bsi.received_at) &lt;= #{endDate}
+		GROUP BY bsi.inbound_id, po.po_no, bsi.received_at
+		ORDER BY bsi.received_at DESC, bsi.inbound_id DESC
+	</select>
+
+	<select id="selectInboundHistoryHeader" parameterType="map" resultMap="inboundHistoryResultMap">
+		SELECT
+			bsi.inbound_id,
+			po.po_no,
+			DATE_FORMAT(bsi.received_at, '%Y-%m-%d %H:%i') AS received_at,
+			COUNT(DISTINCT bsid.inbound_detail_id) AS item_count,
+			COALESCE(SUM(bsid.qty * IFNULL(m.material_price, 0)), 0) AS total_amount
+		FROM branch_stock_inbound bsi
+		JOIN hq_outbound ho
+			ON ho.hq_outbound_no = bsi.hq_outbound_no
+		JOIN place_order po
+			ON po.po_no = ho.po_no
+		JOIN branch_stock_inbound_detail bsid
+			ON bsid.inbound_id = bsi.inbound_id
+		JOIN branch_stock bs
+			ON bs.branch_stock_code = bsid.branch_stock_code
+		JOIN material m
+			ON m.material_code = bs.material_code
+		WHERE bsi.branch_code = #{branchCode}
+		  AND po.po_no = #{poNo}
+		GROUP BY bsi.inbound_id, po.po_no, bsi.received_at
+		LIMIT 1
+	</select>
+
+	<select id="selectInboundHistoryItems" parameterType="map" resultMap="inboundHistoryItemResultMap">
+		SELECT
+			bsid.branch_stock_code,
+			mg.group_name AS category_name,
+			m.material_name,
+			bsid.qty AS received_qty,
+			m.unit
+		FROM branch_stock_inbound bsi
+		JOIN hq_outbound ho
+			ON ho.hq_outbound_no = bsi.hq_outbound_no
+		JOIN place_order po
+			ON po.po_no = ho.po_no
+		JOIN branch_stock_inbound_detail bsid
+			ON bsid.inbound_id = bsi.inbound_id
+		JOIN branch_stock bs
+			ON bs.branch_stock_code = bsid.branch_stock_code
+		JOIN material m
+			ON m.material_code = bs.material_code
+		JOIN material_group mg
+			ON mg.material_group_id = m.material_group_id
+		WHERE bsi.branch_code = #{branchCode}
+		  AND po.po_no = #{poNo}
+		ORDER BY bsid.inbound_detail_id ASC
+	</select>
+
+</mapper>

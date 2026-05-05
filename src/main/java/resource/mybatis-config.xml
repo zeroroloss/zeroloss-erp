@@ -58,5 +58,6 @@
         <mapper resource="mapper/branch/stock/StockChangeHistoryMapper.xml"/>
 		<mapper resource="mapper/branch/SwapMapper.xml"/>
 		<mapper resource="mapper/branch/InboundMapper.xml"/>
+		<mapper resource="mapper/branch/InboundHistoryMapper.xml"/>
 	</mappers>
 </configuration>
