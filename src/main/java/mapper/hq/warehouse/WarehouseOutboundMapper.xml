@@ -65,41 +65,39 @@
         parameterType="int"
         resultType="dto.hq.warehouse.WarehouseOutboundItemDTO">
 	    SELECT
-	        m.material_code      AS itemCode,
-	        m.material_name      AS itemName,
-	        mg.group_name        AS category,
+	        ws.stock_no            AS itemCode,        -- 핵심: stock 기준
+	        m.material_name        AS itemName,
+	        mg.group_name          AS category,
 	
-	        pod.requested_qty    AS requestedQty,   -- 발주 수량
-	        d.qty                AS confirmedQty,   -- 출고 수량
+	        pod.requested_qty      AS requestedQty,    -- 참고용 (중복 가능)
+	        hod.qty                AS confirmedQty,    -- 실제 출고 수량 (lot 단위)
 	
-	        COALESCE(ws.qty, 0)  AS warehouseStock, -- 현재 재고
-	        m.unit               AS unit
+	        ws.qty                 AS warehouseStock,  -- 현재 재고
+	        m.unit                 AS unit
 	
 	    FROM hq_outbound h
-	    <!-- 발주 -->
-	    JOIN place_order p
-	        ON h.po_no = p.po_no
-	    JOIN place_order_detail pod
-	        ON p.po_id = pod.po_id
-	    <!-- 출고 상세 -->
-	    LEFT JOIN hq_outbound_detail d
-	        ON h.hq_outbound_no = d.hq_outbound_no
-	       AND pod.material_code = (
-	            SELECT material_code
-	            FROM warehouse_stock
-	            WHERE stock_no = d.stock_no
-	            LIMIT 1
-	       )
-	    <!-- 재고 -->
-	    LEFT JOIN warehouse_stock ws
-	        ON ws.material_code = pod.material_code
-	    <!-- 자재 -->
+	
+	    -- 출고 상세 
+	    JOIN hq_outbound_detail hod
+	        ON h.hq_outbound_no = hod.hq_outbound_no
+	    -- 재고
+	    JOIN warehouse_stock ws
+	        ON ws.stock_no = hod.stock_no
+	    -- 자재
 	    JOIN material m
-	        ON pod.material_code = m.material_code
+	        ON m.material_code = ws.material_code
 	    LEFT JOIN material_group mg
 	        ON m.material_group_id = mg.material_group_id
+	    -- 발주
+	    LEFT JOIN place_order p
+	        ON p.po_no = h.po_no
+	    LEFT JOIN place_order_detail pod
+	        ON pod.po_id = p.po_id
+	       AND pod.material_code = m.material_code
 	
 	    WHERE h.hq_outbound_no = #{value}
+	
+	    ORDER BY ws.stock_no ASC
 	</select>
 
 </mapper>

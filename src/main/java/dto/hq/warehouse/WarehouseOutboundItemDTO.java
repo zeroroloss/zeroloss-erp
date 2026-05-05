@@ -3,7 +3,7 @@ package dto.hq.warehouse;
 import java.math.BigDecimal;
 
 public class WarehouseOutboundItemDTO {
-    private String itemCode;
+    private String itemCode;		// stock_no
     private String itemName;
     private String category;
 
