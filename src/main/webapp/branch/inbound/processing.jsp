@@ -402,7 +402,7 @@ body {
 	}
 
 	// Event delegation for card toggle, history toggle, and confirm buttons
-	container.addEventListener('click', function(e){
+	container.addEventListener('click', async function(e){
 		const head = e.target.closest('.order-head');
 		if (head && container.contains(head)) {
 			const card = head.closest('.order-card');
@@ -433,9 +433,44 @@ body {
 			return;
 		}
 
+		// handle confirm (입고 확정) button clicks
 		const confirmBtn = e.target.closest('.btn-confirm');
 		if (confirmBtn) {
-			showToast();
+			const card = confirmBtn.closest('.order-card');
+			if (!card) return;
+
+			const poNo = card.getAttribute('data-po-no');
+			const rows = Array.from(card.querySelectorAll('tbody tr'));
+			const items = rows.map(row => {
+				const qtyInput = row.querySelector('.received-qty');
+				const noteInput = row.querySelector('.received-note');
+				return {
+					hqOutboundDetailId: Number(row.getAttribute('data-hq-outbound-detail-id')),
+					receivedQty: qtyInput ? Number(qtyInput.value || 0) : 0,
+					note: noteInput ? String(noteInput.value || '') : ''
+				};
+			});
+
+			try {
+				confirmBtn.disabled = true;
+				const res = await fetch('<%=request.getContextPath()%>/api/branch/inbound/processing', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ poNo, items })
+				});
+
+				const body = await res.json().catch(() => ({}));
+				if (!res.ok || body.status !== 'success') {
+					throw new Error(body.message || ('입고 확정 실패: ' + res.status));
+				}
+
+				showToast();
+				await loadReceivingList();
+			} catch (err) {
+				alert(err.message || '입고 확정 중 오류가 발생했습니다.');
+			} finally {
+				confirmBtn.disabled = false;
+			}
 			return;
 		}
 	});
@@ -443,6 +478,7 @@ body {
 	async function loadReceivingList() {
 		try {
 			if (loadingPlaceholder) loadingPlaceholder.textContent = '로딩 중...';
+			// load list of orders eligible for inbound processing
 			const res = await fetch('<%=request.getContextPath()%>/api/branch/inbound/processing');
 			if (!res.ok) throw new Error('네트워크 오류: ' + res.status);
 			const data = await res.json();
@@ -474,7 +510,7 @@ body {
 
 		list.forEach(order => {
 			const itemsHtml = (order.items || []).map(item => {
-				return '<tr>' +
+				return '<tr data-hq-outbound-detail-id="' + escapeHtml(item.hqOutboundDetailId || '') + '">' +
                     '<td data-label="재고번호">' + escapeHtml(item.stockNo || '-') + '</td>' +
 					'<td data-label="품목명">' + escapeHtml(item.materialName || '-') + '</td>' +
 					'<td data-label="카테고리">' + escapeHtml(item.category || '-') + '</td>' +
@@ -482,17 +518,17 @@ body {
                     '<td data-label="본사 출고 수량" class="center">' + escapeHtml((item.outboundQty ?? 0) + ' ' + (item.unit || '')) + '</td>' +
 					'<td data-label="입고 수량" class="center">' +
                         '<div style="display:flex; align-items:center; gap:4px; justify-content:center;">' +
-                            '<input type="number" value="' + escapeHtml(item.outboundQty ?? 0) + '" style="width:80px;" />' +
+                            '<input type="number" class="received-qty" min="0" step="0.01" value="' + escapeHtml(item.outboundQty ?? 0) + '" style="width:80px;" />' +
                             '<span>' + escapeHtml(item.unit || '') + '</span>' +
                         '</div>' +
                     '</td>' +    
 					'<td data-label="유통기한">' + escapeHtml(item.expiryDate || '-') + '</td>' +
-					'<td data-label="비고"><input type="text" value="' + escapeHtml('') + '" /></td>' +
+					'<td data-label="비고"><input type="text" class="received-note" value="' + escapeHtml('') + '" /></td>' +
 				'</tr>';
 			}).join('');
 
 			const cardHtml =
-				'<div class="order-card" id="order-' + escapeHtml(order.poNo || '') + '">' +
+				'<div class="order-card" id="order-' + escapeHtml(order.poNo || '') + '" data-po-no="' + escapeHtml(order.poNo || '') + '">' +
 					'<button class="order-head" type="button">' +
 						'<div class="order-left">' +
 							'<div class="icon-box">📦</div>' +

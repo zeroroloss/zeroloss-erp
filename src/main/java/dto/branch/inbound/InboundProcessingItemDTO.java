@@ -1,8 +1,12 @@
 package dto.branch.inbound;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class InboundProcessingItemDTO {
+	Integer hqOutboundDetailId;
 	String materialCode;	// 재료코드
 	String materialName;	// 재료명
 	String category;		// 카테고리명
@@ -12,15 +16,72 @@ public class InboundProcessingItemDTO {
 	BigDecimal receivedQty; 	// 받은 수량
 	String unit;				// 단위
 	String stockNo;				// 재고 번호
+	String branchStockCode;		// 지점 재고 코드
 	
 	String expiryDate; 		// 유통기한 일자
 	String note; 			// 비고
+
+	public static List<InboundProcessingItemDTO> from(Object rawItems) {
+		List<InboundProcessingItemDTO> items = new ArrayList<>();
+		if (!(rawItems instanceof List)) {
+			return items;
+		}
+
+		List<?> rows = (List<?>) rawItems;
+		for (Object row : rows) {
+			if (!(row instanceof Map)) {
+				continue;
+			}
+			Map<?, ?> map = (Map<?, ?>) row;
+			InboundProcessingItemDTO dto = new InboundProcessingItemDTO();
+			dto.setHqOutboundDetailId(asInt(map.get("hqOutboundDetailId")));
+			dto.setReceivedQty(asDecimal(map.get("receivedQty")));
+			dto.setNote(asString(map.get("note")));
+			items.add(dto);
+		}
+
+		return items;
+	}
+
+	private static Integer asInt(Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof Number) {
+			return ((Number) value).intValue();
+		}
+		return Integer.parseInt(String.valueOf(value));
+	}
+
+	private static BigDecimal asDecimal(Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof BigDecimal) {
+			return (BigDecimal) value;
+		}
+		if (value instanceof Number) {
+			return BigDecimal.valueOf(((Number) value).doubleValue());
+		}
+		return new BigDecimal(String.valueOf(value));
+	}
+
+	private static String asString(Object value) {
+		return value == null ? null : String.valueOf(value);
+	}
+
+	public Integer getHqOutboundDetailId() {
+		return hqOutboundDetailId;
+	}
+	public void setHqOutboundDetailId(Integer hqOutboundDetailId) {
+		this.hqOutboundDetailId = hqOutboundDetailId;
+	}
 	@Override
 	public String toString() {
-		return "InboundProcessingItemDTO [materialCode=" + materialCode + ", materialName=" + materialName
+		return "InboundProcessingItemDTO [hqOutboundDetailId=" + hqOutboundDetailId + ", materialCode=" + materialCode + ", materialName=" + materialName
 				+ ", category=" + category + ", requestedQty=" + requestedQty + ", outboundQty=" + outboundQty
-				+ ", receivedQty=" + receivedQty + ", unit=" + unit + ", stockNo=" + stockNo + ", expiryDate="
-				+ expiryDate + ", note=" + note + "]";
+				+ ", receivedQty=" + receivedQty + ", unit=" + unit + ", stockNo=" + stockNo + ", branchStockCode=" + branchStockCode
+				+ ", expiryDate=" + expiryDate + ", note=" + note + "]";
 	}
 	public String getMaterialCode() {
 		return materialCode;
@@ -69,6 +130,12 @@ public class InboundProcessingItemDTO {
 	}
 	public void setStockNo(String stockNo) {
 		this.stockNo = stockNo;
+	}
+	public String getBranchStockCode() {
+		return branchStockCode;
+	}
+	public void setBranchStockCode(String branchStockCode) {
+		this.branchStockCode = branchStockCode;
 	}
 	public String getExpiryDate() {
 		return expiryDate;

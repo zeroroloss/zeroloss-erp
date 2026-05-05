@@ -15,7 +15,7 @@ public class InboundProcessingDTO {
 	@Override
 	public String toString() {
 		return "InboundProcessingDTO [poId=" + poId + ", poNo=" + poNo + ", requestedAt=" + requestedAt + ", status="
-				+ status + ", outboundAt=" + outboundAt + ", items=" + items + "]";
+				+ status + ", outboundAt=" + outboundAt + ", items=" + items + "]\n";
 	}
 
 	public Integer getPoId() {
