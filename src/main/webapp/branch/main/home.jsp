@@ -12,320 +12,346 @@
 <%@ include file="/branch/common/layout/layout_head.jsp" %>
 </head>
 <body class="bg-gray-50">
-<div class="zl-app">
-<%@ include file="/branch/common/layout/sidebar.jsp" %>
-<div class="zl-content">
-<%@ include file="/branch/common/layout/topbar.jsp" %>
-<div class="p-6">
-    <!-- 페이지 헤더 -->
-    <div class="bg-gradient-to-r from-[#00853D] to-[#00A94F] rounded-xl p-8 text-white shadow-lg mb-6">
-        <div class="flex items-center gap-3 mb-3">
-            <div class="w-12 h-12 bg-[#FFD100] rounded-lg flex items-center justify-center overflow-hidden">
-			    <img src="<%= request.getContextPath() %>/upload/images/logo.png" alt="로고" class="w-full h-full object-cover">
+	<div class="zl-app">
+	<%@ include file="/branch/common/layout/sidebar.jsp" %>
+
+		<div class="zl-content">
+		<%@ include file="/branch/common/layout/topbar.jsp" %>
+
+			<div class="p-6 space-y-5">
+
+			    <!-- 페이지 헤더 -->
+			    <div class="bg-gradient-to-r from-[#00853D] to-[#00A94F] rounded-xl p-4 text-white shadow-lg">
+			        <div class="flex items-center gap-3">
+			            <div>
+			                <h2 class="text-2xl font-bold">
+			                    <%="ZERO LOSS " + loginUser.getBranchName() + " 지점 관리 시스템"%>
+			                </h2>
+			                <p class="text-white/90 mt-1 text-sm">
+			                    <%="2026년 4월 20일 | " + loginUser.getUserName() + " " + loginUser.getRoleName() + "님 환영합니다."%>
+			                </p>
+			            </div>
+			        </div>
+			    </div>
+			
+			    <!-- 빠른 통계 -->
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+				
+				    <!-- 통계 카드 1: 오늘 매출 -->
+				    <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#00853D]/40 transition-all">
+				        <div class="flex items-center gap-4">
+				            <div class="w-10 h-10 rounded-lg bg-[#00853D] text-white flex items-center justify-center shadow-sm shrink-0">
+				                <i class="fas fa-chart-line text-base"></i>
+				            </div>
+				
+				            <div class="min-w-0">
+				                <p class="text-xl font-bold text-gray-900 leading-tight">₩0</p>
+				                <p class="text-sm text-gray-600 mt-0.5">오늘 매출</p>
+				            </div>
+				        </div>
+				    </div>
+				
+				    <!-- 통계 카드 2: 주문 건수 -->
+				    <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#00853D]/40 transition-all">
+				        <div class="flex items-center gap-4">
+				            <div class="w-10 h-10 rounded-lg bg-[#FFD100] text-[#00853D] flex items-center justify-center shadow-sm shrink-0">
+				                <i class="fas fa-shopping-cart text-base"></i>
+				            </div>
+				
+				            <div class="min-w-0">
+				                <p class="text-xl font-bold text-gray-900 leading-tight">0건</p>
+				                <p class="text-sm text-gray-600 mt-0.5">주문 건수</p>
+				            </div>
+				        </div>
+				    </div>
+				
+				    <!-- 통계 카드 3: 재고 현황 -->
+				    <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#00853D]/40 transition-all">
+				        <div class="flex items-center gap-4">
+				            <div class="w-10 h-10 rounded-lg bg-[#006B2F] text-white flex items-center justify-center shadow-sm shrink-0">
+				                <i class="fas fa-box text-base"></i>
+				            </div>
+				
+				            <div class="min-w-0">
+				                <p class="text-xl font-bold text-gray-900 leading-tight">0%</p>
+				                <p class="text-sm text-gray-600 mt-0.5">재고 현황</p>
+				            </div>
+				        </div>
+				    </div>
+				
+				    <!-- 통계 카드 4: 알림 -->
+				    <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#00853D]/40 transition-all">
+				        <div class="flex items-center gap-4">
+				            <div class="w-10 h-10 rounded-lg bg-[#00A94F] text-white flex items-center justify-center shadow-sm shrink-0">
+				                <i class="fas fa-bell text-base"></i>
+				            </div>
+				
+				            <div class="min-w-0">
+				                <p class="text-xl font-bold text-gray-900 leading-tight">0건</p>
+				                <p class="text-sm text-gray-600 mt-0.5">대기 중인 알림</p>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+
+			    <!-- 빠른 작업 -->
+				<div>
+				    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+				        <div class="w-1 h-6 bg-[#00853D] rounded-full"></div>
+				        빠른 작업
+				    </h3>
+				
+				    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+				
+				        <!-- 작업 1: 재고 현황 -->
+				        <div class="border-2 rounded-xl p-5 bg-[#00853D]/5 border-[#00853D]/15 hover:border-[#00853D]/35 hover:bg-[#00853D]/10 transition-all shadow-sm hover:shadow-md">
+				            <div class="flex items-start gap-4">
+				                <div class="w-11 h-11 bg-[#00853D] rounded-lg flex items-center justify-center text-white shadow-sm shrink-0">
+				                    <i class="fas fa-warehouse text-base"></i>
+				                </div>
+				
+				                <div>
+				                    <h4 class="text-base font-bold text-gray-900 mb-1">재고 현황</h4>
+				                    <p class="text-sm text-gray-600 mb-3 leading-relaxed">실시간 재고 확인</p>
+				                    <a href="<%= request.getContextPath()%>/branch/stock"
+				                       class="inline-flex items-center gap-1.5 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-2.5 transition-all">
+				                        바로가기
+				                        <i class="fas fa-arrow-right text-xs"></i>
+				                    </a>
+				                </div>
+				            </div>
+				        </div>
+				
+				        <!-- 작업 2: 발주서 작성 -->
+				        <div class="border-2 rounded-xl p-5 bg-[#00853D]/5 border-[#00853D]/15 hover:border-[#00853D]/35 hover:bg-[#00853D]/10 transition-all shadow-sm hover:shadow-md">
+				            <div class="flex items-start gap-4">
+				                <div class="w-11 h-11 bg-[#00853D] rounded-lg flex items-center justify-center text-white shadow-sm shrink-0">
+				                    <i class="fas fa-file-invoice text-base"></i>
+				                </div>
+				
+				                <div>
+				                    <h4 class="text-base font-bold text-gray-900 mb-1">발주서 작성</h4>
+				                    <p class="text-sm text-gray-600 mb-3 leading-relaxed">새로운 발주 요청 생성</p>
+				                    <a href="<%= request.getContextPath()%>/branch/place_order/draft"
+				                       class="inline-flex items-center gap-1.5 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-2.5 transition-all">
+				                        바로가기
+				                        <i class="fas fa-arrow-right text-xs"></i>
+				                    </a>
+				                </div>
+				            </div>
+				        </div>
+				
+				        <!-- 작업 3: 매출 조회 -->
+				        <div class="border-2 rounded-xl p-5 bg-[#00853D]/5 border-[#00853D]/15 hover:border-[#00853D]/35 hover:bg-[#00853D]/10 transition-all shadow-sm hover:shadow-md">
+				            <div class="flex items-start gap-4">
+				                <div class="w-11 h-11 bg-[#00853D] rounded-lg flex items-center justify-center text-white shadow-sm shrink-0">
+				                    <i class="fas fa-arrow-trend-up text-base"></i>
+				                </div>
+				
+				                <div>
+				                    <h4 class="text-base font-bold text-gray-900 mb-1">매출 조회</h4>
+				                    <p class="text-sm text-gray-600 mb-3 leading-relaxed">오늘 매출 상세 분석</p>
+				                    <a href="<%= request.getContextPath()%>/branch/sales/detail"
+				                       class="inline-flex items-center gap-1.5 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-2.5 transition-all">
+				                        바로가기
+				                        <i class="fas fa-arrow-right text-xs"></i>
+				                    </a>
+				                </div>
+				            </div>
+				        </div>
+				
+				        <!-- 작업 4: 재고 교환 요청 -->
+				        <div class="border-2 rounded-xl p-5 bg-[#00853D]/5 border-[#00853D]/15 hover:border-[#00853D]/35 hover:bg-[#00853D]/10 transition-all shadow-sm hover:shadow-md">
+				            <div class="flex items-start gap-4">
+				                <div class="w-11 h-11 bg-[#00853D] rounded-lg flex items-center justify-center text-white shadow-sm shrink-0">
+				                    <i class="fas fa-right-left text-base"></i>
+				                </div>
+				
+				                <div>
+				                    <h4 class="text-base font-bold text-gray-900 mb-1">재고 교환</h4>
+				                    <p class="text-sm text-gray-600 mb-3 leading-relaxed">주변 지점에 재고 지원 요청</p>
+				                    <a href="<%= request.getContextPath()%>/branch/swap/main?tab=check_stock"
+				                       class="inline-flex items-center gap-1.5 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-2.5 transition-all">
+				                        바로가기
+				                        <i class="fas fa-arrow-right text-xs"></i>
+				                    </a>
+				                </div>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+			
+			    <!-- 상위 공지 -->
+				<div class="bg-white rounded-xl border-2 border-[#00853D]/10 p-6 shadow-sm">
+				    <div class="flex items-center justify-between mb-4">
+				        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+				           <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
+				            공지사항
+				        </h3>
+				
+				        <a href="<%= request.getContextPath() %>/hq/support/headquarters-notices.jsp"
+				           class="inline-flex items-center gap-1 text-sm font-medium text-[#00853D] hover:text-[#006B2F] transition-all whitespace-nowrap">
+				            바로가기
+				            <i class="fas fa-arrow-right text-xs"></i>
+				        </a>
+				    </div>
+				
+				    <!-- 상위 공지 목록 출력 영역 -->
+				    <div id="topNoticeList" class="space-y-3">
+				        <div class="p-4 text-sm text-gray-500 bg-gray-50 rounded-lg">
+				            공지사항을 불러오는 중입니다.
+				        </div>
+				    </div>
+				</div>
 			</div>
-            <div>
-                <h2 class="text-3xl font-bold">
-                <%="ZERO LOSS " + loginUser.getBranchName() + " 지점 관리 시스템"%>
-                </h2>
-                <p class="text-white/90 mt-1"><%="2026년 4월 20일 | " + loginUser.getUserName() + " " + loginUser.getRoleName() + "님 환영합니다."%></p>
-            </div>
-        </div>
-    </div>
+		</div>
+	</div>
+<script>
+    // 상위 공지
+    const ctx = "<%= request.getContextPath() %>";
 
-    <!-- 빠른 통계 -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <!-- 통계 카드 1: 오늘 매출 -->
-        <div class="bg-white rounded-lg border-2 border-[#00853D]/10 p-6 hover:border-[#00853D]/30 transition-all shadow-sm hover:shadow-md">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 rounded-lg bg-[#00853D] text-white flex items-center justify-center shadow-md">
-                    <i class="fas fa-chart-line text-lg"></i>
-                </div>
-            </div>
-            <div>
-                <p class="text-2xl font-bold text-gray-900">₩3,400,000</p>
-                <p class="text-sm text-gray-600 mt-1">오늘 매출</p>
-                <p class="text-xs text-gray-500 mt-2">+12.5% (어제 대비)</p>
-            </div>
-        </div>
+    document.addEventListener('DOMContentLoaded', function () {
+        loadTopNotices();
+    });
 
-        <!-- 통계 카드 2: 주문 건수 -->
-        <div class="bg-white rounded-lg border-2 border-[#00853D]/10 p-6 hover:border-[#00853D]/30 transition-all shadow-sm hover:shadow-md">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 rounded-lg bg-[#FFD100] text-[#00853D] flex items-center justify-center shadow-md">
-                    <i class="fas fa-shopping-cart text-lg"></i>
-                </div>
-            </div>
-            <div>
-                <p class="text-2xl font-bold text-gray-900">201건</p>
-                <p class="text-sm text-gray-600 mt-1">주문 건수</p>
-                <p class="text-xs text-gray-500 mt-2">+8개 (어제 대비)</p>
-            </div>
-        </div>
+    async function loadTopNotices() {
+        const topNoticeList = document.getElementById('topNoticeList');
 
-        <!-- 통계 카드 3: 재고 현황 -->
-        <div class="bg-white rounded-lg border-2 border-[#00853D]/10 p-6 hover:border-[#00853D]/30 transition-all shadow-sm hover:shadow-md">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 rounded-lg bg-[#006B2F] text-white flex items-center justify-center shadow-md">
-                    <i class="fas fa-box text-lg"></i>
-                </div>
-            </div>
-            <div>
-                <p class="text-2xl font-bold text-gray-900">85%</p>
-                <p class="text-sm text-gray-600 mt-1">재고 현황</p>
-                <p class="text-xs text-gray-500 mt-2">-2% (지난주 대비)</p>
-            </div>
-        </div>
+        try {
+            const response = await fetch(ctx + '/hq/support/headquarters-notices-data');
 
-        <!-- 통계 카드 4: 알림 -->
-        <div class="bg-white rounded-lg border-2 border-[#00853D]/10 p-6 hover:border-[#00853D]/30 transition-all shadow-sm hover:shadow-md">
-            <div class="flex items-center justify-between mb-4">
-                <div class="w-12 h-12 rounded-lg bg-[#00A94F] text-white flex items-center justify-center shadow-md">
-                    <i class="fas fa-bell text-lg"></i>
-                </div>
-            </div>
-            <div>
-                <p class="text-2xl font-bold text-gray-900">3건</p>
-                <p class="text-sm text-gray-600 mt-1">대기 중인 알림</p>
-                <p class="text-xs text-gray-500 mt-2">2건 긴급</p>
-            </div>
-        </div>
-    </div>
+            if (!response.ok) {
+                throw new Error('공지사항 조회 실패');
+            }
 
-    <!-- 빠른 작업 -->
-    <div class="mb-6">
-        <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <div class="w-1 h-6 bg-[#00853D] rounded-full"></div>
-            빠른 작업
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            const notices = await response.json();
 
-            <!-- 작업 1: 발주서 작성 -->
-            <div class="border-2 rounded-xl p-6 bg-[#00853D]/5 border-[#00853D]/20 hover:border-[#00853D]/40 hover:bg-[#00853D]/10 transition-all shadow-sm hover:shadow-md">
-                <div class="flex items-start justify-between mb-3">
-                    <div class="w-12 h-12 bg-[#00853D] rounded-lg flex items-center justify-center text-white shadow-md">
-                        <i class="fas fa-file-invoice text-lg"></i>
-                    </div>
-                </div>
-                <h4 class="text-lg font-bold text-gray-900 mb-2">발주서 작성</h4>
-                <p class="text-sm text-gray-600 mb-4">새로운 발주 요청 생성</p>
-                <a href="<%= request.getContextPath()%>/branch/place_order/draft" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
-                    바로가기
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
+            const topNotices = notices
+                .sort(function (a, b) {
+                    if (a.isPinned && !b.isPinned) return -1;
+                    if (!a.isPinned && b.isPinned) return 1;
 
-            <!-- 작업 2: 재고 현황 -->
-            <div class="border-2 rounded-xl p-6 bg-[#FFD100]/10 border-[#FFD100]/30 hover:border-[#FFD100]/50 hover:bg-[#FFD100]/20 transition-all shadow-sm hover:shadow-md">
-                <div class="flex items-start justify-between mb-3">
-                    <div class="w-12 h-12 bg-[#FFD100] rounded-lg flex items-center justify-center text-[#00853D] shadow-md">
-                        <i class="fas fa-warehouse text-lg"></i>
-                    </div>
-                </div>
-                <h4 class="text-lg font-bold text-gray-900 mb-2">재고 현황</h4>
-                <p class="text-sm text-gray-600 mb-4">실시간 재고 확인</p>
-                <a href="<%= request.getContextPath()%>/branch/stock" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
-                    바로가기
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
+                    const dateA = new Date(a.lastDate ? a.lastDate : a.createdAt);
+                    const dateB = new Date(b.lastDate ? b.lastDate : b.createdAt);
 
-            <!-- 작업 3: 재고 교환 요청 -->
-            <div class="border-2 rounded-xl p-6 bg-[#006B2F]/5 border-[#006B2F]/20 hover:border-[#006B2F]/40 hover:bg-[#006B2F]/10 transition-all shadow-sm hover:shadow-md">
-                <div class="flex items-start justify-between mb-3">
-                    <div class="w-12 h-12 bg-[#006B2F] rounded-lg flex items-center justify-center text-white shadow-md">
-                        <i class="fas fa-arrows-split-up-and-left text-lg"></i>
-                    </div>
-                </div>
-                <h4 class="text-lg font-bold text-gray-900 mb-2">재고 교환</h4>
-                <p class="text-sm text-gray-600 mb-4">주변 지점에 재고 지원 요청</p>
-                <a href="<%= request.getContextPath()%>/branch/swap/main.jsp?tab=check_stock" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
-                    바로가기
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
+                    return dateB - dateA;
+                })
+                .slice(0, 3);
 
-            <!-- 작업 4: 매출 조회 -->
-            <div class="border-2 rounded-xl p-6 bg-[#00A94F]/5 border-[#00A94F]/20 hover:border-[#00A94F]/40 hover:bg-[#00A94F]/10 transition-all shadow-sm hover:shadow-md">
-                <div class="flex items-start justify-between mb-3">
-                    <div class="w-12 h-12 bg-[#00A94F] rounded-lg flex items-center justify-center text-white shadow-md">
-                        <i class="fas fa-chart-bar text-lg"></i>
-                    </div>
-                </div>
-                <h4 class="text-lg font-bold text-gray-900 mb-2">매출 조회</h4>
-                <p class="text-sm text-gray-600 mb-4">오늘 매출 상세 분석</p>
-                <a href="<%= request.getContextPath()%>/branch/sales/branch_sales/sales-detail.jsp" class="inline-flex items-center gap-2 text-sm font-medium text-[#00853D] hover:text-[#006B2F] hover:gap-3 transition-all">
-                    바로가기
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
+            if (topNotices.length === 0) {
+                topNoticeList.innerHTML =
+                    '<div class="p-4 text-sm text-gray-500 bg-gray-50 rounded-lg">' +
+                        '등록된 공지사항이 없습니다.' +
+                    '</div>';
+                return;
+            }
 
-        </div>
-    </div>
+            topNoticeList.innerHTML = topNotices.map(function (notice) {
+                const displayDate = notice.lastDate ? notice.lastDate : notice.createdAt;
+                const dateText = formatNoticeDate(displayDate);
 
-    <!-- 처리 대기 & 일정 -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                const typeStyle = getNoticeTypeStyle(notice.type);
 
-        <!-- 처리 대기 -->
-        <div class="bg-white rounded-xl border-2 border-[#00853D]/10 p-6 shadow-sm">
-            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
-                처리 대기
-            </h3>
-            <div class="space-y-3">
-                <!-- 항목 1 -->
-                <a href="/branch/purchase_order/history.jsp" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                    <div class="flex items-center gap-3 flex-1">
-                        <div class="w-8 h-8 rounded-lg bg-[#00853D]/10 text-[#00853D] flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-clock text-sm"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">발주 승인 대기 중</p>
-                            <p class="text-xs text-gray-500 mt-1">총 2건</p>
-                        </div>
-                    </div>
-                    <span class="inline-flex items-center justify-center min-w-6 h-6 rounded-full bg-[#00853D] text-white text-xs font-bold">2</span>
-                </a>
+                return '' +
+                    '<div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100 hover:bg-green-50/50 hover:border-[#00853D]/20 transition-colors cursor-pointer" ' +
+                         'onclick="location.href=\'' + ctx + '/hq/support/headquarters-notices.jsp\'">' +
 
-                <!-- 항목 2 -->
-                <a href="/branch/swap/received_request.jsp" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                    <div class="flex items-center gap-3 flex-1">
-                        <div class="w-8 h-8 rounded-lg bg-[#FFD100]/20 text-[#F5C400] flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-exchange text-sm"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">재고 교환 요청</p>
-                            <p class="text-xs text-gray-500 mt-1">총 3건</p>
-                        </div>
-                    </div>
-                    <span class="inline-flex items-center justify-center min-w-6 h-6 rounded-full bg-[#FFD100] text-[#00853D] text-xs font-bold">3</span>
-                </a>
+                        '<div class="w-8 h-8 rounded-lg ' + typeStyle.iconBg + ' ' + typeStyle.iconText + ' flex items-center justify-center flex-shrink-0">' +
+                            '<i class="' + typeStyle.icon + ' text-sm"></i>' +
+                        '</div>' +
 
-                <!-- 항목 3 -->
-                <a href="/branch/hr/schedule/main.jsp" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                    <div class="flex items-center gap-3 flex-1">
-                        <div class="w-8 h-8 rounded-lg bg-[#00A94F]/10 text-[#00A94F] flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-calendar text-sm"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">직원 근무표 승인</p>
-                            <p class="text-xs text-gray-500 mt-1">총 1건</p>
-                        </div>
-                    </div>
-                    <span class="inline-flex items-center justify-center min-w-6 h-6 rounded-full bg-[#00A94F] text-white text-xs font-bold">1</span>
-                </a>
-            </div>
-        </div>
+                        '<div class="flex-1 min-w-0">' +
+                            '<div class="flex items-center gap-2 mb-1">' +
+                                '<span class="px-2 py-0.5 rounded-full ' + typeStyle.badge + ' text-[11px] font-semibold">' +
+                                    escapeHtml(notice.type) +
+                                '</span>' +
+                                (notice.isPinned ? '<i class="fas fa-thumbtack text-xs text-[#00853D]"></i>' : '') +
+                            '</div>' +
 
-        <!-- 오늘 일정 -->
-        <div class="bg-white rounded-xl border-2 border-[#00853D]/10 p-6 shadow-sm">
-            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
-                오늘 일정
-            </h3>
-            <div class="space-y-3">
-                <!-- 일정 1 -->
-                <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                    <div class="text-sm font-bold text-[#00853D] min-w-12">09:00</div>
-                    <div class="flex-1">
-                        <p class="text-sm text-gray-900">개점 준비</p>
-                        <p class="text-xs text-gray-500 mt-1">점포 오픈 준비</p>
-                    </div>
-                </div>
+                            '<p class="text-sm font-medium text-gray-900 truncate">' +
+                                escapeHtml(notice.title) +
+                            '</p>' +
 
-                <!-- 일정 2 -->
-                <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                    <div class="text-sm font-bold text-[#00853D] min-w-12">11:00</div>
-                    <div class="flex-1">
-                        <p class="text-sm text-gray-900">재고 확인</p>
-                        <p class="text-xs text-gray-500 mt-1">일일 재고 체크</p>
-                    </div>
-                </div>
+                            '<p class="text-xs text-gray-500 mt-1">' +
+                                dateText +
+                            '</p>' +
+                        '</div>' +
+                    '</div>';
+            }).join('');
 
-                <!-- 일정 3 -->
-                <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                    <div class="text-sm font-bold text-[#00853D] min-w-12">14:00</div>
-                    <div class="flex-1">
-                        <p class="text-sm text-gray-900">본사 미팅</p>
-                        <p class="text-xs text-gray-500 mt-1">영상회의</p>
-                    </div>
-                </div>
+        } catch (error) {
+            console.error(error);
 
-                <!-- 일정 4 -->
-                <div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                    <div class="text-sm font-bold text-[#00853D] min-w-12">17:00</div>
-                    <div class="flex-1">
-                        <p class="text-sm text-gray-900">마감 정산</p>
-                        <p class="text-xs text-gray-500 mt-1">일매출 정산</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+            topNoticeList.innerHTML =
+                '<div class="p-4 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg">' +
+                    '공지사항을 불러오지 못했습니다.' +
+                '</div>';
+        }
+    }
 
-    </div>
+    function getNoticeTypeStyle(type) {
+        if (type === '긴급 공지') {
+            return {
+                badge: 'bg-red-100 text-red-700',
+                iconBg: 'bg-red-100',
+                iconText: 'text-red-600',
+                icon: 'fas fa-triangle-exclamation'
+            };
+        }
 
-    <!-- 최근 공지사항 -->
-    <div class="bg-white rounded-xl border-2 border-[#00853D]/10 p-6 shadow-sm">
-        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
-            최근 공지사항
-        </h3>
-        <div class="space-y-3">
-            <!-- 공지 1 -->
-            <a href="/branch/support/notice/main.jsp" class="flex items-start justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                <div class="flex items-start gap-3 flex-1">
-                    <div class="w-8 h-8 rounded-lg bg-[#00853D]/10 text-[#00853D] flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <i class="fas fa-bullhorn text-sm"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#00853D] text-white">공지</span>
-                            <p class="text-sm font-medium text-gray-900">3월 재고 조사 안내</p>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2">전점포 일제 재고 조사를 실시합니다</p>
-                    </div>
-                </div>
-                <div class="text-xs text-gray-500 ml-2">2026-03-29</div>
-            </a>
+        if (type === '위생 가이드') {
+            return {
+                badge: 'bg-blue-100 text-blue-700',
+                iconBg: 'bg-blue-100',
+                iconText: 'text-blue-600',
+                icon: 'fas fa-shield-halved'
+            };
+        }
 
-            <!-- 공지 2 -->
-            <a href="/branch/support/notice/main.jsp" class="flex items-start justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                <div class="flex items-start gap-3 flex-1">
-                    <div class="w-8 h-8 rounded-lg bg-[#00853D]/10 text-[#00853D] flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <i class="fas fa-star text-sm"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FFD100] text-[#00853D]">신소식</span>
-                            <p class="text-sm font-medium text-gray-900">신메뉴 출시 예정 (4월)</p>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2">인기 신메뉴 3종류가 순차 출시됩니다</p>
-                    </div>
-                </div>
-                <div class="text-xs text-gray-500 ml-2">2026-03-28</div>
-            </a>
+        if (type === '운영 지침') {
+            return {
+                badge: 'bg-purple-100 text-purple-700',
+                iconBg: 'bg-purple-100',
+                iconText: 'text-purple-600',
+                icon: 'fas fa-clipboard-list'
+            };
+        }
 
-            <!-- 공지 3 -->
-            <a href="/branch/support/notice/main.jsp" class="flex items-start justify-between p-4 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
-                <div class="flex items-start gap-3 flex-1">
-                    <div class="w-8 h-8 rounded-lg bg-[#00A94F]/10 text-[#00A94F] flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <i class="fas fa-megaphone text-sm"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#00A94F] text-white">안내</span>
-                            <p class="text-sm font-medium text-gray-900">봄 시즌 프로모션 시작</p>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2">4월부터 봄 시즌 할인 프로모션이 진행됩니다</p>
-                    </div>
-                </div>
-                <div class="text-xs text-gray-500 ml-2">2026-03-27</div>
-            </a>
-        </div>
-    </div>
+        return {
+            badge: 'bg-gray-100 text-gray-700',
+            iconBg: 'bg-gray-100',
+            iconText: 'text-gray-600',
+            icon: 'fas fa-bullhorn'
+        };
+    }
 
-</div>
-</main>
-</div>
-</div>
+    function formatNoticeDate(dateValue) {
+        if (!dateValue) return '';
+
+        const date = new Date(dateValue);
+
+        if (isNaN(date.getTime())) {
+            return dateValue;
+        }
+
+        return date.toLocaleString('ko-KR', {
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function escapeHtml(value) {
+        if (value == null) return '';
+
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+</script>
 </body>
 </html>

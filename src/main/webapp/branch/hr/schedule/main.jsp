@@ -58,10 +58,14 @@
     .picked { display: inline-flex; width: 30px; height: 30px; border-radius: 999px; align-items: center; justify-content: center; background: #2563eb; color: #fff; font-size: 18px; font-weight: 700; }
 
 	.calendar-grid {display: grid; grid-template-columns: repeat(7, 1fr);}
-	.day-header {padding: 12px 8px; text-align: center; font-size: 13px; font-weight: 700; color: #374151; border-right: 1px solid #e5e7eb;}
-	.day-header:last-child { border-right: 0;}	
-	.day-cell {min-height: 120px; border-top: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; background: white;}
-	.day-cell:nth-child(7n) {border-right: 0;}
+	.calendar-grid {display: grid; grid-template-columns: repeat(7, 1fr); gap: 0;}
+	.day-header {text-align: center; padding: 12px 8px; font-weight: 600; border-bottom: 2px solid #e5e7eb; background-color: #f3f4f6; font-size: 14px; color: #374151;}
+	.day-cell {min-height: 120px; border: 1px solid #e5e7eb; padding: 8px; background: white; overflow: hidden; overflow-y: auto;}
+	.day-cell.other-month,
+	.other-month {background-color: #f9fafb; color: #9ca3af;}
+	.day-cell.today {background-color: #ecfdf3; border-left: 3px solid #00853D;}
+	.schedule-event {font-size: 12px; padding: 6px; margin-bottom: 4px; border-radius: 4px; color: white; cursor: pointer; transition: opacity 0.2s; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
+	.schedule-event:hover {opacity: 0.9;}
 	.other-month {background: #f9fafb; color: #9ca3af;}
 	.today {background: #ecfdf5;}
 	.schedule-event {margin-top: 4px; padding: 3px 6px; border-radius: 6px; font-size: 12px; color: white; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;}
@@ -126,89 +130,112 @@
 					    </div>
 					</div>  
           			
-          			<!-- 필터 -->
-			        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-			          <div class="flex flex-col gap-4">
-			
-			            <div class="flex items-center justify-between gap-4">
-			              <div>
-			                <h3 class="text-sm font-semibold text-gray-800">직원 검색</h3>
-			                <p class="text-xs text-gray-500 mt-1">사번, 이름 기준으로 검색할 수 있습니다.</p>
-			              </div>
-			
-			              <div class="flex items-center gap-2">
-			                <div class="relative w-80">
-			                  <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-			                  <input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="검색어를 입력하세요" class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
-			                </div>
-			                <button type="button" onclick="applyFilters()" class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">조회</button>
-			                <button type="button" onclick="resetFilters()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">초기화</button>
-			              </div>
-			            </div>
-			          </div>
-			        </div>
-			        
-			        <!-- 캘린더 컨트롤 -->
-                    <div class="bg-white rounded-lg border border-gray-200 p-4">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="flex items-center gap-4">
-                                <button onclick="previousPeriod()" class="p-2 rounded-lg hover:bg-gray-100">
-                                    <i class="fas fa-chevron-left w-5 h-5"></i>
-                                </button>
-                                
-                                <h3 id="monthTitle" class="text-lg font-semibold text-gray-900 min-w-64 text-center">2026년 4월</h3>
-                                <button onclick="nextPeriod()" class="p-2 rounded-lg hover:bg-gray-100">
-                                    <i class="fas fa-chevron-right w-5 h-5"></i>
-                                </button>
-                            </div>
-                            <div>
-                                <button onclick="goToday()"
-							        class="px-4 py-2 text-sm font-medium bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors">
-							        오늘
-							    </button>
-                            </div>
-                        </div>
-
-                        <!-- 캘린더 범례 -->
-                        <div class="flex items-center gap-6 mb-4 flex-wrap text-sm">
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                                <span class="text-gray-600">오픈</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
-                                <span class="text-gray-600">미들</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
-                                <span class="text-gray-600">마감</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                                <span class="text-gray-600">휴무</span>
-                            </div>
-                        </div>
-
-                        <!-- 캘린더 그리드 -->
-                        <div class="border border-gray-200 rounded-lg overflow-hidden">
-                            <!-- 요일 헤더 -->
-                            <div id="dayHeaders" class="calendar-grid gap-0 bg-gray-50">
-                                <div class="day-header">일</div>
-                                <div class="day-header">월</div>
-                                <div class="day-header">화</div>
-                                <div class="day-header">수</div>
-                                <div class="day-header">목</div>
-                                <div class="day-header">금</div>
-                                <div class="day-header">토</div>
-                            </div>
-
-                            <!-- 캘린더 셀 -->
-                            <div id="calendarContainer" class="calendar-grid gap-0">
-                                <!-- 동적으로 생성됨 -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
+			        <!-- 캘린더 카드 전체 -->
+					<div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+					
+					    <!-- 캘린더 상단 헤더 + 필터 -->
+					    <div class="p-5 border-b border-gray-200">
+					        <div class="flex flex-col gap-4">
+					
+					            <!-- 1줄: 월 이동 / 제목 / 오늘 버튼 -->
+					            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+					                <div class="flex items-center gap-3">
+					                    <button type="button"
+					                            onclick="previousPeriod()"
+					                            class="w-9 h-9 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors">
+					                        <i class="fas fa-chevron-left text-xs"></i>
+					                    </button>
+					
+					                    <h3 id="monthTitle" class="text-lg font-bold text-gray-900 min-w-[120px] text-center">
+					                        2026년 4월
+					                    </h3>
+					
+					                    <button type="button"
+					                            onclick="nextPeriod()"
+					                            class="w-9 h-9 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors">
+					                        <i class="fas fa-chevron-right text-xs"></i>
+					                    </button>
+					
+					                    <button type="button"
+					                            onclick="goToday()"
+					                            class="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm font-medium hover:bg-[#00853D] hover:text-white hover:border-[#00853D] outline-none transition-all">
+					                        오늘
+					                    </button>
+					                </div>
+					
+					                <!-- 오른쪽: 직원 검색 필터 -->
+					                <div class="flex flex-wrap items-center gap-2">
+					                    <div class="relative w-80">
+					                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+					                        <input type="text"
+					                               id="searchInput"
+					                               onkeydown="if(event.key === 'Enter') applyFilters();"
+					                               placeholder="사번, 이름을 입력하세요"
+					                               class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+					                    </div>
+					
+					                    <button type="button"
+					                            onclick="applyFilters()"
+					                            class="px-4 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">
+					                        조회
+					                    </button>
+					
+					                    <button type="button"
+					                            onclick="resetFilters()"
+					                            class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+					                        초기화
+					                    </button>
+					                </div>
+					            </div>
+					
+					            <!-- 캘린더 범례 -->
+					            <div id="legendArea" class="flex items-center gap-5 flex-wrap text-sm">
+					                <div class="flex items-center gap-2">
+					                    <div class="w-3 h-3 bg-[#00853D] rounded-full"></div>
+					                    <span class="text-gray-600">오픈</span>
+					                </div>
+					
+					                <div class="flex items-center gap-2">
+					                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+					                    <span class="text-gray-600">미들</span>
+					                </div>
+					
+					                <div class="flex items-center gap-2">
+					                    <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+					                    <span class="text-gray-600">마감</span>
+					                </div>
+					
+					                <div class="flex items-center gap-2">
+					                    <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
+					                    <span class="text-gray-600">휴무</span>
+					                </div>
+					            </div>
+					
+					        </div>
+					    </div>
+					
+					    <!-- 캘린더 그리드 -->
+					    <div class="p-5">
+					        <div class="border border-gray-200 rounded-lg overflow-hidden">
+					            <!-- 요일 헤더 -->
+					            <div id="dayHeaders" class="calendar-grid gap-0 bg-gray-50">
+					                <div class="day-header">일</div>
+					                <div class="day-header">월</div>
+					                <div class="day-header">화</div>
+					                <div class="day-header">수</div>
+					                <div class="day-header">목</div>
+					                <div class="day-header">금</div>
+					                <div class="day-header">토</div>
+					            </div>
+					
+					            <!-- 캘린더 셀 -->
+					            <div id="calendarContainer" class="calendar-grid gap-0">
+					                <!-- renderCalendar()에서 동적으로 생성됨 -->
+					            </div>
+					        </div>
+					    </div>
+					</div>
+				</div>
             </main>
         </div>
     </div>  

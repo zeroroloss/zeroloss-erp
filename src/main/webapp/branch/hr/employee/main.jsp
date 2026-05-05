@@ -360,22 +360,68 @@
         var pagination = document.getElementById("pagination");
         var html = "";
 
+        var maxVisiblePages = 5;
+
+        var startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        var endPage = startPage + maxVisiblePages - 1;
+
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // 이전 버튼
         html += '<button type="button" onclick="changePage(' + (currentPage - 1) + ')" ' +
                 (currentPage === 1 ? 'disabled' : '') +
-                ' class="px-3 py-1 border rounded disabled:opacity-40">이전</button>';
+                ' class="w-9 h-9 border border-gray-300 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">' +
+                    '<i class="fas fa-chevron-left text-xs"></i>' +
+                '</button>';
 
-        for (var i = 1; i <= totalPages; i++) {
+        // 페이지 번호 버튼
+        for (var i = startPage; i <= endPage; i++) {
             html += '<button type="button" onclick="changePage(' + i + ')" ' +
-                    'class="px-3 py-1 border rounded ' +
-                    (i === currentPage ? 'bg-[#00853D] text-white' : 'bg-white text-gray-700') +
+                    'class="w-9 h-9 border rounded-lg text-sm font-medium transition-colors ' +
+                    (i === currentPage
+                        ? 'bg-[#00853D] text-white border-[#00853D]'
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50') +
                     '">' + i + '</button>';
         }
 
+        // 다음 버튼
         html += '<button type="button" onclick="changePage(' + (currentPage + 1) + ')" ' +
                 (currentPage === totalPages ? 'disabled' : '') +
-                ' class="px-3 py-1 border rounded disabled:opacity-40">다음</button>';
+                ' class="w-9 h-9 border border-gray-300 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">' +
+                    '<i class="fas fa-chevron-right text-xs"></i>' +
+                '</button>';
 
         pagination.innerHTML = html;
+    }
+
+    function changePage(page) {
+        if (page < 1) {
+            return;
+        }
+
+        currentPage = page;
+        renderEmployees();
+    }
+
+    function changeToEditMode() {
+        document.querySelector("#editModal h3").innerText = "직원 정보 수정";
+        document.getElementById("editModeBtn").classList.add("hidden");
+        document.getElementById("saveBtn").classList.remove("hidden");
+
+        document.querySelectorAll(".editable-field").forEach(function(field) {
+            if (field.tagName === "SELECT") {
+                field.disabled = false;
+            } else {
+                field.readOnly = false;
+            }
+
+            field.classList.remove("bg-gray-100", "text-gray-500", "cursor-not-allowed");
+            field.classList.add("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
+        });
+        applyEditRestrictions();
     }
 
     function changePage(page) {
