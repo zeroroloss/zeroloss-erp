@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="mapper.notification">
+	<select id="selectNotificationList" parameterType="Integer" resultType="dto.NotificationDTO">
+		select n.notification_id as notificationId, n.category, n.title, n.message, n.target_type as targetType, n.target_id as targetId, n.created_at as createdAt, nr.is_read as isRead, nr.read_at as readAt
+		from notification n join notification_receiver nr
+		on n.notification_id = nr.notification_id
+		where nr.account_id = #{value}
+		order by n.created_at DESC
+	</select>
+	
+	<select id="selectNotifCnt" parameterType="Integer" resultType="Integer">
+		select count(notification_id) from notification_receiver where account_id=#{value}
+	</select>
+	
+	<select id="selectIsReadCnt" parameterType="Integer" resultType="Integer">
+		select count(notification_id) from notification_receiver where account_id=#{value} and is_read = FALSE
+	</select>
+	
+	<select id="selectTodayCnt" parameterType="dto.NotificationDTO" resultType="Integer">
+		select count(nr.notification_id) 
+		from notification_receiver nr join notification n 
+		on nr.notification_id = n.notification_id
+		where nr.account_id=#{accountId} and DATE(n.created_at) = CURDATE()
+	</select>
+	
+	<update id="updateIsRead" parameterType="dto.NotificationDTO">
+		update notification_receiver set is_read = TRUE, read_at = NOW()
+		where account_id = #{accountId} and notification_id = #{notificationId}
+	</update>
+</mapper>

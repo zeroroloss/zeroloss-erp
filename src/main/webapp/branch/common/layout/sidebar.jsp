@@ -141,7 +141,7 @@ boolean inquiryActive = uri.contains("/branch/support/inquiries") || uri.contain
 			
 			        <!-- Footer -->
 			        <div class="px-5 py-3 border-t border-gray-200 bg-gray-50">
-			            <a href="<%= request.getContextPath() %>/branch/common/notification.jsp"
+			            <a href="<%= request.getContextPath() %>/branch/common/notification"
 			               class="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold text-[#00853D] hover:text-[#006B2F]">
 			                전체 알림 보기
 			                <i class="fas fa-arrow-right text-xs"></i>

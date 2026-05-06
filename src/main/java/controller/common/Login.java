@@ -49,6 +49,7 @@ public class Login extends HttpServlet {
 			AccountDTO account = service.login(loginId, password);
 			
 			HttpSession session = request.getSession();
+			session.setAttribute("accountId", account.getAccountId());
 			session.setAttribute("loginUser", account);
 			session.setAttribute("roleName", account.getRoleName());
 			session.setAttribute("branchCode", account.getBranchCode());

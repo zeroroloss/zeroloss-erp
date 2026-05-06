@@ -30,6 +30,7 @@
 		<mapper resource="mapper/AccountMapper.xml"/>
 		<mapper resource="mapper/BranchMapper.xml"/>
         <mapper resource="mapper/DispatchMapper.xml"/>
+        <mapper resource="mapper/NotificationMapper.xml"/>
 
 		<mapper resource="mapper/hq/PlaceOrderQuantityLimitMapper.xml"/>
 		<mapper resource="mapper/hq/PlaceOrderProcessingMapper.xml"/>

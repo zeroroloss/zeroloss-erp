@@ -4,21 +4,31 @@ import java.time.LocalDateTime;
 
 public class NotificationDTO {
 	private Integer notificationId;
-	private Integer accountId;
+	private String category;
+	private String title;
 	private String message;
-	private Boolean isRead;
+	private String targetType;
+	private Integer targetId;
 	private LocalDateTime createdAt;
+	
+	private Integer notificationReceiverId;
+	private Integer accountId;
+	private Integer isRead;
+	private LocalDateTime readAt;
 
 	public NotificationDTO() {
 		super();
 	}
 
-	public NotificationDTO(Integer notificationId, Integer accountId, String message, Boolean isRead, LocalDateTime createdAt) {
+	public NotificationDTO(Integer notificationId, String category, String title, String message, String targetType,
+			Integer targetId, LocalDateTime createdAt) {
 		super();
 		this.notificationId = notificationId;
-		this.accountId = accountId;
+		this.category = category;
+		this.title = title;
 		this.message = message;
-		this.isRead = isRead;
+		this.targetType = targetType;
+		this.targetId = targetId;
 		this.createdAt = createdAt;
 	}
 
@@ -30,12 +40,20 @@ public class NotificationDTO {
 		this.notificationId = notificationId;
 	}
 
-	public Integer getAccountId() {
-		return accountId;
+	public String getCategory() {
+		return category;
 	}
 
-	public void setAccountId(Integer accountId) {
-		this.accountId = accountId;
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public String getMessage() {
@@ -46,12 +64,20 @@ public class NotificationDTO {
 		this.message = message;
 	}
 
-	public Boolean getIsRead() {
-		return isRead;
+	public String getTargetType() {
+		return targetType;
 	}
 
-	public void setIsRead(Boolean isRead) {
-		this.isRead = isRead;
+	public void setTargetType(String targetType) {
+		this.targetType = targetType;
+	}
+
+	public Integer getTargetId() {
+		return targetId;
+	}
+
+	public void setTargetId(Integer targetId) {
+		this.targetId = targetId;
 	}
 
 	public LocalDateTime getCreatedAt() {
@@ -62,9 +88,44 @@ public class NotificationDTO {
 		this.createdAt = createdAt;
 	}
 
+	public Integer getNotificationReceiverId() {
+		return notificationReceiverId;
+	}
+
+	public void setNotificationReceiverId(Integer notificationReceiverId) {
+		this.notificationReceiverId = notificationReceiverId;
+	}
+
+	public Integer getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(Integer accountId) {
+		this.accountId = accountId;
+	}
+
+	public Integer getIsRead() {
+		return isRead;
+	}
+
+	public void setIsRead(Integer isRead) {
+		this.isRead = isRead;
+	}
+
+	public LocalDateTime getReadAt() {
+		return readAt;
+	}
+
+	public void setReadAt(LocalDateTime readAt) {
+		this.readAt = readAt;
+	}
+
 	@Override
 	public String toString() {
-		return "NotificationDTO [notificationId=" + notificationId + ", accountId=" + accountId + ", message=" + message + ", isRead=" + isRead + ", createdAt=" + createdAt + "]";
+		return "NotificationDTO [notificationId=" + notificationId + ", category=" + category + ", title=" + title
+				+ ", message=" + message + ", targetType=" + targetType + ", targetId=" + targetId + ", createdAt="
+				+ createdAt + "]";
 	}
+
 }
 
