@@ -82,7 +82,7 @@
 
             <!-- 반복 일정 안내 -->
             <div id="editRepeatNotice" class="hidden rounded-lg bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
-                반복 일정입니다. 저장/삭제 시 선택한 일정만 처리할지, 반복 전체를 처리할지 선택할 수 있습니다.
+                반복 일정입니다. 삭제 시 선택한 일정만 삭제하거나, 반복 전체를 삭제할 수 있습니다.
             </div>
 
             <!-- 메모 -->
@@ -96,42 +96,42 @@
             </div>
         </div>
 
-        <div class="border-t border-gray-200 px-6 py-4 flex justify-between items-center sticky bottom-0 bg-white">
-            <div class="flex gap-3">
-                <button type="button"
-                        onclick="deleteSchedule('ONE')"
-                        class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-xs">
-                    <i class="fas fa-trash-alt"></i>
-                    선택 일정 삭제
-                </button>
-
-                <button type="button"
-                        id="deleteRepeatBtn"
-                        onclick="deleteSchedule('ALL')"
-                        class="hidden inline-flex items-center gap-2 px-4 py-2 bg-red-700 text-white rounded-lg hover:bg-red-800 transition-colors text-xs">
-                    <i class="fas fa-trash-alt"></i>
-                    반복 전체 삭제
-                </button>
-
-                <button type="button"
-                        onclick="closeEditModal()"
-                        class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-xs">
-                    취소
-                </button>
-
-                <button type="button"
-                        onclick="updateSchedule('ONE')"
-                        class="px-5 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors text-xs">
-                    선택 일정 저장
-                </button>
-
-                <button type="button"
-                        id="updateRepeatBtn"
-                        onclick="updateSchedule('ALL')"
-                        class="hidden px-5 py-2 bg-[#006B2F] text-white rounded-lg hover:bg-[#005828] transition-colors text-xs">
-                    반복 전체 저장
-                </button>
-            </div>
-        </div>
+        <div class="border-t border-gray-200 px-6 py-4 sticky bottom-0 bg-white">
+		    <div class="flex items-center justify-between gap-4">
+		
+		        <!-- 왼쪽: 삭제 버튼 영역 -->
+		        <div class="flex items-center gap-2">
+		            <button type="button"
+		                    id="deleteRepeatBtn"
+		                    onclick="deleteSchedule('ALL')"
+		                    class="hidden inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs font-medium">
+		                <i class="fas fa-trash-alt"></i>
+		                일정 전체 삭제
+		            </button>
+		
+		            <button type="button"
+		                    onclick="deleteSchedule('ONE')"
+		                    class="inline-flex items-center gap-2 px-4 py-2 border border-red-200 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 hover:border-red-300 transition-colors text-xs font-medium">
+		                <i class="fas fa-trash-alt"></i>
+		                선택 일정 삭제
+		            </button>
+		        </div>
+		
+		        <!-- 오른쪽: 취소/저장 버튼 영역 -->
+		        <div class="flex items-center gap-2">
+		            <button type="button"
+		                    onclick="closeEditModal()"
+		                    class="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors text-xs font-medium">
+		                취소
+		            </button>
+		
+		            <button type="button"
+		                    onclick="updateSchedule('ONE')"
+		                    class="px-5 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors text-xs font-medium shadow-sm">
+		                선택 일정 저장
+		            </button>
+		        </div>
+		    </div>
+		</div>
     </div>
 </div>

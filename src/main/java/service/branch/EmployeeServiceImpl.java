@@ -15,26 +15,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 
 	@Override
 	public Integer selectEmpCnt(Integer branchCode) throws Exception {
-		Integer cnt = employeeDao.selectEmpCnt(branchCode);
-		return cnt;
+		return employeeDao.selectEmpCnt(branchCode);
 	}
 
 	@Override
 	public Integer selectHqEmpCnt(Integer branchCode) throws Exception {
-		Integer cnt = employeeDao.selectHqEmpCnt(branchCode);
-		return cnt;
+		return employeeDao.selectHqEmpCnt(branchCode);
 	}
 
 	@Override
 	public Integer selectPTMCnt(Integer branchCode) throws Exception {
-		Integer cnt = employeeDao.selectPTMCnt(branchCode);
-		return cnt;
+		return employeeDao.selectPTMCnt(branchCode);
 	}
 
 	@Override
 	public List<EmployeeDTO> searchEmployeeList(Integer branchCode) throws Exception {
-		List<EmployeeDTO> emp = employeeDao.selectEmployeeList(branchCode);
-		return emp;
+		return employeeDao.selectEmployeeList(branchCode);
 	}
 
 	@Override
@@ -55,5 +51,10 @@ public class EmployeeServiceImpl implements EmployeeService {
 	@Override
 	public void modifyEmployee(EmployeeDTO employee) throws Exception {
 		employeeDao.updateEmployee(employee);
+	}
+
+	@Override
+	public Integer selectTodayEmpCnt(Integer branchCode) throws Exception {
+		return employeeDao.selectTodayEmpCnt(branchCode);
 	}
 }

@@ -32,6 +32,8 @@ public class BranchScheduleServiceImpl implements BranchScheduleService {
 		}
 		
 		if(schedule.getIsRepeat() == 1) {
+			schedule.setWorkDate(schedule.getStartDate());
+			
 			if(scheduleDao.duplicateScdCnt(schedule)>0) {
 				throw new Exception ("이미 등록된 일정과 겹칩니다.");
 			}
@@ -191,11 +193,7 @@ public class BranchScheduleServiceImpl implements BranchScheduleService {
 
 	@Override
 	public void modifySchedule(BranchScheduleDTO schedule) throws Exception {
-	    System.out.println("서비스 scheduleId = " + schedule.getScheduleId());
-
 	    BranchScheduleDTO originSchedule = scheduleDao.selectSchedule(schedule.getScheduleId());
-
-	    System.out.println("originSchedule = " + originSchedule);
 
 	    if (originSchedule == null) {
 	        throw new Exception("수정할 기존 일정을 찾을 수 없습니다. scheduleId=" + schedule.getScheduleId());

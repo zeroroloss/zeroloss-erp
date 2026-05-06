@@ -37,24 +37,10 @@
 			    <!-- 빠른 통계 -->
 				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 				
-				    <!-- 통계 카드 1: 오늘 매출 -->
+				    <!-- 통계 카드 1: 주문 건수 -->
 				    <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#00853D]/40 transition-all">
 				        <div class="flex items-center gap-4">
 				            <div class="w-10 h-10 rounded-lg bg-[#00853D] text-white flex items-center justify-center shadow-sm shrink-0">
-				                <i class="fas fa-chart-line text-base"></i>
-				            </div>
-				
-				            <div class="min-w-0">
-				                <p class="text-xl font-bold text-gray-900 leading-tight">₩0</p>
-				                <p class="text-sm text-gray-600 mt-0.5">오늘 매출</p>
-				            </div>
-				        </div>
-				    </div>
-				
-				    <!-- 통계 카드 2: 주문 건수 -->
-				    <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#00853D]/40 transition-all">
-				        <div class="flex items-center gap-4">
-				            <div class="w-10 h-10 rounded-lg bg-[#FFD100] text-[#00853D] flex items-center justify-center shadow-sm shrink-0">
 				                <i class="fas fa-shopping-cart text-base"></i>
 				            </div>
 				
@@ -65,16 +51,30 @@
 				        </div>
 				    </div>
 				
+				    <!-- 통계 카드 2: 오늘 매출주문 건수 -->
+				    <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#00853D]/40 transition-all">
+				        <div class="flex items-center gap-4">
+				            <div class="w-10 h-10 rounded-lg bg-[#FFD100] text-[#00853D] flex items-center justify-center shadow-sm shrink-0">
+				                <i class="fas fa-arrow-trend-up text-base"></i>
+				            </div>
+				
+				            <div class="min-w-0">
+				                <p class="text-xl font-bold text-gray-900 leading-tight">₩0</p>
+				                <p class="text-sm text-gray-600 mt-0.5">오늘 매출</p>
+				            </div>
+				        </div>
+				    </div>
+				
 				    <!-- 통계 카드 3: 재고 현황 -->
 				    <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#00853D]/40 transition-all">
 				        <div class="flex items-center gap-4">
 				            <div class="w-10 h-10 rounded-lg bg-[#006B2F] text-white flex items-center justify-center shadow-sm shrink-0">
-				                <i class="fas fa-box text-base"></i>
+				                <i class="fas fa-chart-line text-base"></i>
 				            </div>
 				
 				            <div class="min-w-0">
-				                <p class="text-xl font-bold text-gray-900 leading-tight">0%</p>
-				                <p class="text-sm text-gray-600 mt-0.5">재고 현황</p>
+				                <p class="text-xl font-bold text-gray-900 leading-tight">₩0</p>
+				                <p class="text-sm text-gray-600 mt-0.5">이번 달 매출</p>
 				            </div>
 				        </div>
 				    </div>
@@ -83,12 +83,12 @@
 				    <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#00853D]/40 transition-all">
 				        <div class="flex items-center gap-4">
 				            <div class="w-10 h-10 rounded-lg bg-[#00A94F] text-white flex items-center justify-center shadow-sm shrink-0">
-				                <i class="fas fa-bell text-base"></i>
+				                <i class="fas fa-users text-base"></i>
 				            </div>
 				
 				            <div class="min-w-0">
-				                <p class="text-xl font-bold text-gray-900 leading-tight">0건</p>
-				                <p class="text-sm text-gray-600 mt-0.5">대기 중인 알림</p>
+				                <p class="text-xl font-bold text-gray-900 leading-tight" id="todayEmp">${todayEmp}명</p>
+				                <p class="text-sm text-gray-600 mt-0.5">오늘 근무 인원</p>
 				            </div>
 				        </div>
 				    </div>
@@ -236,7 +236,7 @@
 
                     return dateB - dateA;
                 })
-                .slice(0, 3);
+                .slice(0, 4);
 
             if (topNotices.length === 0) {
                 topNoticeList.innerHTML =

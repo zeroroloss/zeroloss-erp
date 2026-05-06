@@ -20,4 +20,7 @@ public interface EmployeeService {
 	
 	// 직원 정보 수정
 	void modifyEmployee(EmployeeDTO employee) throws Exception;
+	
+	// 메인 페이지 오늘 근무 직원 수
+	Integer selectTodayEmpCnt(Integer branchCode) throws Exception;
 }

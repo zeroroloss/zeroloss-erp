@@ -600,13 +600,8 @@
                 return;
             }
 
-            addScheduleToCalendarFromInput();
-
-            isSearched = true;
-            renderCalendar();
-            closeAddModal();
-
             alert(result.message || '일정이 추가되었습니다.');
+            location.reload();
         })
         .catch(function(error) {
             console.error(error);
@@ -1087,11 +1082,14 @@
         document.getElementById('editEndTime').value = (schedule.endTime || '').substring(0, 5);
         document.getElementById('editMemo').value = schedule.notes || '';
 
-        var isRepeat = String(schedule.isRepeat) !== '1';
+        var isRepeat = String(schedule.isRepeat) !== '1'
+            && schedule.repeatGroupId !== null
+            && schedule.repeatGroupId !== ''
+            && schedule.repeatGroupId !== 'null'
+            && schedule.repeatGroupId !== 'undefined';
 
         document.getElementById('editRepeatNotice').classList.toggle('hidden', !isRepeat);
         document.getElementById('deleteRepeatBtn').classList.toggle('hidden', !isRepeat);
-        document.getElementById('updateRepeatBtn').classList.toggle('hidden', !isRepeat);
 
         document.getElementById('editModal').classList.remove('modal-hidden');
     }

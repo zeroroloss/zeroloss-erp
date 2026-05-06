@@ -38,4 +38,8 @@
 	<update id="updateEmployee" parameterType="dto.branch.hr.EmployeeDTO">
 		UPDATE employee SET branch_code = #{branchCode}, position_code = #{positionCode}, phone = #{phone}, email = #{email}, status = #{status} WHERE emp_no = #{empNo} and branch_code=#{branchCode}
 	</update>
+	
+	<select id="selectTodayEmpCnt" parameterType="Integer" resultType="Integer">
+		select count(distinct emp_no) as todayEmp from branch_schedule where branch_code=#{value} and work_date=CURDATE()
+	</select>
 </mapper>

@@ -216,18 +216,6 @@ public class BranchScheduleManagementController extends HttpServlet {
 	    schedule.setEndTime(Time.valueOf(endTimeStr));
 	    schedule.setMemo(memo);
 
-	    if ("ALL".equals(scope)) {
-	        if (repeatGroupId == null || repeatGroupId.trim().equals("")) {
-	            response.getWriter().write("{\"success\":false,\"message\":\"반복 그룹 정보를 찾을 수 없습니다.\"}");
-	            return;
-	        }
-
-	        scheduleService.modifyRepeatSchedule(schedule);
-
-	        response.getWriter().write("{\"success\":true,\"message\":\"반복 일정 전체가 수정되었습니다.\"}");
-	        return;
-	    }
-
 	    scheduleService.modifySchedule(schedule);
 
 	    response.getWriter().write("{\"success\":true,\"message\":\"일정이 수정되었습니다.\"}");

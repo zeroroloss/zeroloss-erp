@@ -117,4 +117,19 @@ public class EmployeeDaoImpl implements EmployeeDao {
 		}
 	}
 
+	@Override
+	public Integer selectTodayEmpCnt(Integer branchCode) throws Exception {
+		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
+		Integer cnt = null;
+		try {
+			cnt = sqlSession.selectOne("mapper.branch.employee.selectTodayEmpCnt", branchCode);
+		} catch(Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			sqlSession.close();
+		}
+		return cnt;
+	}
+
 }

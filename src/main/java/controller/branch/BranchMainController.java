@@ -8,9 +8,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
-import dto.hq.hr.EmployeeDTO;
-import dto.hq.sales.HqTodaySalesSummaryDTO;
+import dto.branch.hr.EmployeeDTO;
+import service.branch.EmployeeService;
+import service.branch.EmployeeServiceImpl;
 
 /**
  * Servlet implementation class BranchMainController
@@ -18,6 +20,7 @@ import dto.hq.sales.HqTodaySalesSummaryDTO;
 @WebServlet("/branch/main/home")
 public class BranchMainController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private EmployeeService employeeService = new EmployeeServiceImpl();
        
     /**
      * @see HttpServlet#HttpServlet()
@@ -32,8 +35,11 @@ public class BranchMainController extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
+			HttpSession session = request.getSession();
+			Integer branchCode = (Integer)session.getAttribute("branchCode");
+			Integer todayEmp = employeeService.selectTodayEmpCnt(branchCode);
 			
-			
+			request.setAttribute("todayEmp", todayEmp);
 			request.getRequestDispatcher("/branch/main/home.jsp").forward(request, response);
 			return;
 		} catch(Exception e) {
