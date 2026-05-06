@@ -12,8 +12,10 @@
 			<transactionManager type="JDBC"/>
 			<dataSource type="POOLED">
 				<property name="driver" value="org.mariadb.jdbc.Driver"/>
-			 	<!-- <property name="url" value="jdbc:mariadb://192.168.0.248:3306/zeroloss"/> -->   
-				<property name="url" value="jdbc:mariadb://localhost:3306/zeroloss"/>  
+				
+			 	     <property name="url" value="jdbc:mariadb://192.168.0.248:3306/zeroloss"/>    
+				<!-- <property name="url" value="jdbc:mariadb://localhost:3306/zeroloss"/> -->  
+
 				<property name="username" value="root"/>
 				<property name="password" value="7564"/>
 				<!-- 최대 활성 커넥션 수 : 동시에 사용할 수 있는 최대 커넥션 수-->
