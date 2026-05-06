@@ -27,10 +27,7 @@ public class PlaceOrderHistoryApiController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private static final String ACTION_DETAIL = "detail";
-	private static final String ACTION_CANCEL = "cancel";
-	private static final String ACTION_SUBMIT = "submit";
 
-	private static final String STATUS_REJECTED = "REJECTED";
 	private static final String RESPONSE_STATUS = "status";
 	private static final String RESPONSE_MESSAGE = "message";
 	private static final String RESPONSE_DATA = "data";
@@ -44,7 +41,6 @@ public class PlaceOrderHistoryApiController extends HttpServlet {
 	private final Gson gson = new Gson();
 	
 	// 특정 발주 {poNo}의 발주 품목 상세
-	// "/api/branch/place_order?action=...&poNo=...&startDate=...&endDate=...&status=..."
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -91,6 +87,7 @@ public class PlaceOrderHistoryApiController extends HttpServlet {
 			Integer branchCode = resolveBranchCode(loginUser);
 			List<PlaceOrderHistoryDTO> historyList = placeOrderService.getPlaceOrderHistoryList(
 					branchCode, startDate, endDate, request.getParameter("status"));
+			System.out.println("발주 내역: " + historyList);
 			sendResponse(response, 200, successBody(historyList));
 
 		} catch (Exception e) {
@@ -114,13 +111,6 @@ public class PlaceOrderHistoryApiController extends HttpServlet {
 		Map<String, Object> body = new LinkedHashMap<>();
 		body.put(RESPONSE_STATUS, STATUS_SUCCESS);
 		body.put(RESPONSE_DATA, data);
-		return body;
-	}
-
-	private Map<String, Object> successBodyWithMessage(String message) {
-		Map<String, Object> body = new LinkedHashMap<>();
-		body.put(RESPONSE_STATUS, STATUS_SUCCESS);
-		body.put(RESPONSE_MESSAGE, message);
 		return body;
 	}
 

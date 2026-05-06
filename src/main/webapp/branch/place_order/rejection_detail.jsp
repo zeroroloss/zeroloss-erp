@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>발주서 상세 정보 - 반려</title>
+    <title>발주서 상세 정보 - 반려됨</title>
     <style>
         body { margin: 0; font-family: "Malgun Gothic", sans-serif; background: transparent; }
         .overlay { min-height: 100vh; background: transparent; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
@@ -73,7 +73,7 @@
     <section class="modal" role="dialog" aria-modal="true" aria-label="발주서 상세 정보">
         <div class="head">
             <div>
-                <h1 class="title">발주서 상세 정보 - 반려</h1>
+                <h1 class="title">발주서 상세 정보</h1>
                 <div class="order-no" id="orderNo">-</div>
             </div>
             <a class="close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp" aria-label="닫기">×</a>
@@ -193,7 +193,7 @@
 
             document.getElementById('orderNo').textContent = toSafeText(data.poNo || poNo || '-');
             document.getElementById('createdAt').textContent = toSafeText(data.createdAt || '-');
-            document.getElementById('statusText').textContent = '⊗ ' + toSafeText(data.status || '반려');
+            document.getElementById('statusText').textContent = '⊗ ' + '반려됨';
             document.getElementById('itemCount').textContent = String(data.itemCount != null ? data.itemCount : 0) + '개';
             document.getElementById('totalQty').textContent = formatQty(data.totalQty);
             document.getElementById('rejectReason').textContent = toSafeText(data.rejectReason || '반려 사유가 없습니다.');

@@ -3,15 +3,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mapper.branch.placeOrderMapper">
 
-    <sql id="statusLabelCase">
-        CASE p.status
-            WHEN 'PENDING' THEN '전송'
-            WHEN 'APPROVED' THEN '승인'
-            WHEN 'REJECTED' THEN '반려'
-            ELSE '전송'
-        END
-    </sql>
-
     <sql id="detailUrlExpression">
         CONCAT(COALESCE(#{contextPath}, ''), '/branch/place_order/',
                CASE p.status
@@ -50,7 +41,6 @@
 	    <result property="totalMaterialCnt" column="total_material_cnt" />
 	    <result property="totalAmount" column="total_amount" />
 	    <result property="status" column="status" />
-	    <result property="statusCode" column="status_code" />
 	    <result property="rejectReason" column="reject_reason" />
 	    <result property="detailUrl" column="detail_url" />
 	    <result property="cancelUrl" column="cancel_url" />
@@ -66,8 +56,7 @@
 	    p.total_material_cnt,
 	    p.total_amount,
 	    p.reject_reason,
-	    p.status AS status_code,
-	    <include refid="statusLabelCase"/> AS status
+	    p.status AS status
 	</sql>
 		
 	<!-- 목록 조회 -->
@@ -89,7 +78,7 @@
 	        AND DATE(p.request_date) &lt;= #{endDate}
 	    </if>
 	    <if test="status != null and status != '' and status != '전체'">
-	        AND (<include refid="statusLabelCase"/>) = #{status}
+	        AND p.status = #{status}
 	    </if>
 	    GROUP BY p.po_id, p.po_no, p.branch_code, b.name, p.request_date,
 	             p.total_material_cnt, p.total_amount, p.reject_reason, p.status
@@ -152,7 +141,7 @@
 
     <update id="updatePlaceOrderStatus" parameterType="map">
         UPDATE place_order
-        SET status = #{status},
+        SET status = #{status}
         WHERE po_no = #{poNo}
     </update>
     

@@ -34,6 +34,13 @@
         .btn { height: 42px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
         .btn-cancel { background: #dc2626; color: #fff; }
         .btn-close { border: 1px solid #d1d5db; background: #f9fafb; color: #374151; }
+        
+        .status-pending { background: #fff7e6; color: #d97706; }
+		.status-approved { background: #e8f5e9; color: #16a34a; }
+		.status-rejected { background: #ffe4e6; color: #dc2626; }
+		.status-canceled { background: #f3f4f6; color: #6b7280; }
+		.status-delivered { background: #e0f2fe; color: #0284c7; }
+		.status-completed { background: #ede9fe; color: #7c3aed; }
 
         @media (max-width: 900px) {
             .title { font-size: 24px; }
@@ -66,7 +73,7 @@
     <section class="modal" role="dialog" aria-modal="true" aria-label="발주서 상세 정보">
         <div class="head">
             <div>
-                <h1 class="title">발주서 상세 정보 - 전송</h1>
+                <h1 class="title">발주서 상세 정보</h1>
                 <div class="order-no" id="orderNo">-</div>
             </div>
             <a class="close" href="<%= request.getContextPath() %>/branch/place_order/history.jsp" aria-label="닫기">×</a>
@@ -154,6 +161,28 @@
                 );
             });
         }
+        
+        const statusMap = {
+       	    PENDING:   { cls: 'status-pending', icon: '⏳' },
+       	    APPROVED:  { cls: 'status-approved', icon: '✓' },
+       	    REJECTED:  { cls: 'status-rejected', icon: '⊗' },
+       	    CANCELED:  { cls: 'status-canceled', icon: '✕' },
+       	    DELIVERED: { cls: 'status-delivered', icon: '📦' },
+       	    COMPLETED: { cls: 'status-completed', icon: '🏁' }
+       	};
+
+       	function getStatusLabel(status) {
+       	    const map = {
+       	        PENDING:   '승인 대기',
+       	        APPROVED:  '승인됨',
+       	        REJECTED:  '반려됨',
+       	        CANCELED:  '취소됨',
+       	        DELIVERED: '지점 배송 완료',
+       	        COMPLETED: '지점 입고 완료'
+       	    };
+
+       	    return map[status] || status;
+       	}
 
         async function loadDetail() {
             var poNo = getPoNo();
@@ -168,10 +197,18 @@
             var response = await fetch(contextPath + '/api/branch/place_order/history?action=detail&poNo=' + encodeURIComponent(poNo));
             var payload = await response.json();
             var data = payload && payload.data ? payload.data : {};
+            
+            const status = (data.status || 'PENDING').toUpperCase();
+
+            const meta = statusMap[status] || {};
+            const icon = meta.icon || '';
+            const cls = meta.cls || '';
+            const label = getStatusLabel(status);
 
             document.getElementById('orderNo').textContent = toSafeText(data.poNo || poNo || '-');
             document.getElementById('createdAt').textContent = toSafeText(data.createdAt || '-');
-            document.getElementById('statusText').textContent = '✈ ' + toSafeText(data.status || '전송');
+            document.getElementById('statusText').className = cls; // 스타일 적용
+            document.getElementById('statusText').textContent = icon + ' ' + label;
             document.getElementById('itemCount').textContent = String(data.itemCount != null ? data.itemCount : 0) + '개';
             document.getElementById('totalQty').textContent = formatQty(data.totalQty);
 
@@ -179,6 +216,8 @@
             if (cancelBtn) {
                 cancelBtn.href = contextPath + '/branch/place_order/cancel_request.jsp?poNo=' + encodeURIComponent(poNo);
             }
+            
+         	
 
             renderDetailRows(data.details || []);
         }

@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+
     <title>발주 내역</title>
     <style>
         body { margin: 0; font-family: "Malgun Gothic", sans-serif; background: #f4f7fb; color: #111827; }
@@ -48,9 +52,12 @@
         .right { text-align: right; }
 
         .status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
-        .status.sent { background: #e8f0ff; color: #2563eb; }
-        .status.approved { background: #ddf6e5; color: #17803d; }
-        .status.rejected { background: #ffe4e6; color: #dc2626; }
+        .status-pending { background: #fff7e6; color: #d97706; }
+		.status-approved { background: #e8f5e9; color: #16a34a; }
+		.status-rejected { background: #ffe4e6; color: #dc2626; }
+		.status-canceled { background: #f3f4f6; color: #6b7280; }
+		.status-delivered { background: #e0f2fe; color: #0284c7; }
+		.status-completed { background: #ede9fe; color: #7c3aed; }
 
         .work { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; text-decoration: none; margin-right: 10px; }
         .work.view { color: #2563eb; }
@@ -62,6 +69,32 @@
         .place-order-popup-overlay { position: fixed; inset: 0; z-index: 3000; background: rgba(0, 0, 0, 0.72); display: none; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box; }
         .place-order-popup-overlay.active { display: flex; }
         .place-order-popup-frame { width: min(980px, 100%); height: min(94vh, 920px); border: 0; border-radius: 14px; background: transparent; }
+        
+        .filter-group {
+		    display: flex;
+		    align-items: center;
+		    gap: 10px;
+		    flex-wrap: wrap;
+		}
+		.date-picker-wrap input, select.sort-btn, select#mainCategorySelect, select#menuSelect {
+            height:38px;
+            width:115px;
+            border-radius:12px;
+            border:1px solid #d1d5db;
+            background:#fff;
+            color:#1f2937;
+            padding:0 8px;
+            font-size:13px;
+            outline:none;
+        }
+
+        .date-picker-wrap input {
+            padding-left: 30px !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af' class='w-5 h-5'%3E%3Cpath fill-rule='evenodd' d='M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zM4.5 6.75A1.25 1.25 0 015.75 5.5h8.5A1.25 1.25 0 0115.5 6.75v8.5A1.25 1.25 0 0114.25 16.5h-8.5A1.25 1.25 0 014.5 15.25v-8.5zM7 10a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm-6 3a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z' clip-rule='evenodd' /%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 8px center;
+            background-size: 16px;
+        }
 
         @media (max-width: 980px) {
             .page-title { font-size: 26px; }
@@ -111,23 +144,18 @@
     </div>
 
     <div class="filter-card">
-        <div class="filter-head">⌄ 일자 범위</div>
-        <div class="filter-line">
-            <div class="field">
-                <label for="filterStartDate">시작일</label>
-                <div class="date-input">
-                    <span class="date-icon">📅</span>
-                    <input type="date" id="filterStartDate" value="<%= escapeHtml(startDateValue) %>" />
-                </div>
-            </div>
-            <div class="field">
-                <label for="filterEndDate">종료일</label>
-                <div class="date-input">
-                    <span class="date-icon">📅</span>
-                    <input type="date" id="filterEndDate" value="<%= escapeHtml(endDateValue) %>" />
-                </div>
-            </div>
-        </div>
+        <div class="filter-head">발주내역 조회기간</div>
+        <div class="filter-group">
+		    <div class="date-picker-wrap">
+		        <input type="text" id="filterStartDate" value="<%= escapeHtml(startDateValue) %>" />
+		    </div>
+		
+		    <span class="text-gray-500">~</span>
+		
+		    <div class="date-picker-wrap">
+		        <input type="text" id="filterEndDate" value="<%= escapeHtml(endDateValue) %>" />
+		    </div>
+		</div>
         <div class="filter-actions">
             <button type="button" class="filter-btn primary" onclick="applyFilters()">조회하기</button>
             <button type="button" class="filter-btn secondary" onclick="resetFilters()">초기화</button>
@@ -136,10 +164,10 @@
 
     <div class="table-card">
         <div class="tabs">
-            <a class="tab-link active" href="#" data-status="전체">전체 <span id="tabCountAll">0건</span></a>
-            <a class="tab-link sent" href="#" data-status="전송">전송 <span id="tabCountSent">0건</span></a>
-            <a class="tab-link approved" href="#" data-status="승인">승인 <span id="tabCountApproved">0건</span></a>
-            <a class="tab-link rejected" href="#" data-status="반려">반려 <span id="tabCountRejected">0건</span></a>
+            <a class="tab-link active" href="#" data-status="ALL">전체 <span id="tabCountAll">0건</span></a>
+            <a class="tab-link sent" href="#" data-status="PENDING">승인 대기 <span id="tabCountSent">0건</span></a>
+            <a class="tab-link approved" href="#" data-status="APPROVED">승인됨 <span id="tabCountApproved">0건</span></a>
+            <a class="tab-link rejected" href="#" data-status="REJECTED">반려됨 <span id="tabCountRejected">0건</span></a>
         </div>
         <div class="table-wrap">
             <table>
@@ -241,16 +269,29 @@
 
     const state = {
         historyData: [],
-        currentStatus: '전체'
+        currentStatus: 'ALL'
     };
-
+    
     // =========================
     // 공통 유틸
     // =========================
 	const utils = {
-	    getStatus: function (r) {
-	        return r.statusKey || r.status || '전체';
-	    },
+		getStatus: function (r) {
+		    return (r.statusKey || r.status || '').toUpperCase();
+		},
+		
+		getStatusLabel: function (status) {
+			const map = {
+			    PENDING:   '승인 대기',
+			    APPROVED:  '승인됨',
+			    REJECTED:  '반려됨',
+			    CANCELED:  '취소됨',
+			    DELIVERED: '지점 배송 완료',
+			    COMPLETED: '지점 입고 완료'
+			};
+
+		    return map[status] || status;
+		},
 	
 	    getDate: function (r) {
 	        var raw = r.createdAt || r.requestDate || r.releaseDate || r.date || '';
@@ -265,8 +306,8 @@
 	        var status = this.getStatus(r);
 	
 	        var page =
-	            status === '승인' ? '/approval_detail.jsp' :
-	            status === '반려' ? '/rejection_detail.jsp' :
+	            status === 'APPROVED' ? '/approval_detail.jsp' :
+	            status === 'REJECTED' ? '/rejection_detail.jsp' :
 	            '/request_detail.jsp';
 	
 	        return contextPath
@@ -277,7 +318,7 @@
 	    },
 	
 	    buildCancelUrl: function (r) {
-	        if (this.getStatus(r) !== '전송') return '';
+	    	if (this.getStatus(r) !== 'PENDING') return '';
 	
 	        return contextPath
 	            + '/branch/place_order/cancel_request.jsp'
@@ -310,40 +351,47 @@
     // 필터
     // =========================
     function filterData() {
-        const start = new Date(els.start.value);
-        const end = new Date(els.end.value);
-        end.setHours(23, 59, 59, 999);
-
-        return state.historyData.filter(r => {
-            const status = utils.getStatus(r);
-
-            if (state.currentStatus !== '전체' && status !== state.currentStatus)
-                return false;
-
-            const date = new Date(utils.getDate(r));
-            return date >= start && date <= end;
-        });
-    }
+	    const start = new Date(els.start.value);
+	    const end = new Date(els.end.value);
+	    end.setHours(23, 59, 59, 999);
+	
+	    return state.historyData.filter(r => {
+	        const status = utils.getStatus(r);
+	
+	        if (state.currentStatus !== 'ALL' && status !== state.currentStatus)
+	            return false;
+	
+	        const date = new Date(utils.getDate(r));
+	        return date >= start && date <= end;
+	    });
+	}
 
     // =========================
     // 렌더링
     // =========================
 	function createRow(r) {
 	    var status = utils.getStatus(r);
+	    console.log(status);
 	
 	    var statusMap = {
-	        '전송': { cls: 'sent', icon: '✈' },
-	        '승인': { cls: 'approved', icon: '✓' },
-	        '반려': { cls: 'rejected', icon: '⊗' }
-	    };
+    	    PENDING:   { cls: 'status-pending', icon: '⏳' },
+    	    APPROVED:  { cls: 'status-approved', icon: '✓' },
+    	    REJECTED:  { cls: 'status-rejected', icon: '⊗' },
+    	    CANCELED:  { cls: 'status-canceled', icon: '✕' },
+    	    DELIVERED: { cls: 'status-delivered', icon: '📦' },
+    	    COMPLETED: { cls: 'status-completed', icon: '🏁' }
+    	};
 	
-	    var s = statusMap[status] || statusMap['전송'];
+	    var s = statusMap[status] || { cls: '', icon: '' };
 	
-	    var rowClass = status === '반려' ? 'row-rejected' : '';
+	    var rowClass = status === 'REJECTED' ? 'row-rejected' : '';
 	    var detailUrl = utils.buildDetailUrl(r);
 	    var cancelUrl = utils.buildCancelUrl(r);
 	
 	    var html = '';
+	    
+	    const label = utils.getStatusLabel(status);
+	    
 	    html += '<tr class="' + rowClass + '">';
 	
 	    html += '<td>';
@@ -364,7 +412,7 @@
 	
 	    html += '<td class="center">';
 	    html += '<span class="status ' + s.cls + '">';
-	    html += s.icon + ' ' + status;
+	    html += s.icon + ' ' + label;
 	    html += '</span>';
 	    html += '</td>';
 	
@@ -381,6 +429,7 @@
 	
 	    return html;
 	}
+    
     function render() {
         const list = filterData();
 
@@ -388,25 +437,24 @@
         els.empty.classList.toggle('visible', list.length === 0);
 
         updateTabs();
-        bindPopup();
     }
 
     // =========================
     // 탭 카운트
     // =========================
     function updateTabs() {
-        const counts = { 전체: 0, 전송: 0, 승인: 0, 반려: 0 };
+    	const counts = { ALL: 0, PENDING: 0, APPROVED: 0, REJECTED: 0 };
 
-        state.historyData.forEach(r => {
-            const s = utils.getStatus(r);
-            if (counts[s] !== undefined) counts[s]++;
-            counts.전체++;
-        });
+    	state.historyData.forEach(r => {
+    	    const s = utils.getStatus(r);
+    	    counts.ALL++;
+    	    if (counts[s] !== undefined) counts[s]++;
+    	});
 
-        document.getElementById('tabCountAll').textContent = counts.전체 + '건';
-        document.getElementById('tabCountSent').textContent = counts.전송 + '건';
-        document.getElementById('tabCountApproved').textContent = counts.승인 + '건';
-        document.getElementById('tabCountRejected').textContent = counts.반려 + '건';
+    	document.getElementById('tabCountAll').textContent = counts.ALL + '건';
+    	document.getElementById('tabCountSent').textContent = counts.PENDING + '건';
+    	document.getElementById('tabCountApproved').textContent = counts.APPROVED + '건';
+    	document.getElementById('tabCountRejected').textContent = counts.REJECTED + '건';
 
         els.tabs.forEach(tab => {
             tab.classList.toggle(
@@ -431,15 +479,6 @@
         document.body.style.overflow = '';
     }
 
-    function bindPopup() {
-        document.querySelectorAll('.open-popup').forEach(el => {
-            el.onclick = e => {
-                e.preventDefault();
-                openPopup(el.href);
-            };
-        });
-    }
-
     // =========================
     // 상세정보 모달
     // =========================
@@ -454,6 +493,7 @@
 
             var json = await res.json();
             var data = json.data;
+            console.log('발주 상태:', data.status);
 
             // 기본 정보 채우기
             document.getElementById('detailPoNo').textContent = data.poNo;
@@ -505,10 +545,19 @@
     document.getElementById('detailModal').addEventListener('click', function(e) {
         if (e.target === this) closeDetailModal();
     });
+    
 
     // =========================
     // 이벤트
     // =========================
+    	
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('open-popup')) {
+            e.preventDefault();
+            openPopup(e.target.href);
+        }
+    });
+    
     window.applyFilters = async () => {
     	// 발주 내역 데이터 조회하기
         state.historyData = await fetchHistory();
@@ -516,10 +565,12 @@
     };
 
     window.resetFilters = async () => {
-    	// 발주 내역 데이터 초기화하기
-        els.start.value = '<%= defaultStartDate %>';
-        els.end.value = '<%= defaultEndDate %>';
-        state.currentStatus = '전체';
+
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        document.getElementById("filterStartDate").value = firstDayOfMonth.toISOString().slice(0, 10);
+        document.getElementById("filterEndDate").value = today.toISOString().slice(0, 10);
 
         state.historyData = await fetchHistory();
         render();
@@ -541,6 +592,40 @@
         if (e.data?.type === 'close-place-order-popup') {
             closePopup();
         }
+    });
+    
+    document.addEventListener("DOMContentLoaded", function () {
+
+        flatpickr.localize(flatpickr.l10ns.ko);
+
+        // 현재 달 1일 / 오늘
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        let startPicker, endPicker;
+
+        // START
+        startPicker = flatpickr("#filterStartDate", {
+            dateFormat: "Y-m-d",
+            defaultDate: firstDayOfMonth,
+            onChange: function (selectedDates) {
+                if (selectedDates.length > 0) {
+                    endPicker.set("minDate", selectedDates[0]); // start ≤ end 강제
+                }
+                applyFilters(); // 자동 조회
+            }
+        });
+
+        // END
+        endPicker = flatpickr("#filterEndDate", {
+            dateFormat: "Y-m-d",
+            defaultDate: today,
+            maxDate: "today", // 🚨 미래 날짜 선택 방지
+            onChange: function () {
+                applyFilters(); // 자동 조회
+            }
+        });
+
     });
 
     // =========================

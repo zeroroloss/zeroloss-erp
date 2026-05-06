@@ -4,8 +4,6 @@ import java.util.List;
 
 public class PlaceOrderHistoryDTO {
 
-    private static final long serialVersionUID = 1L;
-
     private Integer poId;
     private String poNo;
     private Integer branchCode;
@@ -16,14 +14,24 @@ public class PlaceOrderHistoryDTO {
     private Integer totalMaterialCnt;
     private Integer totalAmount;
     private String status;
-    private String statusCode;
     private String rejectReason;
     private String detailUrl;
     private String cancelUrl;
     // 발주 품목 상세
     private List<PlaceOrderDetailDTO> details;
+    
+    
 
-    public Integer getPoId() {
+    @Override
+	public String toString() {
+		return "PlaceOrderHistoryDTO [poId=" + poId + ", poNo=" + poNo + ", branchCode=" + branchCode + ", branchName="
+				+ branchName + ", createdAt=" + createdAt + ", itemCount=" + itemCount + ", totalQty=" + totalQty
+				+ ", totalMaterialCnt=" + totalMaterialCnt + ", totalAmount=" + totalAmount + ", status=" + status
+				+ ", rejectReason=" + rejectReason + ", detailUrl=" + detailUrl + ", cancelUrl=" + cancelUrl
+				+ ", details=" + details + "]\n";
+	}
+
+	public Integer getPoId() {
         return poId;
     }
 
@@ -101,14 +109,6 @@ public class PlaceOrderHistoryDTO {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getStatusCode() {
-        return statusCode;
-    }
-
-    public void setStatusCode(String statusCode) {
-        this.statusCode = statusCode;
     }
 
     public String getRejectReason() {

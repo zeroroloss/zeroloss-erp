@@ -78,7 +78,7 @@
 		            사용 가능 <span id="countAvailable">0건</span>
 		        </a>
 		        <a href="#" class="tab-link text-center py-3 font-semibold text-yellow-500" data-status="OUT_OF_STOCK">
-		            재고 없음 <span id="outOfStockCount">0건</span>
+		            소진됨 <span id="outOfStockCount">0건</span>
 		        </a>
 		        <a href="#" class="tab-link text-center py-3 font-semibold text-red-500" data-status="DISPOSED">
 		            폐기됨 <span id="countDisposed">0건</span>
@@ -174,7 +174,7 @@
     // ============================================================
     var STATUS_CONFIG = {
         'AVAILABLE':    { label: '사용 가능', badgeClass: 'bg-green-100 text-green-700',   btnClass: 'bg-green-50 border-green-200 text-green-700' },
-        'OUT_OF_STOCK': { label: '재고 없음', badgeClass: 'bg-yellow-100 text-yellow-700', btnClass: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
+        'OUT_OF_STOCK': { label: '소진됨', badgeClass: 'bg-yellow-100 text-yellow-700', btnClass: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
         'DISPOSED':     { label: '폐기됨',   badgeClass: 'bg-red-100 text-red-700',       btnClass: 'bg-red-50 border-red-200 text-red-700' },
         'default':      { label: '-',       badgeClass: 'bg-gray-100 text-gray-700',      btnClass: 'bg-gray-50 border-gray-300 text-gray-700' }
     };

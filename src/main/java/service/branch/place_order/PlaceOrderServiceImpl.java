@@ -28,10 +28,6 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 	private static final String STATUS_REJECTED = "REJECTED"; // 반려 상태
 	private static final String STATUS_CANCELED = "CANCELED"; // 취소 상태
 
-	private static final String STATUS_KEY_SENT = "전송";
-	private static final String STATUS_KEY_APPROVED = "승인";
-	private static final String STATUS_KEY_REJECTED = "반려";
-
 	private static final String PAGE_REQUEST_DETAIL = "request_detail.jsp"; // 전송 상세 페이지
 	private static final String PAGE_APPROVAL_DETAIL = "approval_detail.jsp"; // 승인 상세 페이지
 	private static final String PAGE_REJECTION_DETAIL = "rejection_detail.jsp"; // 반려 상세 페이지
@@ -58,8 +54,9 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 				return Collections.emptyList(); // null이면 빈 리스트 반환
 			}
 
+			// CANCELED가 아닌 내역들만 사용
 			historyList = historyList.stream()
-				    .filter(h -> !(STATUS_CANCELED.equals(h.getStatusCode())) )
+				    .filter(h -> !(STATUS_CANCELED.equals(h.getStatus())) )
 				    .collect(Collectors.toList());
 			
 			for (PlaceOrderHistoryDTO historyDTO : historyList) {
@@ -102,7 +99,7 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 		            // 승인 수량
 		            Integer approved = detail.getApprovedQty();
 		            if (approved == null) {
-		                approved = STATUS_APPROVED.equals(history.getStatusCode())
+		                approved = STATUS_APPROVED.equals(history.getStatus())
 		                        ? requested
 		                        : 0;
 		                detail.setApprovedQty(approved);
@@ -174,68 +171,42 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 		return value != null && !value.isBlank(); // null 및 공백 체크
 	}
 
-	// FE에서 사용하기 좋게 정규화
 	private void normalizeHistory(PlaceOrderHistoryDTO historyDTO, String contextPath) {
-		if (historyDTO == null) {
-			return;
-		}
+	    if (historyDTO == null) return;
 
-		// 상태값 정규화
-		String statusCode = historyDTO.getStatusCode(); // 상태 코드
-		String statusKey = historyDTO.getStatus(); // 상태 한글
+	    // 날짜 포맷 정도만 유지 
+	    if (historyDTO.getCreatedAt() != null && historyDTO.getCreatedAt().length() >= 16) {
+	        historyDTO.setCreatedAt(historyDTO.getCreatedAt().substring(0, 16));
+	    }
 
-		if (!STATUS_KEY_SENT.equals(statusKey) && !STATUS_KEY_APPROVED.equals(statusKey)
-				&& !STATUS_KEY_REJECTED.equals(statusKey)) {
-			if (STATUS_APPROVED.equals(statusCode)) {
-				statusKey = STATUS_KEY_APPROVED; // 승인
-			} else if (STATUS_REJECTED.equals(statusCode)) {
-				statusKey = STATUS_KEY_REJECTED; // 반려
-			} else {
-				statusKey = STATUS_KEY_SENT; // 전송
-			}
-		}
+	    if (historyDTO.getItemCount() == null && historyDTO.getTotalMaterialCnt() != null) {
+	        historyDTO.setItemCount(historyDTO.getTotalMaterialCnt());
+	    }
 
-		if (!hasText(statusCode)) {
-			if (STATUS_KEY_APPROVED.equals(statusKey)) {
-				statusCode = STATUS_APPROVED; // 코드 보정
-			} else if (STATUS_KEY_REJECTED.equals(statusKey)) {
-				statusCode = STATUS_REJECTED;
-			} else {
-				statusCode = STATUS_PENDING;
-			}
-		}
+	    if (historyDTO.getTotalQty() == null) {
+	        historyDTO.setTotalQty(
+	            historyDTO.getTotalMaterialCnt() != null ? historyDTO.getTotalMaterialCnt() : 0
+	        );
+	    }
 
-		historyDTO.setStatusCode(statusCode); // 상태 코드 세팅
-		historyDTO.setStatus(statusKey); // 상태 한글 세팅
+	    String status = historyDTO.getStatus();
 
-		// 날짜 포맷
-		if (historyDTO.getCreatedAt() != null && historyDTO.getCreatedAt().length() >= 16) {
-			historyDTO.setCreatedAt(historyDTO.getCreatedAt().substring(0, 16));
-		}
+	    // detail URL
+	    if (!hasText(historyDTO.getDetailUrl())) {
+	        if (STATUS_APPROVED.equals(status)) {
+	            historyDTO.setDetailUrl(contextPath + "/branch/place_order/" + PAGE_APPROVAL_DETAIL);
+	        } else if (STATUS_REJECTED.equals(status)) {
+	            historyDTO.setDetailUrl(contextPath + "/branch/place_order/" + PAGE_REJECTION_DETAIL);
+	        } else {
+	            historyDTO.setDetailUrl(contextPath + "/branch/place_order/" + PAGE_REQUEST_DETAIL);
+	        }
+	    }
 
-		// 수량 관련 보정
-		if (historyDTO.getItemCount() == null && historyDTO.getTotalMaterialCnt() != null) {
-			historyDTO.setItemCount(historyDTO.getTotalMaterialCnt()); // itemCount
-		}
+	    // cancel URL
+	    if (historyDTO.getCancelUrl() == null && STATUS_PENDING.equals(status)) {
+	        historyDTO.setCancelUrl(contextPath + "/branch/place_order/" + PAGE_CANCEL_REQUEST);
+	    }
 
-		if (historyDTO.getTotalQty() == null) {
-			historyDTO.setTotalQty(historyDTO.getTotalMaterialCnt() != null ? historyDTO.getTotalMaterialCnt() : 0); // totalQty
-		}
-
-		// URL 생성 분리
-		if (!hasText(historyDTO.getDetailUrl())) {
-			if (STATUS_APPROVED.equals(statusCode) || STATUS_KEY_APPROVED.equals(statusKey)) {
-				historyDTO.setDetailUrl(contextPath + "/branch/place_order/" + PAGE_APPROVAL_DETAIL); // 승인 상세 URL
-			} else if (STATUS_REJECTED.equals(statusCode) || STATUS_KEY_REJECTED.equals(statusKey)) {
-				historyDTO.setDetailUrl(contextPath + "/branch/place_order/" + PAGE_REJECTION_DETAIL); // 반려 상세 URL
-			} else {
-				historyDTO.setDetailUrl(contextPath + "/branch/place_order/" + PAGE_REQUEST_DETAIL); // 전송 상세 URL
-			}
-		}
-
-		if (historyDTO.getCancelUrl() == null && STATUS_PENDING.equals(statusCode)) {
-			historyDTO.setCancelUrl(contextPath + "/branch/place_order/" + PAGE_CANCEL_REQUEST); // 취소 URL 설정
-		}
 	}
 
 	// ==========================
