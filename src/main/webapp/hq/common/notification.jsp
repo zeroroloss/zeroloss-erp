@@ -529,23 +529,63 @@
     }
 
     async function markAsRead(notificationId) {
-        const notification = allNotifications.find(n => n.notificationId === notificationId);
+        try {
+            const response = await fetch(ctx + '/hq/common/notification?action=read&id=' + notificationId, {
+                method: 'POST'
+            });
 
-        if (notification) {
-            notification.isRead = true;
+            if (!response.ok) {
+                throw new Error('읽음 처리 실패');
+            }
+
+            const notification = allNotifications.find(function(n) {
+                return n.notificationId === notificationId;
+            });
+
+            if (notification) {
+                notification.isRead = true;
+            }
+            
+            if (typeof updateSidebarNotificationAfterRead === 'function') {
+                updateSidebarNotificationAfterRead(notificationId);
+            }
+
+            renderStats();
+            renderNotifications();
+
+        } catch (error) {
+            console.error(error);
+            alert('읽음 처리 중 오류가 발생했습니다.');
         }
-
-        renderStats();
-        renderNotifications();
     }
 
     async function markAllAsRead() {
         if (!confirm('모든 알림을 읽음 처리하시겠습니까?')) return;
 
-        allNotifications.forEach(n => n.isRead = true);
+        try {
+            const response = await fetch(ctx + '/hq/common/notification?action=readAll', {
+                method: 'POST'
+            });
 
-        renderStats();
-        renderNotifications();
+            if (!response.ok) {
+                throw new Error('전체 읽음 처리 실패');
+            }
+
+            allNotifications.forEach(function(n) {
+                n.isRead = true;
+            });
+            
+            if (typeof clearSidebarNotifications === 'function') {
+                clearSidebarNotifications();
+            }
+
+            renderStats();
+            renderNotifications();
+
+        } catch (error) {
+            console.error(error);
+            alert('전체 읽음 처리 중 오류가 발생했습니다.');
+        }
     }
 
     function deleteNotificationFromModal() {
@@ -556,11 +596,27 @@
     async function deleteNotification(notificationId) {
         if (!confirm('이 알림을 삭제하시겠습니까?')) return;
 
-        allNotifications = allNotifications.filter(n => n.notificationId !== notificationId);
+        try {
+            const response = await fetch(ctx + '/hq/common/notification?action=delete&id=' + notificationId, {
+                method: 'POST'
+            });
 
-        closeViewModal();
-        renderStats();
-        renderNotifications();
+            if (!response.ok) {
+                throw new Error('알림 삭제 실패');
+            }
+
+            allNotifications = allNotifications.filter(function(n) {
+                return n.notificationId !== notificationId;
+            });
+
+            closeViewModal();
+            renderStats();
+            renderNotifications();
+
+        } catch (error) {
+            console.error(error);
+            alert('알림 삭제 중 오류가 발생했습니다.');
+        }
     }
 
     function toggleMenu(button) {

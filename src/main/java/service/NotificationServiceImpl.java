@@ -38,4 +38,15 @@ public class NotificationServiceImpl implements NotificationService {
 		notifDao.updateIsRead(notification);
 	}
 
+	@Override
+	public void modifyAllRead(Integer accountId) throws Exception {
+		notifDao.updateAllRead(accountId);
+		
+	}
+
+	@Override
+	public void removeNotifReceiver(NotificationDTO notification) throws Exception {
+		notifDao.deleteNotifReceiver(notification);
+	}
+
 }

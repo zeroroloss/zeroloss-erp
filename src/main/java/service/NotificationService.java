@@ -15,4 +15,8 @@ public interface NotificationService {
 	
 	// 읽음 처리
 	void modifyIsRead(NotificationDTO notification) throws Exception;
+	void modifyAllRead(Integer accountId) throws Exception;
+	
+	// 삭제
+	void removeNotifReceiver(NotificationDTO notification) throws Exception;
 }

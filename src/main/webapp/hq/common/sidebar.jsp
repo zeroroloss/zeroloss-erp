@@ -118,7 +118,7 @@
                 <button onclick="openNotificationModal()" type="button" class="ml-auto p-2 rounded-lg hover:bg-gray-100 relative flex-shrink-0">
                     <i class="fas fa-bell text-gray-700 w-5 h-5"></i>
                     <% if (unreadCount > 0) { %>
-					<span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
+					<span id="sidebarNotifBadge" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
 					    <%= unreadCount > 99 ? "99+" : unreadCount %>
 					</span>
 					<% } %>
@@ -133,7 +133,7 @@
                             <h3 class="text-lg font-bold text-gray-900">알림</h3>
                             <p class="text-sm text-gray-500">
                                 읽지 않은 알림
-                                <span class="font-semibold text-[#00853D]"><%=unreadCount %></span>개
+                                <span id="sidebarUnreadCount" class="font-semibold text-[#00853D]"><%=unreadCount %></span>개
                             </p>
                         </div>
 
@@ -190,8 +190,9 @@
 					                    }
 					            %>
 					
-					            <div class="px-5 py-4 hover:bg-gray-50 cursor-pointer"
-					                 onclick="goNotificationTarget('<%= notif.getTargetType() %>', <%= notif.getTargetId() %>, <%= notif.getNotificationId() %>)">
+					            <div class="px-5 py-4 hover:bg-gray-50 cursor-pointer sidebar-notification-item"
+					                 data-notification-id="<%= notif.getNotificationId() %>"
+					                 onclick="goNotificationTargetAndRead('<%= notif.getTargetType() %>', <%= notif.getTargetId() == null ? 0 : notif.getTargetId() %>, <%= notif.getNotificationId() %>)">
 					
 					                <div class="flex gap-3">
 					                    <div class="w-9 h-9 rounded-full <%= iconBg %> flex items-center justify-center flex-shrink-0">
@@ -420,26 +421,127 @@
     });
     
     // 이동 주소 매핑
-    function goNotificationTarget(targetType, targetId, notificationId) {
+    function getNotificationTargetUrl(targetType, targetId) {
 	    var ctx = '<%= request.getContextPath() %>';
-	    var url = '';
 	
 	    if (targetType === 'HQ_INVENTORY') {
-	        url = ctx + '/hq/warehouse/stock';
+	    	return ctx + '/hq/warehouse/stock';
 	    } else if (targetType === 'BRANCH_INVENTORY') {
-	        url = ctx + '/hq/branch_stock/stock';
+	    	return ctx + '/hq/branch_stock/stock';
 	    } else if (targetType === 'ORDER') {
-	        url = ctx + '/hq/place_order/overview';
+	    	return ctx + '/hq/place_order/overview';
 	    } else if (targetType === 'INQUIRY') {
-	        url = ctx + '/hq/support/inquiries';
+	    	return ctx + '/hq/support/inquiries';
 	    } else if (targetType === 'NOTICE') {
-	        url = ctx + '/hq/support/notices';
+	    	return ctx + '/hq/support/notices';
 	    } else if (targetType === 'RECIPE') {
-	        url = ctx + '/hq/recipe/management';
-	    } else {
-	        url = ctx + '/branch/common/notification';
+	    	return ctx + '/hq/recipe/management';
+	    } 
+	    return ctx + '/hq/common/notification';
+	}
+    
+    // 읽음 처리
+    function getNotificationPostUrl() {
+        var ctx = '<%= request.getContextPath() %>';
+        var uri = '<%= request.getRequestURI() %>';
+
+        if (uri.indexOf('/hq/') !== -1) {
+            return ctx + '/hq/common/notification';
+        }
+
+        return ctx + '/branch/common/notification';
+    }
+
+    async function goNotificationTargetAndRead(targetType, targetId, notificationId) {
+        var url = getNotificationTargetUrl(targetType, targetId);
+
+        try {
+            var response = await fetch(getNotificationPostUrl() + '?action=read&id=' + notificationId, {
+                method: 'POST'
+            });
+
+            if (!response.ok) {
+                throw new Error('읽음 처리 실패');
+            }
+
+            if (typeof updateSidebarNotificationAfterRead === 'function') {
+                updateSidebarNotificationAfterRead(notificationId);
+            }
+
+        } catch (error) {
+            console.error('알림 읽음 처리 실패:', error);
+        }
+
+        location.href = url;
+    }
+    
+    // 사이드바 목록 갱신
+    function updateSidebarNotificationAfterRead(notificationId) {
+	    var item = document.querySelector('.sidebar-notification-item[data-notification-id="' + notificationId + '"]');
+	
+	    if (item) {
+	        item.remove();
 	    }
 	
-	    location.href = url;
+	    var countSpan = document.getElementById('sidebarUnreadCount');
+	    var badge = document.getElementById('sidebarNotifBadge');
+	
+	    var currentCount = 0;
+	
+	    if (countSpan) {
+	        currentCount = parseInt(countSpan.innerText, 10);
+	
+	        if (isNaN(currentCount)) {
+	            currentCount = 0;
+	        }
+	
+	        currentCount = Math.max(currentCount - 1, 0);
+	        countSpan.innerText = currentCount;
+	    }
+	
+	    if (badge) {
+	        if (currentCount <= 0) {
+	            badge.remove();
+	        } else {
+	            badge.innerText = currentCount > 99 ? '99+' : currentCount;
+	        }
+	    }
+	
+	    var list = document.querySelector('#notificationScrollBody .divide-y');
+	
+	    if (list && list.children.length === 0) {
+	        document.getElementById('notificationScrollBody').innerHTML =
+	            '<div class="px-5 py-10 text-center text-gray-500">' +
+	                '<div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">' +
+	                    '<i class="fas fa-bell-slash text-gray-400"></i>' +
+	                '</div>' +
+	                '<p class="text-sm">새로운 알림이 없습니다.</p>' +
+	            '</div>';
+	    }
+	}
+    
+    // 전체 읽음 처리
+    function clearSidebarNotifications() {
+	    var countSpan = document.getElementById('sidebarUnreadCount');
+	    var badge = document.getElementById('sidebarNotifBadge');
+	    var scrollBody = document.getElementById('notificationScrollBody');
+	
+	    if (countSpan) {
+	        countSpan.innerText = '0';
+	    }
+	
+	    if (badge) {
+	        badge.remove();
+	    }
+	
+	    if (scrollBody) {
+	        scrollBody.innerHTML =
+	            '<div class="px-5 py-10 text-center text-gray-500">' +
+	                '<div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">' +
+	                    '<i class="fas fa-bell-slash text-gray-400"></i>' +
+	                '</div>' +
+	                '<p class="text-sm">새로운 알림이 없습니다.</p>' +
+	            '</div>';
+	    }
 	}
 </script>

@@ -15,4 +15,8 @@ public interface NotificationDao {
 	
 	// 읽음 처리
 	void updateIsRead(NotificationDTO notification) throws Exception;
+	void updateAllRead(Integer accountId) throws Exception;
+	
+	// 삭제
+	void deleteNotifReceiver(NotificationDTO notification) throws Exception;
 }

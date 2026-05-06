@@ -83,4 +83,31 @@ public class NotificationDaoImpl implements NotificationDao {
 		}
 	}
 
+	@Override
+	public void updateAllRead(Integer accountId) throws Exception {
+		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
+		try {
+			sqlSession.update("mapper.notification.updateAllRead", accountId);
+			sqlSession.commit();
+		} catch(Exception e) {
+			sqlSession.rollback();
+			throw e;
+		} finally {
+			sqlSession.close();
+		}
+	}
+
+	@Override
+	public void deleteNotifReceiver(NotificationDTO notification) throws Exception {
+		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession();
+		try {
+			sqlSession.update("mapper.notification.deleteNotifReceiver", notification);
+			sqlSession.commit();
+		} catch(Exception e) {
+			sqlSession.rollback();
+			throw e;
+		} finally {
+			sqlSession.close();
+		}
+	}
 }

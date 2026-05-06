@@ -30,4 +30,13 @@
 		update notification_receiver set is_read = TRUE, read_at = NOW()
 		where account_id = #{accountId} and notification_id = #{notificationId}
 	</update>
+	
+	<update id="updateAllRead" parameterType="Integer">
+		update notification_receiver set is_read = TRUE, read_at = NOW()
+		where account_id = #{value} and is_read = FALSE
+	</update>
+	
+	<delete id="deleteNotifReceiver" parameterType="dto.NotificationDTO">
+		delete from notification_receiver where account_id = #{accountId} and notification_id = #{notificationId}
+	</delete>
 </mapper>
