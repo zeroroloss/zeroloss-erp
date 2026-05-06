@@ -16,10 +16,7 @@
 <body class="bg-gray-50">
 <div class="min-h-screen">
     <div id="sidebarBackdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
-
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 overflow-y-auto">
         <%@ include file="/branch/common/layout/sidebar.jsp" %>
-    </aside>
 
     <div class="lg:pl-72">
         <main class="p-6">
