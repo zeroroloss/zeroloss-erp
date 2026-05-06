@@ -71,8 +71,78 @@ public class NotificationController extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		doGet(request, response);
-	}
+		response.setContentType("application/json; charset=UTF-8");
 
+	    try {
+	        HttpSession session = request.getSession(false);
+
+	        if (session == null || session.getAttribute("accountId") == null) {
+	            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+	            response.getWriter().write("{\"success\":false,\"message\":\"로그인이 필요합니다.\"}");
+	            return;
+	        }
+
+	        Integer accountId = (Integer) session.getAttribute("accountId");
+	        String action = request.getParameter("action");
+
+	        if (action == null || action.trim().isEmpty()) {
+	            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+	            response.getWriter().write("{\"success\":false,\"message\":\"action 값이 없습니다.\"}");
+	            return;
+	        }
+
+	        if ("read".equals(action)) {
+	            String id = request.getParameter("id");
+
+	            if (id == null || id.trim().isEmpty()) {
+	                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+	                response.getWriter().write("{\"success\":false,\"message\":\"notification id가 없습니다.\"}");
+	                return;
+	            }
+
+	            NotificationDTO notification = new NotificationDTO();
+	            notification.setAccountId(accountId);
+	            notification.setNotificationId(Integer.parseInt(id));
+
+	            notifService.modifyIsRead(notification);
+
+	            response.getWriter().write("{\"success\":true}");
+	            return;
+	        }
+
+	        if ("readAll".equals(action)) {
+	            notifService.modifyAllRead(accountId);
+
+	            response.getWriter().write("{\"success\":true}");
+	            return;
+	        }
+
+	        if ("delete".equals(action)) {
+	            String id = request.getParameter("id");
+
+	            if (id == null || id.trim().isEmpty()) {
+	                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+	                response.getWriter().write("{\"success\":false,\"message\":\"notification id가 없습니다.\"}");
+	                return;
+	            }
+
+	            NotificationDTO notification = new NotificationDTO();
+	            notification.setAccountId(accountId);
+	            notification.setNotificationId(Integer.parseInt(id));
+
+	            notifService.removeNotifReceiver(notification);
+
+	            response.getWriter().write("{\"success\":true}");
+	            return;
+	        }
+
+	        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+	        response.getWriter().write("{\"success\":false,\"message\":\"지원하지 않는 action입니다.\"}");
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+	        response.getWriter().write("{\"success\":false,\"message\":\"서버 오류가 발생했습니다.\"}");
+	    }
+	}
 }

@@ -1,5 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="dto.AccountDTO" %>
+<%@ page import="java.util.List" %>
+<%@ page import="dto.NotificationDTO" %>
+<%@ page import="service.NotificationService" %>
+<%@ page import="service.NotificationServiceImpl" %>
 <%
 response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 response.setHeader("Pragma", "no-cache");
@@ -7,9 +11,33 @@ response.setDateHeader("Expires", 0);
 
 AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
 if (loginUser == null) {
-    response.sendRedirect(request.getContextPath() + "/common/login.jsp");
+    response.sendRedirect(request.getContextPath() + "/common/login");
     return;
 }
+%>
+<%
+    Integer sidebarAccountId = null;
+
+    if (session != null && session.getAttribute("accountId") != null) {
+        sidebarAccountId = (Integer) session.getAttribute("accountId");
+    }
+
+    NotificationService sidebarNotifService = new NotificationServiceImpl();
+
+    List<NotificationDTO> headerNotificationList = null;
+    int unreadCount = 0;
+
+    if (sidebarAccountId != null) {
+        headerNotificationList = sidebarNotifService.searchNotificationList(sidebarAccountId);
+
+        if (headerNotificationList != null) {
+            for (NotificationDTO notif : headerNotificationList) {
+                if (notif.getIsRead() == null || notif.getIsRead() == 0) {
+                    unreadCount++;
+                }
+            }
+        }
+    }
 %>
 <%
 String uri = request.getRequestURI();
@@ -47,11 +75,6 @@ boolean inquiryActive = uri.contains("/branch/support/inquiries") || uri.contain
 <div id="sidebarBackdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden lg:hidden"></div>
 
 <aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 flex flex-col">
-    <%
-    Integer unreadCount = (Integer) request.getAttribute("unreadCount");
-    if (unreadCount == null) unreadCount = 0;
-	%>
-	
     <div class="p-6 border-b border-gray-200">
         <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border-2 border-[#00853D]">
@@ -79,7 +102,7 @@ boolean inquiryActive = uri.contains("/branch/support/inquiries") || uri.contain
 			        <i class="fas fa-bell w-5 h-5"></i>
 			
 			        <% if (unreadCount > 0) { %>
-			            <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
+			            <span id="sidebarNotifBadge" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
 			                <%= unreadCount > 99 ? "99+" : unreadCount %>
 			            </span>
 			        <% } %>
@@ -95,7 +118,7 @@ boolean inquiryActive = uri.contains("/branch/support/inquiries") || uri.contain
 			                <h3 class="text-lg font-bold text-gray-900">알림</h3>
 			                <p class="text-sm text-gray-500">
 			                    읽지 않은 알림
-			                    <span class="font-semibold text-[#00853D]"><%= unreadCount %></span>개
+			                    <span id="sidebarUnreadCount" class="font-semibold text-[#00853D]"><%= unreadCount %></span>개
 			                </p>
 			            </div>
 			
@@ -107,7 +130,7 @@ boolean inquiryActive = uri.contains("/branch/support/inquiries") || uri.contain
 			        </div>
 			
 			        <!-- Body -->
-			        <div class="max-h-[420px] overflow-y-auto">
+			        <div id="notificationScrollBody" class="max-h-[420px] overflow-y-auto cursor-grab active:cursor-grabbing select-none">
 			            <% if (unreadCount == 0) { %>
 			                <div class="px-5 py-10 text-center text-gray-500">
 			                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
@@ -117,27 +140,73 @@ boolean inquiryActive = uri.contains("/branch/support/inquiries") || uri.contain
 			                </div>
 			            <% } else { %>
 			                <div class="divide-y divide-gray-100">
-			                    <div class="px-5 py-4 hover:bg-gray-50 cursor-pointer">
-			                        <div class="flex gap-3">
-			                            <div class="w-9 h-9 rounded-full bg-[#00853D]/10 flex items-center justify-center flex-shrink-0">
-			                                <i class="fas fa-bell text-[#00853D] text-sm"></i>
-			                            </div>
-			
-			                            <div class="flex-1 min-w-0">
-			                                <div class="flex items-center justify-between gap-2">
-			                                    <p class="text-sm font-semibold text-gray-900 truncate">새 알림이 도착했습니다</p>
-			                                    <span class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></span>
-			                                </div>
-			                                <p class="text-sm text-gray-600 mt-1 line-clamp-2">
-			                                    확인이 필요한 알림 내용입니다.
-			                                </p>
-			                                <p class="text-xs text-gray-400 mt-2">방금 전</p>
-			                            </div>
-			                        </div>
-			                    </div>
-			                </div>
-			            <% } %>
-			        </div>
+			                	<%
+					                for (NotificationDTO notif : headerNotificationList) {
+					                    if (notif.getIsRead() != null && notif.getIsRead() == 1) {
+					                        continue;
+					                    }
+					
+					                    String iconClass = "fa-bell";
+					                    String iconBg = "bg-[#00853D]/10";
+					                    String iconColor = "text-[#00853D]";
+					
+					                    if ("INVENTORY".equals(notif.getCategory())) {
+					                        iconClass = "fa-boxes-stacked";
+					                        iconBg = "bg-orange-100";
+					                        iconColor = "text-orange-600";
+					                    } else if ("ORDER".equals(notif.getCategory())) {
+					                        iconClass = "fa-truck";
+					                        iconBg = "bg-blue-100";
+					                        iconColor = "text-blue-600";
+					                    } else if ("SWAP".equals(notif.getCategory())) {
+					                        iconClass = "fa-right-left";
+					                        iconBg = "bg-green-100";
+					                        iconColor = "text-green-600";
+					                    } else if ("BOARD".equals(notif.getCategory())) {
+					                        iconClass = "fa-comments";
+					                        iconBg = "bg-purple-100";
+					                        iconColor = "text-purple-600";
+					                    } else if ("SYSTEM".equals(notif.getCategory())) {
+					                        iconClass = "fa-gear";
+					                        iconBg = "bg-gray-100";
+					                        iconColor = "text-gray-600";
+					                    }
+					            %>
+			                
+					            <div class="px-5 py-4 hover:bg-gray-50 cursor-pointer sidebar-notification-item"
+					                 data-notification-id="<%= notif.getNotificationId() %>"
+					                 onclick="goNotificationTargetAndRead('<%= notif.getTargetType() %>', <%= notif.getTargetId() == null ? 0 : notif.getTargetId() %>, <%= notif.getNotificationId() %>)">
+					
+					                <div class="flex gap-3">
+					                    <div class="w-9 h-9 rounded-full <%= iconBg %> flex items-center justify-center flex-shrink-0">
+					                        <i class="fas <%= iconClass %> <%= iconColor %> text-sm"></i>
+					                    </div>
+					
+					                    <div class="flex-1 min-w-0">
+					                        <div class="flex items-center justify-between gap-2">
+					                            <p class="text-sm font-semibold text-gray-900 truncate">
+					                                <%= notif.getTitle() %>
+					                            </p>
+					                            <span class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></span>
+					                        </div>
+					
+					                        <p class="text-sm text-gray-600 mt-1 line-clamp-2">
+					                            <%= notif.getMessage() %>
+					                        </p>
+					
+					                        <p class="text-xs text-gray-400 mt-2">
+					                            <%= notif.getCreatedAt() %>
+					                        </p>
+					                    </div>
+					                </div>
+					            </div>
+					
+					            <%
+					                }
+					            %>
+					        </div>
+					    <% } %>
+					</div>
 			
 			        <!-- Footer -->
 			        <div class="px-5 py-3 border-t border-gray-200 bg-gray-50">
@@ -243,7 +312,7 @@ boolean inquiryActive = uri.contains("/branch/support/inquiries") || uri.contain
     </nav>
     <!-- 로그아웃 -->
     <div class="mt-auto p-4 border-t border-gray-200 bg-white">
-        <form action="${pageContext.request.contextPath}/logout" method="post">
+        <form action="<%= request.getContextPath() %>/logout" method="post">
             <button
                 type="submit"
                 class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all">
@@ -304,7 +373,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-// 알림 모달
+//알림 모달
 function openNotificationModal() {
     document.getElementById('notificationModal').classList.remove('hidden');
 }
@@ -315,7 +384,16 @@ function closeNotificationModal() {
 
 document.addEventListener('click', function(e) {
     var modal = document.getElementById('notificationModal');
+
+    if (!modal || modal.classList.contains('hidden')) {
+        return;
+    }
+
     var buttonArea = modal.closest('.relative');
+
+    if (!buttonArea) {
+        return;
+    }
 
     if (!buttonArea.contains(e.target)) {
         modal.classList.add('hidden');
@@ -327,4 +405,129 @@ document.addEventListener('keydown', function(e) {
         closeNotificationModal();
     }
 });
+
+// 이동 주소 매핑
+function getNotificationTargetUrl(targetType, targetId) {
+    var ctx = '<%= request.getContextPath() %>';
+
+    if (targetType === 'BRANCH_INVENTORY') {
+    	return ctx + '/branch/stock';
+    } else if (targetType === 'ORDER') {
+    	return ctx + '/branch/place_order/history';
+    } else if (targetType === 'SWAP') {
+        return ctx + '/branch/swap/main?tab=check_stock';
+    } else if (targetType === 'INQUIRY') {
+    	return ctx + '/branch/support/inquiries';
+    } else if (targetType === 'NOTICE') {
+    	return ctx + '/branch/support/notices';
+    } else if (targetType === 'RECIPE') {
+    	return ctx + '/branch/recipe/management';
+    } 
+    return ctx + '/branch/common/notification';
+}
+
+// 읽음 처리
+function getNotificationPostUrl() {
+    var ctx = '<%= request.getContextPath() %>';
+    var uri = '<%= request.getRequestURI() %>';
+
+    if (uri.indexOf('/hq/') !== -1) {
+        return ctx + '/hq/common/notification';
+    }
+
+    return ctx + '/branch/common/notification';
+}
+
+async function goNotificationTargetAndRead(targetType, targetId, notificationId) {
+    var url = getNotificationTargetUrl(targetType, targetId);
+
+    try {
+        var response = await fetch(getNotificationPostUrl() + '?action=read&id=' + notificationId, {
+            method: 'POST'
+        });
+
+        if (!response.ok) {
+            throw new Error('읽음 처리 실패');
+        }
+
+        if (typeof updateSidebarNotificationAfterRead === 'function') {
+            updateSidebarNotificationAfterRead(notificationId);
+        }
+
+    } catch (error) {
+        console.error('알림 읽음 처리 실패:', error);
+    }
+
+    location.href = url;
+}
+
+// 사이드바 목록 갱신
+function updateSidebarNotificationAfterRead(notificationId) {
+    var item = document.querySelector('.sidebar-notification-item[data-notification-id="' + notificationId + '"]');
+
+    if (item) {
+        item.remove();
+    }
+
+    var countSpan = document.getElementById('sidebarUnreadCount');
+    var badge = document.getElementById('sidebarNotifBadge');
+
+    var currentCount = 0;
+
+    if (countSpan) {
+        currentCount = parseInt(countSpan.innerText, 10);
+
+        if (isNaN(currentCount)) {
+            currentCount = 0;
+        }
+
+        currentCount = Math.max(currentCount - 1, 0);
+        countSpan.innerText = currentCount;
+    }
+
+    if (badge) {
+        if (currentCount <= 0) {
+            badge.remove();
+        } else {
+            badge.innerText = currentCount > 99 ? '99+' : currentCount;
+        }
+    }
+
+    var list = document.querySelector('#notificationScrollBody .divide-y');
+
+    if (list && list.children.length === 0) {
+        document.getElementById('notificationScrollBody').innerHTML =
+            '<div class="px-5 py-10 text-center text-gray-500">' +
+                '<div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">' +
+                    '<i class="fas fa-bell-slash text-gray-400"></i>' +
+                '</div>' +
+                '<p class="text-sm">새로운 알림이 없습니다.</p>' +
+            '</div>';
+    }
+}
+
+// 전체 읽음 처리
+function clearSidebarNotifications() {
+    var countSpan = document.getElementById('sidebarUnreadCount');
+    var badge = document.getElementById('sidebarNotifBadge');
+    var scrollBody = document.getElementById('notificationScrollBody');
+
+    if (countSpan) {
+        countSpan.innerText = '0';
+    }
+
+    if (badge) {
+        badge.remove();
+    }
+
+    if (scrollBody) {
+        scrollBody.innerHTML =
+            '<div class="px-5 py-10 text-center text-gray-500">' +
+                '<div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">' +
+                    '<i class="fas fa-bell-slash text-gray-400"></i>' +
+                '</div>' +
+                '<p class="text-sm">새로운 알림이 없습니다.</p>' +
+            '</div>';
+    }
+}
 </script>
