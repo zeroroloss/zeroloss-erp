@@ -6,8 +6,12 @@ import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
+import dao.branch.place_order.PlaceOrderNotificationDao;
+import dao.branch.place_order.PlaceOrderNotificationDaoImpl;
 import dao.hq.place_order.PlaceOrderProcessingDao;
 import dao.hq.place_order.PlaceOrderProcessingDaoImpl;
+import dto.NotificationDTO;
+import dto.NotificationReceiverDTO;
 import dto.hq.place_order.PlaceOrderProcessingDTO;
 import dto.hq.place_order.PlaceOrderProcessingDetailDTO;
 import util.MyBatisSqlSessionFactory;
@@ -15,6 +19,7 @@ import util.MyBatisSqlSessionFactory;
 public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingService {
 
 	private final PlaceOrderProcessingDao dao = new PlaceOrderProcessingDaoImpl();
+	private final PlaceOrderNotificationDao notifiDao = new PlaceOrderNotificationDaoImpl();
 
 	@Override
 	public List<PlaceOrderProcessingDTO> getPendingOrders() {
@@ -55,13 +60,13 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
 			System.out.println("[PO] " + poNo);
 
 			// 1. 발주 헤더 조회
-			PlaceOrderProcessingDTO header = dao.selectOrderHeaderByPoNo(sqlSession, poNo);
-			if (header == null) {
+			PlaceOrderProcessingDTO poHeader = dao.selectOrderHeaderByPoNo(sqlSession, poNo);
+			if (poHeader == null) {
 				System.out.println("[ERROR] 발주 헤더 없음");
 				return false;
 			}
 
-			System.out.println("[HEADER] branchCode=" + header.getBranchCode());
+			System.out.println("[HEADER] branchCode=" + poHeader.getBranchCode());
 
 			// 2. 전체 상세 조회
 			List<PlaceOrderProcessingDetailDTO> fullDetails = dao.selectOrderDetailsByPoNo(sqlSession, poNo);
@@ -98,7 +103,7 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
 
 			Map<String, Object> outboundParam = new HashMap<>();
 			outboundParam.put("poNo", poNo);
-			outboundParam.put("branchCode", header.getBranchCode());
+			outboundParam.put("branchCode", poHeader.getBranchCode());
 
 			int inserted = dao.insertOutbound(sqlSession, outboundParam);
 
@@ -222,6 +227,14 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
 
 			System.out.println("[ORDER STATUS] PENDING → APPROVED");
 
+			// 7. 알림 보내기
+			sendOrderNotification(
+				    sqlSession,
+				    poHeader,
+				    "발주 승인 완료",
+				    "발주번호 " + poNo + " 가 승인되었습니다. (지점" + poHeader.getBranchCode() +  ") " +poHeader.getBranchName()
+				);
+
 			sqlSession.commit();
 
 			System.out.println("================= [APPROVE SUCCESS] =================\n");
@@ -246,6 +259,7 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
 	public boolean rejectOrder(String poNo, String rejectReason) {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false);
 		try {
+			// 반려 처리 ======================
 			Map<String, Object> param = new HashMap<>();
 			param.put("poNo", poNo);
 			param.put("rejectReason", rejectReason);
@@ -255,6 +269,17 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
 				sqlSession.rollback();
 				return false;
 			}
+			// ==============================
+
+			// 알림 보내기 =====================
+			// poId 가져오기 위해 poNo 발주서 번호로 발주 정보 가져오기
+			PlaceOrderProcessingDTO poHeader = dao.selectOrderHeaderByPoNo(sqlSession, poNo);
+			sendOrderNotification(
+				    sqlSession,
+				    poHeader,
+				    "발주 요청 반려됨",
+				    "발주번호 " + poNo + " 가 반려되었습니다. 사유: " + rejectReason
+				);
 
 			sqlSession.commit();
 			return true;
@@ -263,6 +288,42 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
 			throw new RuntimeException(e);
 		} finally {
 			sqlSession.close();
+		}
+	}
+
+	private void sendOrderNotification(SqlSession sqlSession, PlaceOrderProcessingDTO poHeader, String title,
+			String message) {
+
+		// 1. notification 생성
+		NotificationDTO notifiDTO = new NotificationDTO();
+		notifiDTO.setCategory("ORDER");
+		notifiDTO.setTitle(title);
+		notifiDTO.setMessage(message);
+		notifiDTO.setTargetType("ORDER");
+		notifiDTO.setTargetId(poHeader.getPoId());
+		
+		// generatedPK 받아옴
+		int inserted = notifiDao.insertNotification(sqlSession, notifiDTO);
+		if (inserted <= 0) {
+			throw new RuntimeException("생성된 알림이 없습니다.");
+		}
+		int notificationId = notifiDTO.getNotificationId();
+
+		// 2. 수신자 조회 (지점 계정들)
+		List<Integer> accountIds = notifiDao.selectAccountIdsByBranchCode(sqlSession, poHeader.getBranchCode());
+		if (accountIds == null || accountIds.isEmpty()) {
+		    System.out.println("[WARN] 수신자 없음 branchCode=" + poHeader.getBranchCode());
+		    return;
+		}
+		
+		// 3. receiver insert
+		for (Integer accountId : accountIds) {
+			NotificationReceiverDTO receiver = new NotificationReceiverDTO();
+			receiver.setNotificationId(notificationId);
+			receiver.setAccountId(accountId);
+			// receiver.setIsRead(0); -> DB생성 쿼리에서 default '0'
+
+			notifiDao.insertNotifiReceiver(sqlSession, receiver);
 		}
 	}
 }

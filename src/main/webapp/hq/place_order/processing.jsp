@@ -202,7 +202,7 @@
             </div>
 
             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-                <p class="text-xs text-yellow-800"><strong>안내:</strong> 반려 시 지점에 사유가 전달되며, 지점에서 수정 후 재요청할 수 있습니다.</p>
+                <p class="text-xs text-yellow-800"><strong>안내:</strong> 반려 시 지점에 사유가 전달됩니다.</p>
             </div>
 
             <div class="flex gap-3">

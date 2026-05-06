@@ -80,7 +80,4 @@ public class PlaceOrderProcessingDaoImpl implements PlaceOrderProcessingDao {
 	public int insertStockHistory(SqlSession sqlSession, Map<String, Object> param) {
         return sqlSession.insert(NAMESPACE + "insertStockHistory", param);
 	}
-
-
-
 }

@@ -159,4 +159,27 @@
         WHERE po_id = #{poId}
     </update>
 
+<!-- 알림 처리 -->
+
+	<!-- 공지 삽입 -->
+    <insert id="insertNotification" parameterType="dto.NotificationDTO"
+    		useGeneratedKeys="true" keyProperty="notificationId">
+        INSERT INTO notification (category, title, message, target_type, target_id, created_at )
+        VALUES (#{category}, #{title}, #{message}, #{targetType}, #{targetId}, NOW())
+    </insert>
+
+	<!-- 지점 코드에 해당하는 모든 계정들 조회 -->
+	<select id="selectAccountIdsByBranchCode" parameterType = "int" resultType="int">
+	    SELECT account_id
+	    FROM account
+	    WHERE branch_code = #{value}
+	      AND status = 'ACTIVE'
+	</select>
+	
+	<!-- 공지 receiver 삽입 -->
+	<insert id="insertNotifiReceiver" parameterType="dto.NotificationReceiverDTO">
+		INSERT INTO notification_receiver (notification_id, account_id)
+		VALUES (#{notificationId}, #{accountId})
+	</insert>
+
 </mapper>
