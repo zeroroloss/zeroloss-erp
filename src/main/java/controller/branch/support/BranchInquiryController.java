@@ -4,9 +4,11 @@ import com.google.gson.Gson;
 import dto.AccountDTO;
 import dto.InquiryDTO;
 import dto.InquiryReplyDTO;
+import org.apache.ibatis.session.SqlSession;
 import service.branch.InquiryService;
 import service.branch.InquiryServiceImpl;
 import util.GsonFactory;
+import util.MyBatisSqlSessionFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,6 +17,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -94,7 +100,19 @@ public class BranchInquiryController extends HttpServlet {
                     newInquiry.setBranchCode(loginUser.getBranchCode());
                     newInquiry.setCreatedAt(now);
                     newInquiry.setUpdatedAt(now);
+
                     inquiryService.createInquiry(newInquiry);
+
+                    if (newInquiry.getInquiryId() > 0) {
+                        String title = "새로운 문의 등록";
+                        String message = loginUser.getBranchName() + "에서 새로운 문의를 등록했습니다.";
+                        try {
+                            insertInquiryNotification(title, message, newInquiry.getInquiryId());
+                        } catch (SQLException e) {
+                            System.err.println("Failed to create inquiry notification: " + e.getMessage());
+                        }
+                    }
+
                     resp.setStatus(HttpServletResponse.SC_CREATED);
                     break;
 
@@ -125,6 +143,43 @@ public class BranchInquiryController extends HttpServlet {
             }
         } catch (Exception e) {
             handleException(resp, e);
+        }
+    }
+
+    private void insertInquiryNotification(String title, String message, int targetId) throws SQLException {
+        SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false);
+        try {
+            Connection conn = sqlSession.getConnection();
+
+            String notifSql = "INSERT INTO notification (category, title, message, target_type, target_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+            try (PreparedStatement ps = conn.prepareStatement(notifSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                ps.setString(1, "BOARD");
+                ps.setString(2, title);
+                ps.setString(3, message);
+                ps.setString(4, "INQUIRY");
+                ps.setInt(5, targetId);
+                ps.executeUpdate();
+
+                try (ResultSet keys = ps.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        int notifId = keys.getInt(1);
+                        String recvSql = "INSERT INTO notification_receiver (notification_id, account_id, is_read) SELECT ?, account_id, FALSE FROM account WHERE branch_code = 1";
+                        try (PreparedStatement ps2 = conn.prepareStatement(recvSql)) {
+                            ps2.setInt(1, notifId);
+                            ps2.executeUpdate();
+                        }
+                    }
+                }
+            }
+            sqlSession.commit();
+        } catch (SQLException e) {
+            sqlSession.rollback();
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (sqlSession != null) {
+                sqlSession.close();
+            }
         }
     }
 
