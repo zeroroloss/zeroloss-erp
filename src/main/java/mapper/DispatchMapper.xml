@@ -46,6 +46,11 @@
     <update id="updateVehicleStatus" parameterType="map">
         UPDATE vehicle SET status = #{status} WHERE vehicle_id = #{vehicleId};
     </update>
+    
+    <update id="updateDriverStatus" parameterType="map">
+        UPDATE driver SET is_active = #{isActive} WHERE driver_id = #{driverId};
+    </update>
+    
 
     <select id="getAllRegions" resultType="dto.hq.delivery.RegionDto">
         SELECT region_code as regionCode, name FROM region ORDER BY name;
@@ -68,5 +73,12 @@
         LEFT JOIN vehicle v ON d.vehicle_id = v.vehicle_id
         ORDER BY d.delivery_id DESC;
     </select>
+    
+    <select id="selectDispatchByPoNo" resultType="map">
+	    SELECT driver_id AS driverId,
+	           vehicle_id AS vehicleId
+	    FROM dispatch
+	    WHERE po_no = #{poNo}
+	</select>
 
 </mapper>

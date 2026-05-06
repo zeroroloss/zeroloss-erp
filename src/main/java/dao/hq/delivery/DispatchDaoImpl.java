@@ -88,4 +88,19 @@ public class DispatchDaoImpl implements DispatchDao {
             return session.selectList("mapper.dispatchMapper.getAllRegions");
         }
     }
+
+	@Override
+	public void updateDriverStatus(int driverId, int isActive) {
+		try (SqlSession session = sqlSessionFactory.openSession(true)) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("driverId", driverId);
+            params.put("isActive", isActive);
+            session.update("mapper.dispatchMapper.updateDriverStatus", params);
+        }		
+	}
+
+	@Override
+	public Map<String, Object> selectDispatchByPoNo(SqlSession sqlSession, String poNo) {
+	    return sqlSession.selectOne("mapper.dispatchMapper.selectDispatchByPoNo", poNo);
+	}
 }

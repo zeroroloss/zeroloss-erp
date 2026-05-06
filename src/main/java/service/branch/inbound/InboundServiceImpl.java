@@ -10,13 +10,22 @@ import org.apache.ibatis.session.SqlSession;
 
 import dao.branch.inbound.InboundDAOImpl;
 import dao.branch.inbound.InboundDao;
+import dao.branch.inbound.InboundNotifiDao;
+import dao.branch.inbound.InboundNotifiDaoImpl;
+import dao.hq.delivery.DispatchDao;
+import dao.hq.delivery.DispatchDaoImpl;
 import dto.branch.inbound.InboundProcessingItemDTO;
+import dto.hq.place_order.PlaceOrderProcessingDTO;
+import dto.NotificationDTO;
+import dto.NotificationReceiverDTO;
 import dto.branch.inbound.InboundProcessingDTO;
 import util.MyBatisSqlSessionFactory;
 
 public class InboundServiceImpl implements InboundService {
 	
 	private final InboundDao dao = new InboundDAOImpl();
+	private final InboundNotifiDao notifiDao = new InboundNotifiDaoImpl();
+	private final DispatchDao dispatchDao = new DispatchDaoImpl();
 
 	@Override
 	public List<InboundProcessingDTO> findInboundsToProcess(int branchCode) {
@@ -121,14 +130,77 @@ public class InboundServiceImpl implements InboundService {
 			if (updated <= 0) {
 				throw new RuntimeException("발주 상태 변경에 실패했습니다.");
 			}
+			
+			// 배차된 기사, 차량 해제
+			releaseDispatchResources(sqlSession, poNo);
+			
+			// 알림 처리
+			sendInboundNotification(sqlSession, branchCode, poNo);
+
 
 			sqlSession.commit();
 			return true;
 		} catch (Exception e) {
+			e.printStackTrace();
 			sqlSession.rollback();
 			throw new RuntimeException(e);
 		} finally {
 			sqlSession.close();
+		}
+	}
+	
+	private void releaseDispatchResources(SqlSession sqlSession, String poNo) {
+
+	    Map<String, Object> dispatchInfo = dispatchDao.selectDispatchByPoNo(sqlSession, poNo);
+
+	    if (dispatchInfo == null) {
+	    	throw new RuntimeException("배차 정보가 없는 발주입니다.");
+	    }
+
+	    Integer vehicleId = (Integer) dispatchInfo.get("vehicleId");
+	    Integer driverId = (Integer) dispatchInfo.get("driverId");
+
+	    // 차량 복구
+	    if (vehicleId == null) {
+	    	throw new RuntimeException("배차된 차량이 없는 발주입니다.");
+	    }
+	    dispatchDao.updateVehicleStatus(vehicleId, "AVAILABLE");
+
+	    // 기사 복구
+	    if (driverId  == null) {
+	    	throw new RuntimeException("배차된 차량이 없는 발주입니다.");
+	    }
+	    dispatchDao.updateDriverStatus(driverId, 1);
+	}
+
+	private void sendInboundNotification(SqlSession sqlSession, int branchCode, String poNo) {
+
+		PlaceOrderProcessingDTO poHeader = notifiDao.selectOrderHeaderByPoNo(sqlSession, poNo);
+		
+		NotificationDTO dto = new NotificationDTO();
+		dto.setCategory("ORDER");
+		dto.setTitle("입고 완료");
+		dto.setMessage("[" + poHeader.getBranchName() + "] (지점 코드: " + branchCode + ") - 발주번호 "
+			    + poNo + " - 입고가 완료되었습니다.");
+		dto.setTargetType("ORDER");
+		dto.setTargetId(poHeader.getPoId());
+
+		int inserted = notifiDao.insertNotification(sqlSession, dto);
+		if (inserted <= 0) {
+			throw new RuntimeException("알림 생성 실패");
+		}
+		// generated Id
+		int notificationId = dto.getNotificationId();
+
+		List<Integer> accountIds =
+				notifiDao.findHqAccountIds(sqlSession);
+
+		for (Integer accountId : accountIds) {
+			NotificationReceiverDTO receiver = new NotificationReceiverDTO();
+			receiver.setNotificationId(notificationId);
+			receiver.setAccountId(accountId);
+
+			notifiDao.insertReceiver(sqlSession, receiver);
 		}
 	}
 

@@ -232,8 +232,9 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
 				    sqlSession,
 				    poHeader,
 				    "발주 승인 완료",
-				    "발주번호 " + poNo + " 가 승인되었습니다. (지점" + poHeader.getBranchCode() +  ") " +poHeader.getBranchName()
-				);
+				    "[" + poHeader.getBranchName() + "] (지점 코드: " + poHeader.getBranchCode() + ") - 발주번호 "
+				    	    + poNo + " - 승인되었습니다."
+			);
 
 			sqlSession.commit();
 
@@ -266,23 +267,20 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
 
 			int updated = dao.updateOrderStatusReject(sqlSession, param);
 			if (updated <= 0) {
-				sqlSession.rollback();
-				return false;
+	            throw new RuntimeException("반려 처리된 발주가 없습니다.");
 			}
-			// ==============================
 
 			// 알림 보내기 =====================
 			// poId 가져오기 위해 poNo 발주서 번호로 발주 정보 가져오기
 			PlaceOrderProcessingDTO poHeader = dao.selectOrderHeaderByPoNo(sqlSession, poNo);
-			sendOrderNotification(
-				    sqlSession,
-				    poHeader,
-				    "발주 요청 반려됨",
-				    "발주번호 " + poNo + " 가 반려되었습니다. 사유: " + rejectReason
-				);
+			sendOrderNotification(sqlSession, poHeader, "발주 요청 반려됨", 
+					"[" + poHeader.getBranchName() + "] (지점 코드: " + poHeader.getBranchCode() + ") - 발주번호 "
+						    + poNo + " - 반려되었습니다. 사유: " + rejectReason
+            );
 
 			sqlSession.commit();
 			return true;
+			
 		} catch (Exception e) {
 			sqlSession.rollback();
 			throw new RuntimeException(e);

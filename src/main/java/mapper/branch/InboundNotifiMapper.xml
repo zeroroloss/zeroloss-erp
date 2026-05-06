@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.inbound.notifi">
+
+	<!-- notification insert -->
+	<insert id="insertNotification"
+			parameterType="dto.NotificationDTO"
+			useGeneratedKeys="true"
+			keyProperty="notificationId">
+		INSERT INTO notification
+		(category, title, message, target_type, target_id, created_at)
+		VALUES
+		(#{category}, #{title}, #{message}, #{targetType}, #{targetId}, NOW())
+	</insert>
+
+	<!-- receiver insert -->
+	<insert id="insertReceiver"
+			parameterType="dto.NotificationReceiverDTO">
+		INSERT INTO notification_receiver
+		(notification_id, account_id, is_read, read_at)
+		VALUES
+		(#{notificationId}, #{accountId}, 0, NULL)
+	</insert>
+
+	<!-- HQ 계정들 조회 -->
+	<select id="findHqAccountIds"
+			resultType="int">
+		SELECT account_id
+		FROM account
+		WHERE branch_code = 1
+	</select>
+	
+	
+    <!-- 발주서 정보(헤더) 조회 -->
+    <select id="findPlaceOrderHeaderByPoNo" resultType="dto.hq.place_order.PlaceOrderProcessingDTO">
+	    SELECT po.po_id AS poId,
+	           po.po_no AS poNo,
+	           po.branch_code AS branchCode,
+	           b.name AS branchName
+	    FROM place_order po
+	    JOIN branch b ON po.branch_code = b.branch_code
+	    WHERE po.po_no = #{poNo}
+	</select>
+
+</mapper>

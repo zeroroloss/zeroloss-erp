@@ -65,10 +65,17 @@ public class DispatchServiceImpl implements DispatchService {
                 orderParams.put("status", "DELIVERED");
                 session.update("mapper.dispatchMapper.updatePlaceOrderStatus", orderParams);
 
+                // 차량 IN_TRANSIT 상태로 변경
                 Map<String, Object> vehicleParams = new HashMap<>();
                 vehicleParams.put("vehicleId", dto.getVehicleId());
                 vehicleParams.put("status", "IN_TRANSIT");
                 session.update("mapper.dispatchMapper.updateVehicleStatus", vehicleParams);
+                
+                // 운전기사 isActive = 0 으로 변경
+                Map<String, Object> driverParams = new HashMap<>();
+                driverParams.put("driverId", dto.getDriverId());
+                driverParams.put("isActive", 0);
+                session.update("mapper.dispatchMapper.updateDriverStatus", driverParams);
                 
                 // 알림 처리 (본사 -> 직영점)
                 sendDispatchNotification(session, dto.getPoNo());
@@ -94,7 +101,7 @@ public class DispatchServiceImpl implements DispatchService {
         NotificationDTO notifiDTO = new NotificationDTO();
         notifiDTO.setCategory("ORDER");
         notifiDTO.setTitle("배송 완료");
-        notifiDTO.setMessage(poHeader.getBranchName() + "지점 - 발주번호 " + poNo + ") 배차 완료 후 배송되었습니다.");
+        notifiDTO.setMessage("[" + poHeader.getBranchName() + "] (지점 코드: " + poHeader.getBranchCode() + ") - 발주번호 "+ poNo + " - 승인되었습니다.");        
         notifiDTO.setTargetType("ORDER");
         notifiDTO.setTargetId(poHeader.getPoId());
 

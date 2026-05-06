@@ -61,7 +61,8 @@
 		<mapper resource="mapper/branch/SwapMapper.xml"/>
 		<mapper resource="mapper/branch/InboundMapper.xml"/>
 		<mapper resource="mapper/branch/InboundHistoryMapper.xml"/>
-		
 		<mapper resource="mapper/branch/stock/BranchStockAlert.xml"/>
+	    <mapper resource="mapper/branch/InboundNotifiMapper.xml"/>
+	    
 	</mappers>
 </configuration>
