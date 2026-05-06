@@ -16,7 +16,7 @@ import service.AccountServiceImpl;
 /**
  * Servlet implementation class Login
  */
-@WebServlet("/login")
+@WebServlet("/common/login")
 public class Login extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -67,7 +67,7 @@ public class Login extends HttpServlet {
 		} catch(Exception e) {
 			e.printStackTrace();
 			request.setAttribute("error", e.getMessage());
-			request.getRequestDispatcher("/common/login.jsp").forward(request, response);
+			request.getRequestDispatcher("/common/login").forward(request, response);
 		}
 	}
 

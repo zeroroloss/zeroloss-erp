@@ -44,8 +44,8 @@
 				    Object branchNameObj = session.getAttribute("branchName");
 				
 				    String homeUrl = "본사".equals(branchNameObj)
-				            ? cp + "/hq/main/home.jsp"
-				            : cp + "/branch/main/home.jsp";
+				            ? cp + "/hq/main/home"
+				            : cp + "/branch/main/home";
 				%>
                 <a href="<%= homeUrl %>" class="flex items-center justify-center gap-2 bg-[#00853D] text-white px-8 py-3 rounded-lg hover:bg-[#006B2F] transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                     <i class="fas fa-home text-lg"></i>

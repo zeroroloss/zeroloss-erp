@@ -1,4 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isELIgnored="true"%>
+<%@ page import="java.util.List" %>
+<%@ page import="dto.NotificationDTO" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -61,7 +63,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">전체 알림</p>
-                            <p id="totalCount" class="text-2xl font-bold text-gray-900 mt-1">0</p>
+                            <p id="totalNotif" class="text-2xl font-bold text-gray-900 mt-1">${totalNotif}</p>
                         </div>
                         <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                             <i class="fas fa-bell text-[#00853D] text-xl"></i>
@@ -73,7 +75,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">읽지 않은 알림</p>
-                            <p id="unreadCount" class="text-2xl font-bold text-red-600 mt-1">0</p>
+                            <p id="isReadNotif" class="text-2xl font-bold text-red-600 mt-1">${isReadNotif}</p>
                         </div>
                         <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
                             <i class="fas fa-envelope text-red-600 text-xl"></i>
@@ -85,7 +87,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-500">오늘 알림</p>
-                            <p id="todayCount" class="text-2xl font-bold text-blue-600 mt-1">0</p>
+                            <p id="todayNotif" class="text-2xl font-bold text-blue-600 mt-1">${todayNotif}</p>
                         </div>
                         <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                             <i class="fas fa-calendar-day text-blue-600 text-xl"></i>
@@ -130,23 +132,27 @@
                             class="px-4 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium type-filter-btn"
                             data-type="all">전체 유형</button>
 
-                    <button onclick="setTypeFilter('스케줄')"
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 type-filter-btn"
-                            data-type="스케줄">스케줄</button>
-
-                    <button onclick="setTypeFilter('직원')"
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 type-filter-btn"
-                            data-type="직원">직원</button>
-
-                    <button onclick="setTypeFilter('공지')"
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 type-filter-btn"
-                            data-type="공지">공지</button>
-
-                    <button onclick="setTypeFilter('시스템')"
-                            class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 type-filter-btn"
-                            data-type="시스템">시스템</button>
-                </div>
-            </div>
+                    <button onclick="setTypeFilter('재고')"
+					        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 type-filter-btn"
+					        data-type="재고">재고</button>
+					
+					<button onclick="setTypeFilter('발주')"
+					        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 type-filter-btn"
+					        data-type="발주">발주</button>
+					
+					<button onclick="setTypeFilter('스왑')"
+					        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 type-filter-btn"
+					        data-type="스왑">스왑</button>
+					
+					<button onclick="setTypeFilter('공지')"
+					        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 type-filter-btn"
+					        data-type="공지">공지</button>
+					
+					<button onclick="setTypeFilter('시스템')"
+					        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 type-filter-btn"
+					        data-type="시스템">시스템</button>
+				</div>
+			</div>
 
             <!-- 알림 리스트 -->
             <div id="notificationList" class="space-y-4"></div>
@@ -157,6 +163,7 @@
                         class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         id="prevBtn">
                     <i class="fas fa-chevron-left"></i>
+                    <span>이전</span>
                 </button>
 
                 <div class="text-gray-600">
@@ -166,6 +173,7 @@
                 <button onclick="nextPage()"
                         class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         id="nextBtn">
+                    <span>다음</span>
                     <i class="fas fa-chevron-right"></i>
                 </button>
             </div>
@@ -227,7 +235,51 @@
 <script>
     const ctx = "<%= request.getContextPath() %>";
 
-    let allNotifications = [];
+    <%
+	    List<NotificationDTO> notificationList =
+	        (List<NotificationDTO>) request.getAttribute("notificationList");
+	%>
+    let allNotifications = [
+    	<%
+	    if (notificationList != null) {
+	        for (int i = 0; i < notificationList.size(); i++) {
+	            NotificationDTO n = notificationList.get(i);
+
+	            String category = n.getCategory();
+	            String typeName = "";
+
+	            if ("INVENTORY".equals(category)) {
+	                typeName = "재고";
+	            } else if ("ORDER".equals(category)) {
+	                typeName = "발주";
+	            } else if ("SWAP".equals(category)) {
+	                typeName = "스왑";
+	            } else if ("BOARD".equals(category)) {
+	                typeName = "공지";
+	            } else if ("SYSTEM".equals(category)) {
+	                typeName = "시스템";
+	            } else {
+	                typeName = category;
+	            }
+
+	            String title = n.getTitle() == null ? "" : n.getTitle().replace("\\", "\\\\").replace("'", "\\'").replace("\r", "").replace("\n", "\\n");
+	            String message = n.getMessage() == null ? "" : n.getMessage().replace("\\", "\\\\").replace("'", "\\'").replace("\r", "").replace("\n", "\\n");
+	            String createdAt = n.getCreatedAt() == null ? "" : String.valueOf(n.getCreatedAt());
+	%>
+	    {
+	        notificationId: <%= n.getNotificationId() %>,
+	        title: '<%= title %>',
+	        content: '<%= message %>',
+	        type: '<%= typeName %>',
+	        category: '<%= category %>',
+	        isRead: <%= n.getIsRead() %>,
+	        createdAt: '<%= createdAt %>'
+	    }<%= (i < notificationList.size() - 1) ? "," : "" %>
+	<%
+	        }
+	    }
+	%>
+    ];
     let currentPage = 1;
     const itemsPerPage = 8;
 
@@ -239,58 +291,15 @@
         initializeNotifications();
     });
 
-    async function initializeNotifications() {
-        try {
-            const response = await fetch(ctx + '/notification-data');
-
-            if (!response.ok) {
-                throw new Error('알림 조회 실패');
-            }
-
-            allNotifications = await response.json();
-
-            renderStats();
-            renderNotifications();
-
-        } catch (error) {
-            console.error(error);
-
-            // 백엔드 연결 전 테스트용 데이터
-            allNotifications = [
-                {
-                    notificationId: 1,
-                    title: '스케줄 수정 요청이 도착했습니다.',
-                    content: '강남점 윤성민 직원의 근무 일정 수정 요청이 있습니다.',
-                    type: '스케줄',
-                    isRead: false,
-                    createdAt: '2026-05-03T09:30:00'
-                },
-                {
-                    notificationId: 2,
-                    title: '신규 직원이 등록되었습니다.',
-                    content: '홍길동 직원이 강남점에 신규 등록되었습니다.',
-                    type: '직원',
-                    isRead: true,
-                    createdAt: '2026-05-02T14:10:00'
-                },
-                {
-                    notificationId: 3,
-                    title: '긴급 공지사항이 등록되었습니다.',
-                    content: '본사에서 전체 지점 대상 긴급 공지사항을 등록했습니다.',
-                    type: '공지',
-                    isRead: false,
-                    createdAt: '2026-05-03T11:20:00'
-                }
-            ];
-
-            renderStats();
-            renderNotifications();
-        }
+    function initializeNotifications() {
+        renderStats();
+        renderNotifications();
     }
 
     function getTypeColor(type) {
-        if (type === '스케줄') return 'bg-blue-100 text-blue-800';
-        if (type === '직원') return 'bg-green-100 text-green-800';
+        if (type === '재고') return 'bg-orange-100 text-orange-800';
+        if (type === '발주') return 'bg-blue-100 text-blue-800';
+        if (type === '스왑') return 'bg-green-100 text-green-800';
         if (type === '공지') return 'bg-red-100 text-red-800';
         if (type === '시스템') return 'bg-purple-100 text-purple-800';
         return 'bg-gray-100 text-gray-800';
@@ -314,9 +323,9 @@
             return n.createdAt.substring(0, 10) === today;
         }).length;
 
-        document.getElementById('totalCount').innerText = total;
-        document.getElementById('unreadCount').innerText = unread;
-        document.getElementById('todayCount').innerText = todayCount;
+        document.getElementById('totalNotif').innerText = total;
+        document.getElementById('isReadNotif').innerText = unread;
+        document.getElementById('todayNotif').innerText = todayCount;
     }
 
     function filterAndSortNotifications() {
@@ -520,63 +529,23 @@
     }
 
     async function markAsRead(notificationId) {
-        try {
-            const response = await fetch(ctx + '/notification-data?action=read&id=' + notificationId, {
-                method: 'POST'
-            });
+        const notification = allNotifications.find(n => n.notificationId === notificationId);
 
-            if (!response.ok) {
-                throw new Error('읽음 처리 실패');
-            }
-
-            const notification = allNotifications.find(n => n.notificationId === notificationId);
-            if (notification) {
-                notification.isRead = true;
-            }
-
-            renderStats();
-            renderNotifications();
-
-        } catch (error) {
-            console.error(error);
-
-            // 백엔드 연결 전 테스트용
-            const notification = allNotifications.find(n => n.notificationId === notificationId);
-            if (notification) {
-                notification.isRead = true;
-            }
-
-            renderStats();
-            renderNotifications();
+        if (notification) {
+            notification.isRead = true;
         }
+
+        renderStats();
+        renderNotifications();
     }
 
     async function markAllAsRead() {
         if (!confirm('모든 알림을 읽음 처리하시겠습니까?')) return;
 
-        try {
-            const response = await fetch(ctx + '/notification-data?action=readAll', {
-                method: 'POST'
-            });
+        allNotifications.forEach(n => n.isRead = true);
 
-            if (!response.ok) {
-                throw new Error('전체 읽음 처리 실패');
-            }
-
-            allNotifications.forEach(n => n.isRead = true);
-
-            renderStats();
-            renderNotifications();
-
-        } catch (error) {
-            console.error(error);
-
-            // 백엔드 연결 전 테스트용
-            allNotifications.forEach(n => n.isRead = true);
-
-            renderStats();
-            renderNotifications();
-        }
+        renderStats();
+        renderNotifications();
     }
 
     function deleteNotificationFromModal() {
@@ -587,31 +556,11 @@
     async function deleteNotification(notificationId) {
         if (!confirm('이 알림을 삭제하시겠습니까?')) return;
 
-        try {
-            const response = await fetch(ctx + '/notification-data?action=delete&id=' + notificationId, {
-                method: 'POST'
-            });
+        allNotifications = allNotifications.filter(n => n.notificationId !== notificationId);
 
-            if (!response.ok) {
-                throw new Error('알림 삭제 실패');
-            }
-
-            allNotifications = allNotifications.filter(n => n.notificationId !== notificationId);
-
-            closeViewModal();
-            renderStats();
-            renderNotifications();
-
-        } catch (error) {
-            console.error(error);
-
-            // 백엔드 연결 전 테스트용
-            allNotifications = allNotifications.filter(n => n.notificationId !== notificationId);
-
-            closeViewModal();
-            renderStats();
-            renderNotifications();
-        }
+        closeViewModal();
+        renderStats();
+        renderNotifications();
     }
 
     function toggleMenu(button) {

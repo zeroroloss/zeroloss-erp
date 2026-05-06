@@ -33,6 +33,6 @@ public class Logout extends HttpServlet {
 	    if (session != null) {
 	        session.invalidate();
 	    }
-        response.sendRedirect(request.getContextPath() + "/common/login.jsp?logout=success");
+        response.sendRedirect(request.getContextPath() + "/common/login");
     }
 }

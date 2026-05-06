@@ -1,5 +1,9 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ page import="dto.AccountDTO" %>
+<%@ page import="java.util.List" %>
+<%@ page import="dto.NotificationDTO" %>
+<%@ page import="service.NotificationService" %>
+<%@ page import="service.NotificationServiceImpl" %>
 <%
     response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     response.setHeader("Pragma", "no-cache");
@@ -7,8 +11,32 @@
 
     AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
     if (loginUser == null) {
-        response.sendRedirect(request.getContextPath() + "/common/login.jsp");
+        response.sendRedirect(request.getContextPath() + "/common/login");
         return;
+    }
+%>
+<%
+    Integer sidebarAccountId = null;
+
+    if (session != null && session.getAttribute("accountId") != null) {
+        sidebarAccountId = (Integer) session.getAttribute("accountId");
+    }
+
+    NotificationService sidebarNotifService = new NotificationServiceImpl();
+
+    List<NotificationDTO> headerNotificationList = null;
+    int unreadCount = 0;
+
+    if (sidebarAccountId != null) {
+        headerNotificationList = sidebarNotifService.searchNotificationList(sidebarAccountId);
+
+        if (headerNotificationList != null) {
+            for (NotificationDTO notif : headerNotificationList) {
+                if (notif.getIsRead() == null || notif.getIsRead() == 0) {
+                    unreadCount++;
+                }
+            }
+        }
     }
 %>
 <%
@@ -59,9 +87,6 @@
 
 <aside id="sidebar" class="fixed top-0 left-0 h-screen w-72 bg-white border-r border-gray-200 z-30 transform -translate-x-full transition-transform duration-200 lg:translate-x-0 flex flex-col">
     <%
-        Integer unreadCount = (Integer) request.getAttribute("unreadCount");
-        if (unreadCount == null) unreadCount = 0;
-
         String titleText = "Zero Loss";
         String subText = "ERP";
 
@@ -93,10 +118,10 @@
                 <button onclick="openNotificationModal()" type="button" class="ml-auto p-2 rounded-lg hover:bg-gray-100 relative flex-shrink-0">
                     <i class="fas fa-bell text-gray-700 w-5 h-5"></i>
                     <% if (unreadCount > 0) { %>
-                    <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
-	                        <%= unreadCount > 99 ? "99+" : unreadCount %>
-	                    </span>
-                    <% } %>
+					<span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">
+					    <%= unreadCount > 99 ? "99+" : unreadCount %>
+					</span>
+					<% } %>
                 </button>
                 <!-- Notification Dropdown -->
                 <div id="notificationModal"
@@ -108,7 +133,7 @@
                             <h3 class="text-lg font-bold text-gray-900">알림</h3>
                             <p class="text-sm text-gray-500">
                                 읽지 않은 알림
-                                <span class="font-semibold text-[#00853D]"><%= unreadCount %></span>개
+                                <span class="font-semibold text-[#00853D]"><%=unreadCount %></span>개
                             </p>
                         </div>
 
@@ -120,41 +145,88 @@
                     </div>
 
                     <!-- Body -->
-                    <div class="max-h-[420px] overflow-y-auto">
-                        <% if (unreadCount == 0) { %>
-                        <div class="px-5 py-10 text-center text-gray-500">
-                            <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
-                                <i class="fas fa-bell-slash text-gray-400"></i>
-                            </div>
-                            <p class="text-sm">새로운 알림이 없습니다.</p>
-                        </div>
-                        <% } else { %>
-                        <div class="divide-y divide-gray-100">
-                            <div class="px-5 py-4 hover:bg-gray-50 cursor-pointer">
-                                <div class="flex gap-3">
-                                    <div class="w-9 h-9 rounded-full bg-[#00853D]/10 flex items-center justify-center flex-shrink-0">
-                                        <i class="fas fa-bell text-[#00853D] text-sm"></i>
-                                    </div>
-
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center justify-between gap-2">
-                                            <p class="text-sm font-semibold text-gray-900 truncate">새 알림이 도착했습니다</p>
-                                            <span class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></span>
-                                        </div>
-                                        <p class="text-sm text-gray-600 mt-1 line-clamp-2">
-                                            확인이 필요한 알림 내용입니다.
-                                        </p>
-                                        <p class="text-xs text-gray-400 mt-2">방금 전</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <% } %>
-                    </div>
+					<div id="notificationScrollBody"
+					     class="max-h-[420px] overflow-y-auto cursor-grab active:cursor-grabbing select-none">
+					
+					    <% if (unreadCount == 0) { %>
+					        <div class="px-5 py-10 text-center text-gray-500">
+					            <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 flex items-center justify-center">
+					                <i class="fas fa-bell-slash text-gray-400"></i>
+					            </div>
+					            <p class="text-sm">새로운 알림이 없습니다.</p>
+					        </div>
+					    <% } else { %>
+					        <div class="divide-y divide-gray-100">
+					            <%
+					                for (NotificationDTO notif : headerNotificationList) {
+					                    if (notif.getIsRead() != null && notif.getIsRead() == 1) {
+					                        continue;
+					                    }
+					
+					                    String iconClass = "fa-bell";
+					                    String iconBg = "bg-[#00853D]/10";
+					                    String iconColor = "text-[#00853D]";
+					
+					                    if ("INVENTORY".equals(notif.getCategory())) {
+					                        iconClass = "fa-boxes-stacked";
+					                        iconBg = "bg-orange-100";
+					                        iconColor = "text-orange-600";
+					                    } else if ("ORDER".equals(notif.getCategory())) {
+					                        iconClass = "fa-truck";
+					                        iconBg = "bg-blue-100";
+					                        iconColor = "text-blue-600";
+					                    } else if ("SWAP".equals(notif.getCategory())) {
+					                        iconClass = "fa-right-left";
+					                        iconBg = "bg-green-100";
+					                        iconColor = "text-green-600";
+					                    } else if ("BOARD".equals(notif.getCategory())) {
+					                        iconClass = "fa-comments";
+					                        iconBg = "bg-purple-100";
+					                        iconColor = "text-purple-600";
+					                    } else if ("SYSTEM".equals(notif.getCategory())) {
+					                        iconClass = "fa-gear";
+					                        iconBg = "bg-gray-100";
+					                        iconColor = "text-gray-600";
+					                    }
+					            %>
+					
+					            <div class="px-5 py-4 hover:bg-gray-50 cursor-pointer"
+					                 onclick="goNotificationTarget('<%= notif.getTargetType() %>', <%= notif.getTargetId() %>, <%= notif.getNotificationId() %>)">
+					
+					                <div class="flex gap-3">
+					                    <div class="w-9 h-9 rounded-full <%= iconBg %> flex items-center justify-center flex-shrink-0">
+					                        <i class="fas <%= iconClass %> <%= iconColor %> text-sm"></i>
+					                    </div>
+					
+					                    <div class="flex-1 min-w-0">
+					                        <div class="flex items-center justify-between gap-2">
+					                            <p class="text-sm font-semibold text-gray-900 truncate">
+					                                <%= notif.getTitle() %>
+					                            </p>
+					                            <span class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></span>
+					                        </div>
+					
+					                        <p class="text-sm text-gray-600 mt-1 line-clamp-2">
+					                            <%= notif.getMessage() %>
+					                        </p>
+					
+					                        <p class="text-xs text-gray-400 mt-2">
+					                            <%= notif.getCreatedAt() %>
+					                        </p>
+					                    </div>
+					                </div>
+					            </div>
+					
+					            <%
+					                }
+					            %>
+					        </div>
+					    <% } %>
+					</div>
 
                     <!-- Footer -->
                     <div class="px-5 py-3 border-t border-gray-200 bg-gray-50">
-                        <a href="<%= request.getContextPath() %>/hq/common/notification.jsp"
+                        <a href="<%= request.getContextPath() %>/hq/common/notification"
                            class="w-full inline-flex items-center justify-center gap-2 text-sm font-semibold text-[#00853D] hover:text-[#006B2F]">
                             전체 알림 보기
                             <i class="fas fa-arrow-right text-xs"></i>
@@ -325,7 +397,16 @@
 
     document.addEventListener('click', function(e) {
         var modal = document.getElementById('notificationModal');
+
+        if (!modal || modal.classList.contains('hidden')) {
+            return;
+        }
+
         var buttonArea = modal.closest('.relative');
+
+        if (!buttonArea) {
+            return;
+        }
 
         if (!buttonArea.contains(e.target)) {
             modal.classList.add('hidden');
@@ -337,4 +418,28 @@
             closeNotificationModal();
         }
     });
+    
+    // 이동 주소 매핑
+    function goNotificationTarget(targetType, targetId, notificationId) {
+	    var ctx = '<%= request.getContextPath() %>';
+	    var url = '';
+	
+	    if (targetType === 'HQ_INVENTORY') {
+	        url = ctx + '/hq/warehouse/stock';
+	    } else if (targetType === 'BRANCH_INVENTORY') {
+	        url = ctx + '/hq/branch_stock/stock';
+	    } else if (targetType === 'ORDER') {
+	        url = ctx + '/hq/place_order/overview';
+	    } else if (targetType === 'INQUIRY') {
+	        url = ctx + '/hq/support/inquiries';
+	    } else if (targetType === 'NOTICE') {
+	        url = ctx + '/hq/support/notices';
+	    } else if (targetType === 'RECIPE') {
+	        url = ctx + '/hq/recipe/management';
+	    } else {
+	        url = ctx + '/branch/common/notification';
+	    }
+	
+	    location.href = url;
+	}
 </script>
