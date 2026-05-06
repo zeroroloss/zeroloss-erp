@@ -22,6 +22,8 @@ import com.google.gson.JsonSerializer;
 
 import dto.AccountDTO;
 import dto.BranchStockDTO;
+import service.branch.stock.BranchStockAlertService;
+import service.branch.stock.BranchStockAlertServiceImpl;
 import service.branch.stock.BranchStockService;
 import service.branch.stock.BranchStockServiceImpl;
 
@@ -78,6 +80,10 @@ public class StockStatusController extends HttpServlet {
 			int totalCount = branchStockService.selectBranchStockCount(params);
 			List<BranchStockDTO> list = branchStockService.selectBranchStockList(params);
 
+			// 재고 알림 체크
+			BranchStockAlertService branchStockAlertService = new BranchStockAlertServiceImpl();
+			branchStockAlertService.sendStockAlerts(branchCode, loginUser.getAccountId());
+			
 			Map<String, Object> result = new HashMap<>();
 			result.put("list", list);
 			result.put("totalCount", totalCount);

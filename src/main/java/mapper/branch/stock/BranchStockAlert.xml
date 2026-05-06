@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.branch.stock.alert">
+
+	<!-- 유통기한 만료 -->
+	<select id="selectExpiredStock" parameterType="int"
+		resultType="dto.BranchStockDTO">
+		SELECT
+		bs.branch_stock_code AS branchStockCode,
+		m.material_name AS materialName,
+		bs.expire_date AS expireDate,
+		bs.current_qty AS currentQty
+		FROM branch_stock bs
+		JOIN material m ON
+		bs.material_code = m.material_code
+		WHERE bs.branch_code = #{branchCode}
+		AND bs.current_qty > 0
+		AND bs.expire_date &lt; CURDATE()
+	</select>
+
+	<!-- 유통기한 긴급 (1일 이내) -->
+	<select id="selectUrgentStock" parameterType="int"
+		resultType="dto.BranchStockDTO">
+		SELECT
+		bs.branch_stock_code AS branchStockCode,
+		m.material_name AS materialName,
+		bs.expire_date AS expireDate,
+		bs.current_qty AS currentQty
+		FROM branch_stock bs
+		JOIN material m ON
+		bs.material_code = m.material_code
+		WHERE bs.branch_code = #{branchCode}
+		AND bs.current_qty > 0
+		AND bs.expire_date = CURDATE() + INTERVAL 1 DAY
+	</select>
+
+	<!-- 유통기한 경고 (3일 이내) -->
+	<select id="selectWarningStock" parameterType="int"
+		resultType="dto.BranchStockDTO">
+		SELECT
+		bs.branch_stock_code AS branchStockCode,
+		m.material_name AS materialName,
+		bs.expire_date AS expireDate,
+		bs.current_qty AS currentQty
+		FROM branch_stock bs
+		JOIN material m ON
+		bs.material_code = m.material_code
+		WHERE bs.branch_code = #{branchCode}
+		AND bs.current_qty > 0
+		AND bs.expire_date &gt; CURDATE() + INTERVAL 1
+		DAY
+		AND bs.expire_date &lt;= CURDATE() + INTERVAL 3 DAY
+	</select>
+
+	<!-- 재고 완전 소진 -->
+	<select id="selectEmptyStock" parameterType="int"
+		resultType="dto.BranchStockDTO">
+		SELECT
+		bs.branch_stock_code AS branchStockCode,
+		m.material_name AS materialName,
+		bs.expire_date AS expireDate,
+		bs.current_qty AS currentQty
+		FROM branch_stock bs
+		JOIN material m ON bs.material_code = m.material_code
+		WHERE bs.branch_code = #{branchCode}
+		AND bs.current_qty = 0
+	</select>
+
+	<!-- 안전재고 미달 (0 제외) -->
+	<select id="selectLackStock" parameterType="int"
+		resultType="dto.BranchStockDTO">
+		SELECT
+		bs.branch_stock_code AS branchStockCode,
+		m.material_name AS materialName,
+		bs.expire_date AS expireDate,
+		bs.current_qty AS currentQty,
+		ss.safe_stock_qty AS safeStockQty
+		FROM branch_stock bs
+		JOIN material m ON bs.material_code = m.material_code
+		JOIN branch_material_safety_stock ss
+		ON ss.branch_code = bs.branch_code
+		AND ss.material_code = bs.material_code
+		WHERE bs.branch_code = #{branchCode}
+		AND bs.current_qty > 0
+		AND ss.safe_stock_qty > 0
+		AND bs.current_qty &lt; ss.safe_stock_qty
+	</select>
+
+	<!-- 알림 insert -->
+	<insert id="insertNotification"
+		parameterType="dto.NotificationDTO" useGeneratedKeys="true"
+		keyProperty="notificationId">
+		INSERT INTO notification (category, title, message,
+		target_type, target_id,
+		created_at)
+		VALUES ('INVENTORY', #{title},
+		#{message}, 'BRANCH', #{targetId}, NOW())
+	</insert>
+
+	<!-- 알림 수신자 insert -->
+	<insert id="insertNotificationReceiver"
+		parameterType="dto.NotificationDTO">
+		INSERT INTO notification_receiver (notification_id,
+		account_id)
+		VALUES (#{notificationId}, #{accountId})
+	</insert>
+
+	<!-- 오늘 동일 알림 중복 체크 -->
+	<select id="existsTodayNotification"
+		parameterType="dto.NotificationDTO" resultType="Integer">
+		SELECT COUNT(*)
+		FROM
+		notification n
+		JOIN notification_receiver nr ON n.notification_id =
+		nr.notification_id
+		WHERE nr.account_id = #{accountId}
+		AND n.title =
+		#{title}
+		AND n.message = #{message}
+		AND DATE(n.created_at) = CURDATE()
+	</select>
+
+
+</mapper>

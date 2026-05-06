@@ -17,6 +17,8 @@ import dto.BranchStockChangeHistoryDTO;
 import dto.BranchStockDisposalHistoryDTO;
 import service.branch.stock.BranchDisposalService;
 import service.branch.stock.BranchDisposalServiceImpl;
+import service.branch.stock.BranchStockAlertService;
+import service.branch.stock.BranchStockAlertServiceImpl;
 
 /**
  * Servlet implementation class BranchStockDisposal
@@ -97,6 +99,9 @@ public class BranchStockDisposal extends HttpServlet {
 	                response.getWriter().write("{\"error\":\"재고 수량 차감에 실패했습니다.\"}");
 	                return;
 	            }
+	         // 6. 재고 알림 체크
+	            BranchStockAlertService branchStockAlertService = new BranchStockAlertServiceImpl();
+	            branchStockAlertService.sendStockAlerts(loginUser.getBranchCode(), loginUser.getAccountId());
 
 	            response.getWriter().write("{\"success\":true}");
 
