@@ -220,9 +220,14 @@
         }
         const response = await fetch(ctx + `/RecipeManagementController?action=subcategories&mainCategoryId=\${mainCategoryId}`);
         const subCats = await response.json();
+        
+        
+        //전체 제외
+        const filtered = subCats.filter(sub => sub.name !== '전체');
+        
         let html = '<option value="">서브 카테고리 선택</option>';
-        subCats.forEach(sub => {
-            html += `<option value="\${sub.subCategoryCode}">\${sub.name}</option>`;
+        filtered.forEach(sub => {
+        	html += '<option value="' + sub.subCategoryCode + '">' + sub.name + '</option>';
         });
         subSelect.innerHTML = html;
         subSelect.disabled = false;
@@ -516,6 +521,9 @@
         formData.append('price', document.getElementById('formPrice').value || 0);
         formData.append('instructions', document.getElementById('formInstructions').value.trim());
         formData.append('isActive', document.getElementById('formIsActive').checked);
+        const categorySelect = document.getElementById('formMainCategory');
+        const categoryName = categorySelect.options[categorySelect.selectedIndex].text;
+        formData.append("categoryName", categoryName);
 
         const validIngredients = formIngredients.filter(ing => ing.materialCode && ing.quantity);
         formData.append('ingredients', JSON.stringify(validIngredients));

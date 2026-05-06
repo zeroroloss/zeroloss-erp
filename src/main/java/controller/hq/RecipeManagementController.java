@@ -104,13 +104,24 @@ public class RecipeManagementController extends HttpServlet {
         // 2. 이미지 파일 처리
         Part imagePart = request.getPart("image");
         if (imagePart != null && imagePart.getSize() > 0) {
-            String uploadPath = getServletContext().getRealPath("") + "uploads" + File.separator + "recipe_images";
+        	
+        	String categoryName = request.getParameter("categoryName");
+        	
+        	Map<String, String> categoryMap = new HashMap<>();
+        	categoryMap.put("샌드위치", "sandwich");
+        	categoryMap.put("샐러드",   "salad");
+        	categoryMap.put("사이드",   "side");
+        	categoryMap.put("음료/수프", "beverage");
+        	
+        	String categoryFolder = categoryMap.getOrDefault(categoryName, categoryName);
+        	
+            String uploadPath = getServletContext().getRealPath("") + "upload" + File.separator + "recipe" + File.separator + categoryFolder;
             File uploadDir = new File(uploadPath);
             if (!uploadDir.exists()) uploadDir.mkdirs();
 
-            String fileName = UUID.randomUUID().toString() + "_" + Paths.get(imagePart.getSubmittedFileName()).getFileName().toString();
+            String fileName = Paths.get(imagePart.getSubmittedFileName()).getFileName().toString();
             imagePart.write(uploadPath + File.separator + fileName);
-            dto.setImage("uploads/recipe_images/" + fileName);
+            dto.setImage("upload/recipe/" + categoryFolder + "/" + fileName);
         }
         // [수정] imagePath 파라미터를 받는 부분 제거
 
