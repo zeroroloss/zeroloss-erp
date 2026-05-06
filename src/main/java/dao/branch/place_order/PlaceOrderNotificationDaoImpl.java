@@ -26,5 +26,4 @@ public class PlaceOrderNotificationDaoImpl implements PlaceOrderNotificationDao 
         return sqlSession.insert(MAPPER_NAMESPACE + "insertNotifiReceiver", receiverDTO);
 
 	}
-	
 }

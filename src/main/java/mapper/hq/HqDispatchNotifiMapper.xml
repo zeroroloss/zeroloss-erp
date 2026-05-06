@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.hq.delivery">
+
+    <!-- 알림 생성 -->
+    <insert id="insertNotification" parameterType="dto.NotificationDTO"
+            useGeneratedKeys="true" keyProperty="notificationId">
+        INSERT INTO notification (
+            category,
+            title,
+            message,
+            target_type,
+            target_id,
+            created_at
+        )
+        VALUES (
+            #{category},
+            #{title},
+            #{message},
+            #{targetType},
+            #{targetId},
+            NOW()
+        )
+    </insert>
+
+    <!-- 발주번호 기준 지점 계정 조회 -->
+    <select id="selectAccountIdsByPoNo" parameterType="string" resultType="int">
+        SELECT DISTINCT a.account_id
+        FROM place_order po
+        JOIN branch b ON po.branch_code = b.branch_code
+        JOIN account a ON a.branch_code = b.branch_code
+        WHERE po.po_no = #{poNo}
+    </select>
+
+    <!-- 알림 수신자 -->
+    <insert id="insertNotifiReceiver" parameterType="dto.NotificationReceiverDTO">
+        INSERT INTO notification_receiver (
+            notification_id,
+            account_id,
+            is_read,
+            read_at
+        )
+        VALUES (
+            #{notificationId},
+            #{accountId},
+            0,
+            NULL
+        )
+    </insert>
+    
+    <!-- 발주서 정보(헤더) 조회 -->
+    <select id="findPlaceOrderHeaderByPoNo" resultType="dto.hq.place_order.PlaceOrderProcessingDTO">
+	    SELECT po.po_id AS poId,
+	           po.po_no AS poNo,
+	           po.branch_code AS branchCode,
+	           b.name AS branchName
+	    FROM place_order po
+	    JOIN branch b ON po.branch_code = b.branch_code
+	    WHERE po.po_no = #{poNo}
+	</select>
+
+</mapper>
