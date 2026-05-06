@@ -263,7 +263,7 @@
 		            }
 
 		            String title = n.getTitle() == null ? "" : n.getTitle().replace("\\", "\\\\").replace("'", "\\'").replace("\r", "").replace("\n", "\\n");
-		            String message = n.getMessage() == null ? "" : n.getMessage().replace("\\", "\\\\").replace("'", "\\'").replace("\r", "").replace("\n", "\\n");
+                    String message = n.getMessage() == null ? "" : n.getMessage().replaceAll("\\s*-\\s*\\d+\\s*수량:\\s*\\d+(\\.\\d+)?", "").replaceAll("\\(코드:\\s*\\d+\\)", "").replace("\\", "\\\\").replace("'", "\\'").replace("\r", "").replace("\n", "\\n");
 		            String createdAt = n.getCreatedAt() == null ? "" : String.valueOf(n.getCreatedAt());
 		%>
 		    {
