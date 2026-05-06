@@ -459,8 +459,8 @@
         var sameName    = stockData.filter(function (x) { return x.materialName === clicked.materialName; });
         var validList   = sameName.filter(function (x) { return !isExpired(x.expireDate); });
         var expiredList = sameName.filter(function (x) { return  isExpired(x.expireDate); });
-        var validQty    = validList.reduce(function (a, b) { return a + b.currentQty; }, 0);
-        var expiredQty  = expiredList.reduce(function (a, b) { return a + b.currentQty; }, 0);
+        var validQty    = validList.reduce(function (a, b) { return a + parseInt(b.currentQty); }, 0);
+        var expiredQty  = expiredList.reduce(function (a, b) { return a + parseInt(b.currentQty); }, 0);
         var safetyQty   = clicked.safeStockQty;
         var st          = getSafetyStatus(validQty, safetyQty);
         var pct         = safetyQty ? Math.min(Math.round(validQty / safetyQty * 100), 100) : 100;
