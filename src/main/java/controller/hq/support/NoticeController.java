@@ -5,6 +5,12 @@ import dto.NoticeDTO;
 import service.hq.NoticeService;
 import service.hq.NoticeServiceImpl;
 import util.GsonFactory;
+import org.apache.ibatis.session.SqlSession;
+import util.MyBatisSqlSessionFactory;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -74,10 +80,67 @@ public class NoticeController extends HttpServlet {
             if ("update".equals(action)) {
                 noticeDTO.setLastDate(now);
                 noticeService.updateNotice(noticeDTO);
+
+                // 알림 생성: 본사 제외 모든 지점 계정에 알림 전송
+                try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false)) {
+                    Connection conn = sqlSession.getConnection();
+                    String notifSql = "INSERT INTO notification (category, title, message, target_type, target_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+                    try (PreparedStatement ps = conn.prepareStatement(notifSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                        ps.setString(1, "BOARD");
+                        ps.setString(2, "공지사항 수정: " + noticeDTO.getTitle());
+                        ps.setString(3, noticeDTO.getTitle() + " - " + (noticeDTO.getLastDate() != null ? noticeDTO.getLastDate() : now));
+                        ps.setString(4, "NOTICE");
+                        ps.setNull(5, java.sql.Types.INTEGER);
+                        ps.executeUpdate();
+                        try (ResultSet keys = ps.getGeneratedKeys()) {
+                            if (keys.next()) {
+                                int notifId = keys.getInt(1);
+                                String recvSql = "INSERT INTO notification_receiver (notification_id, account_id, is_read) SELECT ?, account_id, FALSE FROM account WHERE branch_code <> 1";
+                                try (PreparedStatement ps2 = conn.prepareStatement(recvSql)) {
+                                    ps2.setInt(1, notifId);
+                                    ps2.executeUpdate();
+                                }
+                            }
+                        }
+                        sqlSession.commit();
+                    }
+                } catch (SQLException sqle) {
+                    // 알림 실패는 로그만 남기고 진행
+                    sqle.printStackTrace();
+                }
+
             } else {
                 noticeDTO.setCreatedAt(now);
                 noticeDTO.setLastDate(now);
                 noticeService.createNotice(noticeDTO);
+
+                // 알림 생성: 본사 제외 모든 지점 계정에 알림 전송
+                try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false)) {
+                    Connection conn = sqlSession.getConnection();
+                    String notifSql = "INSERT INTO notification (category, title, message, target_type, target_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+                    try (PreparedStatement ps = conn.prepareStatement(notifSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                        ps.setString(1, "BOARD");
+                        ps.setString(2, "공지사항 등록: " + noticeDTO.getTitle());
+                        ps.setString(3, noticeDTO.getTitle() + " - " + (noticeDTO.getCreatedAt() != null ? noticeDTO.getCreatedAt() : now));
+                        ps.setString(4, "NOTICE");
+                        ps.setNull(5, java.sql.Types.INTEGER);
+                        ps.executeUpdate();
+                        try (ResultSet keys = ps.getGeneratedKeys()) {
+                            if (keys.next()) {
+                                int notifId = keys.getInt(1);
+                                String recvSql = "INSERT INTO notification_receiver (notification_id, account_id, is_read) SELECT ?, account_id, FALSE FROM account WHERE branch_code <> 1";
+                                try (PreparedStatement ps2 = conn.prepareStatement(recvSql)) {
+                                    ps2.setInt(1, notifId);
+                                    ps2.executeUpdate();
+                                }
+                            }
+                        }
+                        sqlSession.commit();
+                    }
+                } catch (SQLException sqle) {
+                    // 알림 실패는 로그만 남기고 진행
+                    sqle.printStackTrace();
+                }
             }
 
             resp.setStatus(HttpServletResponse.SC_OK);

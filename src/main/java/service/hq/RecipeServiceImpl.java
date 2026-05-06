@@ -12,6 +12,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class RecipeServiceImpl implements RecipeService {
 
@@ -51,7 +55,7 @@ public class RecipeServiceImpl implements RecipeService {
             RecipeViewDTO recipe = recipeDao.selectRecipeDetail(session, id);
             if (recipe != null) {
                 // 원가 재계산 로직 추가
-                int totalCost = 0;
+                double totalCost = 0.0;
                 List<RecipeViewDTO.RecipeIngredientDTO> ingredients = recipe.getIngredients();
                 if (ingredients != null && !ingredients.isEmpty()) {
                     // 재료 코드 목록 추출
@@ -66,12 +70,12 @@ public class RecipeServiceImpl implements RecipeService {
 
                     for (RecipeViewDTO.RecipeIngredientDTO ingredient : ingredients) {
                         Integer price = materialPriceMap.get(ingredient.getMaterialCode());
-                        if (price != null) {
+                        if (price != null && ingredient.getQuantity() != null) {
                             totalCost += price * ingredient.getQuantity();
                         }
                     }
                 }
-                recipe.setCost(totalCost);
+                recipe.setCost((int)Math.round(totalCost));
             }
             return recipe;
         }
@@ -81,8 +85,9 @@ public class RecipeServiceImpl implements RecipeService {
     public boolean saveRecipe(RecipeViewDTO dto) {
         SqlSession session = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false);
         try {
+            boolean isNew = (dto.getId() == null || dto.getId().trim().isEmpty());
             // 1. 원가 계산
-            int totalCost = 0;
+            double totalCost = 0.0;
             List<RecipeViewDTO.RecipeIngredientDTO> ingredients = dto.getIngredients();
             if (ingredients != null && !ingredients.isEmpty()) {
                 List<String> materialCodes = ingredients.stream()
@@ -95,12 +100,12 @@ public class RecipeServiceImpl implements RecipeService {
 
                 for (RecipeViewDTO.RecipeIngredientDTO ingredient : ingredients) {
                     Integer price = materialPriceMap.get(ingredient.getMaterialCode());
-                    if (price != null) {
+                    if (price != null && ingredient.getQuantity() != null) {
                         totalCost += price * ingredient.getQuantity();
                     }
                 }
             }
-            dto.setCost(totalCost);
+            dto.setCost((int)Math.round(totalCost));
 
             // 2. 레시피 저장 (INSERT or UPDATE)
             if (dto.getId() == null || dto.getId().trim().isEmpty()) {
@@ -124,6 +129,49 @@ public class RecipeServiceImpl implements RecipeService {
                 recipeDao.insertRecipeDetails(session, paramMap);
             }
 
+            // 4. 알림 생성 (본사 제외 모든 지점 계정 대상으로)
+            try {
+                Connection conn = session.getConnection();
+                // 4.1 notification 본문 삽입
+                String notifSql = "INSERT INTO notification (category, title, message, target_type, target_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+                try (PreparedStatement ps = conn.prepareStatement(notifSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                    String actionTitle = isNew ? "레시피 등록" : "레시피 수정";
+                    String title = actionTitle + ": " + dto.getName();
+                    String message = dto.getName() + "(코드: " + dto.getId() + ") 레시피가 " + (isNew ? "등록" : "수정") + "되었습니다.";
+                    ps.setString(1, "SYSTEM"); // category
+                    ps.setString(2, title);
+                    ps.setString(3, message);
+                    ps.setString(4, "RECIPE");
+                    // target_id는 notification.target_id가 INT이므로
+                    // 레시피 id가 정수 문자열이면 저장하고, 아니면 NULL로 둡니다.
+                    Integer targetIdInt = null;
+                    try {
+                        if (dto.getId() != null) targetIdInt = Integer.parseInt(dto.getId());
+                    } catch (NumberFormatException nfe) {
+                        // 숫자가 아닐 경우 NULL로 둠
+                    }
+                    if (targetIdInt != null) ps.setInt(5, targetIdInt); else ps.setNull(5, java.sql.Types.INTEGER);
+                    ps.executeUpdate();
+
+                    try (ResultSet keys = ps.getGeneratedKeys()) {
+                        if (keys.next()) {
+                            int notifId = keys.getInt(1);
+                            // 4.2 notification_receiver에 수신자 추가 (branch_code <> 1)
+                            String recvSql = "INSERT INTO notification_receiver (notification_id, account_id, is_read) SELECT ?, account_id, FALSE FROM account WHERE branch_code <> 1";
+                            try (PreparedStatement ps2 = conn.prepareStatement(recvSql)) {
+                                ps2.setInt(1, notifId);
+                                ps2.executeUpdate();
+                            }
+                        }
+                    }
+                }
+            } catch (SQLException sqle) {
+                // 알림 실패는 레시피 저장 전체 실패로 처리
+                session.rollback();
+                sqle.printStackTrace();
+                return false;
+            }
+
             session.commit();
             return true;
         } catch (Exception e) {
@@ -139,8 +187,49 @@ public class RecipeServiceImpl implements RecipeService {
     public boolean deleteRecipe(String id) {
         SqlSession session = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false);
         try {
+            // (선택) 삭제 전에 레시피명 조회
+            RecipeViewDTO recipe = recipeDao.selectRecipeDetail(session, id);
+
             recipeDao.deleteRecipeDetails(session, id); // BOM 먼저 삭제
             recipeDao.deleteRecipe(session, id);
+
+            // 알림 생성 (본사 제외 모든 지점)
+            try {
+                Connection conn = session.getConnection();
+                String notifSql = "INSERT INTO notification (category, title, message, target_type, target_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+                try (PreparedStatement ps = conn.prepareStatement(notifSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                    String title = "레시피 삭제: " + (recipe != null ? recipe.getName() : id);
+                    String message = (recipe != null ? recipe.getName() : id) + "(코드: " + id + ") 레시피가 삭제되었습니다.";
+                    ps.setString(1, "SYSTEM");
+                    ps.setString(2, title);
+                    ps.setString(3, message);
+                    ps.setString(4, "RECIPE");
+                    Integer targetIdInt = null;
+                    try {
+                        if (id != null) targetIdInt = Integer.parseInt(id);
+                    } catch (NumberFormatException nfe) {
+                        // ignore
+                    }
+                    if (targetIdInt != null) ps.setInt(5, targetIdInt); else ps.setNull(5, java.sql.Types.INTEGER);
+                    ps.executeUpdate();
+
+                    try (ResultSet keys = ps.getGeneratedKeys()) {
+                        if (keys.next()) {
+                            int notifId = keys.getInt(1);
+                            String recvSql = "INSERT INTO notification_receiver (notification_id, account_id, is_read) SELECT ?, account_id, FALSE FROM account WHERE branch_code <> 1";
+                            try (PreparedStatement ps2 = conn.prepareStatement(recvSql)) {
+                                ps2.setInt(1, notifId);
+                                ps2.executeUpdate();
+                            }
+                        }
+                    }
+                }
+            } catch (SQLException sqle) {
+                session.rollback();
+                sqle.printStackTrace();
+                return false;
+            }
+
             session.commit();
             return true;
         } catch (PersistenceException e) {

@@ -14,62 +14,61 @@
     </style>
 </head>
 <body class="bg-gray-50">
-    <%@ include file="/hq/common/sidebar.jsp" %>
+<%@ include file="/hq/common/sidebar.jsp" %>
 
-    <div class="lg:pl-72">
-        <main class="p-6">
-            <div class="space-y-6">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h2 class="text-3xl font-bold text-gray-900">레시피 관리</h2>
-                        <p class="text-gray-500 mt-2">메뉴 레시피를 등록하고 관리하세요</p>
-                    </div>
-                    <button onclick="openCreateModal()" class="px-6 py-3 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors flex items-center gap-2 font-medium whitespace-nowrap">
-                        <i class="fas fa-plus w-4 h-4"></i> 신규 레시피 등록
-                    </button>
+<div class="lg:pl-72">
+    <main class="p-6">
+        <div class="space-y-6">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900">레시피 관리</h2>
+                    <p class="text-gray-500 mt-2">메뉴 레시피를 등록하고 관리하세요</p>
                 </div>
+                <button onclick="openCreateModal()" class="px-6 py-3 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors flex items-center gap-2 font-medium whitespace-nowrap">
+                    <i class="fas fa-plus w-4 h-4"></i> 신규 레시피 등록
+                </button>
+            </div>
 
-                <div class="bg-white rounded-lg border border-gray-200 p-6">
-                    <div class="space-y-4">
-                        <div class="flex flex-col lg:flex-row gap-6">
-                            <div class="flex-1">
-                                <label class="text-sm font-medium text-gray-700 mb-2 block">카테고리</label>
-                                <div id="categoryFilters" class="flex flex-wrap gap-2"></div>
-                            </div>
-
-                            <div id="subCategorySection" class="hidden flex-1">
-                                <label class="text-sm font-medium text-gray-700 mb-2 block">서브 카테고리</label>
-                                <div id="subCategoryFilters" class="flex flex-wrap gap-2"></div>
-                            </div>
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="space-y-4">
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <div class="flex-1">
+                            <label class="text-sm font-medium text-gray-700 mb-2 block">카테고리</label>
+                            <div id="categoryFilters" class="flex flex-wrap gap-2"></div>
                         </div>
 
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <div class="flex-1 relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                                <input type="text" id="searchInput" placeholder="레시피명 검색..." onkeyup="handleSearchKeyup(event)" class="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
-                                <button onclick="applyFilters()" class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-[#00853D] transition-colors">
-                                    <i class="fas fa-search w-4 h-4"></i>
-                                </button>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="setActiveFilter('all')" id="filterAll" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-900 text-white">전체</button>
-                                <button onclick="setActiveFilter('active')" id="filterActive" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">활성화</button>
-                                <button onclick="setActiveFilter('inactive')" id="filterInactive" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">비활성화</button>
-                            </div>
+                        <div id="subCategorySection" class="hidden flex-1">
+                            <label class="text-sm font-medium text-gray-700 mb-2 block">서브 카테고리</label>
+                            <div id="subCategoryFilters" class="flex flex-wrap gap-2"></div>
                         </div>
                     </div>
-                </div>
 
-                <div id="recipeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-
-                <div id="emptyState" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
-                    <i class="fas fa-book w-16 h-16 text-gray-300 mx-auto mb-4"></i>
-                    <p class="text-gray-500 text-lg mb-2">검색 결과가 없습니다</p>
-                    <p class="text-gray-400 text-sm">다른 검색어나 필터를 시도해보세요</p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <div class="flex-1 relative">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                            <input type="text" id="searchInput" placeholder="레시피명 검색..." onkeyup="handleSearchKeyup(event)" class="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
+                            <button onclick="applyFilters()" class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-[#00853D] transition-colors">
+                                <i class="fas fa-search w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="setActiveFilter('all')" id="filterAll" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-900 text-white">전체</button>
+                            <button onclick="setActiveFilter('active')" id="filterActive" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">활성화</button>
+                            <button onclick="setActiveFilter('inactive')" id="filterInactive" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">비활성화</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </main>
-    </div>
+
+            <div id="recipeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+
+            <div id="emptyState" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
+                <i class="fas fa-book w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                <p class="text-gray-500 text-lg mb-2">검색 결과가 없습니다</p>
+                <p class="text-gray-400 text-sm">다른 검색어나 필터를 시도해보세요</p>
+            </div>
+        </div>
+    </main>
 </div>
 
 <div id="viewModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 modal-hidden">
@@ -96,7 +95,6 @@
 
         <div class="p-6 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Left Side: Image Upload -->
                 <div class="md:col-span-1">
                     <label class="block text-sm font-medium text-gray-700 mb-2">레시피 이미지</label>
                     <div id="imageUploadArea" class="w-full h-48 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-center cursor-pointer hover:border-green-500 transition">
@@ -109,7 +107,6 @@
                     <button id="removeImageBtn" onclick="removeImage()" class="hidden text-xs text-red-500 hover:text-red-700 mt-2">이미지 삭제</button>
                 </div>
 
-                <!-- Right Side: Form Fields -->
                 <div class="md:col-span-2 space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">레시피명</label>
@@ -174,7 +171,6 @@
 </div>
 
 <script>
-    // ...existing code...
     let mainCategories = [];
     let materialList = [];
     let currentRecipes = [];
@@ -220,14 +216,12 @@
         }
         const response = await fetch(ctx + `/RecipeManagementController?action=subcategories&mainCategoryId=\${mainCategoryId}`);
         const subCats = await response.json();
-        
-        
-        //전체 제외
+
+        // 전체 제외
         const filtered = subCats.filter(sub => sub.name !== '전체');
-        
         let html = '<option value="">서브 카테고리 선택</option>';
         filtered.forEach(sub => {
-        	html += '<option value="' + sub.subCategoryCode + '">' + sub.name + '</option>';
+            html += '<option value="' + sub.subCategoryCode + '">' + sub.name + '</option>';
         });
         subSelect.innerHTML = html;
         subSelect.disabled = false;
@@ -248,7 +242,7 @@
         const totalCost = formIngredients.reduce((sum, ing) => {
             const material = materialList.find(m => String(m.materialCode) === String(ing.materialCode));
             const quantity = parseFloat(ing.quantity) || 0;
-            const cost = material ? parseFloat(material.materialPrice) : 0; // 변경: price -> materialPrice
+            const cost = material ? parseFloat(material.materialPrice) : 0;
             return sum + (quantity * cost);
         }, 0);
         document.getElementById('formCost').value = Math.round(totalCost);
@@ -280,22 +274,30 @@
             container.innerHTML = '<p class="text-sm text-gray-400 text-center py-2">추가된 재료가 없습니다.</p>';
             return;
         }
+
         container.innerHTML = formIngredients.map((ing, i) => {
             const selectedMaterial = materialList.find(m => String(m.materialCode) === String(ing.materialCode));
             const unit = selectedMaterial ? selectedMaterial.unit : '-';
+
+            // 💡 에러의 원인이었던 '백틱 안의 백틱' 중첩을 피하기 위해,
+            // 옵션 목록(optionsHtml)을 일반 문자열 덧셈(+)으로 먼저 안전하게 조립합니다.
+            let optionsHtml = '<option value="">재료 선택</option>';
+            materialList.forEach(m => {
+                const price = m.materialPrice !== null && m.materialPrice !== undefined ? m.materialPrice : 0;
+                const isSelected = String(m.materialCode) === String(ing.materialCode) ? 'selected' : '';
+                optionsHtml += '<option value="' + m.materialCode + '" ' + isSelected + '>' + m.materialName + ' (' + price.toLocaleString() + '원/' + m.unit + ')</option>';
+            });
+
+            // 조립된 optionsHtml 변수를 템플릿에 꽂아 넣습니다.
             return `
-                <div class="flex items-center gap-2 bg-white p-2 rounded border border-gray-200 shadow-sm">
-                    <select onchange="updateIngredient(\${i}, 'materialCode', this.value)" class="flex-1 px-2 py-1 text-sm border border-gray-300 rounded outline-none">
-                        <option value="">재료 선택</option>
-                        \${materialList.map(m => {
-                            const price = m.materialPrice !== null && m.materialPrice !== undefined ? m.materialPrice : 0; // 변경: price -> materialPrice
-                            return `<option value="\${m.materialCode}" \${String(m.materialCode) === String(ing.materialCode) ? 'selected' : ''}>\${m.materialName} (\${price.toLocaleString()}원/\${m.unit})</option>`;
-                        }).join('')}
-                    </select>
-                    <input type="number" step="0.1" value="\${ing.quantity}" oninput="updateIngredient(\${i}, 'quantity', this.value)" placeholder="투입량" class="w-24 px-2 py-1 text-sm border border-gray-300 rounded text-right outline-none">
-                    <span class="text-sm text-gray-500 w-8 text-center">\${unit}</span>
-                    <button type="button" onclick="removeIngredientRow(\${i})" class="text-gray-400 hover:text-red-500 px-2"><i class="fas fa-minus-circle"></i></button>
-                </div>`;
+            <div class="flex items-center gap-2 bg-white p-2 rounded border border-gray-200 shadow-sm">
+                <select onchange="updateIngredient(\${i}, 'materialCode', this.value)" class="flex-1 px-2 py-1 text-sm border border-gray-300 rounded outline-none">
+                    \${optionsHtml}
+                </select>
+                <input type="number" step="0.1" value="\${ing.quantity}" oninput="updateIngredient(\${i}, 'quantity', this.value)" placeholder="투입량" class="w-24 px-2 py-1 text-sm border border-gray-300 rounded text-right outline-none">
+                <span class="text-sm text-gray-500 w-8 text-center">\${unit}</span>
+                <button type="button" onclick="removeIngredientRow(\${i})" class="text-gray-400 hover:text-red-500 px-2"><i class="fas fa-minus-circle"></i></button>
+            </div>`;
         }).join('');
     }
 
@@ -355,7 +357,6 @@
                         return `<button onclick="setSubCategory('\${sub.subCategoryCode}')" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors \${btnClass}">\${sub.name}</button>`;
                     })
                 ].filter(html => html !== '').join('');
-
                 subCategoryFilters.innerHTML = subHtml;
             })
             .catch(err => console.error('서브카테고리 로드 실패:', err));
@@ -396,29 +397,45 @@
         }
     }
 
-     function renderRecipesList(list) {
-         if (list.length === 0) {
-             document.getElementById('recipeGrid').innerHTML = '';
-             document.getElementById('emptyState').classList.remove('hidden');
-             return;
-         }
-         document.getElementById('emptyState').classList.add('hidden');
-         const html = list.map(recipe => {
-             const statusBadge = recipe.isActive ? '<span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">활성화</span>' : '<span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">비활성화</span>';
-             let displayImage = 'https://via.placeholder.com/400x300?text=No+Image';
-             if (recipe.image && recipe.image !== '-' && recipe.image.trim() !== '') {
-                 displayImage = ctx + '/' + recipe.image;
-             }
+    function renderRecipesList(list) {
+        if (list.length === 0) {
+            document.getElementById('recipeGrid').innerHTML = '';
+            document.getElementById('emptyState').classList.remove('hidden');
+            return;
+        }
+        document.getElementById('emptyState').classList.add('hidden');
+        const html = list.map(recipe => {
+            const statusBadge = recipe.isActive ? '<span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">활성화</span>' : '<span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">비활성화</span>';
+            let displayImage = 'https://via.placeholder.com/400x300?text=No+Image';
+            if (recipe.image && recipe.image !== '-' && recipe.image.trim() !== '') {
+                displayImage = ctx + '/' + recipe.image;
+            }
 
-             return `
+            return `
                  <div class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onclick="viewRecipe('\${recipe.id}')">
-                     <div class="relative h-48"><img src="\${displayImage}" class="w-full h-full object-contain bg-white" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"><div class="absolute top-2 right-2">\${statusBadge}</div><div class="absolute top-2 left-2"><span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">\${recipe.category}</span></div></div>
-                     <div class="p-4"><h3 class="font-semibold text-lg text-gray-900 mb-2">\${recipe.name}</h3><p class="text-sm text-gray-500 mb-3 line-clamp-2">\${recipe.description || '-'}</p>
-                     <div class="flex items-center justify-between text-sm"><div><span class="text-gray-500">판매가</span><p class="font-semibold text-gray-900">₩\${recipe.price.toLocaleString()}</p></div><div><span class="text-gray-500">원가</span><p class="font-semibold text-orange-600">₩\${(recipe.cost || 0).toLocaleString()}</p></div></div>
-                     </div></div>`;
-         }).join('');
-         document.getElementById('recipeGrid').innerHTML = html;
-     }
+                     <div class="relative h-48">
+                         <img src="\${displayImage}" class="w-full h-full object-contain bg-white" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                         <div class="absolute top-2 right-2">\${statusBadge}</div>
+                         <div class="absolute top-2 left-2"><span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">\${recipe.category}</span></div>
+                     </div>
+                     <div class="p-4">
+                         <h3 class="font-semibold text-lg text-gray-900 mb-2">\${recipe.name}</h3>
+                         <p class="text-sm text-gray-500 mb-3 line-clamp-2">\${recipe.description || '-'}</p>
+                         <div class="flex items-center justify-between text-sm">
+                             <div>
+                                 <span class="text-gray-500">판매가</span>
+                                 <p class="font-semibold text-gray-900">₩\${recipe.price.toLocaleString()}</p>
+                             </div>
+                             <div>
+                                 <span class="text-gray-500">원가</span>
+                                 <p class="font-semibold text-orange-600">₩\${(recipe.cost || 0).toLocaleString()}</p>
+                             </div>
+                         </div>
+                     </div>
+                 </div>`;
+        }).join('');
+        document.getElementById('recipeGrid').innerHTML = html;
+    }
 
     async function viewRecipe(recipeId) {
         try {
@@ -426,17 +443,18 @@
             const r = await response.json();
             selectedRecipeForView = r;
 
-            const statusBadge = r.isActive ? '<span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">활성화</span>' : '<span class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700">비활성화</span>';
+            const statusBadge = r.isActive ?
+                '<span class="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">활성화</span>' : '<span class="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700">비활성화</span>';
 
             let ingredientsList = '<tr><td colspan="2" class="px-4 py-3 text-center text-gray-500">등록된 재료가 없습니다.</td></tr>';
             if(r.ingredients && r.ingredients.length > 0) {
                 ingredientsList = r.ingredients.map(ing => `<tr class="border-b border-gray-200 hover:bg-gray-50"><td class="px-4 py-3 text-sm text-gray-900">\${ing.name}</td><td class="px-4 py-3 text-sm text-gray-600 text-right">\${ing.quantity} \${ing.unit}</td></tr>`).join('');
             }
 
-             let modalImg = 'https://via.placeholder.com/600x400?text=No+Image';
-             if (r.image && r.image !== '-' && r.image.trim() !== '') {
-                 modalImg = ctx + '/' + r.image;
-             }
+            let modalImg = 'https://via.placeholder.com/600x400?text=No+Image';
+            if (r.image && r.image !== '-' && r.image.trim() !== '') {
+                modalImg = ctx + '/' + r.image;
+            }
 
             const html = `
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -451,12 +469,27 @@
                         <div class="bg-blue-50 rounded-lg p-4"><p class="text-sm text-blue-600 mb-1">판매가</p><p class="text-2xl font-bold text-blue-700">₩\${r.price.toLocaleString()}</p></div>
                         <div class="bg-orange-50 rounded-lg p-4"><p class="text-sm text-orange-600 mb-1">원가</p><p class="text-2xl font-bold text-orange-700">₩\${(r.cost||0).toLocaleString()}</p></div>
                     </div>
-                    <div><h4 class="font-semibold text-gray-900 mb-3">필요 재료(BOM)</h4><div class="bg-gray-50 rounded-lg overflow-hidden"><table class="w-full"><thead class="bg-gray-100"><tr><th class="px-4 py-2 text-left text-xs font-semibold text-gray-700">재료명</th><th class="px-4 py-2 text-right text-xs font-semibold text-gray-700">수량</th></tr></thead><tbody>\${ingredientsList}</tbody></table></div></div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-3">필요 재료(BOM)</h4>
+                        <div class="bg-gray-50 rounded-lg overflow-hidden">
+                            <table class="w-full">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700">재료명</th>
+                                        <th class="px-4 py-2 text-right text-xs font-semibold text-gray-700">수량</th>
+                                    </tr>
+                                </thead>
+                                <tbody>\${ingredientsList}</tbody>
+                            </table>
+                        </div>
+                    </div>
                     <div><h4 class="font-semibold text-gray-900 mb-2">조리법</h4><p class="text-gray-700 whitespace-pre-line">\${r.instructions || '-'}</p></div>`;
 
             document.getElementById('viewModalContent').innerHTML = html;
             document.getElementById('viewModal').classList.remove('modal-hidden');
-        } catch (e) { alert('상세조회 실패'); }
+        } catch (e) {
+            alert('상세조회 실패');
+        }
     }
 
     function clearFormFields() {
@@ -496,7 +529,8 @@
         await handleMainCategoryChange();
         if(r.subCategoryCode) document.getElementById('formSubCategory').value = r.subCategoryCode;
 
-        formIngredients = r.ingredients && r.ingredients.length > 0 ? r.ingredients.map(i => ({materialCode: i.materialCode, quantity: i.quantity})) : [];
+        formIngredients = r.ingredients && r.ingredients.length > 0 ?
+            r.ingredients.map(i => ({materialCode: i.materialCode, quantity: i.quantity})) : [];
         renderIngredientRows();
         updateTotalCost();
 
@@ -521,6 +555,7 @@
         formData.append('price', document.getElementById('formPrice').value || 0);
         formData.append('instructions', document.getElementById('formInstructions').value.trim());
         formData.append('isActive', document.getElementById('formIsActive').checked);
+
         const categorySelect = document.getElementById('formMainCategory');
         const categoryName = categorySelect.options[categorySelect.selectedIndex].text;
         formData.append("categoryName", categoryName);
@@ -531,7 +566,6 @@
         if (selectedImageFile) {
             formData.append('image', selectedImageFile);
         }
-        // [수정] imagePath를 보내는 로직 제거
 
         if (!formData.get('name') || !formData.get('categoryId') || !formData.get('subCategoryCode') || !formData.get('price')) {
             alert('이름, 메인/서브 카테고리, 판매가는 필수입니다.');
@@ -559,7 +593,6 @@
 
     async function deleteRecipeFromView() {
         if (!confirm('정말로 이 레시피를 삭제하시겠습니까?')) return;
-
         try {
             const response = await fetch(ctx + `/RecipeManagementController?action=delete&id=\${selectedRecipeForView.id}`, {
                 method: 'POST'
@@ -569,9 +602,8 @@
             if (result.success) {
                 alert('레시피가 성공적으로 삭제되었습니다.');
                 closeModals();
-                fetchRecipes(); // 목록 새로고침
+                fetchRecipes();
             } else {
-                // 서버에서 제공하는 메시지가 있으면 그 메시지를, 없으면 기본 메시지를 보여줍니다.
                 alert(result.message || '레시피 삭제에 실패했습니다.');
             }
         } catch (error) {
@@ -638,61 +670,67 @@
 
     function removeImage() {
         selectedImageFile = null;
-        // if(selectedRecipeForEdit) selectedRecipeForEdit.image = null; // [수정] 이 줄을 삭제하거나 주석 처리
         const preview = document.getElementById('imagePreview');
         preview.innerHTML = `<i class="fas fa-image text-4xl text-gray-400"></i><p class="mt-2 text-sm text-gray-600">드래그 앤 드롭 또는 클릭</p>`;
         document.getElementById('imageUploadInput').value = '';
         document.getElementById('removeImageBtn').classList.add('hidden');
     }
 
+    function closeModals() {
+        document.getElementById('viewModal').classList.add('modal-hidden');
+        selectedRecipeForView = null;
+    }
 
-    function closeModals() { document.getElementById('viewModal').classList.add('modal-hidden'); selectedRecipeForView = null; }
-    function closeFormModal() { document.getElementById('formModal').classList.add('modal-hidden'); selectedRecipeForEdit = null; clearFormFields(); }
+    function closeFormModal() {
+        document.getElementById('formModal').classList.add('modal-hidden');
+        selectedRecipeForEdit = null;
+        clearFormFields();
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
-        const v = document.getElementById('viewModal'); const f = document.getElementById('formModal');
-        v.addEventListener('click', e => { if(e.target === v) closeModals(); }); v.querySelector('.bg-white').addEventListener('click', e => e.stopPropagation());
-        f.addEventListener('click', e => { if(e.target === f) closeFormModal(); }); f.querySelector('.bg-white').addEventListener('click', e => e.stopPropagation());
+        const v = document.getElementById('viewModal');
+        const f = document.getElementById('formModal');
+        v.addEventListener('click', e => { if(e.target === v) closeModals(); });
+        v.querySelector('.bg-white').addEventListener('click', e => e.stopPropagation());
+        f.addEventListener('click', e => { if(e.target === f) closeFormModal(); });
+        f.querySelector('.bg-white').addEventListener('click', e => e.stopPropagation());
     });
 
-    document.addEventListener('keydown', e => { if (e.key === 'Escape' || e.keyCode === 27) { closeModals(); closeFormModal(); } });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' || e.keyCode === 27) {
+            closeModals();
+            closeFormModal();
+        }
+    });
 
     document.getElementById('sidebarBackdrop').addEventListener('click', () => {
-        document.getElementById('sidebar').classList.add('-translate-x-full'); document.getElementById('sidebarBackdrop').classList.add('hidden');
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+        document.getElementById('sidebarBackdrop').classList.add('hidden');
     });
 
     function toggleSidebar() {
-        const s = document.getElementById('sidebar'); const b = document.getElementById('sidebarBackdrop');
-        if(s.classList.contains('-translate-x-full')){ s.classList.remove('-translate-x-full'); b.classList.remove('hidden'); }
-        else { s.classList.add('-translate-x-full'); b.classList.add('hidden'); }
+        const s = document.getElementById('sidebar');
+        const b = document.getElementById('sidebarBackdrop');
+        if(s.classList.contains('-translate-x-full')){
+            s.classList.remove('-translate-x-full');
+            b.classList.remove('hidden');
+        } else {
+            s.classList.add('-translate-x-full');
+            b.classList.add('hidden');
+        }
     }
 
     function toggleMenu(element) {
-	    const submenu = element.nextElementSibling;
-	    if (submenu && submenu.classList.contains('submenu')) {
-	        submenu.classList.toggle('hidden');
-	        const icon = element.querySelector('i.fa-chevron-right, i.fa-chevron-down');
-	        if (icon) {
-	            icon.classList.toggle('fa-chevron-right');
-	            icon.classList.toggle('fa-chevron-down');
-	        }
-	    }
-	}
-
-    function logout() {
-        window.location.href = ctx + '/common/login.jsp';
+        const submenu = element.nextElementSibling;
+        if (submenu && submenu.classList.contains('submenu')) {
+            submenu.classList.toggle('hidden');
+            const icon = element.querySelector('i.fa-chevron-right, i.fa-chevron-down');
+            if (icon) {
+                icon.classList.toggle('fa-chevron-right');
+                icon.classList.toggle('fa-chevron-down');
+            }
+        }
     }
-    function toggleMenu(element) {
-	    const submenu = element.nextElementSibling;
-	    if (submenu && submenu.classList.contains('submenu')) {
-	        submenu.classList.toggle('hidden');
-	        const icon = element.querySelector('i.fa-chevron-right, i.fa-chevron-down');
-	        if (icon) {
-	            icon.classList.toggle('fa-chevron-right');
-	            icon.classList.toggle('fa-chevron-down');
-	        }
-	    }
-	}
 
     function logout() {
         window.location.href = ctx + '/common/login.jsp';

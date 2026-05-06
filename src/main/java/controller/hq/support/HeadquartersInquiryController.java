@@ -8,6 +8,12 @@ import dto.InquiryReplyDTO;
 import service.branch.InquiryService;
 import service.branch.InquiryServiceImpl;
 import util.GsonFactory;
+import org.apache.ibatis.session.SqlSession;
+import util.MyBatisSqlSessionFactory;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -93,6 +99,10 @@ public class HeadquartersInquiryController extends HttpServlet {
                 String content = jsonObject.get("content").getAsString();
                 String newStatus = jsonObject.get("newStatus").getAsString();
 
+                // 답변 전에 문의사항 조회 (어느 지점의 문의인지 알기 위해)
+                InquiryDTO inquiry = inquiryService.getInquiryById(inquiryId);
+                int targetBranchCode = (inquiry != null) ? inquiry.getBranchCode() : 0;
+
                 InquiryReplyDTO newReply = new InquiryReplyDTO();
                 newReply.setInquiryId(inquiryId);
                 newReply.setContent(content);
@@ -100,6 +110,39 @@ public class HeadquartersInquiryController extends HttpServlet {
                 newReply.setCreatedAt(now);
 
                 inquiryService.createReplyAndUpdateStatus(newReply, newStatus);
+
+                // 문의사항을 작성한 지점에 알림 생성
+                if (inquiry != null && targetBranchCode > 1) {  // 본사(branch_code=1) 제외
+                    try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false)) {
+                        Connection conn = sqlSession.getConnection();
+                        String notifSql = "INSERT INTO notification (category, title, message, target_type, target_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
+                        try (PreparedStatement ps = conn.prepareStatement(notifSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                            ps.setString(1, "BOARD");
+                            ps.setString(2, "문의사항 답변: " + inquiry.getTitle());
+                            ps.setString(3, inquiry.getTitle() + " - " + now);
+                            ps.setString(4, "INQUIRY");
+                            ps.setNull(5, java.sql.Types.INTEGER);
+                            ps.executeUpdate();
+
+                            try (ResultSet keys = ps.getGeneratedKeys()) {
+                                if (keys.next()) {
+                                    int notifId = keys.getInt(1);
+                                    String recvSql = "INSERT INTO notification_receiver (notification_id, account_id, is_read) SELECT ?, account_id, FALSE FROM account WHERE branch_code = ?";
+                                    try (PreparedStatement ps2 = conn.prepareStatement(recvSql)) {
+                                        ps2.setInt(1, notifId);
+                                        ps2.setInt(2, targetBranchCode);
+                                        ps2.executeUpdate();
+                                    }
+                                }
+                            }
+                            sqlSession.commit();
+                        }
+                    } catch (SQLException sqle) {
+                        // 알림 실패는 로그만 남기고 답변은 정상 저장
+                        sqle.printStackTrace();
+                    }
+                }
+
                 resp.setStatus(HttpServletResponse.SC_CREATED);
             } else {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
