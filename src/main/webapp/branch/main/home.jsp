@@ -34,9 +34,9 @@
 			        </div>
 			    </div>
 			
-			    <!-- 빠른 통계 -->
-				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-				
+																<!-- 빠른 통계 -->
+																<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
 				    <!-- 통계 카드 1: 주문 건수 -->
 				    <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md hover:border-[#00853D]/40 transition-all">
 				        <div class="flex items-center gap-4">
@@ -45,7 +45,7 @@
 				            </div>
 				
 				            <div class="min-w-0">
-				                <p class="text-xl font-bold text-gray-900 leading-tight">0건</p>
+				                <p class="text-xl font-bold text-gray-900 leading-tight" id="summary-orders">0건</p>
 				                <p class="text-sm text-gray-600 mt-0.5">주문 건수</p>
 				            </div>
 				        </div>
@@ -59,7 +59,7 @@
 				            </div>
 				
 				            <div class="min-w-0">
-				                <p class="text-xl font-bold text-gray-900 leading-tight">₩0</p>
+				                <p class="text-xl font-bold text-gray-900 leading-tight" id="summary-sales">₩0</p>
 				                <p class="text-sm text-gray-600 mt-0.5">오늘 매출</p>
 				            </div>
 				        </div>
@@ -73,7 +73,7 @@
 				            </div>
 				
 				            <div class="min-w-0">
-				                <p class="text-xl font-bold text-gray-900 leading-tight">₩0</p>
+				                <p class="text-xl font-bold text-gray-900 leading-tight" id="summary-monthly-sales">₩0</p>
 				                <p class="text-sm text-gray-600 mt-0.5">이번 달 매출</p>
 				            </div>
 				        </div>
@@ -211,8 +211,42 @@
     const ctx = "<%= request.getContextPath() %>";
 
     document.addEventListener('DOMContentLoaded', function () {
+		loadSalesSummary();
         loadTopNotices();
     });
+
+	async function loadSalesSummary() {
+		try {
+			const response = await fetch(ctx + '/branch/sales/summary');
+
+			if (response.status === 401) {
+				window.location.href = ctx + '/login';
+				return;
+			}
+
+			if (!response.ok) {
+				document.getElementById('summary-orders').textContent = '데이터 로딩 실패';
+				document.getElementById('summary-sales').textContent = '데이터 로딩 실패';
+				document.getElementById('summary-monthly-sales').textContent = '데이터 로딩 실패';
+				return;
+			}
+
+			const summary = await response.json();
+			const formatCurrency = function (amount) {
+				return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(amount || 0);
+			};
+
+			document.getElementById('summary-orders').textContent = (summary.todayOrders || 0) + '건';
+			document.getElementById('summary-sales').textContent = formatCurrency(summary.todaySales);
+			document.getElementById('summary-monthly-sales').textContent = formatCurrency(summary.monthlySales);
+		} catch (error) {
+			console.error(error);
+
+			document.getElementById('summary-orders').textContent = '데이터 로딩 실패';
+			document.getElementById('summary-sales').textContent = '데이터 로딩 실패';
+			document.getElementById('summary-monthly-sales').textContent = '데이터 로딩 실패';
+		}
+	}
 
     async function loadTopNotices() {
         const topNoticeList = document.getElementById('topNoticeList');
