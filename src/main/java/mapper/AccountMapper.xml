@@ -70,7 +70,9 @@
 	</select>
 	
 	<select id="selectAvailableEmployee" parameterType="Integer" resultType="dto.AccountEmployeeDTO">
-		select emp_no as empNo, branch_code as branchCode, name, dept, position_code as positionCode from employee where emp_no = #{value} and (dept = '인사' or position_code IN ('POS_MGR', 'POS_SUP'))
+		select e.emp_no as empNo, b.name as branchName, e.branch_code as branchCode, e.name, e.dept, e.position_code as positionCode from employee e
+		join branch b on e.branch_code = b.branch_code
+	    where emp_no = #{value} and (dept = '인사' or position_code IN ('POS_MGR', 'POS_SUP'))
 	</select>
 	
 	<update id="toggleAccountStatus" parameterType="Integer">
