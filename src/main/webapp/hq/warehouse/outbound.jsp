@@ -370,7 +370,7 @@
                 '<td class="py-4 px-6 text-gray-700 text-sm"><i class="fas fa-calendar text-gray-400 mr-2"></i>'   + record.outboundAt  + '</td>' +
                 '<td class="py-4 px-6 text-gray-700 text-sm">'              + (record.handler || '-') + '</td>' +
                 '<td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '"><i class="fas ' + meta.icon + '"></i>' + meta.label + '</span></td>' +
-                '<td class="py-4 px-6 text-center"><button onclick="openDetail(\'' + record.hqOutboundNo + '\')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"><i class="fas fa-eye"></i>상세조회</button></td>';
+                '<td class="py-4 px-6 text-center"><button onclick="openDetail(\'' + record.hqOutboundNo + '\')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">상세조회</button></td>';
             tbody.appendChild(tr);
         });
 

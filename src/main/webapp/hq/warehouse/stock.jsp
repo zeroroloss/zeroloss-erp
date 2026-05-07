@@ -113,6 +113,20 @@
                 <p class="text-gray-500 text-lg mb-2">조회 결과가 없습니다</p>
                 <p class="text-gray-400 text-sm">다른 조건으로 검색해보세요</p>
             </div>
+            
+            <!-- 페이지네이션 -->
+			<div id="paginationContainer"
+			    class="px-6 py-4 border-t border-gray-200 flex flex-col items-center justify-center gap-3 hidden">
+			    <div id="paginationInfo" class="text-sm text-gray-600">
+			        <!-- 동적으로 생성됨 -->
+			    </div>
+			
+			    <div class="flex items-center justify-center gap-2">
+			        <div id="pageButtons" class="flex items-center gap-1">
+			            <!-- 동적으로 생성됨 -->
+			        </div>
+			    </div>
+			</div>
         </div>
 
     </main>
@@ -193,6 +207,10 @@
     var filteredStocks = [];
     var currentStatusFilter = '전체';
 
+    var currentPage = 1;
+    var ITEMS_PER_PAGE = 10;
+    var PAGE_SIZE = 5;
+    
     // ============================================================
     // 사이드바 / 네비게이션
     // ============================================================
@@ -340,6 +358,8 @@
             filteredStocks = [];
         }
 
+        currentPage = 1;
+        
         renderTable();
         updateStatusCounts();
         updateActiveTab();
@@ -352,12 +372,19 @@
     // ============================================================
     function renderTable() {
         var tbody   = document.getElementById('stockTableBody');
+        
+        var totalPages = Math.ceil(filteredStocks.length / ITEMS_PER_PAGE);
+        var startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        var endIndex = startIndex + ITEMS_PER_PAGE;
+        var pageItems = filteredStocks.slice(startIndex, endIndex);
+
         tbody.innerHTML = '';
+        
         var isEmpty = (filteredStocks.length == 0);
         document.getElementById('emptyState').classList.toggle('hidden', !isEmpty);
         if (isEmpty) { document.getElementById('recordCount').textContent = '0건'; return; }
-
-        filteredStocks.forEach(function(stock) {
+        
+        pageItems.forEach(function(stock) {
             var meta = getStatusMeta(stock.status);
             var qty  = (stock.currentQty != null) ? stock.currentQty : 0;
             var unit = stock.unit || '';
@@ -370,10 +397,80 @@
                 '<td class="py-4 px-6 text-right text-sm font-semibold text-gray-900">' + qty + ' ' + unit + '</td>' +
                 '<td class="py-4 px-6 text-sm text-gray-600">' + stock.receivedAt + '</td>' +
                 '<td class="py-4 px-6 text-center"><span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '">' + meta.label + '</span></td>' +
-                '<td class="py-4 px-6 text-center"><button onclick="openDetail(\'' + stock.stockNo + '\')" class="px-3 py-1.5 text-sm text-[#00853D] hover:bg-green-50 rounded-lg transition-colors">상세정보</button></td>';
+                '<td class="py-4 px-6 text-center"><button onclick="openDetail(\'' + stock.stockNo + '\')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">상세정보</button></td>';
             tbody.appendChild(tr);
         });
+        updatePagination(totalPages, startIndex, endIndex);
     }
+    
+    // ============================================================
+	// 페이징 처리
+    // ============================================================
+    function updatePagination(totalPages, startIndex, endIndex) {
+	    var container = document.getElementById('paginationContainer');
+	
+	    if (totalPages <= 1) {
+	        container.classList.add('hidden');
+	        return;
+	    }
+	
+	    container.classList.remove('hidden');
+	
+	    document.getElementById('paginationInfo').textContent =
+	        (startIndex + 1)
+	        + '-'
+	        + Math.min(endIndex, filteredStocks.length)
+	        + ' / '
+	        + filteredStocks.length
+	        + '개';
+	
+	    var pageButtons = document.getElementById('pageButtons');
+	
+	    var base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+	    var active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+	    var arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+	
+	    var blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+	    var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+	
+	    var html = '';
+	
+	    html += '<button class="' + arrow + '" onclick="goToPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+	    html += '<i class="fas fa-angles-left text-xs"></i>';
+	    html += '</button>';
+	
+	    var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+	    html += '<button class="' + arrow + '" onclick="goToPage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+	    html += '<i class="fas fa-chevron-left text-xs"></i>';
+	    html += '</button>';
+	
+	    for (var i = blockStart; i <= blockEnd; i++) {
+	        html += '<button class="' + (i === currentPage ? active : base) + '" onclick="goToPage(' + i + ')">';
+	        html += i;
+	        html += '</button>';
+	    }
+	
+	    var nextBlockPage = Math.min(totalPages, blockEnd + 1);
+	    html += '<button class="' + arrow + '" onclick="goToPage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+	    html += '<i class="fas fa-chevron-right text-xs"></i>';
+	    html += '</button>';
+	
+	    html += '<button class="' + arrow + '" onclick="goToPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+	    html += '<i class="fas fa-angles-right text-xs"></i>';
+	    html += '</button>';
+	
+	    pageButtons.innerHTML = html;
+	}
+	
+	function goToPage(page) {
+	    currentPage = page;
+	    renderTable();
+	
+	    window.scrollTo({
+	        top: 0,
+	        behavior: 'smooth'
+	    });
+	}
 
     // ============================================================
     // 상세정보 모달

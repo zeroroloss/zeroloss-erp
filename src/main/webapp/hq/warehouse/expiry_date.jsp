@@ -115,9 +115,9 @@
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto">
+                    <div class="overflow-auto max-h-[540px]">
                         <table class="w-full">
-                            <thead class="bg-gray-50 border-b border-gray-200">
+                            <thead class="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
                                 <tr>
                                     <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900 w-12">
                                         <input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll()" class="w-4 h-4 rounded border-gray-300">

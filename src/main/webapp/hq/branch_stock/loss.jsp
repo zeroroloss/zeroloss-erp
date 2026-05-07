@@ -181,7 +181,7 @@
 							리스트</h3>
 					</div>
 					<div id="branchListContainer"
-						class="space-y-4 max-h-[680px] overflow-y-auto pr-1">
+						class="space-y-4 max-h-[430px] overflow-y-auto pr-1">
 						<!-- 동적으로 생성됨 -->
 					</div>
 				</section>
@@ -192,7 +192,7 @@
 						<h3 class="text-lg font-semibold text-gray-900">폐기 건수 리스트</h3>
 					</div>
 					<div
-						class="bg-white rounded-lg border border-gray-200 overflow-hidden max-h-[680px]">
+						class="bg-white rounded-lg border border-gray-200 overflow-hidden max-h-[430px]">
 						<div class="overflow-auto h-full">
 							<table class="w-full">
 								<thead class="bg-gray-50 border-b border-gray-200">

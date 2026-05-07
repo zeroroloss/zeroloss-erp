@@ -154,18 +154,15 @@ String priceJson = gson.toJson(materialPriceMap);
 
 				<!-- 페이지네이션 -->
 				<div id="paginationContainer"
-					class="hidden px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-					<p id="paginationInfo" class="text-sm text-gray-600"></p>
-					<div class="flex items-center gap-2">
-						<button onclick="previousPage()" id="prevBtn"
-							class="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-							<i class="fas fa-chevron-left w-5 h-5"></i>
-						</button>
-						<div id="pageButtons" class="flex items-center gap-1"></div>
-						<button onclick="nextPage()" id="nextBtn"
-							class="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-							<i class="fas fa-chevron-right w-5 h-5"></i>
-						</button>
+					class="px-6 py-4 border-t border-gray-200 flex flex-col items-center justify-center gap-3 hidden">
+					<div id="paginationInfo" class="text-sm text-gray-600">
+						<!-- 동적으로 생성됨 -->
+					</div>
+
+					<div class="flex items-center justify-center gap-2">
+						<div id="pageButtons" class="flex items-center gap-1">
+							<!-- 동적으로 생성됨 -->
+						</div>
 					</div>
 				</div>
 			</div>
@@ -579,70 +576,91 @@ String priceJson = gson.toJson(materialPriceMap);
 			// ============================================================
 			// 페이지네이션
 			// ============================================================
+			const PAGE_SIZE = 5; // 한 번에 보여줄 페이지 버튼 개수
+
 			function updatePagination(totalPages, startIndex, endIndex) {
-				var container = document.getElementById('paginationContainer');
-				if (totalPages <= 1) {
-					container.classList.add('hidden');
-					return;
-				}
-
-				container.classList.remove('hidden');
-				document.getElementById('paginationInfo').textContent = (startIndex + 1)
-						+ '-'
-						+ Math.min(endIndex, filteredRecords.length)
-						+ ' / ' + filteredRecords.length + '개';
-
-				var pageButtons = document.getElementById('pageButtons');
-				pageButtons.innerHTML = '';
-
-				for (var page = 1; page <= totalPages; page++) {
-					var showPage = (page == 1 || page == totalPages || (page >= currentPage - 1 && page <= currentPage + 1));
-					var showEllipsis = (page == currentPage - 2 || page == currentPage + 2);
-
-					if (showPage) {
-						var btn = document.createElement('button');
-						btn.className = (page == currentPage) ? 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white'
-								: 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
-						btn.textContent = page;
-						(function(p) {
-							btn.onclick = function() {
-								goToPage(p);
-							};
-						})(page);
-						pageButtons.appendChild(btn);
-					} else if (showEllipsis) {
-						var span = document.createElement('span');
-						span.className = 'px-2 text-gray-400';
-						span.textContent = '...';
-						pageButtons.appendChild(span);
-					}
-				}
-
-				document.getElementById('prevBtn').disabled = (currentPage == 1);
-				document.getElementById('nextBtn').disabled = (currentPage == totalPages);
+			    var container = document.getElementById('paginationContainer');
+			
+			    if (totalPages <= 1) {
+			        container.classList.add('hidden');
+			        return;
+			    }
+			
+			    container.classList.remove('hidden');
+			
+			    document.getElementById('paginationInfo').textContent =
+			        (startIndex + 1)
+			        + '-'
+			        + Math.min(endIndex, filteredRecords.length)
+			        + ' / '
+			        + filteredRecords.length
+			        + '개';
+			
+			    var pageButtons = document.getElementById('pageButtons');
+			
+			    var base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+			    var active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+			    var arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+			
+			    var blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+			    var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+			
+			    var html = '';
+			
+			    html += '<button class="' + arrow + '" onclick="goToPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+			    html += '<i class="fas fa-angles-left text-xs"></i>';
+			    html += '</button>';
+			
+			    var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+			    html += '<button class="' + arrow + '" onclick="goToPage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+			    html += '<i class="fas fa-chevron-left text-xs"></i>';
+			    html += '</button>';
+			
+			    for (var i = blockStart; i <= blockEnd; i++) {
+			        html += '<button class="' + (i === currentPage ? active : base) + '" onclick="goToPage(' + i + ')">';
+			        html += i;
+			        html += '</button>';
+			    }
+			
+			    var nextBlockPage = Math.min(totalPages, blockEnd + 1);
+			    html += '<button class="' + arrow + '" onclick="goToPage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+			    html += '<i class="fas fa-chevron-right text-xs"></i>';
+			    html += '</button>';
+			
+			    html += '<button class="' + arrow + '" onclick="goToPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+			    html += '<i class="fas fa-angles-right text-xs"></i>';
+			    html += '</button>';
+			
+			    pageButtons.innerHTML = html;
+			
+			    document.getElementById('prevBtn').disabled = (currentPage == 1);
+			    document.getElementById('nextBtn').disabled = (currentPage == totalPages);
 			}
-
+			
 			function goToPage(page) {
-				currentPage = page;
-				renderTable();
-				window.scrollTo({
-					top : 0,
-					behavior : 'smooth'
-				});
+			    currentPage = page;
+			    renderTable();
+			
+			    window.scrollTo({
+			        top: 0,
+			        behavior: 'smooth'
+			    });
 			}
-
+			
 			function previousPage() {
-				if (currentPage > 1)
-					goToPage(currentPage - 1);
+			    if (currentPage > 1) {
+			        goToPage(currentPage - 1);
+			    }
 			}
-
+			
 			function nextPage() {
-				var totalPages = Math.ceil(filteredRecords.length
-						/ ITEMS_PER_PAGE);
-				if (currentPage < totalPages)
-					goToPage(currentPage + 1);
+			    var totalPages = Math.ceil(filteredRecords.length / ITEMS_PER_PAGE);
+			
+			    if (currentPage < totalPages) {
+			        goToPage(currentPage + 1);
+			    }
 			}
-
+			
 			// ============================================================
 			// 초기화
 			// ============================================================

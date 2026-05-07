@@ -457,9 +457,9 @@
     		const blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
     		const blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
 
-    		const base = 'w-8 h-8 flex items-center justify-center border rounded-lg text-sm hover:bg-gray-100';
-    		const active = 'w-8 h-8 flex items-center justify-center border rounded-lg text-sm bg-[#00853D] text-white font-bold';
-    		const arrow = 'w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed';
+    		var base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+		    var active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+		    var arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
 
     		let html = '';
 
