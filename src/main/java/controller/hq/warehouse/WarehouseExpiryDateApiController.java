@@ -10,13 +10,15 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
 
 import dto.hq.warehouse.DisposalRequestDTO;
 import dto.hq.warehouse.ExpiryItemDTO;
 import dto.hq.warehouse.ExpirySearchDTO;
-
+import service.hq.warehouse.WarehouseStockAlertService;
+import service.hq.warehouse.WarehouseStockAlertServiceImpl;
 import service.hq.warehouse.WarehouseStockService;
 import service.hq.warehouse.WarehouseStockServiceImpl;
 
@@ -51,6 +53,14 @@ public class WarehouseExpiryDateApiController extends HttpServlet {
 		if (search == null) search = null;
 
 		try {
+			// 본사 직원 accountId 세션에서 가져오기
+	        HttpSession session = request.getSession(false);
+	        int accountId = (int) session.getAttribute("accountId");
+
+	        // 물류창고 알림 체크
+	        WarehouseStockAlertService warehouseStockAlertService = new WarehouseStockAlertServiceImpl();
+	        warehouseStockAlertService.sendWarehouseAlerts(accountId);
+	        
 			ExpirySearchDTO searchDTO = new ExpirySearchDTO(category, itemName, search);
 			List<ExpiryItemDTO> data = service.findExpiryItems(searchDTO);
 			if (data == null) {

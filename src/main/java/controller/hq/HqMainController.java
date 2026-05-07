@@ -17,6 +17,8 @@ import service.hq.place_order.PlaceOrderOverviewService;
 import service.hq.place_order.PlaceOrderOverviewServiceImpl;
 import service.hq.sales.HqSalesService;
 import service.hq.sales.HqSalesServiceImpl;
+import service.hq.warehouse.WarehouseStockAlertService;
+import service.hq.warehouse.WarehouseStockAlertServiceImpl;
 
 /**
  * Servlet implementation class HqMainController
@@ -41,6 +43,11 @@ public class HqMainController extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
+			// 물류창고 알림 체크
+			int accountId = (int) request.getSession().getAttribute("accountId");
+	        WarehouseStockAlertService warehouseStockAlertService = new WarehouseStockAlertServiceImpl();
+	        warehouseStockAlertService.sendWarehouseAlerts(accountId);
+	        
 			EmployeeDTO employee = new EmployeeDTO();
 			Integer totalEmp = employeeService.selectEmpCnt();
 			Integer totalBranch = employeeService.selectBranchCnt();

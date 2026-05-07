@@ -13,6 +13,8 @@ import javax.servlet.http.HttpSession;
 import dto.branch.hr.EmployeeDTO;
 import service.branch.EmployeeService;
 import service.branch.EmployeeServiceImpl;
+import service.branch.stock.BranchStockAlertService;
+import service.branch.stock.BranchStockAlertServiceImpl;
 
 /**
  * Servlet implementation class BranchMainController
@@ -37,7 +39,12 @@ public class BranchMainController extends HttpServlet {
 		try {
 			HttpSession session = request.getSession();
 			Integer branchCode = (Integer)session.getAttribute("branchCode");
+			Integer accountId  = (Integer) session.getAttribute("accountId");
 			Integer todayEmp = employeeService.selectTodayEmpCnt(branchCode);
+			
+			 // 재고 알림 체크
+	        BranchStockAlertService branchStockAlertService = new BranchStockAlertServiceImpl();
+	        branchStockAlertService.sendStockAlerts(branchCode, accountId);
 			
 			request.setAttribute("todayEmp", todayEmp);
 			request.getRequestDispatcher("/branch/main/home.jsp").forward(request, response);

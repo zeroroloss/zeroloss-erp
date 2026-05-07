@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.hq.warehouse.alert">
+	<!-- 유통기한 만료 -->
+    <select id="selectExpiredStock" resultType="dto.WarehouseStockDTO">
+        SELECT
+            ws.stock_no      AS stockNo,
+            m.material_name  AS materialName,
+            ws.expiry_date   AS expiryDate,
+            ws.qty           AS qty
+        FROM warehouse_stock ws
+        JOIN material m ON ws.material_code = m.material_code
+        WHERE ws.status = 'AVAILABLE'
+        AND ws.qty > 0
+        AND ws.expiry_date &lt; CURDATE()
+    </select>
+
+    <!-- 유통기한 긴급 (1일 이내) -->
+    <select id="selectUrgentStock" resultType="dto.WarehouseStockDTO">
+        SELECT
+            ws.stock_no      AS stockNo,
+            m.material_name  AS materialName,
+            ws.expiry_date   AS expiryDate,
+            ws.qty           AS qty
+        FROM warehouse_stock ws
+        JOIN material m ON ws.material_code = m.material_code
+        WHERE ws.status = 'AVAILABLE'
+        AND ws.qty > 0
+        AND ws.expiry_date = CURDATE() + INTERVAL 1 DAY
+    </select>
+
+    <!-- 유통기한 경고 (3일 이내) -->
+    <select id="selectWarningStock" resultType="dto.WarehouseStockDTO">
+        SELECT
+            ws.stock_no      AS stockNo,
+            m.material_name  AS materialName,
+            ws.expiry_date   AS expiryDate,
+            ws.qty           AS qty
+        FROM warehouse_stock ws
+        JOIN material m ON ws.material_code = m.material_code
+        WHERE ws.status = 'AVAILABLE'
+        AND ws.qty > 0
+        AND ws.expiry_date &gt; CURDATE() + INTERVAL 1 DAY
+        AND ws.expiry_date &lt;= CURDATE() + INTERVAL 3 DAY
+    </select>
+    
+    <!-- 알림 insert -->
+    <insert id="insertNotification" parameterType="dto.NotificationDTO" useGeneratedKeys="true" keyProperty="notificationId">
+        INSERT INTO notification (category, title, message, target_type, target_id, created_at)
+        VALUES ('INVENTORY', #{title}, #{message}, 'HQ', #{targetId}, NOW())
+    </insert>
+
+    <!-- 알림 수신자 insert -->
+    <insert id="insertNotificationReceiver" parameterType="dto.NotificationDTO">
+        INSERT INTO notification_receiver (notification_id, account_id)
+        VALUES (#{notificationId}, #{accountId})
+    </insert>
+
+    <!-- 오늘 동일 알림 중복 체크 -->
+    <select id="existsTodayNotification" parameterType="dto.NotificationDTO" resultType="Integer">
+        SELECT COUNT(*)
+        FROM notification n
+        JOIN notification_receiver nr ON n.notification_id = nr.notification_id
+        WHERE nr.account_id = #{accountId}
+        AND n.title = #{title}
+        AND n.message = #{message}
+        AND DATE(n.created_at) = CURDATE()
+    </select>
+</mapper>

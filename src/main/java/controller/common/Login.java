@@ -59,8 +59,7 @@ public class Login extends HttpServlet {
 			if(account.getHqId()!= null) {
 				response.sendRedirect(request.getContextPath()+"/hq/main/home");
 			} else if(account.getBranchCode() != null) {
-//				response.sendRedirect(request.getContextPath()+"/branch/main/home");
-				response.sendRedirect(request.getContextPath() + "/branch/stock/alert");
+				response.sendRedirect(request.getContextPath()+"/branch/main/home");
 			} else {
 				throw new Exception("계정 소속 정보가 올바르지 않습니다.");
 			}
@@ -68,7 +67,7 @@ public class Login extends HttpServlet {
 		} catch(Exception e) {
 			e.printStackTrace();
 			request.setAttribute("error", e.getMessage());
-			request.getRequestDispatcher("/common/login").forward(request, response);
+			request.getRequestDispatcher("/common/login.jsp").forward(request, response);
 		}
 	}
 

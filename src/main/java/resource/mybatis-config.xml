@@ -12,8 +12,8 @@
 			<transactionManager type="JDBC"/>
 			<dataSource type="POOLED">
 				<property name="driver" value="org.mariadb.jdbc.Driver"/>
-			 	<!-- <property name="url" value="jdbc:mariadb://192.168.0.248:3306/zeroloss"/> -->  
-				<property name="url" value="jdbc:mariadb://localhost:3306/zeroloss"/> 
+			 	 <!-- <property name="url" value="jdbc:mariadb://192.168.0.248:3306/zeroloss"/> -->   
+				 <property name="url" value="jdbc:mariadb://localhost:3306/zeroloss"/>  
 				<property name="username" value="root"/>
 				<property name="password" value="7564"/>
 				<!-- 최대 활성 커넥션 수 : 동시에 사용할 수 있는 최대 커넥션 수-->
@@ -38,6 +38,7 @@
 		<mapper resource="mapper/hq/BranchOptionMapper.xml"/>
 		<mapper resource="mapper/hq/WarehouseStockMapper.xml"/>
 		<mapper resource="mapper/hq/warehouse/WarehouseOutboundMapper.xml"/>
+		<mapper resource="mapper/hq/warehouse/WarehouseStockAlertMapper.xml"/>
         <mapper resource="mapper/hq/BranchStockMapper.xml"/>
         <mapper resource="mapper/hq/BranchRiskMapper.xml"/>
         <mapper resource="mapper/hq/BranchSearchMapper.xml"/>
@@ -58,11 +59,10 @@
         <mapper resource="mapper/branch/sales/BranchSalesRankMapper.xml"/>
         <mapper resource="mapper/branch/stock/BranchStockListMapper.xml"/>
         <mapper resource="mapper/branch/stock/StockChangeHistoryMapper.xml"/>
+		<mapper resource="mapper/branch/stock/BranchStockAlertMapper.xml"/>
 		<mapper resource="mapper/branch/SwapMapper.xml"/>
 		<mapper resource="mapper/branch/InboundMapper.xml"/>
 		<mapper resource="mapper/branch/InboundHistoryMapper.xml"/>
-		<mapper resource="mapper/branch/stock/BranchStockAlert.xml"/>
 	    <mapper resource="mapper/branch/InboundNotifiMapper.xml"/>
-	    
 	</mappers>
 </configuration>
