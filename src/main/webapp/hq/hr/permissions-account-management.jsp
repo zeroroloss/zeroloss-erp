@@ -150,69 +150,119 @@
     </div>
 
     <!-- Add Account Modal -->
-    <div id="addModal" class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onclick="if(event.target === this) closeAddModal()">
-        <div class="bg-white rounded-lg max-w-sm w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
-                <h3 class="text-lg font-bold text-gray-900">계정 추가</h3>
-                <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times w-5 h-5"></i>
-                </button>
-            </div>
-
-            <div class="p-6 space-y-4">
-            	<div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">사번</label>
-                    <input type="text" id="empNo" name="empNo" placeholder="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">아이디</label>
-                    <input type="text" id="loginId" name="loginId" placeholder="user_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
-                    <input type="password" id="password" name="password" placeholder="••••••••" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">소속 매장</label>
-                    <select name="branchCode" id ="branchCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
-                        <option value="">선택하세요</option>
-                        
-                        <c:forEach var="branch" items="${branchNameList }">
-                        	<option value="${branch.branchCode }" class="text-gray-900 bg-white">${branch.branchName}</option>
-                        </c:forEach>
-                    </select>
-                </div>
-                
-                <div>
-				    <label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
-				    <select id="roleId" name="roleId"
-				            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
-				        <option value="">선택하세요</option>
-				        <option value="1">본사 관리자</option>
-				        <option value="2">지점장</option>
-				        <option value="3">매니저</option>
-				    </select>
-				</div>
-
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" name="status" id="isActiveAdd" checked class="w-4 h-4 text-[#00853D] border-gray-300 rounded focus:ring-[#00853D]">
-                    <label for="isActiveAdd" class="text-sm text-gray-700">계정 활성화</label>
-                </div>
-            </div>
-
-            <div class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
-                <button onclick="closeAddModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
-                    취소
-                </button>
-                <button type="button" onclick="saveAccount()" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
-                    추가
-                </button>
-            </div>
-        </div>
-    </div>
+	<div id="addModal"
+	     class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+	     onclick="if(event.target === this) closeAddModal()">
+	
+	    <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto"
+	         onclick="event.stopPropagation()">
+	
+	        <!-- 모달 헤더 -->
+	        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
+	            <h3 class="text-lg font-bold text-gray-900">계정 추가</h3>
+	            <button type="button" onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600">
+	                <i class="fas fa-times w-5 h-5"></i>
+	            </button>
+	        </div>
+	
+	        <!-- 모달 내용 -->
+	        <div class="p-6 grid grid-cols-2 gap-4">
+	
+	            <!-- 사번 -->
+	            <div class="col-span-2">
+	                <label class="block text-sm font-medium text-gray-700 mb-1">사번</label>
+	                <input type="text"
+	                       id="empNo"
+	                       name="empNo"
+	                       placeholder="사번 입력"
+	                       onblur="checkAvailableEmployee()"
+	                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
+	                <p id="empCheckMessage" class="mt-1 text-xs text-gray-500"></p>
+	            </div>
+	
+	            <!-- 직원명 -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700 mb-1">직원명</label>
+	                <input type="text"
+	                       id="empName"
+	                       placeholder="자동 표시"
+	                       class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-100 text-sm text-gray-700"
+	                       readonly>
+	            </div>
+	
+	            <!-- 소속 -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700 mb-1">소속</label>
+	                <input type="text"
+	                       id="branchName"
+	                       placeholder="자동 표시"
+	                       class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-100 text-sm text-gray-700"
+	                       readonly>
+	
+	                <input type="hidden" id="branchCode" name="branchCode">
+	            </div>
+	
+	            <!-- 아이디 -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700 mb-1">아이디</label>
+	                <input type="text"
+	                       id="loginId"
+	                       name="loginId"
+	                       placeholder="user_id"
+	                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
+	            </div>
+	
+	            <!-- 비밀번호 -->
+	            <div>
+	                <label class="block text-sm font-medium text-gray-700 mb-1">비밀번호</label>
+	                <input type="password"
+	                       id="password"
+	                       name="password"
+	                       placeholder="••••••••"
+	                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
+	            </div>
+	
+	            <!-- 역할 -->
+	            <div class="col-span-2">
+	                <label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
+	                <input type="text"
+	                       id="roleName"
+	                       placeholder="자동 지정"
+	                       class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-100 text-sm text-gray-700"
+	                       readonly>
+	
+	                <input type="hidden" id="roleId" name="roleId">
+	            </div>
+	
+	            <!-- 상태 -->
+	            <div class="col-span-2 flex items-center gap-2 pt-1">
+	                <input type="checkbox"
+	                       name="status"
+	                       id="isActiveAdd"
+	                       checked
+	                       class="w-4 h-4 text-[#00853D] border-gray-300 rounded focus:ring-[#00853D]">
+	                <label for="isActiveAdd" class="text-sm text-gray-700">계정 활성화</label>
+	            </div>
+	        </div>
+	
+	        <!-- 모달 하단 버튼 -->
+	        <div class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
+	            <button type="button"
+	                    onclick="closeAddModal()"
+	                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+	                취소
+	            </button>
+	
+	            <button type="button"
+	                    id="addAccountBtn"
+	                    onclick="saveAccount()"
+	                    disabled
+	                    class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm opacity-50 cursor-not-allowed">
+	                추가
+	            </button>
+	        </div>
+	    </div>
+	</div>
 
     <!-- Edit Account Modal -->
     <div id="editModal" class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onclick="if(event.target === this) closeEditModal()">
@@ -542,6 +592,15 @@
         }
 
         function showAddModal() {
+            document.getElementById("empNo").value = "";
+            document.getElementById("loginId").value = "";
+            document.getElementById("password").value = "";
+            document.getElementById("isActiveAdd").checked = true;
+            document.getElementById("empCheckMessage").textContent = "";
+            document.getElementById("empCheckMessage").className = "mt-1 text-xs text-gray-500";
+
+            resetAddEmployeeInfo();
+
             var modal = document.getElementById('addModal');
             modal.classList.remove('modal-hidden');
         }
@@ -550,52 +609,135 @@
             var modal = document.getElementById('addModal');
             modal.classList.add('modal-hidden');
         }
+        
+        // 직원 조회
+        function resetAddEmployeeInfo() {
+		    document.getElementById("empName").value = "";
+		    document.getElementById("branchName").value = "";
+		    document.getElementById("branchCode").value = "";
+		    document.getElementById("roleName").value = "";
+		    document.getElementById("roleId").value = "";
+		
+		    var addBtn = document.getElementById("addAccountBtn");
+		    addBtn.disabled = true;
+		    addBtn.classList.add("opacity-50", "cursor-not-allowed");
+		}
+		
+		function enableAddButton() {
+		    var addBtn = document.getElementById("addAccountBtn");
+		    addBtn.disabled = false;
+		    addBtn.classList.remove("opacity-50", "cursor-not-allowed");
+		}
+		
+		function checkAvailableEmployee() {
+		    var empNo = document.getElementById("empNo").value.trim();
+		    var message = document.getElementById("empCheckMessage");
+		
+		    resetAddEmployeeInfo();
+		
+		    if (!empNo) {
+		        message.textContent = "사번을 입력해주세요.";
+		        message.className = "mt-1 text-xs text-gray-500";
+		        return;
+		    }
+		
+		    fetch("<%= request.getContextPath() %>/hq/hr/main?action=checkAvailableEmployee&empNo=" + encodeURIComponent(empNo))
+		        .then(function(response) {
+		            if (!response.ok) {
+		                throw new Error();
+		            }
+		            return response.json();
+		        })
+		        .then(function(data) {
+		            if (!data.success) {
+		                message.textContent = data.message || "계정 추가 가능한 직원이 아닙니다.";
+		                message.className = "mt-1 text-xs text-red-500";
+		                return;
+		            }
+		
+		            document.getElementById("empName").value = data.name || "";
+		            document.getElementById("branchName").value = data.branchName || "본사";
+		            document.getElementById("branchCode").value = data.branchCode || "";
+		            document.getElementById("roleName").value = data.roleName || "";
+		            document.getElementById("roleId").value = data.roleId || "";
+		
+		            message.textContent = "계정 추가 가능한 직원입니다.";
+		            message.className = "mt-1 text-xs text-[#00853D]";
+		
+		            enableAddButton();
+		        })
+		        .catch(function(error) {
+		            console.error(error);
+		            message.textContent = "직원 조회 중 오류가 발생했습니다.";
+		            message.className = "mt-1 text-xs text-red-500";
+		        });
+		}
 
-        function saveAccount() {
-            const empNo = document.getElementById("empNo");
-            const branchCode = document.getElementById("branchCode");
-            const roleId = document.getElementById("roleId");
-            const loginId = document.getElementById("loginId");
-            const password = document.getElementById("password");
-            const status = document.getElementById("isActiveAdd");
+		function saveAccount() {
+		    const empNo = document.getElementById("empNo");
+		    const branchCode = document.getElementById("branchCode");
+		    const roleId = document.getElementById("roleId");
+		    const loginId = document.getElementById("loginId");
+		    const password = document.getElementById("password");
+		    const status = document.getElementById("isActiveAdd");
 
-            const params = new URLSearchParams();
-            params.append("action", "add");
-            params.append("empNo", empNo.value);
-            params.append("branchCode", branchCode.value);
-            params.append("roleId", roleId.value);
-            params.append("loginId", loginId.value);
-            params.append("password", password.value);
-            params.append("status", status.checked ? "ACTIVE" : "INACTIVE");
+		    if (!empNo.value.trim()) {
+		        alert("사번을 입력해주세요.");
+		        empNo.focus();
+		        return;
+		    }
 
-            console.log(params.toString());
+		    if (!roleId.value) {
+		        alert("계정 추가 가능한 직원을 먼저 조회해주세요.");
+		        empNo.focus();
+		        return;
+		    }
 
-            fetch("<%= request.getContextPath() %>/hq/hr/main", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-                },
-                body: params.toString()
-            })
-            .then(response => response.text())
-            .then(text => {
-                console.log("서버 응답:", text);
+		    if (!loginId.value.trim()) {
+		        alert("아이디를 입력해주세요.");
+		        loginId.focus();
+		        return;
+		    }
 
-                const data = JSON.parse(text);
+		    if (!password.value.trim()) {
+		        alert("비밀번호를 입력해주세요.");
+		        password.focus();
+		        return;
+		    }
 
-                if (data.success) {
-                    alert("계정이 추가되었습니다.");
-                    closeAddModal();
-                    applyFilters();
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => {
-                console.error(error);
-                location.href = "<%= request.getContextPath() %>/common/500.jsp";
-            });
-        }
+		    const params = new URLSearchParams();
+		    params.append("action", "add");
+		    params.append("empNo", empNo.value.trim());
+		    params.append("branchCode", branchCode.value);
+		    params.append("roleId", roleId.value);
+		    params.append("loginId", loginId.value.trim());
+		    params.append("password", password.value);
+		    params.append("status", status.checked ? "ACTIVE" : "INACTIVE");
+
+		    fetch("<%= request.getContextPath() %>/hq/hr/main", {
+		        method: "POST",
+		        headers: {
+		            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+		        },
+		        body: params.toString()
+		    })
+		    .then(function(response) {
+		        return response.json();
+		    })
+		    .then(function(data) {
+		        if (data.success) {
+		            alert("계정이 추가되었습니다.");
+		            closeAddModal();
+		            location.reload();
+		        } else {
+		            alert(data.message || "계정 추가에 실패했습니다.");
+		        }
+		    })
+		    .catch(function(error) {
+		        console.error(error);
+		        alert("계정 추가 중 오류가 발생했습니다.");
+		    });
+		}
 
         function editAccountModal(accountId) {
             selectedAccount = accounts.find(function(a) { return a.id === accountId; });

@@ -3,6 +3,7 @@ package dao;
 import java.util.List;
 
 import dto.AccountDTO;
+import dto.AccountEmployeeDTO;
 
 public interface AccountDao {
 	// 계정 세션 관리
@@ -20,8 +21,10 @@ public interface AccountDao {
 
 	// 계정 추가
 	void insertAccount(AccountDTO account) throws Exception;
+	AccountEmployeeDTO selectAvailableEmployee(Integer empNo) throws Exception;
 	AccountDTO selectEmployeeByEmpNo(int empNo) throws Exception;
 	AccountDTO selectAccountByEmpNo(int empNo) throws Exception;
+	AccountDTO selectACcountByLoginId(String loginId) throws Exception;
 	void toggleAccountStatus(int accountId) throws Exception;
 	
 	// 계정 수정

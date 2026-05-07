@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 
 import dto.AccountDTO;
+import dto.AccountEmployeeDTO;
 import util.MyBatisSqlSessionFactory;
 
 public class AccountDaoImpl implements AccountDao {
@@ -149,6 +150,16 @@ public class AccountDaoImpl implements AccountDao {
 	    }
 	}
 
+	@Override
+	public AccountDTO selectACcountByLoginId(String loginId) throws Exception {
+		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+	        return sqlSession.selectOne("mapper.account.selectAccountByLoginId", loginId);
+	    } catch(Exception e) {
+	    	e.printStackTrace();
+	    	throw e;
+	    } 
+	}
+
 	// 계정 수정
 	@Override
 	public void updateAccount(AccountDTO account) throws Exception {
@@ -162,5 +173,15 @@ public class AccountDaoImpl implements AccountDao {
 	    } finally {
 	    	sqlSession.close();
 	    }
+	}
+
+	@Override
+	public AccountEmployeeDTO selectAvailableEmployee(Integer empNo) throws Exception {
+		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+	        return sqlSession.selectOne("mapper.account.selectAvailableEmployee", empNo);
+	    } catch(Exception e) {
+	    	e.printStackTrace();
+	    	throw e;
+	    } 
 	}
 }

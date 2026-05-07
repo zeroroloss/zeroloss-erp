@@ -65,6 +65,14 @@
 	    SELECT emp_no AS empNo FROM account WHERE emp_no = #{value}
 	</select>
 	
+	<select id="selectAccountByLoginId" parameterType="String" resultType="dto.AccountDTO">
+		select emp_no as empNo from account where login_id = #{loginId}
+	</select>
+	
+	<select id="selectAvailableEmployee" parameterType="Integer" resultType="dto.AccountEmployeeDTO">
+		select emp_no as empNo, branch_code as branchCode, name, dept, position_code as positionCode from employee where emp_no = #{value} and (dept = '인사' or position_code IN ('POS_MGR', 'POS_SUP'))
+	</select>
+	
 	<update id="toggleAccountStatus" parameterType="Integer">
 		update account set status = CASE
         WHEN status = 'ACTIVE' THEN 'INACTIVE'

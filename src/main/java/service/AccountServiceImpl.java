@@ -5,6 +5,7 @@ import java.util.List;
 import dao.AccountDao;
 import dao.AccountDaoImpl;
 import dto.AccountDTO;
+import dto.AccountEmployeeDTO;
 
 public class AccountServiceImpl implements AccountService {
 	private AccountDao accountDao;
@@ -73,8 +74,46 @@ public class AccountServiceImpl implements AccountService {
 		
 	}
 
+<<<<<<< Updated upstream
 	@Override
 	public void modifyAccount(AccountDTO account) throws Exception {
 		accountDao.updateAccount(account);
 	}
+=======
+		@Override
+		public void addAccount(AccountDTO account) throws Exception {
+			accountDao.insertAccount(account);
+		}
+
+		@Override
+		public AccountDTO selectEmployeeByEmpNo(int empNo) throws Exception {
+			return accountDao.selectEmployeeByEmpNo(empNo);
+		}
+
+		@Override
+		public AccountDTO selectAccountByEmpNo(int empNo) throws Exception {
+			return accountDao.selectAccountByEmpNo(empNo);
+		}
+
+		@Override
+		public void toggleAccountStatus(int accountId) throws Exception {
+			accountDao.toggleAccountStatus(accountId);
+			
+		}
+
+		@Override
+		public void modifyAccount(AccountDTO account) throws Exception {
+			accountDao.updateAccount(account);
+		}
+
+		@Override
+		public AccountDTO selectAccountByLoginId(String loginId) throws Exception {
+			return accountDao.selectACcountByLoginId(loginId);
+		}
+
+		@Override
+		public AccountEmployeeDTO selectAvailableEmployee(Integer empNo) throws Exception {
+			return accountDao.selectAvailableEmployee(empNo);
+		}
+>>>>>>> Stashed changes
 }
