@@ -84,13 +84,13 @@
                     전체 <span id="countAll">0건</span>
                 </a>
                 <a href="#" class="tab-link text-center py-3 font-semibold text-yellow-500" data-status="PENDING">
-                    대기 <span id="countPending" class="text-xs text-yellow-400">0건</span>
+                    승인 대기 <span id="countPending" class="text-yellow-400">0건</span>
                 </a>
                 <a href="#" class="tab-link text-center py-3 font-semibold text-green-600" data-status="APPROVED">
-                    승인 <span id="countApproved" class="text-xs text-green-400">0건</span>
+                    승인됨 <span id="countApproved" class="text-green-400">0건</span>
                 </a>
                 <a href="#" class="tab-link text-center py-3 font-semibold text-red-500" data-status="REJECTED">
-                    반려 <span id="countRejected" class="text-xs text-red-400">0건</span>
+                    반려됨 <span id="countRejected" class="text-red-400">0건</span>
                 </a>
             </div>
         </div>
@@ -196,10 +196,14 @@
     // 상수 / 설정
     // ============================================================
     var STATUS_CONFIG = {
-        'PENDING':  { label: '대기', badgeClass: 'bg-yellow-100 text-yellow-700', rowClass: 'bg-yellow-50' },
-        'APPROVED': { label: '승인', badgeClass: 'bg-green-100 text-green-700',  rowClass: '' },
-        'REJECTED': { label: '반려', badgeClass: 'bg-red-100 text-red-700',      rowClass: 'bg-red-50' },
-        'default':  { label: '-',   badgeClass: 'bg-gray-100 text-gray-700',     rowClass: '' }
+        'PENDING':  { label: '승인 대기', badgeClass: 'bg-yellow-100 text-yellow-700', rowClass: 'bg-yellow-50' },
+        'APPROVED': { label: '승인됨', badgeClass: 'bg-green-100 text-green-700',  rowClass: 'bg-green-50' },
+        'REJECTED': { label: '반려됨', badgeClass: 'bg-red-100 text-red-700',      rowClass: 'bg-red-50' },
+        'CANCELED': { label: '취소됨', badgeClass: 'bg-gray-200 text-gray-700', rowClass: 'bg-gray-50' },
+        'DELIVERED': { label: '지점 배송 완료', badgeClass: 'bg-blue-100 text-blue-700', rowClass: 'bg-blue-50' },
+        'COMPLETED': { label: '지점 입고 완료', badgeClass: 'bg-purple-100 text-purple-700', rowClass: 'bg-purple-50' },
+        
+        'default': { label: '미확인', badgeClass: 'bg-gray-100 text-gray-500', rowClass: '' }
     };
 
     // ============================================================
