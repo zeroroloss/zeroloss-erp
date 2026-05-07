@@ -493,7 +493,6 @@
         function goToPage(page) {
             currentPage = page;
             renderTable();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // 탭 버튼 업데이트
