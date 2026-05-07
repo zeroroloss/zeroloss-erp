@@ -158,14 +158,23 @@
         SET po_no = #{poNo}
         WHERE po_id = #{poId}
     </update>
+    
+    <select id="findBranchName" parameterType="int" resultType="string">
+    	SELECT name
+    	FROM branch
+    	WHERE branch_code = #{value}
+    </select>
 
 <!-- 알림 처리 -->
 
 	<!-- 공지 삽입 -->
     <insert id="insertNotification" parameterType="dto.NotificationDTO"
     		useGeneratedKeys="true" keyProperty="notificationId">
-        INSERT INTO notification (category, title, message, target_type, target_id, created_at )
-        VALUES (#{category}, #{title}, #{message}, #{targetType}, #{targetId}, NOW())
+        INSERT INTO notification 
+        	(category, title, message, target_type, target_id, created_at)
+        
+        VALUES 
+        	(#{category}, #{title}, #{message}, #{targetType}, #{targetId}, NOW())
     </insert>
 
 	<!-- 지점 코드에 해당하는 모든 계정들 조회 -->
@@ -181,5 +190,13 @@
 		INSERT INTO notification_receiver (notification_id, account_id)
 		VALUES (#{notificationId}, #{accountId})
 	</insert>
+	
+	<!-- 본사 코드에 해당하는 모든 계정들 조회 -->
+	<select id="selectHqAccountIds" resultType="int">
+	    SELECT account_id
+	    FROM account
+	    WHERE branch_code = 1
+	      AND status = 'ACTIVE'
+	</select>
 
 </mapper>

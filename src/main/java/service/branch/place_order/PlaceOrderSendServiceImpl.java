@@ -11,6 +11,8 @@ import dao.branch.place_order.PlaceOrderDAO;
 import dao.branch.place_order.PlaceOrderDAOImpl;
 import dao.branch.place_order.PlaceOrderDraftDAO;
 import dao.branch.place_order.PlaceOrderDraftDAOImpl;
+import dto.NotificationDTO;
+import dto.NotificationReceiverDTO;
 import dto.branch.place_order.PlaceOrderDTO;
 import dto.branch.place_order.PlaceOrderDetailDTO;
 import dto.branch.place_order.PlaceOrderDraftDTO;
@@ -25,6 +27,7 @@ public class PlaceOrderSendServiceImpl implements PlaceOrderSendService {
 	@Override
 	public boolean sendDraft(int branchCode) {
 		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false);
+		
 		try {
 			// branchCode 지점의 IN_PROGRESS 상태의 임시 발주서(Draft) 조회
 			PlaceOrderDraftDTO draftDTO = draftDAO.findInProgressDraft(sqlSession, branchCode);
@@ -43,7 +46,7 @@ public class PlaceOrderSendServiceImpl implements PlaceOrderSendService {
 			// 발주 DTO 생성
 			PlaceOrderDTO placeOrderDTO = new PlaceOrderDTO();
 			placeOrderDTO.setBranchCode(draftDTO.getBranchCode());
-			placeOrderDTO.setPoNo("TEMP_PoNo");
+			placeOrderDTO.setPoNo("TEMP-" + System.nanoTime()); // 임시 발주 번호
 			placeOrderDTO.setTotalMaterialCnt(totalCnt);
 			placeOrderDTO.setTotalAmount(totalAmount);
 
@@ -51,10 +54,12 @@ public class PlaceOrderSendServiceImpl implements PlaceOrderSendService {
 			// DB에서 주는 발주서 번호 반환
 			placeOrderDAO.insertPlaceOrder(sqlSession, placeOrderDTO);
 			Integer poId = placeOrderDTO.getPoId(); // MyBatis - useGeneratedKeys로 인해 DTO에 id를 가져나옴
-			
+
 			// 발주 처리 - 상세 내역 데이터 삽입
 			List<PlaceOrderDetailDTO> poDetailDTOs = convertToPlaceOrderDetails(draftDetailDTOs);
-			Integer insertedPODetailCnt = placeOrderDAO.insertPlaceOrderDetails(sqlSession, poId,  poDetailDTOs);
+			Integer insertedPODetailCnt = placeOrderDAO.insertPlaceOrderDetails(sqlSession, poId, poDetailDTOs);
+			if (insertedPODetailCnt <= 0)
+				throw new RuntimeException("새로 생성된 발주 상세 내역(place order detail)이 없습니다.");
 
 			// 발주서 번호를 규칙에 맞게 UPDATE (DB에서 AUTO_INCREMENT된 poNo 변경)
 			String ruledPoNo = generatePoNo(poId);
@@ -67,7 +72,10 @@ public class PlaceOrderSendServiceImpl implements PlaceOrderSendService {
 			// 임시 발주서 상세 (DraftDetails) 삭제
 			int deletedCnt = draftDAO.deleteDraftDetails(sqlSession, draftDTO.getDraftId());
 			if (deletedCnt <= 0)
-				throw new Exception("");
+				throw new RuntimeException("삭제된 임시 발주서 상세(Draft Detail)이 없습니다.");
+			
+			// 알림 전송
+			sendPlaceOrderNotification(sqlSession, placeOrderDTO, ruledPoNo);
 
 			sqlSession.commit();
 			return true;
@@ -133,18 +141,53 @@ public class PlaceOrderSendServiceImpl implements PlaceOrderSendService {
 		String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"));
 		return "PO-" + time + "-" + String.format("%d", poId);
 	}
-	
+
 	// 임시발주상세 -> 발주상세로 전환
 	private List<PlaceOrderDetailDTO> convertToPlaceOrderDetails(List<PlaceOrderDraftDetailDTO> draftDetails) {
-	    return draftDetails.stream()
-	        .map(d -> {
-	            PlaceOrderDetailDTO od = new PlaceOrderDetailDTO();
-	            od.setMaterialCode(d.getMaterialCode());
-	            od.setRequestedQty(d.getRequestedQty());
-	            od.setApprovedQty(0);
-	            od.setRemainingQty(0);
-	            return od;
-	        })
-	        .collect(Collectors.toList());
+		return draftDetails.stream().map(d -> {
+			PlaceOrderDetailDTO od = new PlaceOrderDetailDTO();
+			od.setMaterialCode(d.getMaterialCode());
+			od.setRequestedQty(d.getRequestedQty());
+			od.setApprovedQty(0);
+			od.setRemainingQty(0);
+			return od;
+		}).collect(Collectors.toList());
+	}
+
+	// 알림 전송 메서드
+	private void sendPlaceOrderNotification(SqlSession sqlSession, PlaceOrderDTO placeOrderDTO, String poNo) {
+
+		// 1. 지점 정보 조회 (이미 DTO에 있음)
+		String branchName = placeOrderDAO.findBranchName(sqlSession, placeOrderDTO.getBranchCode());
+
+		// 2. 알림 생성
+		NotificationDTO dto = new NotificationDTO();
+		dto.setCategory("ORDER");
+		dto.setTitle("발주 요청");
+
+		dto.setMessage("[" + branchName + "] (지점 코드: " + placeOrderDTO.getBranchCode() + ") - 발주번호 " + poNo
+				+ " - 발주 요청되었습니다.");
+
+		dto.setTargetType("ORDER");
+		dto.setTargetId(placeOrderDTO.getPoId());
+
+		int inserted = placeOrderDAO.insertNotification(sqlSession, dto);
+		if (inserted <= 0) {
+			throw new RuntimeException("알림 생성 실패");
+		}
+
+		int notificationId = dto.getNotificationId();
+
+		// 3. 본사 계정들 조회
+		List<Integer> accountIds = placeOrderDAO.selectHqAccountIds(sqlSession);
+
+		// 4. receiver insert
+		for (Integer accountId : accountIds) {
+			NotificationReceiverDTO receiver = new NotificationReceiverDTO();
+			receiver.setNotificationId(notificationId);
+			receiver.setAccountId(accountId);
+
+			placeOrderDAO.insertNotifiReceiver(sqlSession, receiver);
+		}
 	}
 }

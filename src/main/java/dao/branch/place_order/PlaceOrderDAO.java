@@ -8,6 +8,8 @@ import org.apache.ibatis.session.SqlSession;
 import dto.branch.place_order.PlaceOrderDetailDTO;
 import dto.branch.place_order.PlaceOrderDraftDetailDTO;
 import dto.branch.place_order.PlaceOrderHistoryDTO;
+import dto.NotificationDTO;
+import dto.NotificationReceiverDTO;
 import dto.branch.place_order.PlaceOrderDTO;
 
 public interface PlaceOrderDAO {
@@ -40,4 +42,15 @@ public interface PlaceOrderDAO {
     
     // 발주서 번호 (pONo) 변경
 	int updatePlaceOrderNo(SqlSession sqlSession, Integer poId, String poNo);
+
+	String findBranchName(SqlSession sqlSession, Integer branchCode);
+
+	// 알림 생성
+	int insertNotification(SqlSession sqlSession, NotificationDTO dto);
+
+	// 본사 소속 계정들 조회
+	List<Integer> selectHqAccountIds(SqlSession sqlSession);
+	
+	// 알림 수신자 생성
+	void insertNotifiReceiver(SqlSession sqlSession, NotificationReceiverDTO receiver);
 }
