@@ -560,12 +560,17 @@
 	
 	    function saveEmployee() {
 	        const params = new URLSearchParams();
+	        
+	        var branchSelect = document.getElementById("branchCode");
+	        var branchName = branchSelect.options[branchSelect.selectedIndex]
+	            ? branchSelect.options[branchSelect.selectedIndex].text.trim()
+	            : "";
 	
 	        params.append("action", "add");
 	        params.append("empNo", document.getElementById("empNo").value);
 	        params.append("name", document.getElementById("name").value);
-	        params.append("branchCode", document.getElementById("branchCode").value);
-	        params.append("branchName", document.getElementById("branchName").value);
+	        params.append("branchCode", branchSelect.value);
+	        params.append("branchName", branchName);
 	        params.append("dept", document.getElementById("dept").value);
 	        params.append("gradeCode", document.getElementById("gradeCode").value);
 	        params.append("positionCode", document.getElementById("positionCode").value);
@@ -593,9 +598,9 @@
 	                alert(data.message || "직원 등록에 실패했습니다.");
 	            }
 	        })
-	        .catch(error => {
+	        .catch(function(error) {
 	            console.error(error);
-	            location.href = "<%= request.getContextPath() %>/common/500.jsp";
+	            alert("직원 등록 중 오류가 발생했습니다.");
 	        });
 	    }
 	
@@ -864,7 +869,18 @@
 	    }
 
 	    function closeAddModal() {
-	        document.getElementById("addModal").classList.add("modal-hidden");
+	        var modal = document.getElementById("addModal");
+	        modal.classList.add("modal-hidden");
+
+	        modal.querySelectorAll("input").forEach(function(input) {
+	            input.value = "";
+	        });
+
+	        modal.querySelectorAll("select").forEach(function(select) {
+	            select.selectedIndex = 0;
+	        });
+
+	        document.getElementById("status").value = "ACTIVE";
 	    }
 	</script>
 </body>
