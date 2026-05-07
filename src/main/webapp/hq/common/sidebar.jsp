@@ -425,18 +425,14 @@
 	    var ctx = '<%= request.getContextPath() %>';
 	
 	    if (targetType === 'HQ_INVENTORY') {
-	    	return ctx + '/hq/warehouse/stock';
-	    } else if (targetType === 'BRANCH_INVENTORY') {
-	    	return ctx + '/hq/branch_stock/stock';
+	    	return ctx + '/hq/warehouse/expiry_date';
+	    } else if (targetType === 'DELIVERY') {
+	    	return ctx + '/hq/delivery/inquiry';
 	    } else if (targetType === 'ORDER') {
-	    	return ctx + '/hq/place_order/overview';
+	    	return ctx + '/hq/place_order/processing';
 	    } else if (targetType === 'INQUIRY') {
 	    	return ctx + '/hq/support/inquiries';
-	    } else if (targetType === 'NOTICE') {
-	    	return ctx + '/hq/support/notices';
-	    } else if (targetType === 'RECIPE') {
-	    	return ctx + '/hq/recipe/management';
-	    } 
+	    }
 	    return ctx + '/hq/common/notification';
 	}
     

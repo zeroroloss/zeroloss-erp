@@ -410,10 +410,16 @@ document.addEventListener('keydown', function(e) {
 function getNotificationTargetUrl(targetType, targetId) {
     var ctx = '<%= request.getContextPath() %>';
 
-    if (targetType === 'BRANCH_INVENTORY') {
+    if (targetType === 'BRANCH_EXPIRY') {
     	return ctx + '/branch/stock';
+    } else if (targetType === 'BRANCH_INVENTORY') {
+    	return ctx + '/branch/stock';
+    } else if (targetType === 'BRANCH_SAFETY') {
+    	return ctx + '/branch/stock/safety_stock';
     } else if (targetType === 'ORDER') {
     	return ctx + '/branch/place_order/history';
+    } else if (targetType === 'INBOUND') {
+    	return ctx + '/branch/inbound/processing';
     } else if (targetType === 'SWAP') {
         return ctx + '/branch/swap/main?tab=check_stock';
     } else if (targetType === 'INQUIRY') {
