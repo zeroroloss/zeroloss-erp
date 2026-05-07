@@ -81,16 +81,16 @@
                             </div>
 
                             <!-- 항목 테이블 -->
-                            <div class="overflow-x-auto">
+                            <div class="overflow-x-auto max-h-[520px]">
                                 <table class="w-full">
                                     <thead class="bg-gray-50 border-b border-gray-200">
                                         <tr>
-                                            <th class="text-left py-3 px-4 text-sm font-semibold text-gray-900">품목코드</th>
-                                            <th class="text-left py-3 px-4 text-sm font-semibold text-gray-900">품목명</th>
-                                            <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">요청 수량</th>
-                                            <th class="text-center py-3 px-4 text-sm font-semibold text-gray-900">최종 확정 수량</th>
-                                            <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">지점 현재 재고</th>
-                                            <th class="text-right py-3 px-4 text-sm font-semibold text-gray-900">본사 재고</th>
+                                            <th class="text-left py-2.5 px-4 text-xs font-semibold text-gray-900">품목코드</th>
+                                            <th class="text-left py-2.5 px-4 text-xs font-semibold text-gray-900">품목명</th>
+                                            <th class="text-right py-2.5 px-4 text-sm font-semibold text-gray-900">지점 재고</th>
+                                            <th class="text-right py-2.5 px-4 text-sm font-semibold text-gray-900">요청 수량</th>
+                                            <th class="text-center py-2.5 px-4 text-sm font-semibold text-gray-900">확정 수량</th>
+                                            <th class="text-right py-2.5 px-4 text-sm font-semibold text-gray-900">본사 재고</th>
                                         </tr>
                                     </thead>
                                     <tbody id="detailItemsTable">
@@ -111,7 +111,7 @@
                                 </div>
                                 <div class="flex items-center justify-between mt-2">
                                     <span class="text-sm text-gray-600">총 확정 수량</span>
-                                    <span class="font-semibold text-green-600" id="summaryAdjustedQty"></span>
+                                    <span class="font-semibold text-green-700" id="summaryAdjustedQty"></span>
                                 </div>
                             </div>
                         </div>
@@ -333,7 +333,10 @@
                         itemCode: item.materialCode,
                         itemName: item.materialName,
                         requestedQty: Number(item.requestedQty || 0),
-                        adjustedQty: Number(item.approvedQty || 0),
+                        adjustedQty: Math.min(
+                            Number(item.requestedQty || 0),
+                            Number(item.warehouseStockQty || 0)
+                        ),
                         unit: item.unit || '',
                         currentStock: Number(item.currentBranchStock || 0),
                         safetyStock: Number(item.safeStockQty || 0),
@@ -470,12 +473,26 @@
 
                 let adjustedQtyHTML;
                 if (selectedOrder.status === 'PENDING') {
-                    adjustedQtyHTML = '<div class="flex items-center justify-center gap-2"><input type="number" value="' + item.adjustedQty + '" onchange="updateAdjustedQty(' + item.poDetailId + ', this.value)" min="0" class="w-24 px-3 py-2 border border-gray-300 rounded-lg text-center font-semibold text-green-600 focus:ring-2 focus:ring-green-500 focus:border-transparent"><span class="text-gray-600">' + item.unit + '</span><i class="fas fa-edit w-4 h-4 text-gray-400"></i></div>';
+                    adjustedQtyHTML =
+                    '<div class="flex items-center justify-center gap-2">' +
+                        '<input ' + 'type="number" ' + 'value="' + item.adjustedQty + '" ' +
+                            'onchange="updateAdjustedQty(' + item.poDetailId + ', this.value)" ' +
+                            'min="0" ' + 'max="' + item.warehouseStock + '" ' +
+                            'class="w-20 px-2 py-1.5 border border-gray-300 rounded-lg text-center font-semibold text-green-600 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">' +
+                        '<span class="text-gray-600 text-sm">' + item.unit + '</span>' +
+                        '<i class="fas fa-edit w-4 h-4 text-gray-400"></i>' +
+                    '</div>';
                 } else {
                     adjustedQtyHTML = '<div class="text-center font-semibold text-green-600">' + item.adjustedQty + item.unit + '</div>';
                 }
 
-                tr.innerHTML = '<td class="py-4 px-4 font-mono text-sm text-gray-600">' + item.itemCode + '</td><td class="py-4 px-4 font-medium text-gray-900">' + item.itemName + '</td><td class="py-4 px-4 text-right font-semibold text-blue-600">' + item.requestedQty + item.unit + '</td><td class="py-4 px-4">' + adjustedQtyHTML + '</td><td class="py-4 px-4 text-right font-semibold ' + currentStockColor + '">' + item.currentStock + item.unit + '</td><td class="py-4 px-4 text-right font-semibold text-gray-900">' + item.warehouseStock + item.unit + '</td>';
+                tr.innerHTML =
+                    '<td class="py-2.5 px-4 font-mono text-sm text-gray-600">' + item.itemCode + '</td>' +
+                    '<td class="py-2.5 px-4 font-medium text-gray-900">' + item.itemName + '</td>' +
+                    '<td class="py-2.5 px-4 text-right font-semibold ' + currentStockColor + '">' + item.currentStock + item.unit + '</td>' + 
+                    '<td class="py-2.5 px-4 text-right font-semibold text-blue-600">' + item.requestedQty + item.unit + '</td>' +
+                    '<td class="py-2.5 px-4">' + adjustedQtyHTML + '</td>' + 
+                    '<td class="py-2.5 px-4 text-right font-semibold text-gray-900">' + item.warehouseStock + item.unit + '</td>';
 
                 tbody.appendChild(tr);
             });
@@ -495,9 +512,16 @@
 
             selectedOrder.details.forEach(function(item) {
                 if (item.poDetailId === poDetailId) {
-                    item.adjustedQty = Math.max(0, Number(newQty));
+
+                    const qty = Number(newQty);
+
+                    item.adjustedQty = Math.min(
+                        item.warehouseStock,
+                        Math.max(0, qty)
+                    );
                 }
             });
+
             renderOrderDetail();
         }
 
