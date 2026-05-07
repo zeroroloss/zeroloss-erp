@@ -70,7 +70,8 @@
 <script>
 // 전역 변수, fetchData, 페이지네이션, 탭 전환, 검색 로직 등
 let allDrivers = [], allVehicles = [], currentTab = 'drivers', searchTerm = '', currentDriverPage = 1, currentVehiclePage = 1;
-const itemsPerPage = 8;
+const itemsPerPage = 10;
+const PAGE_SIZE = 5;
 const contextPath = '<%=request.getContextPath()%>';
 
 async function fetchData() {
@@ -86,35 +87,121 @@ async function fetchData() {
 }
 
 function renderDrivers() {
-    const filtered = allDrivers.filter(d => d.name.includes(searchTerm) || d.phone.includes(searchTerm));
+    const filtered = allDrivers.filter(function(d) {
+        return String(d.name || '').toLowerCase().includes(searchTerm) ||
+               String(d.phone || '').toLowerCase().includes(searchTerm);
+    });
+
     const totalPages = Math.ceil(filtered.length / itemsPerPage);
-    const paginated = filtered.slice((currentDriverPage - 1) * itemsPerPage, currentDriverPage * itemsPerPage);
-    document.getElementById('driversListBody').innerHTML = paginated.map(d => `
-        <div class="grid grid-cols-10 gap-4 px-6 py-4 text-sm items-center hover:bg-gray-50">
-            <div class="col-span-2 font-medium">\${d.name}</div>
-            <div class="col-span-3">\${d.phone}</div>
-            <div class="col-span-2"><span class="px-2.5 py-1 text-xs font-medium border rounded-md">\${d.regionName}</span></div>
-            <div class="col-span-1 text-center"><span class="px-2.5 py-1 text-xs font-bold border rounded-full \${d.active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}">\${d.active ? '활동중' : '비활동'}</span></div>
-            <div class="col-span-2 text-center"><button onclick="openEditDriverModal(\${d.driverId})" class="text-blue-600 hover:text-blue-700"><i class="fas fa-edit w-4 h-4"></i> 수정</button></div>
-        </div>
-    `).join('') || '<div class="p-12 text-center text-gray-500">결과 없음</div>';
+    const paginated = filtered.slice(
+        (currentDriverPage - 1) * itemsPerPage,
+        currentDriverPage * itemsPerPage
+    );
+
+    let html = '';
+
+    if (paginated.length === 0) {
+        html = '<div class="p-12 text-center text-gray-500">결과 없음</div>';
+    } else {
+        paginated.forEach(function(d) {
+            html += '<div class="grid grid-cols-10 gap-4 px-6 py-4 text-sm items-center hover:bg-gray-50">';
+
+            html += '<div class="col-span-2 font-medium">' + (d.name || '-') + '</div>';
+            html += '<div class="col-span-3">' + (d.phone || '-') + '</div>';
+
+            html += '<div class="col-span-2">';
+            html += '<span class="px-2.5 py-1 text-xs font-medium border rounded-md">';
+            html += (d.regionName || '-');
+            html += '</span>';
+            html += '</div>';
+
+            html += '<div class="col-span-1 text-center">';
+            html += '<span class="px-2.5 py-1 text-xs font-bold border rounded-full ';
+            html += d.active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600';
+            html += '">';
+            html += d.active ? '활동중' : '비활동';
+            html += '</span>';
+            html += '</div>';
+
+            html += '<div class="col-span-2 text-center">';
+            html += '<button onclick="openEditDriverModal(' + d.driverId + ')" class="text-blue-600 hover:text-blue-700">';
+            html += '<i class="fas fa-edit w-4 h-4"></i> 수정';
+            html += '</button>';
+            html += '</div>';
+
+            html += '</div>';
+        });
+    }
+
+    document.getElementById('driversListBody').innerHTML = html;
     renderPagination('driversPaginationArea', totalPages, currentDriverPage, 'changeDriverPage');
 }
 
 function renderVehicles() {
-    const filtered = allVehicles.filter(v => v.plateNumber.includes(searchTerm));
+    const filtered = allVehicles.filter(function(v) {
+        return String(v.plateNumber || '').toLowerCase().includes(searchTerm);
+    });
+
     const totalPages = Math.ceil(filtered.length / itemsPerPage);
-    const paginated = filtered.slice((currentVehiclePage - 1) * itemsPerPage, currentVehiclePage * itemsPerPage);
-    document.getElementById('vehiclesListBody').innerHTML = paginated.map(v => `
-        <div class="grid grid-cols-10 gap-4 px-6 py-4 text-sm items-center hover:bg-gray-50">
-            <div class="col-span-2 font-medium">\${v.plateNumber}</div>
-            <div class="col-span-2 text-center">\${v.capacity}</div>
-            <div class="col-span-2 text-center"><span class="px-2.5 py-1 text-xs border rounded-md">\${v.tempType}</span></div>
-            <div class="col-span-2 text-center"><span class="px-2.5 py-1 text-xs font-bold border rounded-full whitespace-nowrap \${v.active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}">\${v.active ? '활성' : '비활성'}</span></div>
-            <div class="col-span-1 text-center"><span class="px-2.5 py-1 text-xs font-bold border rounded-full \${{'AVAILABLE':'bg-green-50 text-green-700','IN_TRANSIT':'bg-blue-50 text-blue-700','MAINTENANCE':'bg-yellow-50 text-yellow-700'}[v.status]}">\${{'AVAILABLE':'가용','IN_TRANSIT':'배송 중','MAINTENANCE':'점검 중'}[v.status]}</span></div>
-            <div class="col-span-1 text-center"><button onclick="openEditVehicleModal(\${v.vehicleId})" class="text-blue-600 hover:text-blue-700"><i class="fas fa-edit w-4 h-4"></i> 수정</button></div>
-        </div>
-    `).join('') || '<div class="p-12 text-center text-gray-500">결과 없음</div>';
+    const paginated = filtered.slice(
+        (currentVehiclePage - 1) * itemsPerPage,
+        currentVehiclePage * itemsPerPage
+    );
+
+    let html = '';
+
+    if (paginated.length === 0) {
+        html = '<div class="p-12 text-center text-gray-500">결과 없음</div>';
+    } else {
+        paginated.forEach(function(v) {
+            const statusClassMap = {
+                AVAILABLE: 'bg-green-50 text-green-700',
+                IN_TRANSIT: 'bg-blue-50 text-blue-700',
+                MAINTENANCE: 'bg-yellow-50 text-yellow-700'
+            };
+
+            const statusTextMap = {
+                AVAILABLE: '가용',
+                IN_TRANSIT: '배송 중',
+                MAINTENANCE: '점검 중'
+            };
+
+            html += '<div class="grid grid-cols-10 gap-4 px-6 py-4 text-sm items-center hover:bg-gray-50">';
+
+            html += '<div class="col-span-2 font-medium">' + (v.plateNumber || '-') + '</div>';
+            html += '<div class="col-span-2 text-center">' + (v.capacity || '-') + '</div>';
+
+            html += '<div class="col-span-2 text-center">';
+            html += '<span class="px-2.5 py-1 text-xs border rounded-md">' + (v.tempType || '-') + '</span>';
+            html += '</div>';
+
+            html += '<div class="col-span-2 text-center">';
+            html += '<span class="px-2.5 py-1 text-xs font-bold border rounded-full whitespace-nowrap ';
+            html += v.active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600';
+            html += '">';
+            html += v.active ? '활성' : '비활성';
+            html += '</span>';
+            html += '</div>';
+
+            html += '<div class="col-span-1 text-center">';
+            html += '<span class="px-2.5 py-1 text-xs font-bold border rounded-full ';
+            html += statusClassMap[v.status] || 'bg-gray-100 text-gray-600';
+            html += '">';
+            html += statusTextMap[v.status] || '-';
+            html += '</span>';
+            html += '</div>';
+
+            html += '<div class="col-span-1 text-center">';
+            html += '<button onclick="openEditVehicleModal(' + v.vehicleId + ')" class="text-blue-600 hover:text-blue-700">';
+            html += '<i class="fas fa-edit w-4 h-4"></i> 수정';
+            html += '</button>';
+            html += '</div>';
+
+            html += '</div>';
+        });
+    }
+
+    document.getElementById('vehiclesListBody').innerHTML = html;
     renderPagination('vehiclesPaginationArea', totalPages, currentVehiclePage, 'changeVehiclePage');
 }
 
@@ -235,15 +322,112 @@ function switchTab(tab) {
     applySearch();
 }
 function applySearch() {
-    searchTerm = document.getElementById('searchInput').value;
-    currentDriverPage = 1; currentVehiclePage = 1;
-    if (currentTab === 'drivers') renderDrivers(); else renderVehicles();
+    searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+
+    currentDriverPage = 1;
+    currentVehiclePage = 1;
+
+    if (currentTab === 'drivers') {
+        renderDrivers();
+    } else {
+        renderVehicles();
+    }
 }
 function renderPagination(areaId, totalPages, currentPage, fnName) {
-    // Pagination logic...
+    const paginationArea = document.getElementById(areaId);
+
+    if (!paginationArea) {
+        console.error('페이지네이션 영역을 찾을 수 없습니다:', areaId);
+        return;
+    }
+
+    if (totalPages <= 1) {
+        paginationArea.innerHTML = '';
+        return;
+    }
+
+    const base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+    const active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+    const arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+
+    const blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+    const blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+
+    let html = '';
+
+    html += '<div class="flex flex-col items-center justify-center gap-3">';
+
+    html += '<div class="flex items-center justify-center gap-1">';
+
+    html += '<button type="button" class="' + arrow + '" onclick="' + fnName + '(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+    html += '<i class="fas fa-angles-left text-xs"></i>';
+    html += '</button>';
+
+    const prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+    html += '<button type="button" class="' + arrow + '" onclick="' + fnName + '(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+    html += '<i class="fas fa-chevron-left text-xs"></i>';
+    html += '</button>';
+
+    for (let i = blockStart; i <= blockEnd; i++) {
+        html += '<button type="button" class="' + (i === currentPage ? active : base) + '" onclick="' + fnName + '(' + i + ')">';
+        html += i;
+        html += '</button>';
+    }
+
+    const nextBlockPage = Math.min(totalPages, blockEnd + 1);
+    html += '<button type="button" class="' + arrow + '" onclick="' + fnName + '(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+    html += '<i class="fas fa-chevron-right text-xs"></i>';
+    html += '</button>';
+
+    html += '<button type="button" class="' + arrow + '" onclick="' + fnName + '(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+    html += '<i class="fas fa-angles-right text-xs"></i>';
+    html += '</button>';
+
+    html += '</div>';
+    html += '</div>';
+
+    paginationArea.innerHTML = html;
 }
-function changeDriverPage(page) { currentDriverPage = page; renderDrivers(); }
-function changeVehiclePage(page) { currentVehiclePage = page; renderVehicles(); }
+function changeDriverPage(page) {
+    const filtered = allDrivers.filter(d =>
+        String(d.name || '').includes(searchTerm) ||
+        String(d.phone || '').includes(searchTerm)
+    );
+
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+    if (page < 1 || page > totalPages) {
+        return;
+    }
+
+    currentDriverPage = page;
+    renderDrivers();
+
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+function changeVehiclePage(page) {
+    const filtered = allVehicles.filter(v =>
+        String(v.plateNumber || '').includes(searchTerm)
+    );
+
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+    if (page < 1 || page > totalPages) {
+        return;
+    }
+
+    currentVehiclePage = page;
+    renderVehicles();
+
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
 
 document.addEventListener('DOMContentLoaded', fetchData);
 </script>
