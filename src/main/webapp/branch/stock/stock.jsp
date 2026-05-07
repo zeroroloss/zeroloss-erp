@@ -384,11 +384,13 @@
 	        fetch(url)
 	            .then(function (res) { return res.json(); })
 	            .then(function (data) {
-	                stockData    = data.list;
-	                filteredData = data.list;
-	                totalPages   = data.totalPages;
-	                renderTable();
-	                renderPaging(data.totalCount, data.page, data.totalPages);
+	            	stockData    = data.list || [];
+	            	filteredData = data.list || [];
+	            	currentPage  = parseInt(data.page || currentPage || 1);
+	            	totalPages   = parseInt(data.totalPages || 1);
+
+	            	renderTable();
+	            	renderPaging(data.totalCount, currentPage, totalPages);
 	            })
 	            .catch(function () { alert('재고 목록을 불러오지 못했습니다.'); });
 	    }
@@ -434,37 +436,80 @@
 	
 	    function renderPaging(totalCount, page, total) {
 	        var wrap = document.getElementById('pagingWrap');
-	        if (total <= 1) { wrap.style.display = 'none'; return; }
+
+	        page = parseInt(page || 1);
+	        total = parseInt(total || 1);
+	        totalCount = parseInt(totalCount || 0);
+
+	        if (total <= 1) {
+	            wrap.style.display = 'none';
+	            wrap.innerHTML = '';
+	            return;
+	        }
+
 	        wrap.style.display = 'flex';
-	
-	        var PAGE_SIZE  = 5;
+	        wrap.style.flexDirection = 'column';
+	        wrap.style.alignItems = 'center';
+	        wrap.style.justifyContent = 'center';
+	        wrap.style.gap = '12px';
+
+	        var PAGE_SIZE = 5;
 	        var blockStart = Math.floor((page - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
-	        var blockEnd   = Math.min(blockStart + PAGE_SIZE - 1, total);
-	
-	        var base   = 'w-8 h-8 flex items-center justify-center border rounded-lg text-sm hover:bg-gray-100';
-	        var active = 'w-8 h-8 flex items-center justify-center border rounded-lg text-sm bg-[#00853D] text-white font-bold';
-	        var arrow  = 'w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-gray-100';
-	
-	        var html = '<div class="flex justify-center items-center gap-1">';
-	
-	     	// 맨 첫 페이지
-	      html += '<button class="' + arrow + '" onclick="loadStockList(1)"><i class="fas fa-angles-left text-xs"></i></button>';
-	
+	        var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, total);
+
+	        // 핵심: 이전/다음은 페이지 1개 이동이 아니라 블록 이동
+	        var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+	        var nextBlockPage = Math.min(total, blockEnd + 1);
+
+	        var startIndex = (page - 1) * 10;
+	        var endIndex = Math.min(startIndex + 10, totalCount);
+
+	        var base =
+	            'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+	        var active =
+	            'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+	        var arrow =
+	            'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+
+	        var html = '';
+
+	        html += '<div class="text-sm text-gray-600">';
+	        html += (startIndex + 1) + '-' + endIndex + ' / ' + totalCount + '개';
+	        html += '</div>';
+
+	        html += '<div class="flex items-center justify-center gap-2">';
+	        html += '<div class="flex items-center gap-1">';
+
+	        // 맨 첫 페이지
+	        html += '<button type="button" class="' + arrow + '" onclick="loadStockList(1)" ' + (page === 1 ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-angles-left text-xs"></i>';
+	        html += '</button>';
+
 	        // 이전 블록
-	        html += '<button class="' + arrow + '" onclick="loadStockList(' + (blockStart - 1) + ')"><i class="fas fa-chevron-left text-xs"></i></button>';
-	
+	        html += '<button type="button" class="' + arrow + '" onclick="loadStockList(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-chevron-left text-xs"></i>';
+	        html += '</button>';
+
 	        // 페이지 번호
 	        for (var i = blockStart; i <= blockEnd; i++) {
-	            html += '<button class="' + (i === page ? active : base) + '" onclick="loadStockList(' + i + ')">' + i + '</button>';
+	            html += '<button type="button" class="' + (i === page ? active : base) + '" onclick="loadStockList(' + i + ')">';
+	            html += i;
+	            html += '</button>';
 	        }
-	
+
 	        // 다음 블록
-	        html += '<button class="' + arrow + '" onclick="loadStockList(' + (blockEnd + 1) + ')"><i class="fas fa-chevron-right text-xs"></i></button>';
-	
-	    	// 맨 마지막 페이지
-	        html += '<button class="' + arrow + '" onclick="loadStockList(' + total + ')"><i class="fas fa-angles-right text-xs"></i></button>';
-	
+	        html += '<button type="button" class="' + arrow + '" onclick="loadStockList(' + nextBlockPage + ')" ' + (blockEnd === total ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-chevron-right text-xs"></i>';
+	        html += '</button>';
+
+	        // 맨 마지막 페이지
+	        html += '<button type="button" class="' + arrow + '" onclick="loadStockList(' + total + ')" ' + (page === total ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-angles-right text-xs"></i>';
+	        html += '</button>';
+
 	        html += '</div>';
+	        html += '</div>';
+
 	        wrap.innerHTML = html;
 	    }
 	

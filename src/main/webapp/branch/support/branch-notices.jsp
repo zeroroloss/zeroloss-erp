@@ -47,15 +47,7 @@
 
             <div id="noticesList" class="space-y-4"></div>
 
-            <div class="flex items-center justify-between">
-                <button onclick="previousPage()" class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" id="prevBtn">
-                    <i class="fas fa-chevron-left w-4 h-4"></i><span>이전</span>
-                </button>
-                <div class="text-gray-600"><span id="pageInfo"></span></div>
-                <button onclick="nextPage()" class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" id="nextBtn">
-                    <span>다음</span><i class="fas fa-chevron-right w-4 h-4"></i>
-                </button>
-            </div>
+            <div id="pagination" class="flex justify-center items-center gap-1 p-4"></div>
         </div>
     </main>
 </div>
@@ -166,9 +158,61 @@
             }).join('');
         }
 
-        document.getElementById('prevBtn').disabled = currentPage === 1;
-        document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
-        document.getElementById('pageInfo').innerText = `\${totalPages === 0 ? 0 : currentPage} / \${totalPages}`;
+        renderPagination(totalPages);
+    }
+     
+    // 페이징
+    function renderPagination(totalPages) {
+        const el = document.getElementById('pagination');
+
+        totalPages = parseInt(totalPages || 0);
+
+        if (totalPages <= 1) {
+            el.innerHTML = '';
+            return;
+        }
+
+        const PAGE_SIZE = 5;
+        const blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+        const blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+
+        const prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+        const nextBlockPage = Math.min(totalPages, blockEnd + 1);
+
+        const base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+        const active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+        const arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+
+        let html = '';
+
+        // 맨 첫 페이지
+        html += '<button type="button" class="' + arrow + '" onclick="changePage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-angles-left text-xs"></i>';
+        html += '</button>';
+
+        // 이전 블록
+        html += '<button type="button" class="' + arrow + '" onclick="changePage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-chevron-left text-xs"></i>';
+        html += '</button>';
+
+        // 페이지 번호
+        for (let i = blockStart; i <= blockEnd; i++) {
+            html += '<button type="button" class="' + (i === currentPage ? active : base) + '" onclick="changePage(' + i + ')">';
+            html += i;
+            html += '</button>';
+        }
+
+        // 다음 블록
+        html += '<button type="button" class="' + arrow + '" onclick="changePage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-chevron-right text-xs"></i>';
+        html += '</button>';
+
+        // 맨 마지막 페이지
+        html += '<button type="button" class="' + arrow + '" onclick="changePage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-angles-right text-xs"></i>';
+        html += '</button>';
+
+        el.innerHTML = html;
     }
 
     function filterNotices() { currentPage = 1; renderNotices(); }
@@ -183,10 +227,22 @@
         renderNotices();
     }
 
-    function previousPage() { if (currentPage > 1) { currentPage--; renderNotices(); window.scrollTo(0, 0); } }
-    function nextPage() {
-        const totalPages = Math.ceil(filterAndSortNotices().length / itemsPerPage);
-        if (currentPage < totalPages) { currentPage++; renderNotices(); window.scrollTo(0, 0); }
+    function changePage(page) {
+        const totalPages = Math.max(1, Math.ceil(filterAndSortNotices().length / itemsPerPage));
+
+        page = parseInt(page || 1);
+
+        if (page < 1) {
+            page = 1;
+        }
+
+        if (page > totalPages) {
+            page = totalPages;
+        }
+
+        currentPage = page;
+        renderNotices();
+        window.scrollTo(0, 0);
     }
 
     async function viewNotice(noticeId) {

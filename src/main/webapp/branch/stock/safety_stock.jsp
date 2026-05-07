@@ -24,6 +24,13 @@
 						<h2 class="text-3xl font-bold text-gray-900">품목별 안전재고 설정</h2>
 						<p class="text-gray-500 mt-1">지점별 품목 안전재고 수량을 확인하고 수정합니다.</p>
 					</div>
+					
+					<div class="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
+						<div class="flex items-center gap-2">
+							<i class="fas fa-clipboard-check w-5 h-5 text-emerald-600"></i>
+							<p class="text-sm text-emerald-900">총 <span class="font-semibold" id="totalItemsCount">0개 품목</span>의 안전재고를 관리합니다.</p>
+						</div>
+					</div>
 
 					<div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
 						<div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -69,23 +76,11 @@
 							<p class="text-gray-400 text-sm">선택한 필터 조건에 해당하는 품목이 없습니다</p>
 						</div>
 
-						<div id="paginationContainer" class="flex justify-between items-center px-6 py-4 border-t border-gray-200 hidden">
-							<button onclick="previousPage()" id="prevBtn" class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-500 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
-								<i class="fas fa-chevron-left w-4 h-4"></i>
-								이전
-							</button>
-							<div class="text-sm text-gray-500"><span id="pageInfo">1 / 1</span></div>
-							<button onclick="nextPage()" id="nextBtn" class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-500 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
-								다음
-								<i class="fas fa-chevron-right w-4 h-4"></i>
-							</button>
-						</div>
-					</div>
-
-					<div class="bg-emerald-50 rounded-lg p-4 border border-emerald-200">
-						<div class="flex items-center gap-2">
-							<i class="fas fa-clipboard-check w-5 h-5 text-emerald-600"></i>
-							<p class="text-sm text-emerald-900">총 <span class="font-semibold" id="totalItemsCount">0개 품목</span>의 안전재고를 관리합니다.</p>
+						<div id="paginationContainer" class="px-6 py-4 border-t border-gray-200 flex flex-col items-center justify-center gap-3 hidden">
+						    <div id="paginationInfo" class="text-sm text-gray-600"></div>
+						    <div class="flex items-center justify-center gap-2">
+						        <div id="pageButtons" class="flex items-center gap-1"></div>
+						    </div>
 						</div>
 					</div>
 				</div>
@@ -280,30 +275,86 @@
 		}
 
 		function updatePagination(totalPages, itemCount) {
-			var paginationContainer = document.getElementById('paginationContainer');
-			if (itemCount > itemsPerPage) {
-				paginationContainer.classList.remove('hidden');
-			} else {
-				paginationContainer.classList.add('hidden');
-			}
-			document.getElementById('pageInfo').textContent = currentPage + ' / ' + totalPages;
-			document.getElementById('prevBtn').disabled = currentPage === 1;
-			document.getElementById('nextBtn').disabled = currentPage === totalPages;
+		    var paginationContainer = document.getElementById('paginationContainer');
+		    var paginationInfo = document.getElementById('paginationInfo');
+		    var pageButtons = document.getElementById('pageButtons');
+
+		    totalPages = parseInt(totalPages || 1);
+		    itemCount = parseInt(itemCount || 0);
+
+		    if (totalPages <= 1) {
+		        paginationContainer.classList.add('hidden');
+		        paginationInfo.textContent = '';
+		        pageButtons.innerHTML = '';
+		        return;
+		    }
+
+		    paginationContainer.classList.remove('hidden');
+
+		    var startIndex = (currentPage - 1) * itemsPerPage;
+		    var endIndex = Math.min(startIndex + itemsPerPage, itemCount);
+
+		    paginationInfo.textContent = (startIndex + 1) + '-' + endIndex + ' / ' + itemCount + '개';
+
+		    var PAGE_SIZE = 5;
+		    var blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+		    var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+
+		    var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+		    var nextBlockPage = Math.min(totalPages, blockEnd + 1);
+
+		    var base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+		    var active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+		    var arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+
+		    var html = '';
+
+		    // 맨 첫 페이지
+		    html += '<button type="button" class="' + arrow + '" onclick="goToPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+		    html += '<i class="fas fa-angles-left text-xs"></i>';
+		    html += '</button>';
+
+		    // 이전 블록
+		    html += '<button type="button" class="' + arrow + '" onclick="goToPage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+		    html += '<i class="fas fa-chevron-left text-xs"></i>';
+		    html += '</button>';
+
+		    // 페이지 번호
+		    for (var i = blockStart; i <= blockEnd; i++) {
+		        html += '<button type="button" class="' + (i === currentPage ? active : base) + '" onclick="goToPage(' + i + ')">';
+		        html += i;
+		        html += '</button>';
+		    }
+
+		    // 다음 블록
+		    html += '<button type="button" class="' + arrow + '" onclick="goToPage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+		    html += '<i class="fas fa-chevron-right text-xs"></i>';
+		    html += '</button>';
+
+		    // 맨 마지막 페이지
+		    html += '<button type="button" class="' + arrow + '" onclick="goToPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+		    html += '<i class="fas fa-angles-right text-xs"></i>';
+		    html += '</button>';
+
+		    pageButtons.innerHTML = html;
 		}
 
-		function previousPage() {
-			if (currentPage > 1) {
-				currentPage -= 1;
-				renderTable();
-			}
-		}
+		function goToPage(page) {
+		    var totalPages = Math.max(1, Math.ceil(getFilteredItems().length / itemsPerPage));
 
-		function nextPage() {
-			var totalPages = Math.max(1, Math.ceil(getFilteredItems().length / itemsPerPage));
-			if (currentPage < totalPages) {
-				currentPage += 1;
-				renderTable();
-			}
+		    page = parseInt(page || 1);
+
+		    if (page < 1) {
+		        page = 1;
+		    }
+
+		    if (page > totalPages) {
+		        page = totalPages;
+		    }
+
+		    currentPage = page;
+		    editingCode = null;
+		    renderTable();
 		}
 
 		function handleEdit(code) {

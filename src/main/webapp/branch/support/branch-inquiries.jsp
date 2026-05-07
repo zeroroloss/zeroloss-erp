@@ -77,7 +77,7 @@
             </div>
 
             <div id="inquiryList" class="space-y-4"></div>
-            <div id="pagination" class="flex items-center justify-between"></div>
+            <div id="pagination" class="flex justify-center items-center gap-1 p-4"></div>
         </div>
     </main>
 </div>
@@ -200,6 +200,7 @@
         listEl.innerHTML = '';
         if (allInquiries.length === 0) {
             listEl.innerHTML = '<div class="text-center py-10 text-gray-500">문의사항이 없습니다.</div>';
+            document.getElementById('pagination').innerHTML = '';
             return;
         }
 
@@ -239,14 +240,73 @@
 
     function renderPagination(totalPages) {
         const el = document.getElementById('pagination');
-        if (totalPages <= 1) { el.innerHTML = ''; return; }
-        el.innerHTML = `
-            <button onclick=\"changePage(\${currentPage - 1})\" class=\"px-4 py-2 border rounded-lg \${currentPage === 1 ? 'opacity-50 pointer-events-none' : ''}\">이전</button>
-            <span class=\"text-sm text-gray-500\">\${currentPage} / \${totalPages}</span>
-            <button onclick=\"changePage(\${currentPage + 1})\" class=\"px-4 py-2 border rounded-lg \${currentPage === totalPages ? 'opacity-50 pointer-events-none' : ''}\">다음</button>`;
+
+        totalPages = parseInt(totalPages || 1);
+
+        if (totalPages <= 1) {
+            el.innerHTML = '';
+            return;
+        }
+
+        const PAGE_SIZE = 5;
+        const blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+        const blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+
+        const prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+        const nextBlockPage = Math.min(totalPages, blockEnd + 1);
+
+        const base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+        const active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+        const arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+
+        let html = '';
+
+        // 맨 첫 페이지
+        html += '<button type="button" class="' + arrow + '" onclick="changePage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-angles-left text-xs"></i>';
+        html += '</button>';
+
+        // 이전 블록
+        html += '<button type="button" class="' + arrow + '" onclick="changePage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-chevron-left text-xs"></i>';
+        html += '</button>';
+
+        // 페이지 번호
+        for (let i = blockStart; i <= blockEnd; i++) {
+            html += '<button type="button" class="' + (i === currentPage ? active : base) + '" onclick="changePage(' + i + ')">';
+            html += i;
+            html += '</button>';
+        }
+
+        // 다음 블록
+        html += '<button type="button" class="' + arrow + '" onclick="changePage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-chevron-right text-xs"></i>';
+        html += '</button>';
+
+        // 맨 마지막 페이지
+        html += '<button type="button" class="' + arrow + '" onclick="changePage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-angles-right text-xs"></i>';
+        html += '</button>';
+
+        el.innerHTML = html;
     }
 
-    function changePage(p) { currentPage = p; renderInquiries(); }
+    function changePage(page) {
+        const totalPages = Math.max(1, Math.ceil(allInquiries.length / itemsPerPage));
+
+        page = parseInt(page || 1);
+
+        if (page < 1) {
+            page = 1;
+        }
+
+        if (page > totalPages) {
+            page = totalPages;
+        }
+
+        currentPage = page;
+        renderInquiries();
+    }
 
     function openCreateModal() {
         editingInquiryId = null;

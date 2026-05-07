@@ -359,50 +359,52 @@
         var pagination = document.getElementById("pagination");
         var html = "";
 
-        var maxVisiblePages = 5;
+        totalPages = parseInt(totalPages || 1);
 
-        var startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-        var endPage = startPage + maxVisiblePages - 1;
-
-        if (endPage > totalPages) {
-            endPage = totalPages;
-            startPage = Math.max(1, endPage - maxVisiblePages + 1);
-        }
-
-        // 이전 버튼
-        html += '<button type="button" onclick="changePage(' + (currentPage - 1) + ')" ' +
-                (currentPage === 1 ? 'disabled' : '') +
-                ' class="w-9 h-9 border border-gray-300 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">' +
-                    '<i class="fas fa-chevron-left text-xs"></i>' +
-                '</button>';
-
-        // 페이지 번호 버튼
-        for (var i = startPage; i <= endPage; i++) {
-            html += '<button type="button" onclick="changePage(' + i + ')" ' +
-                    'class="w-9 h-9 border rounded-lg text-sm font-medium transition-colors ' +
-                    (i === currentPage
-                        ? 'bg-[#00853D] text-white border-[#00853D]'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50') +
-                    '">' + i + '</button>';
-        }
-
-        // 다음 버튼
-        html += '<button type="button" onclick="changePage(' + (currentPage + 1) + ')" ' +
-                (currentPage === totalPages ? 'disabled' : '') +
-                ' class="w-9 h-9 border border-gray-300 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">' +
-                    '<i class="fas fa-chevron-right text-xs"></i>' +
-                '</button>';
-
-        pagination.innerHTML = html;
-    }
-
-    function changePage(page) {
-        if (page < 1) {
+        if (totalPages <= 1) {
+            pagination.innerHTML = "";
             return;
         }
 
-        currentPage = page;
-        renderEmployees();
+        var PAGE_SIZE = 5;
+        var blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+        var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+
+        var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+        var nextBlockPage = Math.min(totalPages, blockEnd + 1);
+
+        var base = "min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700";
+        var active = "min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white";
+        var arrow = "min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white";
+
+        // 맨 첫 페이지
+        html += '<button type="button" class="' + arrow + '" onclick="changePage(1)" ' + (currentPage === 1 ? "disabled" : "") + '>';
+        html += '<i class="fas fa-angles-left text-xs"></i>';
+        html += '</button>';
+
+        // 이전 블록
+        html += '<button type="button" class="' + arrow + '" onclick="changePage(' + prevBlockPage + ')" ' + (blockStart === 1 ? "disabled" : "") + '>';
+        html += '<i class="fas fa-chevron-left text-xs"></i>';
+        html += '</button>';
+
+        // 페이지 번호
+        for (var i = blockStart; i <= blockEnd; i++) {
+            html += '<button type="button" class="' + (i === currentPage ? active : base) + '" onclick="changePage(' + i + ')">';
+            html += i;
+            html += '</button>';
+        }
+
+        // 다음 블록
+        html += '<button type="button" class="' + arrow + '" onclick="changePage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? "disabled" : "") + '>';
+        html += '<i class="fas fa-chevron-right text-xs"></i>';
+        html += '</button>';
+
+        // 맨 마지막 페이지
+        html += '<button type="button" class="' + arrow + '" onclick="changePage(' + totalPages + ')" ' + (currentPage === totalPages ? "disabled" : "") + '>';
+        html += '<i class="fas fa-angles-right text-xs"></i>';
+        html += '</button>';
+
+        pagination.innerHTML = html;
     }
 
     function changeToEditMode() {
@@ -422,14 +424,36 @@
         });
         applyEditRestrictions();
     }
-
+    
     function changePage(page) {
-        if (page < 1) return;
+        var searchTerm = normalizeKeyword(document.getElementById("searchInput").value);
+
+        var filtered = employees.filter(function(employee) {
+            return (
+                String(employee.name || "").toLowerCase().includes(searchTerm) ||
+                String(employee.empNo || "").toLowerCase().includes(searchTerm) ||
+                String(employee.dept || "").toLowerCase().includes(searchTerm) ||
+                String(employee.branchName || "").toLowerCase().includes(searchTerm) ||
+                String(employee.positionName || "").toLowerCase().includes(searchTerm)
+            );
+        });
+
+        var totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+
+        page = parseInt(page || 1);
+
+        if (page < 1) {
+            page = 1;
+        }
+
+        if (page > totalPages) {
+            page = totalPages;
+        }
 
         currentPage = page;
         renderEmployees();
     }
-    
+   
     function showAddModal() {
     	document.getElementById("addModal").classList.remove("modal-hidden");
     }

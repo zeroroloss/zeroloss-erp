@@ -61,6 +61,14 @@
         .detail-table th { background: #f8fafc; font-weight: 800; }
         .detail-table tbody tr:last-child td { border-bottom: 0; }
         .detail-table .right { text-align: right; }
+        
+        .paging-wrap { display: flex; justify-content: center; align-items: center; gap: 4px; padding: 16px 14px; border-top: 1px solid #e5e7eb; }
+		.page-btn { min-width: 40px; height: 38px; padding: 0 12px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; color: #374151; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+		.page-btn:hover { background: #f9fafb; }
+		.page-btn.active { background: #00853D; color: #fff; border-color: #00853D; font-weight: 700; }
+		.page-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #fff; }
+		.page-btn:disabled:hover { background: #fff; }
+		.page-info { font-size: 13px; color: #6b7280; margin: 0 8px; }
 
         @media (max-width: 980px) {
             .filter-line { grid-template-columns: 1fr; }
@@ -147,6 +155,7 @@
             </table>
             <div id="emptyState" class="empty-state">조회 결과가 없습니다</div>
         </div>
+        <div class="paging-wrap" id="historyPaging" style="display: none;"></div>
     </div>
 </div>
 </div>
@@ -195,6 +204,10 @@
 <script>
     (function () {
         var contextPath = '<%= request.getContextPath() %>';
+        
+        var historyData = [];
+        var currentPage = 1;
+        var itemsPerPage = 10;
 
         function toSafeText(value) {
             return value == null ? '' : String(value);
@@ -246,6 +259,7 @@
                 emptyState.classList.add('visible');
                 summaryCount.textContent = '0';
                 summaryAmount.textContent = '0원';
+                renderPaging(0);
                 return;
             }
 
@@ -253,11 +267,25 @@
 
             var totalAmount = 0;
             rows.forEach(function (row) {
+                var amount = Number(row.totalAmount || 0);
+                totalAmount += isNaN(amount) ? 0 : amount;
+            });
+
+            var totalPages = Math.max(1, Math.ceil(rows.length / itemsPerPage));
+
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
+            }
+
+            var startIndex = (currentPage - 1) * itemsPerPage;
+            var endIndex = startIndex + itemsPerPage;
+            var currentRows = rows.slice(startIndex, endIndex);
+
+            currentRows.forEach(function (row) {
                 var poNo = toSafeText(row.poNo || '-');
                 var receivedAt = toSafeText(row.receivedAt || '-');
                 var itemCount = Number(row.itemCount || 0);
                 var amount = Number(row.totalAmount || 0);
-                totalAmount += isNaN(amount) ? 0 : amount;
 
                 tbody.insertAdjacentHTML('beforeend',
                     '<tr>' +
@@ -278,7 +306,75 @@
                     loadDetail(button.getAttribute('data-po-no'));
                 });
             });
+
+            renderPaging(rows.length);
         }
+        
+        // 페이징
+        function renderPaging(totalCount) {
+		    var wrap = document.getElementById('historyPaging');
+		
+		    totalCount = parseInt(totalCount || 0);
+		    var totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
+		
+		    if (totalPages <= 1) {
+		        wrap.style.display = 'none';
+		        wrap.innerHTML = '';
+		        return;
+		    }
+		
+		    wrap.style.display = 'flex';
+		
+		    var PAGE_SIZE = 5;
+		    var blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+		    var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+		
+		    var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+		    var nextBlockPage = Math.min(totalPages, blockEnd + 1);
+		
+		    var html = '';
+		
+		    html += '<button type="button" class="page-btn" onclick="goToPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+		    html += '<i class="fas fa-angles-left" style="font-size:11px"></i>';
+		    html += '</button>';
+		
+		    html += '<button type="button" class="page-btn" onclick="goToPage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+		    html += '<i class="fas fa-chevron-left" style="font-size:11px"></i>';
+		    html += '</button>';
+		
+		    for (var i = blockStart; i <= blockEnd; i++) {
+		        html += '<button type="button" class="page-btn' + (i === currentPage ? ' active' : '') + '" onclick="goToPage(' + i + ')">';
+		        html += i;
+		        html += '</button>';
+		    }
+		
+		    html += '<button type="button" class="page-btn" onclick="goToPage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+		    html += '<i class="fas fa-chevron-right" style="font-size:11px"></i>';
+		    html += '</button>';
+		
+		    html += '<button type="button" class="page-btn" onclick="goToPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+		    html += '<i class="fas fa-angles-right" style="font-size:11px"></i>';
+		    html += '</button>';
+		
+		    wrap.innerHTML = html;
+		}
+		
+		window.goToPage = function (page) {
+		    var totalPages = Math.max(1, Math.ceil(historyData.length / itemsPerPage));
+		
+		    page = parseInt(page || 1);
+		
+		    if (page < 1) {
+		        page = 1;
+		    }
+		
+		    if (page > totalPages) {
+		        page = totalPages;
+		    }
+		
+		    currentPage = page;
+		    renderHistoryTable(historyData);
+		};
 
         function renderDetailRows(details) {
             var tbody = document.getElementById('detailTableBody');
@@ -319,7 +415,9 @@
                 throw new Error((payload && payload.message) || '입고 내역 조회 실패');
             }
 
-            renderHistoryTable(payload.data || []);
+            historyData = payload.data || [];
+            currentPage = 1;
+            renderHistoryTable(historyData);
         }
 
         async function loadDetail(poNo) {

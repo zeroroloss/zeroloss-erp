@@ -118,11 +118,13 @@
 		.disposal-title { margin: 0; font-size: 18px; font-weight: 700; color: #9a3412; }
 		.disposal-text  { margin: 6px 0 0; color: #7c2d12; font-size: 13px; }
 
-		.paging-wrap { display: flex; justify-content: center; align-items: center; gap: 4px; padding: 14px; }
-		.page-btn { min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; color: #374151; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
-		.page-btn:hover { background: #f3f4f6; }
-		.page-btn.active { background: #00853d; color: #fff; border-color: #00853d; }
-		.page-info { font-size: 12px; color: #6b7280; margin: 0 8px; }
+		.paging-wrap { display: flex; justify-content: center; align-items: center; gap: 4px; padding: 16px 14px; }
+		.page-btn { min-width: 40px; height: 38px; padding: 0 12px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; color: #374151; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+		.page-btn:hover { background: #f9fafb; }
+		.page-btn.active { background: #00853D; color: #fff; border-color: #00853D; font-weight: 700; }
+		.page-btn:disabled { opacity: 0.4; cursor: not-allowed; background: #fff; }
+		.page-btn:disabled:hover { background: #fff; }
+		.page-info { font-size: 13px; color: #6b7280; margin: 0 8px; }
 
 		@media (max-width: 1000px) { .filter-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .filter-line { flex-wrap: wrap; } }
 		@media (max-width: 640px)  { .filter-fields { grid-template-columns: 1fr; } .filter-actions { width: 100%; } .tabs { grid-template-columns: 1fr; } .tab-link { height: 46px; } }
@@ -449,30 +451,65 @@
 
 	/* ── 페이징 ── */
 	function renderPaging(wrapperId, totalCount, page, total, tab) {
-		var wrap = document.getElementById(wrapperId);
-		if (!total || total <= 1) { wrap.style.display = 'none'; return; }
-		wrap.style.display = 'flex';
+	    var wrap = document.getElementById(wrapperId);
 
-		var PAGE_SIZE  = 5;
-		var blockStart = Math.floor((page - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
-		var blockEnd   = Math.min(blockStart + PAGE_SIZE - 1, total);
+	    page = parseInt(page || 1);
+	    total = parseInt(total || 1);
+	    totalCount = parseInt(totalCount || 0);
 
-		var html = '';
+	    if (total <= 1) {
+	        wrap.style.display = 'none';
+	        wrap.innerHTML = '';
+	        return;
+	    }
 
-		// 맨 첫 페이지
-		html += '<button class="page-btn" onclick="loadTabData(\'' + tab + '\', 1)"><i class="fas fa-angles-left" style="font-size:11px"></i></button>';
-		// 이전 블록
-		html += '<button class="page-btn" onclick="loadTabData(\'' + tab + '\', ' + (blockStart - 1) + ')"><i class="fas fa-chevron-left" style="font-size:11px"></i></button>';
-		// 페이지 번호
-		for (var i = blockStart; i <= blockEnd; i++) {
-			html += '<button class="page-btn' + (i === page ? ' active' : '') + '" onclick="loadTabData(\'' + tab + '\', ' + i + ')">' + i + '</button>';
-		}
-		// 다음 블록
-		html += '<button class="page-btn" onclick="loadTabData(\'' + tab + '\', ' + (blockEnd + 1) + ')"><i class="fas fa-chevron-right" style="font-size:11px"></i></button>';
-		// 맨 마지막 페이지
-		html += '<button class="page-btn" onclick="loadTabData(\'' + tab + '\', ' + total + ')"><i class="fas fa-angles-right" style="font-size:11px"></i></button>';
+	    wrap.style.display = 'flex';
 
-		wrap.innerHTML = html;
+	    var PAGE_SIZE = 5;
+	    var blockStart = Math.floor((page - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+	    var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, total);
+
+	    // 블록 이동
+	    // 1 2 3 4 5 에서 > 클릭 → 6
+	    // 6 7 8 9 10 에서 < 클릭 → 1
+	    var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+	    var nextBlockPage = Math.min(total, blockEnd + 1);
+
+	    var html = '';
+
+	    // 맨 첫 페이지
+	    html += '<button type="button" class="page-btn" onclick="loadTabData(\'' + tab + '\', 1)" ' +
+	            (page === 1 ? 'disabled' : '') + '>';
+	    html += '<i class="fas fa-angles-left" style="font-size:11px"></i>';
+	    html += '</button>';
+
+	    // 이전 블록
+	    html += '<button type="button" class="page-btn" onclick="loadTabData(\'' + tab + '\', ' + prevBlockPage + ')" ' +
+	            (blockStart === 1 ? 'disabled' : '') + '>';
+	    html += '<i class="fas fa-chevron-left" style="font-size:11px"></i>';
+	    html += '</button>';
+
+	    // 페이지 번호
+	    for (var i = blockStart; i <= blockEnd; i++) {
+	        html += '<button type="button" class="page-btn' + (i === page ? ' active' : '') + '" ';
+	        html += 'onclick="loadTabData(\'' + tab + '\', ' + i + ')">';
+	        html += i;
+	        html += '</button>';
+	    }
+
+	    // 다음 블록
+	    html += '<button type="button" class="page-btn" onclick="loadTabData(\'' + tab + '\', ' + nextBlockPage + ')" ' +
+	            (blockEnd === total ? 'disabled' : '') + '>';
+	    html += '<i class="fas fa-chevron-right" style="font-size:11px"></i>';
+	    html += '</button>';
+
+	    // 맨 마지막 페이지
+	    html += '<button type="button" class="page-btn" onclick="loadTabData(\'' + tab + '\', ' + total + ')" ' +
+	            (page === total ? 'disabled' : '') + '>';
+	    html += '<i class="fas fa-angles-right" style="font-size:11px"></i>';
+	    html += '</button>';
+
+	    wrap.innerHTML = html;
 	}
 
 	/* ── 필터 ── */
