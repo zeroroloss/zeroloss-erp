@@ -48,7 +48,7 @@
 	                     }
 	 				%>
 
-                        <form method="post" action="${pageContext.request.contextPath }/common/login" class="space-y-6" autocomplete="off">
+                        <form method="post" action="${pageContext.request.contextPath}/login" class="space-y-6" autocomplete="off">
                             <div>
                                 <label for="loginId" class="block text-sm font-medium text-gray-700 mb-1">
                                     아이디

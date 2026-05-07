@@ -111,7 +111,6 @@
   <%@ include file="/branch/common/layout/sidebar.jsp" %>
   
   <div class="zl-content">
-    <%@ include file="/branch/common/layout/topbar.jsp" %>
     
       <div class="p-6">
       	<main>

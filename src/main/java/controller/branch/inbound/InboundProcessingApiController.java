@@ -27,10 +27,6 @@ public class InboundProcessingApiController extends HttpServlet {
 	private final InboundService service = new InboundServiceImpl();
 	private final Gson gson = util.GsonFactory.getGson();
 
-    public InboundProcessingApiController() {
-        super();
-    }
-
     @Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 

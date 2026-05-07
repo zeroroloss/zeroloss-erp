@@ -24,11 +24,8 @@ public class BranchStockController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	private BranchStockService branchStockService = new BranchStockServiceImpl();
-
-	public BranchStockController() {
-		super();
-	}
-
+	
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String materialGroupIdStr = request.getParameter("materialGroupId");

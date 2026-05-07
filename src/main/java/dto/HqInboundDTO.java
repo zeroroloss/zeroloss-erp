@@ -12,9 +12,7 @@ public class HqInboundDTO {
 	private BigDecimal qty;
 	private LocalDate expiryDate;
 
-	public HqInboundDTO() {
-		super();
-	}
+	public HqInboundDTO() {}
 
 	public HqInboundDTO(Integer hqInboundId, String supplierName, LocalDateTime receivedAt, String materialCode, BigDecimal qty, LocalDate expiryDate) {
 		super();

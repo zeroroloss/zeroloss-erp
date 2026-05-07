@@ -17,7 +17,9 @@ import java.util.List;
 @WebServlet("/branch/support/branch-notices-data")
 public class BranchNoticeController extends HttpServlet {
 
-    private final NoticeService noticeService = new NoticeServiceImpl();
+	private static final long serialVersionUID = 1L;
+	
+	private final NoticeService noticeService = new NoticeServiceImpl();
     private final Gson gson = GsonFactory.getGson();
 
     @Override

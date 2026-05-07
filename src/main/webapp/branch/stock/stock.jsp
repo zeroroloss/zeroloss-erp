@@ -150,508 +150,527 @@
 <%@ include file="/branch/common/layout/layout_head.jsp" %>
 </head>
 <body>
-<div class="zl-app">
-<%@ include file="/branch/common/layout/sidebar.jsp" %>
-<div class="zl-content">
-<%@ include file="/branch/common/layout/topbar.jsp" %>
-<div class="wrap p-6">
-    <div class="page-header">
-        <h1 class="page-title">재고 현황</h1>
-        <p class="page-sub">유통기한 임박 시 행이 강조됩니다. 품목 클릭 시 우측에서 상세를 확인하세요.</p>
-    </div>
+	<div class="zl-app">
+		<%@ include file="/branch/common/layout/sidebar.jsp"%>
+		<div class="zl-content">
+			<div class="wrap p-6">
+				<div class="page-header">
+					<h1 class="page-title">재고 현황</h1>
+					<p class="page-sub">유통기한 임박 시 행이 강조됩니다. 품목 클릭 시 우측에서 상세를 확인하세요.</p>
+				</div>
 
-    <div class="filter-card">
-        <div class="filters">
-            <select id="categoryFilter" class="filter-select" onchange="onCategoryChange()">
-                <option value="">카테고리 전체</option>
-            </select>
-            <select id="itemFilter" class="filter-select" onchange="applyFilters()">
-                <option value="">품목명 전체</option>
-            </select>
-            <input id="searchInput" class="filter-input" type="text" placeholder="재고 번호 또는 품목명 검색" />
-            <div style="display:flex; gap:8px;">
-                <button type="button" class="btn btn-primary" onclick="applyFilters()">조회하기</button>
-                <button type="button" class="btn btn-muted"  onclick="resetFilters()">초기화</button>
-            </div>
-        </div>
-    </div>
+				<div class="filter-card">
+					<div class="filters">
+						<select id="categoryFilter" class="filter-select"
+							onchange="onCategoryChange()">
+							<option value="">카테고리 전체</option>
+						</select> <select id="itemFilter" class="filter-select"
+							onchange="applyFilters()">
+							<option value="">품목명 전체</option>
+						</select> <input id="searchInput" class="filter-input" type="text"
+							placeholder="재고 번호 또는 품목명 검색" />
+						<div style="display: flex; gap: 8px;">
+							<button type="button" class="btn btn-primary"
+								onclick="applyFilters()">조회하기</button>
+							<button type="button" class="btn btn-muted"
+								onclick="resetFilters()">초기화</button>
+						</div>
+					</div>
+				</div>
 
-    <div class="stock-layout" id="stockLayout">
+				<div class="stock-layout" id="stockLayout">
 
-        <!-- ★ 왼쪽 래퍼: 테이블 패널 + 페이징을 하나로 묶음 -->
-        <div>
-            <div class="panel">
-                <div class="panel-head">
-                    <h2 class="panel-title">재고 목록</h2>
-                    <p class="panel-sub">유통기한 임박 행 강조 · 품목 클릭 시 우측에서 상세 확인</p>
-                    <div class="sort-row">
-                        <button type="button" id="sortReceivedBtn" class="sort-btn active" onclick="onSortClick('receivedAt')">입고 시점 오름차순</button>
-                        <button type="button" id="sortExpireBtn"   class="sort-btn"        onclick="onSortClick('expireDate')">유통기한 오름차순</button>
-                    </div>
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <colgroup><col><col><col><col><col><col><col></colgroup>
-                        <thead>
-                            <tr>
-                                <th>재고 번호</th>
-                                <th>카테고리</th>
-                                <th>품목명</th>
-                                <th>입고 시점</th>
-                                <th>유통기한</th>
-                                <th>현재 수량</th>
-                                <th>상태</th>
-                            </tr>
-                        </thead>
-                        <tbody id="stockTableBody"></tbody>
-                    </table>
-                    <div id="stockEmpty" class="empty" style="display:none;">조회 결과가 없습니다.</div>
-                </div>
-            </div>
-            <!-- ★ 페이징: panel 바깥, 왼쪽 래퍼 안 -->
-            <div id="pagingWrap"></div>
-        </div>
+					<!-- ★ 왼쪽 래퍼: 테이블 패널 + 페이징을 하나로 묶음 -->
+					<div>
+						<div class="panel">
+							<div class="panel-head">
+								<h2 class="panel-title">재고 목록</h2>
+								<p class="panel-sub">유통기한 임박 행 강조 · 품목 클릭 시 우측에서 상세 확인</p>
+								<div class="sort-row">
+									<button type="button" id="sortReceivedBtn"
+										class="sort-btn active" onclick="onSortClick('receivedAt')">입고
+										시점 오름차순</button>
+									<button type="button" id="sortExpireBtn" class="sort-btn"
+										onclick="onSortClick('expireDate')">유통기한 오름차순</button>
+								</div>
+							</div>
+							<div class="table-wrap">
+								<table>
+									<colgroup>
+										<col>
+										<col>
+										<col>
+										<col>
+										<col>
+										<col>
+										<col>
+									</colgroup>
+									<thead>
+										<tr>
+											<th>재고 번호</th>
+											<th>카테고리</th>
+											<th>품목명</th>
+											<th>입고 시점</th>
+											<th>유통기한</th>
+											<th>현재 수량</th>
+											<th>상태</th>
+										</tr>
+									</thead>
+									<tbody id="stockTableBody"></tbody>
+								</table>
+								<div id="stockEmpty" class="empty" style="display: none;">조회
+									결과가 없습니다.</div>
+							</div>
+						</div>
+						<!-- ★ 페이징: panel 바깥, 왼쪽 래퍼 안 -->
+						<div id="pagingWrap"></div>
+					</div>
 
-        <!-- ★ 오른쪽: 상세 패널 -->
-        <div class="detail-panel" id="detailPanel">
-            <div class="dp-head">
-                <div>
-                    <div class="dp-name" id="dpName">-</div>
-                    <div class="dp-cat"  id="dpCat">-</div>
-                </div>
-                <button class="dp-close" onclick="closePanel()">✕</button>
-            </div>
-            <div class="dp-summary">
-                <div class="dp-total-box">
-                    <div class="dp-total-label">유효 재고 합산 수량</div>
-                    <div class="dp-total-val" id="dpTotal">-</div>
-                    <div class="dp-total-sub" id="dpTotalSub"></div>
-                </div>
-                <div class="dp-ratio-box">
-                    <div class="dp-ratio-label">안전재고 대비 비율 · 안전재고 <span id="dpSaf">-</span></div>
-                    <div class="dp-ratio-row">
-                        <div class="dp-prog-bg"><div class="dp-prog-fill" id="dpProgFill" style="width:0%"></div></div>
-                        <div class="dp-ratio-pct" id="dpPct">-</div>
-                        <span class="badge" id="dpBadge">-</span>
-                    </div>
-                </div>
-            </div>
-            <div class="dp-body" id="dpBody"></div>
-        </div>
+					<!-- ★ 오른쪽: 상세 패널 -->
+					<div class="detail-panel" id="detailPanel">
+						<div class="dp-head">
+							<div>
+								<div class="dp-name" id="dpName">-</div>
+								<div class="dp-cat" id="dpCat">-</div>
+							</div>
+							<button class="dp-close" onclick="closePanel()">✕</button>
+						</div>
+						<div class="dp-summary">
+							<div class="dp-total-box">
+								<div class="dp-total-label">유효 재고 합산 수량</div>
+								<div class="dp-total-val" id="dpTotal">-</div>
+								<div class="dp-total-sub" id="dpTotalSub"></div>
+							</div>
+							<div class="dp-ratio-box">
+								<div class="dp-ratio-label">
+									안전재고 대비 비율 · 안전재고 <span id="dpSaf">-</span>
+								</div>
+								<div class="dp-ratio-row">
+									<div class="dp-prog-bg">
+										<div class="dp-prog-fill" id="dpProgFill" style="width: 0%"></div>
+									</div>
+									<div class="dp-ratio-pct" id="dpPct">-</div>
+									<span class="badge" id="dpBadge">-</span>
+								</div>
+							</div>
+						</div>
+						<div class="dp-body" id="dpBody"></div>
+					</div>
 
-    </div>
-</div>
-</main>
-</div>
-</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-<div class="modal-backdrop" id="disposalModal" onclick="onBackdropClick(event)">
-    <div class="modal-box">
-        <div class="modal-head">
-            <span class="modal-title">폐기 등록</span>
-            <button class="modal-close" onclick="closeDisposalModal()">✕</button>
-        </div>
-        <div class="modal-body" id="modalBody"></div>
-        <div class="modal-foot">
-            <button class="mbtn mbtn-cancel" onclick="closeDisposalModal()">취소</button>
-            <button class="mbtn mbtn-danger" onclick="submitDisposal()">폐기 등록</button>
-        </div>
-    </div>
-</div>
+	<div class="modal-backdrop" id="disposalModal"
+		onclick="onBackdropClick(event)">
+		<div class="modal-box">
+			<div class="modal-head">
+				<span class="modal-title">폐기 등록</span>
+				<button class="modal-close" onclick="closeDisposalModal()">✕</button>
+			</div>
+			<div class="modal-body" id="modalBody"></div>
+			<div class="modal-foot">
+				<button class="mbtn mbtn-cancel" onclick="closeDisposalModal()">취소</button>
+				<button class="mbtn mbtn-danger" onclick="submitDisposal()">폐기
+					등록</button>
+			</div>
+		</div>
+	</div>
 
-<script>
-(function () {
-    var TODAY = new Date();
-    TODAY.setHours(0, 0, 0, 0);
-    var contextPath = '<%=request.getContextPath()%>';
-
-    var stockData           = [];
-    var filteredData        = [];
-    var currentPage         = 1;
-    var totalPages          = 1;
-    var selectedStockNo     = null;
-    var currentModalStockNo = null;
-    var sortState           = { field: 'receivedAt', direction: 'asc' };
-
-    function daysUntil(dateStr) {
-        var d = new Date(dateStr); d.setHours(0, 0, 0, 0);
-        return Math.ceil((d - TODAY) / 86400000);
-    }
-    function isExpired(dateStr) { return daysUntil(dateStr) <= 0; }
-
-    function getExpiryStatus(dateStr) {
-        var d = daysUntil(dateStr);
-        if (d <= 0) return { label: '만료', cls: 'badge-expired', rowCls: 'row-expired', lotCls: 'lot-urgent' };
-        if (d <= 1) return { label: '긴급', cls: 'badge-urgent',  rowCls: 'row-urgent',  lotCls: 'lot-urgent' };
-        if (d <= 3) return { label: '경고', cls: 'badge-warn',    rowCls: 'row-warn',    lotCls: 'lot-warn'   };
-        return             { label: '정상', cls: 'badge-safe',    rowCls: '',            lotCls: ''           };
-    }
-
-    function getSafetyStatus(validQty, safetyQty) {
-        if (!safetyQty) return { label: '미설정', cls: 'badge-unset', color: '#94a3b8' };
-        var r = validQty / safetyQty;
-        if (r < 0.7) return { label: '부족', cls: 'badge-lack',    color: '#dc2626' };
-        if (r < 1.0) return { label: '경고', cls: 'badge-caution', color: '#d97706' };
-        return               { label: '정상', cls: 'badge-ok',      color: '#16a34a' };
-    }
-
-    function escapeHtml(v) {
-        return String(v == null ? '' : v)
-            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-            .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-    }
-
-    function syncSortButtons() {
-        var rBtn = document.getElementById('sortReceivedBtn');
-        var eBtn = document.getElementById('sortExpireBtn');
-        rBtn.textContent = '입고 시점 ' + (sortState.field === 'receivedAt' ? (sortState.direction === 'asc' ? '오름차순' : '내림차순') : '오름차순');
-        eBtn.textContent = '유통기한 ' + (sortState.field === 'expireDate'  ? (sortState.direction === 'asc' ? '오름차순' : '내림차순') : '오름차순');
-        rBtn.classList.toggle('active', sortState.field === 'receivedAt');
-        eBtn.classList.toggle('active', sortState.field === 'expireDate');
-    }
-
-    window.onSortClick = function (field) {
-        if (sortState.field === field) { sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc'; }
-        else { sortState.field = field; sortState.direction = 'asc'; }
-        syncSortButtons();
-        loadStockList(1);
-    };
-
-    function loadCategoryList() {
-        fetch(contextPath + '/branch/stock/categories')
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
-                var el = document.getElementById('categoryFilter');
-                el.innerHTML = '<option value="">카테고리 전체</option>';
-                data.forEach(function (item) {
-                    el.insertAdjacentHTML('beforeend',
-                        '<option value="' + escapeHtml(item.materialGroupId) + '">' + escapeHtml(item.groupName) + '</option>');
-                });
-            })
-            .catch(function () { alert('카테고리 목록을 불러오지 못했습니다.'); });
-    }
-
-    window.onCategoryChange = function () {
-        var materialGroupId = document.getElementById('categoryFilter').value;
-        var sel = document.getElementById('itemFilter');
-        sel.innerHTML = '<option value="">품목명 전체</option>';
-        if (!materialGroupId) { loadStockList(1); return; }
-        fetch(contextPath + '/branch/stock/materials?materialGroupId=' + encodeURIComponent(materialGroupId))
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
-                data.forEach(function (item) {
-                    sel.insertAdjacentHTML('beforeend',
-                        '<option value="' + escapeHtml(item.materialName) + '">' + escapeHtml(item.materialName) + '</option>');
-                });
-                loadStockList(1);
-            })
-            .catch(function () { alert('품목 목록을 불러오지 못했습니다.'); });
-    };
-
-    function loadStockList(page) {
-        currentPage = page || 1;
-        var materialGroupId = document.getElementById('categoryFilter').value;
-        var materialName    = document.getElementById('itemFilter').value;
-        var keyword         = document.getElementById('searchInput').value.trim();
-
-        var url = contextPath + '/branch/stock/status?'
-            + 'materialGroupId=' + encodeURIComponent(materialGroupId)
-            + '&materialName='   + encodeURIComponent(materialName)
-            + '&keyword='        + encodeURIComponent(keyword)
-            + '&page='           + currentPage
-            + '&sortField='      + sortState.field
-            + '&sortDir='        + sortState.direction;
-
-        fetch(url)
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
-                stockData    = data.list;
-                filteredData = data.list;
-                totalPages   = data.totalPages;
-                renderTable();
-                renderPaging(data.totalCount, data.page, data.totalPages);
-            })
-            .catch(function () { alert('재고 목록을 불러오지 못했습니다.'); });
-    }
-
-    window.applyFilters  = function () { loadStockList(1); };
-    window.loadStockList = loadStockList;
-
-    window.resetFilters = function () {
-        document.getElementById('categoryFilter').value = '';
-        document.getElementById('itemFilter').innerHTML = '<option value="">품목명 전체</option>';
-        document.getElementById('searchInput').value = '';
-        sortState = { field: 'receivedAt', direction: 'asc' };
-        syncSortButtons();
-        selectedStockNo = null;
-        closePanel();
-        loadStockList(1);
-    };
-
-    function renderTable() {
-        var tbody = document.getElementById('stockTableBody');
-        var empty = document.getElementById('stockEmpty');
-        tbody.innerHTML = '';
-        if (!filteredData.length) { empty.style.display = 'block'; return; }
-        empty.style.display = 'none';
-        filteredData.forEach(function (row) {
-            var es     = getExpiryStatus(row.expireDate);
-            var d      = daysUntil(row.expireDate);
-            var dayTxt = d <= 0 ? '만료 ' + Math.abs(d) + '일' : d + '일 남음';
-            var isSel  = selectedStockNo === row.branchStockCode;
-            tbody.insertAdjacentHTML('beforeend',
-                '<tr class="' + es.rowCls + (isSel ? ' row-sel' : '') + '" onclick="selectStock(\'' + escapeHtml(row.branchStockCode) + '\')">' +
-                    '<td style="font-family:monospace;font-size:12px">' + escapeHtml(row.branchStockCode) + '</td>' +
-                    '<td style="color:#6b7280;font-size:12px">'         + escapeHtml(row.groupName)       + '</td>' +
-                    '<td style="font-weight:700">'                       + escapeHtml(row.materialName)    + '</td>' +
-                    '<td style="color:#6b7280;font-size:12px">'         + escapeHtml(row.receivedAt)      + '</td>' +
-                    '<td><strong>' + escapeHtml(row.expireDate) + '</strong> <span style="font-size:11px;opacity:.75">(' + escapeHtml(dayTxt) + ')</span></td>' +
-                    '<td><strong>' + escapeHtml(row.currentQty + ' ' + row.unit) + '</strong></td>' +
-                    '<td><span class="badge ' + es.cls + '">' + es.label + '</span></td>' +
-                '</tr>'
-            );
-        });
-    }
-
-    function renderPaging(totalCount, page, total) {
-        var wrap = document.getElementById('pagingWrap');
-        if (total <= 1) { wrap.style.display = 'none'; return; }
-        wrap.style.display = 'flex';
-
-        var PAGE_SIZE  = 5;
-        var blockStart = Math.floor((page - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
-        var blockEnd   = Math.min(blockStart + PAGE_SIZE - 1, total);
-
-        var base   = 'w-8 h-8 flex items-center justify-center border rounded-lg text-sm hover:bg-gray-100';
-        var active = 'w-8 h-8 flex items-center justify-center border rounded-lg text-sm bg-[#00853D] text-white font-bold';
-        var arrow  = 'w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-gray-100';
-
-        var html = '<div class="flex justify-center items-center gap-1">';
-
-     	// 맨 첫 페이지
-      html += '<button class="' + arrow + '" onclick="loadStockList(1)"><i class="fas fa-angles-left text-xs"></i></button>';
-
-        // 이전 블록
-        html += '<button class="' + arrow + '" onclick="loadStockList(' + (blockStart - 1) + ')"><i class="fas fa-chevron-left text-xs"></i></button>';
-
-        // 페이지 번호
-        for (var i = blockStart; i <= blockEnd; i++) {
-            html += '<button class="' + (i === page ? active : base) + '" onclick="loadStockList(' + i + ')">' + i + '</button>';
-        }
-
-        // 다음 블록
-        html += '<button class="' + arrow + '" onclick="loadStockList(' + (blockEnd + 1) + ')"><i class="fas fa-chevron-right text-xs"></i></button>';
-
-    	// 맨 마지막 페이지
-        html += '<button class="' + arrow + '" onclick="loadStockList(' + total + ')"><i class="fas fa-angles-right text-xs"></i></button>';
-
-        html += '</div>';
-        wrap.innerHTML = html;
-    }
-
-    window.selectStock = function (branchStockCode) {
-        if (selectedStockNo === branchStockCode) { closePanel(); return; }
-        selectedStockNo = branchStockCode;
-
-        var clicked     = stockData.find(function (x) { return x.branchStockCode === branchStockCode; });
-        if (!clicked) return;
-
-        var sameName    = stockData.filter(function (x) { return x.materialName === clicked.materialName; });
-        var validList   = sameName.filter(function (x) { return !isExpired(x.expireDate); });
-        var expiredList = sameName.filter(function (x) { return  isExpired(x.expireDate); });
-        var validQty    = validList.reduce(function (a, b) { return a + parseInt(b.currentQty); }, 0);
-        var expiredQty  = expiredList.reduce(function (a, b) { return a + parseInt(b.currentQty); }, 0);
-        var safetyQty   = clicked.safeStockQty;
-        var st          = getSafetyStatus(validQty, safetyQty);
-        var pct         = safetyQty ? Math.min(Math.round(validQty / safetyQty * 100), 100) : 100;
-
-        document.getElementById('dpName').textContent  = clicked.materialName;
-        document.getElementById('dpCat').textContent   = clicked.groupName;
-        document.getElementById('dpTotal').textContent = validQty + ' ' + clicked.unit;
-
-        var subEl = document.getElementById('dpTotalSub');
-        if (expiredList.length) {
-            subEl.textContent = '만료 재고 ' + expiredQty + ' ' + clicked.unit + ' 제외';
-            subEl.className = 'dp-total-sub has-expired';
-        } else {
-            subEl.textContent = '유효 재고 전체 합산';
-            subEl.className = 'dp-total-sub';
-        }
-
-        document.getElementById('dpSaf').textContent           = safetyQty ? safetyQty + ' ' + clicked.unit : '미설정';
-        document.getElementById('dpProgFill').style.width      = pct + '%';
-        document.getElementById('dpProgFill').style.background = st.color;
-        document.getElementById('dpPct').textContent           = safetyQty ? Math.round(validQty / safetyQty * 100) + '%' : '-';
-        document.getElementById('dpPct').style.color           = st.color;
-        document.getElementById('dpBadge').textContent         = st.label;
-        document.getElementById('dpBadge').className           = 'badge ' + st.cls;
-
-        var html = '';
-
-        if (validList.length) {
-            html += '<div class="dp-sec-title">유효 재고 ' + validList.length + '건</div>';
-            validList.forEach(function (x) {
-                var es     = getExpiryStatus(x.expireDate);
-                var d      = daysUntil(x.expireDate);
-                var dayCls = d <= 3 ? 'lot-days-r' : d <= 7 ? 'lot-days-a' : 'lot-days-g';
-                var isCur  = x.branchStockCode === branchStockCode;
-                html +=
-                    '<div class="lot-card ' + es.lotCls + (isCur ? ' lot-sel' : '') + '">' +
-                        '<div class="lot-no">' + escapeHtml(x.branchStockCode) + (isCur ? ' · 현재 선택' : '') + '</div>' +
-                        '<div class="lot-main">' +
-                            '<span class="lot-qty">' + escapeHtml(x.currentQty + ' ' + x.unit) + '</span>' +
-                            '<span class="badge ' + es.cls + '">' + es.label + '</span>' +
-                        '</div>' +
-                        '<div class="lot-bottom">' +
-                            '<span class="lot-date">입고 ' + escapeHtml(x.receivedAt) + ' · 유통기한 ' + escapeHtml(x.expireDate) + '</span>' +
-                            '<span class="' + dayCls + '">' + d + '일 남음</span>' +
-                        '</div>' +
-                        '<div class="lot-action">' +
-                            '<button class="btn-disposal-outline" onclick="openDisposalModal(\'' + escapeHtml(x.branchStockCode) + '\', false)">폐기 등록</button>' +
-                        '</div>' +
-                    '</div>';
-            });
-        }
-
-        if (expiredList.length) {
-            html += '<hr class="sec-divider">';
-            html += '<div class="dp-sec-title disposal">폐기 필요 ' + expiredList.length + '건</div>';
-            html +=
-                '<div class="disposal-banner">' +
-                    '<div class="disposal-banner-title">폐기 처리가 필요한 재고가 있습니다.</div>' +
-                    '<div class="disposal-banner-sub">아래 폐기 등록 버튼을 눌러 처리해 주세요.</div>' +
-                '</div>';
-            expiredList.forEach(function (x) {
-                var d    = daysUntil(x.expireDate);
-                var isCur = x.branchStockCode === branchStockCode;
-                html +=
-                    '<div class="lot-card lot-expired' + (isCur ? ' lot-sel' : '') + '">' +
-                        '<div class="lot-no">' + escapeHtml(x.branchStockCode) + '</div>' +
-                        '<div class="lot-main">' +
-                            '<span class="lot-qty" style="color:#94a3b8;text-decoration:line-through">' + escapeHtml(x.currentQty + ' ' + x.unit) + '</span>' +
-                            '<span class="badge badge-disposal">폐기 필요</span>' +
-                        '</div>' +
-                        '<div class="lot-bottom">' +
-                            '<span class="lot-date">입고 ' + escapeHtml(x.receivedAt) + ' · 유통기한 ' + escapeHtml(x.expireDate) + '</span>' +
-                            '<span class="lot-days-r">' + Math.abs(d) + '일 경과</span>' +
-                        '</div>' +
-                        '<div class="lot-action">' +
-                            '<button class="btn-disposal" onclick="openDisposalModal(\'' + escapeHtml(x.branchStockCode) + '\', true)">폐기 등록</button>' +
-                        '</div>' +
-                    '</div>';
-            });
-        }
-
-        document.getElementById('dpBody').innerHTML = html;
-        document.getElementById('detailPanel').classList.add('open');
-        document.getElementById('stockLayout').classList.add('panel-open');
-        renderTable();
-    };
-
-    window.closePanel = function () {
-        selectedStockNo = null;
-        document.getElementById('detailPanel').classList.remove('open');
-        document.getElementById('stockLayout').classList.remove('panel-open');
-        renderTable();
-    };
-
-    window.openDisposalModal = function (branchStockCode, expired) {
-        var row = stockData.find(function (x) { return x.branchStockCode === branchStockCode; });
-        if (!row) return;
-        currentModalStockNo = branchStockCode;
-        var html = '';
-
-        if (expired) {
-            var d = daysUntil(row.expireDate);
-            html +=
-                '<div class="warn-banner">' +
-                    '<div class="warn-banner-title">유통기한이 만료된 재고입니다.</div>' +
-                    '<div class="warn-banner-sub">' + escapeHtml(row.branchStockCode) + ' · ' + escapeHtml(row.materialName) + ' · 만료 ' + Math.abs(d) + '일 경과 · 현재 수량 ' + escapeHtml(row.currentQty + ' ' + row.unit) + '</div>' +
-                '</div>' +
-                '<div class="mfield-row">' +
-                    '<div class="mfield"><label>재고 번호</label><input type="text" value="' + escapeHtml(row.branchStockCode) + '" readonly></div>' +
-                    '<div class="mfield"><label>품목명</label><input type="text" value="' + escapeHtml(row.materialName) + '" readonly></div>' +
-                '</div>' +
-                '<div class="mfield-row">' +
-                    '<div class="mfield"><label>폐기 수량</label><input type="text" id="mQty" value="' + escapeHtml(row.currentQty + ' ' + row.unit) + '" readonly></div>' +
-                    '<div class="mfield"><label>폐기 사유</label><select id="mReason" disabled><option value="EXPIRED">유통기한 만료</option></select></div>' +
-                '</div>' +
-                '<div class="mfield"><label>상세 내용</label><textarea id="mDetail" placeholder="추가 내용을 입력하세요"></textarea></div>';
-        } else {
-            html +=
-                '<div class="info-box">' +
-                    '<div class="info-item"><div class="il">재고 번호</div><div class="iv">' + escapeHtml(row.branchStockCode) + '</div></div>' +
-                    '<div class="info-item"><div class="il">품목명</div><div class="iv">' + escapeHtml(row.materialName) + '</div></div>' +
-                    '<div class="info-item"><div class="il">현재 수량</div><div class="iv">' + escapeHtml(row.currentQty + ' ' + row.unit) + '</div></div>' +
-                '</div>' +
-                '<div class="mfield-row">' +
-                    '<div class="mfield"><label>폐기 수량 *</label><input type="number" id="mQty" min="1" max="' + row.currentQty + '" placeholder="수량 입력"></div>' +
-                    '<div class="mfield"><label>폐기 사유 *</label>' +
-                        '<select id="mReason">' +
-                            '<option value="">선택하세요</option>' +
-                            '<option value="DAMAGED">파손</option>' +
-                            '<option value="EXPIRED">유통기한 만료</option>' +
-                            '<option value="ETC">기타</option>' +
-                        '</select>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="mfield"><label>상세 내용</label><textarea id="mDetail" placeholder="추가 내용을 입력하세요"></textarea></div>';
-        }
-
-        document.getElementById('modalBody').innerHTML = html;
-        document.getElementById('disposalModal').classList.add('open');
-    };
-
-    window.closeDisposalModal = function () {
-        document.getElementById('disposalModal').classList.remove('open');
-        currentModalStockNo = null;
-    };
-
-    window.onBackdropClick = function (e) {
-        if (e.target === document.getElementById('disposalModal')) closeDisposalModal();
-    };
-
-    window.submitDisposal = function () {
-        var qty    = document.getElementById('mQty');
-        var reason = document.getElementById('mReason');
-        var detail = document.getElementById('mDetail');
-
-        if (!qty.readOnly && (!qty.value || parseInt(qty.value) <= 0)) { alert('폐기 수량을 입력해주세요.'); return; }
-        if (!reason.disabled && !reason.value) { alert('폐기 사유를 선택해주세요.'); return; }
-
-        var row = stockData.find(function (x) { return x.branchStockCode === currentModalStockNo; });
-        var disposalQty = qty.readOnly ? row.currentQty : qty.value;
-
-        var formData = new URLSearchParams();
-        formData.append('branchStockCode', currentModalStockNo);
-        formData.append('disposalQty',     disposalQty);
-        formData.append('disposalReason',  reason.value);
-        formData.append('reasonDetail',    detail.value || '');
-
-        fetch(contextPath + '/branch/stock/disposal', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: formData.toString()
-        })
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
-            if (data.success) {
-                alert('폐기 등록이 완료되었습니다.');
-                closeDisposalModal();
-                loadStockList(currentPage);
-            } else {
-                alert(data.error || '폐기 등록에 실패했습니다.');
-            }
-        })
-        .catch(function () {
-            alert('폐기 등록 중 오류가 발생했습니다.');
-        });
-    };
-
-    /* ── 초기 실행 ── */
-    loadCategoryList();
-    /* loadStockList(1); */
-})();
-</script>
+	<script>
+	(function () {
+	    var TODAY = new Date();
+	    TODAY.setHours(0, 0, 0, 0);
+	    var contextPath = '<%=request.getContextPath()%>';
+	
+	    var stockData           = [];
+	    var filteredData        = [];
+	    var currentPage         = 1;
+	    var totalPages          = 1;
+	    var selectedStockNo     = null;
+	    var currentModalStockNo = null;
+	    var sortState           = { field: 'receivedAt', direction: 'asc' };
+	
+	    function daysUntil(dateStr) {
+	        var d = new Date(dateStr); d.setHours(0, 0, 0, 0);
+	        return Math.ceil((d - TODAY) / 86400000);
+	    }
+	    function isExpired(dateStr) { return daysUntil(dateStr) <= 0; }
+	
+	    function getExpiryStatus(dateStr) {
+	        var d = daysUntil(dateStr);
+	        if (d <= 0) return { label: '만료', cls: 'badge-expired', rowCls: 'row-expired', lotCls: 'lot-urgent' };
+	        if (d <= 1) return { label: '긴급', cls: 'badge-urgent',  rowCls: 'row-urgent',  lotCls: 'lot-urgent' };
+	        if (d <= 3) return { label: '경고', cls: 'badge-warn',    rowCls: 'row-warn',    lotCls: 'lot-warn'   };
+	        return             { label: '정상', cls: 'badge-safe',    rowCls: '',            lotCls: ''           };
+	    }
+	
+	    function getSafetyStatus(validQty, safetyQty) {
+	        if (!safetyQty) return { label: '미설정', cls: 'badge-unset', color: '#94a3b8' };
+	        var r = validQty / safetyQty;
+	        if (r < 0.7) return { label: '부족', cls: 'badge-lack',    color: '#dc2626' };
+	        if (r < 1.0) return { label: '경고', cls: 'badge-caution', color: '#d97706' };
+	        return               { label: '정상', cls: 'badge-ok',      color: '#16a34a' };
+	    }
+	
+	    function escapeHtml(v) {
+	        return String(v == null ? '' : v)
+	            .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+	            .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+	    }
+	
+	    function syncSortButtons() {
+	        var rBtn = document.getElementById('sortReceivedBtn');
+	        var eBtn = document.getElementById('sortExpireBtn');
+	        rBtn.textContent = '입고 시점 ' + (sortState.field === 'receivedAt' ? (sortState.direction === 'asc' ? '오름차순' : '내림차순') : '오름차순');
+	        eBtn.textContent = '유통기한 ' + (sortState.field === 'expireDate'  ? (sortState.direction === 'asc' ? '오름차순' : '내림차순') : '오름차순');
+	        rBtn.classList.toggle('active', sortState.field === 'receivedAt');
+	        eBtn.classList.toggle('active', sortState.field === 'expireDate');
+	    }
+	
+	    window.onSortClick = function (field) {
+	        if (sortState.field === field) { sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc'; }
+	        else { sortState.field = field; sortState.direction = 'asc'; }
+	        syncSortButtons();
+	        loadStockList(1);
+	    };
+	
+	    function loadCategoryList() {
+	        fetch(contextPath + '/branch/stock/categories')
+	            .then(function (res) { return res.json(); })
+	            .then(function (data) {
+	                var el = document.getElementById('categoryFilter');
+	                el.innerHTML = '<option value="">카테고리 전체</option>';
+	                data.forEach(function (item) {
+	                    el.insertAdjacentHTML('beforeend',
+	                        '<option value="' + escapeHtml(item.materialGroupId) + '">' + escapeHtml(item.groupName) + '</option>');
+	                });
+	            })
+	            .catch(function () { alert('카테고리 목록을 불러오지 못했습니다.'); });
+	    }
+	
+	    window.onCategoryChange = function () {
+	        var materialGroupId = document.getElementById('categoryFilter').value;
+	        var sel = document.getElementById('itemFilter');
+	        sel.innerHTML = '<option value="">품목명 전체</option>';
+	        if (!materialGroupId) { loadStockList(1); return; }
+	        fetch(contextPath + '/branch/stock/materials?materialGroupId=' + encodeURIComponent(materialGroupId))
+	            .then(function (res) { return res.json(); })
+	            .then(function (data) {
+	                data.forEach(function (item) {
+	                    sel.insertAdjacentHTML('beforeend',
+	                        '<option value="' + escapeHtml(item.materialName) + '">' + escapeHtml(item.materialName) + '</option>');
+	                });
+	                loadStockList(1);
+	            })
+	            .catch(function () { alert('품목 목록을 불러오지 못했습니다.'); });
+	    };
+	
+	    function loadStockList(page) {
+	        currentPage = page || 1;
+	        var materialGroupId = document.getElementById('categoryFilter').value;
+	        var materialName    = document.getElementById('itemFilter').value;
+	        var keyword         = document.getElementById('searchInput').value.trim();
+	
+	        var url = contextPath + '/branch/stock/status?'
+	            + 'materialGroupId=' + encodeURIComponent(materialGroupId)
+	            + '&materialName='   + encodeURIComponent(materialName)
+	            + '&keyword='        + encodeURIComponent(keyword)
+	            + '&page='           + currentPage
+	            + '&sortField='      + sortState.field
+	            + '&sortDir='        + sortState.direction;
+	
+	        fetch(url)
+	            .then(function (res) { return res.json(); })
+	            .then(function (data) {
+	                stockData    = data.list;
+	                filteredData = data.list;
+	                totalPages   = data.totalPages;
+	                renderTable();
+	                renderPaging(data.totalCount, data.page, data.totalPages);
+	            })
+	            .catch(function () { alert('재고 목록을 불러오지 못했습니다.'); });
+	    }
+	
+	    window.applyFilters  = function () { loadStockList(1); };
+	    window.loadStockList = loadStockList;
+	
+	    window.resetFilters = function () {
+	        document.getElementById('categoryFilter').value = '';
+	        document.getElementById('itemFilter').innerHTML = '<option value="">품목명 전체</option>';
+	        document.getElementById('searchInput').value = '';
+	        sortState = { field: 'receivedAt', direction: 'asc' };
+	        syncSortButtons();
+	        selectedStockNo = null;
+	        closePanel();
+	        loadStockList(1);
+	    };
+	
+	    function renderTable() {
+	        var tbody = document.getElementById('stockTableBody');
+	        var empty = document.getElementById('stockEmpty');
+	        tbody.innerHTML = '';
+	        if (!filteredData.length) { empty.style.display = 'block'; return; }
+	        empty.style.display = 'none';
+	        filteredData.forEach(function (row) {
+	            var es     = getExpiryStatus(row.expireDate);
+	            var d      = daysUntil(row.expireDate);
+	            var dayTxt = d <= 0 ? '만료 ' + Math.abs(d) + '일' : d + '일 남음';
+	            var isSel  = selectedStockNo === row.branchStockCode;
+	            tbody.insertAdjacentHTML('beforeend',
+	                '<tr class="' + es.rowCls + (isSel ? ' row-sel' : '') + '" onclick="selectStock(\'' + escapeHtml(row.branchStockCode) + '\')">' +
+	                    '<td style="font-family:monospace;font-size:12px">' + escapeHtml(row.branchStockCode) + '</td>' +
+	                    '<td style="color:#6b7280;font-size:12px">'         + escapeHtml(row.groupName)       + '</td>' +
+	                    '<td style="font-weight:700">'                       + escapeHtml(row.materialName)    + '</td>' +
+	                    '<td style="color:#6b7280;font-size:12px">'         + escapeHtml(row.receivedAt)      + '</td>' +
+	                    '<td><strong>' + escapeHtml(row.expireDate) + '</strong> <span style="font-size:11px;opacity:.75">(' + escapeHtml(dayTxt) + ')</span></td>' +
+	                    '<td><strong>' + escapeHtml(row.currentQty + ' ' + row.unit) + '</strong></td>' +
+	                    '<td><span class="badge ' + es.cls + '">' + es.label + '</span></td>' +
+	                '</tr>'
+	            );
+	        });
+	    }
+	
+	    function renderPaging(totalCount, page, total) {
+	        var wrap = document.getElementById('pagingWrap');
+	        if (total <= 1) { wrap.style.display = 'none'; return; }
+	        wrap.style.display = 'flex';
+	
+	        var PAGE_SIZE  = 5;
+	        var blockStart = Math.floor((page - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+	        var blockEnd   = Math.min(blockStart + PAGE_SIZE - 1, total);
+	
+	        var base   = 'w-8 h-8 flex items-center justify-center border rounded-lg text-sm hover:bg-gray-100';
+	        var active = 'w-8 h-8 flex items-center justify-center border rounded-lg text-sm bg-[#00853D] text-white font-bold';
+	        var arrow  = 'w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-gray-100';
+	
+	        var html = '<div class="flex justify-center items-center gap-1">';
+	
+	     	// 맨 첫 페이지
+	      html += '<button class="' + arrow + '" onclick="loadStockList(1)"><i class="fas fa-angles-left text-xs"></i></button>';
+	
+	        // 이전 블록
+	        html += '<button class="' + arrow + '" onclick="loadStockList(' + (blockStart - 1) + ')"><i class="fas fa-chevron-left text-xs"></i></button>';
+	
+	        // 페이지 번호
+	        for (var i = blockStart; i <= blockEnd; i++) {
+	            html += '<button class="' + (i === page ? active : base) + '" onclick="loadStockList(' + i + ')">' + i + '</button>';
+	        }
+	
+	        // 다음 블록
+	        html += '<button class="' + arrow + '" onclick="loadStockList(' + (blockEnd + 1) + ')"><i class="fas fa-chevron-right text-xs"></i></button>';
+	
+	    	// 맨 마지막 페이지
+	        html += '<button class="' + arrow + '" onclick="loadStockList(' + total + ')"><i class="fas fa-angles-right text-xs"></i></button>';
+	
+	        html += '</div>';
+	        wrap.innerHTML = html;
+	    }
+	
+	    window.selectStock = function (branchStockCode) {
+	        if (selectedStockNo === branchStockCode) { closePanel(); return; }
+	        selectedStockNo = branchStockCode;
+	
+	        var clicked     = stockData.find(function (x) { return x.branchStockCode === branchStockCode; });
+	        if (!clicked) return;
+	
+	        var sameName    = stockData.filter(function (x) { return x.materialName === clicked.materialName; });
+	        var validList   = sameName.filter(function (x) { return !isExpired(x.expireDate); });
+	        var expiredList = sameName.filter(function (x) { return  isExpired(x.expireDate); });
+	        var validQty    = validList.reduce(function (a, b) { return a + parseInt(b.currentQty); }, 0);
+	        var expiredQty  = expiredList.reduce(function (a, b) { return a + parseInt(b.currentQty); }, 0);
+	        var safetyQty   = clicked.safeStockQty;
+	        var st          = getSafetyStatus(validQty, safetyQty);
+	        var pct         = safetyQty ? Math.min(Math.round(validQty / safetyQty * 100), 100) : 100;
+	
+	        document.getElementById('dpName').textContent  = clicked.materialName;
+	        document.getElementById('dpCat').textContent   = clicked.groupName;
+	        document.getElementById('dpTotal').textContent = validQty + ' ' + clicked.unit;
+	
+	        var subEl = document.getElementById('dpTotalSub');
+	        if (expiredList.length) {
+	            subEl.textContent = '만료 재고 ' + expiredQty + ' ' + clicked.unit + ' 제외';
+	            subEl.className = 'dp-total-sub has-expired';
+	        } else {
+	            subEl.textContent = '유효 재고 전체 합산';
+	            subEl.className = 'dp-total-sub';
+	        }
+	
+	        document.getElementById('dpSaf').textContent           = safetyQty ? safetyQty + ' ' + clicked.unit : '미설정';
+	        document.getElementById('dpProgFill').style.width      = pct + '%';
+	        document.getElementById('dpProgFill').style.background = st.color;
+	        document.getElementById('dpPct').textContent           = safetyQty ? Math.round(validQty / safetyQty * 100) + '%' : '-';
+	        document.getElementById('dpPct').style.color           = st.color;
+	        document.getElementById('dpBadge').textContent         = st.label;
+	        document.getElementById('dpBadge').className           = 'badge ' + st.cls;
+	
+	        var html = '';
+	
+	        if (validList.length) {
+	            html += '<div class="dp-sec-title">유효 재고 ' + validList.length + '건</div>';
+	            validList.forEach(function (x) {
+	                var es     = getExpiryStatus(x.expireDate);
+	                var d      = daysUntil(x.expireDate);
+	                var dayCls = d <= 3 ? 'lot-days-r' : d <= 7 ? 'lot-days-a' : 'lot-days-g';
+	                var isCur  = x.branchStockCode === branchStockCode;
+	                html +=
+	                    '<div class="lot-card ' + es.lotCls + (isCur ? ' lot-sel' : '') + '">' +
+	                        '<div class="lot-no">' + escapeHtml(x.branchStockCode) + (isCur ? ' · 현재 선택' : '') + '</div>' +
+	                        '<div class="lot-main">' +
+	                            '<span class="lot-qty">' + escapeHtml(x.currentQty + ' ' + x.unit) + '</span>' +
+	                            '<span class="badge ' + es.cls + '">' + es.label + '</span>' +
+	                        '</div>' +
+	                        '<div class="lot-bottom">' +
+	                            '<span class="lot-date">입고 ' + escapeHtml(x.receivedAt) + ' · 유통기한 ' + escapeHtml(x.expireDate) + '</span>' +
+	                            '<span class="' + dayCls + '">' + d + '일 남음</span>' +
+	                        '</div>' +
+	                        '<div class="lot-action">' +
+	                            '<button class="btn-disposal-outline" onclick="openDisposalModal(\'' + escapeHtml(x.branchStockCode) + '\', false)">폐기 등록</button>' +
+	                        '</div>' +
+	                    '</div>';
+	            });
+	        }
+	
+	        if (expiredList.length) {
+	            html += '<hr class="sec-divider">';
+	            html += '<div class="dp-sec-title disposal">폐기 필요 ' + expiredList.length + '건</div>';
+	            html +=
+	                '<div class="disposal-banner">' +
+	                    '<div class="disposal-banner-title">폐기 처리가 필요한 재고가 있습니다.</div>' +
+	                    '<div class="disposal-banner-sub">아래 폐기 등록 버튼을 눌러 처리해 주세요.</div>' +
+	                '</div>';
+	            expiredList.forEach(function (x) {
+	                var d    = daysUntil(x.expireDate);
+	                var isCur = x.branchStockCode === branchStockCode;
+	                html +=
+	                    '<div class="lot-card lot-expired' + (isCur ? ' lot-sel' : '') + '">' +
+	                        '<div class="lot-no">' + escapeHtml(x.branchStockCode) + '</div>' +
+	                        '<div class="lot-main">' +
+	                            '<span class="lot-qty" style="color:#94a3b8;text-decoration:line-through">' + escapeHtml(x.currentQty + ' ' + x.unit) + '</span>' +
+	                            '<span class="badge badge-disposal">폐기 필요</span>' +
+	                        '</div>' +
+	                        '<div class="lot-bottom">' +
+	                            '<span class="lot-date">입고 ' + escapeHtml(x.receivedAt) + ' · 유통기한 ' + escapeHtml(x.expireDate) + '</span>' +
+	                            '<span class="lot-days-r">' + Math.abs(d) + '일 경과</span>' +
+	                        '</div>' +
+	                        '<div class="lot-action">' +
+	                            '<button class="btn-disposal" onclick="openDisposalModal(\'' + escapeHtml(x.branchStockCode) + '\', true)">폐기 등록</button>' +
+	                        '</div>' +
+	                    '</div>';
+	            });
+	        }
+	
+	        document.getElementById('dpBody').innerHTML = html;
+	        document.getElementById('detailPanel').classList.add('open');
+	        document.getElementById('stockLayout').classList.add('panel-open');
+	        renderTable();
+	    };
+	
+	    window.closePanel = function () {
+	        selectedStockNo = null;
+	        document.getElementById('detailPanel').classList.remove('open');
+	        document.getElementById('stockLayout').classList.remove('panel-open');
+	        renderTable();
+	    };
+	
+	    window.openDisposalModal = function (branchStockCode, expired) {
+	        var row = stockData.find(function (x) { return x.branchStockCode === branchStockCode; });
+	        if (!row) return;
+	        currentModalStockNo = branchStockCode;
+	        var html = '';
+	
+	        if (expired) {
+	            var d = daysUntil(row.expireDate);
+	            html +=
+	                '<div class="warn-banner">' +
+	                    '<div class="warn-banner-title">유통기한이 만료된 재고입니다.</div>' +
+	                    '<div class="warn-banner-sub">' + escapeHtml(row.branchStockCode) + ' · ' + escapeHtml(row.materialName) + ' · 만료 ' + Math.abs(d) + '일 경과 · 현재 수량 ' + escapeHtml(row.currentQty + ' ' + row.unit) + '</div>' +
+	                '</div>' +
+	                '<div class="mfield-row">' +
+	                    '<div class="mfield"><label>재고 번호</label><input type="text" value="' + escapeHtml(row.branchStockCode) + '" readonly></div>' +
+	                    '<div class="mfield"><label>품목명</label><input type="text" value="' + escapeHtml(row.materialName) + '" readonly></div>' +
+	                '</div>' +
+	                '<div class="mfield-row">' +
+	                    '<div class="mfield"><label>폐기 수량</label><input type="text" id="mQty" value="' + escapeHtml(row.currentQty + ' ' + row.unit) + '" readonly></div>' +
+	                    '<div class="mfield"><label>폐기 사유</label><select id="mReason" disabled><option value="EXPIRED">유통기한 만료</option></select></div>' +
+	                '</div>' +
+	                '<div class="mfield"><label>상세 내용</label><textarea id="mDetail" placeholder="추가 내용을 입력하세요"></textarea></div>';
+	        } else {
+	            html +=
+	                '<div class="info-box">' +
+	                    '<div class="info-item"><div class="il">재고 번호</div><div class="iv">' + escapeHtml(row.branchStockCode) + '</div></div>' +
+	                    '<div class="info-item"><div class="il">품목명</div><div class="iv">' + escapeHtml(row.materialName) + '</div></div>' +
+	                    '<div class="info-item"><div class="il">현재 수량</div><div class="iv">' + escapeHtml(row.currentQty + ' ' + row.unit) + '</div></div>' +
+	                '</div>' +
+	                '<div class="mfield-row">' +
+	                    '<div class="mfield"><label>폐기 수량 *</label><input type="number" id="mQty" min="1" max="' + row.currentQty + '" placeholder="수량 입력"></div>' +
+	                    '<div class="mfield"><label>폐기 사유 *</label>' +
+	                        '<select id="mReason">' +
+	                            '<option value="">선택하세요</option>' +
+	                            '<option value="DAMAGED">파손</option>' +
+	                            '<option value="EXPIRED">유통기한 만료</option>' +
+	                            '<option value="ETC">기타</option>' +
+	                        '</select>' +
+	                    '</div>' +
+	                '</div>' +
+	                '<div class="mfield"><label>상세 내용</label><textarea id="mDetail" placeholder="추가 내용을 입력하세요"></textarea></div>';
+	        }
+	
+	        document.getElementById('modalBody').innerHTML = html;
+	        document.getElementById('disposalModal').classList.add('open');
+	    };
+	
+	    window.closeDisposalModal = function () {
+	        document.getElementById('disposalModal').classList.remove('open');
+	        currentModalStockNo = null;
+	    };
+	
+	    window.onBackdropClick = function (e) {
+	        if (e.target === document.getElementById('disposalModal')) closeDisposalModal();
+	    };
+	
+	    window.submitDisposal = function () {
+	        var qty    = document.getElementById('mQty');
+	        var reason = document.getElementById('mReason');
+	        var detail = document.getElementById('mDetail');
+	
+	        if (!qty.readOnly && (!qty.value || parseInt(qty.value) <= 0)) { alert('폐기 수량을 입력해주세요.'); return; }
+	        if (!reason.disabled && !reason.value) { alert('폐기 사유를 선택해주세요.'); return; }
+	
+	        var row = stockData.find(function (x) { return x.branchStockCode === currentModalStockNo; });
+	        var disposalQty = qty.readOnly ? row.currentQty : qty.value;
+	
+	        var formData = new URLSearchParams();
+	        formData.append('branchStockCode', currentModalStockNo);
+	        formData.append('disposalQty',     disposalQty);
+	        formData.append('disposalReason',  reason.value);
+	        formData.append('reasonDetail',    detail.value || '');
+	
+	        fetch(contextPath + '/branch/stock/disposal', {
+	            method: 'POST',
+	            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+	            body: formData.toString()
+	        })
+	        .then(function (res) { return res.json(); })
+	        .then(function (data) {
+	            if (data.success) {
+	                alert('폐기 등록이 완료되었습니다.');
+	                closeDisposalModal();
+	                loadStockList(currentPage);
+	            } else {
+	                alert(data.error || '폐기 등록에 실패했습니다.');
+	            }
+	        })
+	        .catch(function () {
+	            alert('폐기 등록 중 오류가 발생했습니다.');
+	        });
+	    };
+	
+	    /* ── 초기 실행 ── */
+	    loadCategoryList();
+	    /* loadStockList(1); */
+	})();
+	</script>
 </body>
 </html>

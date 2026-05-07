@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 
-import dto.branch.hr.BranchScheduleDTO;
 import dto.hq.hr.EmployeeDTO;
 import dto.hq.hr.HqScheduleDTO;
 import util.MyBatisSqlSessionFactory;

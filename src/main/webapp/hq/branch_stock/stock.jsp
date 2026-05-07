@@ -177,7 +177,6 @@
 			</div>
 		</main>
 	</div>
-	</div>
 
 	<script>
         // 전역 상태
@@ -542,9 +541,7 @@
 					userMenu.classList.add('hidden');
    		 		}
 			});
-    </script>
-
-	<script>
+        
 		document.getElementById("categorySelect").addEventListener("change", function () {
 
    			const materialGroupId = this.value;
@@ -584,5 +581,3 @@
 </script>
 </body>
 </html>
-
-

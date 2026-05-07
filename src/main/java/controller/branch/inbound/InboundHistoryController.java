@@ -16,10 +16,6 @@ public class InboundHistoryController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-	public InboundHistoryController() {
-		super();
-	}
-
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		LocalDate today = LocalDate.now();

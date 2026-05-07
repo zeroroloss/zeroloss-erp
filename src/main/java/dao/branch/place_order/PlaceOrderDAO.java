@@ -6,7 +6,6 @@ import java.util.Map;
 import org.apache.ibatis.session.SqlSession;
 
 import dto.branch.place_order.PlaceOrderDetailDTO;
-import dto.branch.place_order.PlaceOrderDraftDetailDTO;
 import dto.branch.place_order.PlaceOrderHistoryDTO;
 import dto.NotificationDTO;
 import dto.NotificationReceiverDTO;

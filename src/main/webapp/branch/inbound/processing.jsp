@@ -367,7 +367,6 @@ body {
 	<div class="zl-app">
 		<%@ include file="/branch/common/layout/sidebar.jsp"%>
 		<div class="zl-content">
-			<%@ include file="/branch/common/layout/topbar.jsp"%>
 			<div class="wrap p-6">
 				<div class="page-head">
 					<div>
@@ -378,10 +377,10 @@ body {
 
 				<div class="order-list" id="orderList">
 					<!-- Loading / content will be rendered dynamically by JS -->
-					<div id="loadingPlaceholder" class="p-6 text-center text-gray-600">로딩 중...</div>
+					<div id="loadingPlaceholder" class="p-6 text-center text-gray-600">로딩
+						중...</div>
 				</div>
 			</div>
-			</main>
 		</div>
 	</div>
 

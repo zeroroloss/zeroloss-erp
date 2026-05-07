@@ -136,7 +136,6 @@
 <div class="zl-app">
 <%@ include file="/branch/common/layout/sidebar.jsp" %>
 <div class="zl-content">
-<%@ include file="/branch/common/layout/topbar.jsp" %>
 <div class="wrap p-6">
     <div class="page-head">
         <h1 class="page-title">발주 내역</h1>

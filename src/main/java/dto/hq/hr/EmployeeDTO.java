@@ -1,7 +1,6 @@
 package dto.hq.hr;
 
 import java.sql.Date;
-import java.time.LocalDate;
 
 public class EmployeeDTO {
 	private Integer empNo;
@@ -18,9 +17,7 @@ public class EmployeeDTO {
 	private String positionName;
 	private String gradeName;
 
-	public EmployeeDTO() {
-		super();
-	}
+	public EmployeeDTO() {}
 
 	public EmployeeDTO(Integer empNo, Integer branchCode, String dept, String gradeCode, String positionCode,
 			String name, String phone, String email, Date hireDate, String status) {

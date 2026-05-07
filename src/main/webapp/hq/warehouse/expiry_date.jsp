@@ -15,6 +15,7 @@
         }
     </style>
     <%
+		@SuppressWarnings("unchecked")
         Map<String, List<String>> categoryMaterialMap = (Map<String, List<String>>) request.getAttribute("categoryMaterialMap");
         Gson gson = new Gson();
         String categoryJson = gson.toJson(categoryMaterialMap != null ? categoryMaterialMap : new HashMap<>());
@@ -24,124 +25,123 @@
     </script>
 </head>
 <body class="bg-gray-50">
-	    <%@ include file="/hq/common/sidebar.jsp" %>
-        <!-- 메인 콘텐츠 -->
-        <div class="lg:pl-72">
+    <%@ include file="/hq/common/sidebar.jsp" %>
+       <!-- 메인 콘텐츠 -->
+       <div class="lg:pl-72">
 
-            <!-- 페이지 콘텐츠 -->
-            <main class="p-6">
-                <!-- 헤더 -->
-                <div class="mb-6">
-                    <h2 class="text-3xl font-bold text-gray-900">유통기한 조회</h2>
-                    <p class="text-gray-500 mt-1">창고 내 유통기한 임박 품목을 관리하고 조치하세요</p>
-                </div>
+           <!-- 페이지 콘텐츠 -->
+           <main class="p-6">
+               <!-- 헤더 -->
+               <div class="mb-6">
+                   <h2 class="text-3xl font-bold text-gray-900">유통기한 조회</h2>
+                   <p class="text-gray-500 mt-1">창고 내 유통기한 임박 품목을 관리하고 조치하세요</p>
+               </div>
 
-                <!-- 필터 -->
-                <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <!-- 카테고리 필터 -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
-                            <select id="filterCategory" onchange="updateExpiryItemNames()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                <option value="전체">전체</option>
-                                <%
-                                if (categoryMaterialMap != null) {
-                                    for (String category : categoryMaterialMap.keySet()) {
-                                %>
-                                <option value="<%=category%>"><%=category%></option>
-                                <%
-                                    }
-                                }
-                                %>
-                            </select>
-                        </div>
+               <!-- 필터 -->
+               <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+                   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                       <!-- 카테고리 필터 -->
+                       <div>
+                           <label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
+                           <select id="filterCategory" onchange="updateExpiryItemNames()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                               <option value="전체">전체</option>
+                               <%
+                               if (categoryMaterialMap != null) {
+                                   for (String category : categoryMaterialMap.keySet()) {
+                               %>
+                               <option value="<%=category%>"><%=category%></option>
+                               <%
+                                   }
+                               }
+                               %>
+                           </select>
+                       </div>
 
-                        <!-- 품목명 필터 -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">품목명</label>
-                            <select id="filterItemName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                <option value="전체">전체</option>
-                            </select>
-                        </div>
+                       <!-- 품목명 필터 -->
+                       <div>
+                           <label class="block text-sm font-medium text-gray-700 mb-2">품목명</label>
+                           <select id="filterItemName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                               <option value="전체">전체</option>
+                           </select>
+                       </div>
 
-                        <!-- 검색 -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">검색</label>
-                            <input type="text" id="searchQuery" placeholder="재고 코드, 카테고리, 품목 검색" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                        </div>
-                    </div>
+                       <!-- 검색 -->
+                       <div>
+                           <label class="block text-sm font-medium text-gray-700 mb-2">검색</label>
+                           <input type="text" id="searchQuery" placeholder="재고 코드, 카테고리, 품목 검색" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                       </div>
+                   </div>
 
-                    <div class="flex items-center gap-2">
-                        <button onclick="applyFilters()" class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
-                            조회하기
-                        </button>
-                        <button onclick="resetFilters()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
-                            초기화
-                        </button>
-                    </div>
-                </div>
+                   <div class="flex items-center gap-2">
+                       <button onclick="applyFilters()" class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
+                           조회하기
+                       </button>
+                       <button onclick="resetFilters()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
+                           초기화
+                       </button>
+                   </div>
+               </div>
 
-                <!-- 선택 액션 바 -->
-                <div id="actionBar" class="hidden bg-blue-50 rounded-lg p-4 border border-blue-200 mb-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <i class="fas fa-box w-5 h-5 text-blue-600"></i>
-                            <div>
-                                <p class="font-semibold text-blue-900" id="selectedCountText"></p>
-                                <p class="text-sm text-blue-600">선택한 품목에 대한 조치를 진행하세요</p>
-                            </div>
-                        </div>
-                        <button onclick="showDisposalModal()" class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                            <i class="fas fa-trash w-4 h-4"></i>
-                            폐기 처리
-                        </button>
-                    </div>
-                </div>
+               <!-- 선택 액션 바 -->
+               <div id="actionBar" class="hidden bg-blue-50 rounded-lg p-4 border border-blue-200 mb-6">
+                   <div class="flex items-center justify-between">
+                       <div class="flex items-center gap-3">
+                           <i class="fas fa-box w-5 h-5 text-blue-600"></i>
+                           <div>
+                               <p class="font-semibold text-blue-900" id="selectedCountText"></p>
+                               <p class="text-sm text-blue-600">선택한 품목에 대한 조치를 진행하세요</p>
+                           </div>
+                       </div>
+                       <button onclick="showDisposalModal()" class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                           <i class="fas fa-trash w-4 h-4"></i>
+                           폐기 처리
+                       </button>
+                   </div>
+               </div>
 
-                <!-- 유통기한 임박 품목 테이블 -->
-                <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-                        <div>
-                            <h3 class="font-semibold text-lg text-gray-900">유통기한 임박 재고 리스트 (7일 이하)</h3>
-                            <p class="text-sm text-gray-500 mt-1">체크박스를 선택하여 일괄 처리하세요</p>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="text-right">
-                                <p class="text-sm text-red-600 font-semibold">긴급 <span id="urgentCount" class="text-lg font-bold">0개</span></p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-sm text-orange-600 font-semibold">경고 <span id="warningCount" class="text-lg font-bold">0개</span></p>
-                            </div>
-                        </div>
-                    </div>
+               <!-- 유통기한 임박 품목 테이블 -->
+               <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                   <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                       <div>
+                           <h3 class="font-semibold text-lg text-gray-900">유통기한 임박 재고 리스트 (7일 이하)</h3>
+                           <p class="text-sm text-gray-500 mt-1">체크박스를 선택하여 일괄 처리하세요</p>
+                       </div>
+                       <div class="flex items-center gap-4">
+                           <div class="text-right">
+                               <p class="text-sm text-red-600 font-semibold">긴급 <span id="urgentCount" class="text-lg font-bold">0개</span></p>
+                           </div>
+                           <div class="text-right">
+                               <p class="text-sm text-orange-600 font-semibold">경고 <span id="warningCount" class="text-lg font-bold">0개</span></p>
+                           </div>
+                       </div>
+                   </div>
 
-                    <div class="overflow-auto max-h-[540px]">
-                        <table class="w-full">
-                            <thead class="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
-                                <tr>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900 w-12">
-                                        <input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll()" class="w-4 h-4 rounded border-gray-300">
-                                    </th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">재고 코드</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">카테고리</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
-                                    <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">수량</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">입고일</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">유통기한</th>
-                                    <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">D-Day</th>
-                                    <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">자산 가치</th>
-                                    <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">상태</th>
-                                </tr>
-                            </thead>
-                            <tbody id="expiryTableBody">
-                                <!-- 동적으로 생성됨 -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
+                   <div class="overflow-auto max-h-[540px]">
+                       <table class="w-full">
+                           <thead class="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+                               <tr>
+                                   <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900 w-12">
+                                       <input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll()" class="w-4 h-4 rounded border-gray-300">
+                                   </th>
+                                   <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">재고 코드</th>
+                                   <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">카테고리</th>
+                                   <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
+                                   <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">수량</th>
+                                   <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">입고일</th>
+                                   <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">유통기한</th>
+                                   <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">D-Day</th>
+                                   <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">자산 가치</th>
+                                   <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">상태</th>
+                               </tr>
+                           </thead>
+                           <tbody id="expiryTableBody">
+                               <!-- 동적으로 생성됨 -->
+                           </tbody>
+                       </table>
+                   </div>
+               </div>
+           </main>
+       </div>
 
     <!-- 폐기 처리 모달 -->
     <div id="disposalModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">

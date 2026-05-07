@@ -1,7 +1,6 @@
 package dto.branch.hr;
 
 import java.sql.Date;
-import java.time.LocalDate;
 
 public class EmployeeDTO {
 	private Integer empNo;

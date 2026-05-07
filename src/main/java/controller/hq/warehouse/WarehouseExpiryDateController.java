@@ -23,12 +23,7 @@ import service.hq.warehouse.WarehouseStockServiceImpl;
 public class WarehouseExpiryDateController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private final WarehouseStockService service;
-	
-	public WarehouseExpiryDateController() {
-        super();
-        service = new WarehouseStockServiceImpl();
-    }
+	private final WarehouseStockService service = new WarehouseStockServiceImpl();
 
 	@Override 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

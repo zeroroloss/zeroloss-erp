@@ -24,6 +24,5 @@ public class PlaceOrderNotificationDaoImpl implements PlaceOrderNotificationDao 
 	@Override
 	public int insertNotifiReceiver(SqlSession sqlSession, NotificationReceiverDTO receiverDTO) {
         return sqlSession.insert(MAPPER_NAMESPACE + "insertNotifiReceiver", receiverDTO);
-
 	}
 }

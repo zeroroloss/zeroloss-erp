@@ -20,7 +20,9 @@ import java.util.stream.Collectors;
 @WebServlet("/hq/support/branch-search-data")
 public class BranchSearchController extends HttpServlet {
 
-    private final BranchSearchService branchSearchService = new BranchSearchServiceImpl();
+	private static final long serialVersionUID = 1L;
+	
+	private final BranchSearchService branchSearchService = new BranchSearchServiceImpl();
     private final Gson gson = GsonFactory.getGson();
 
     @Override

@@ -5,7 +5,6 @@ import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,26 +19,13 @@ import dto.branch.hr.EmployeeDTO;
 import service.branch.BranchScheduleService;
 import service.branch.BranchScheduleServiceImpl;
 
-/**
- * Servlet implementation class BranchScheduleManagementController
- */
 @WebServlet("/branch/hr/branchschedule")
 public class BranchScheduleManagementController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private BranchScheduleService scheduleService = new BranchScheduleServiceImpl();
        
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public BranchScheduleManagementController() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession(false);
 		AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
 		
@@ -64,9 +50,7 @@ public class BranchScheduleManagementController extends HttpServlet {
  		}
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
+    @Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");		
 		response.setContentType("application/json; charset=UTF-8");
@@ -185,7 +169,6 @@ public class BranchScheduleManagementController extends HttpServlet {
 	private void modifySchedule(HttpServletRequest request, HttpServletResponse response)
 	        throws Exception {
 
-	    String scope = request.getParameter("scope");
 	    String repeatGroupId = request.getParameter("repeatGroupId");
 	    Integer isRepeat = Integer.parseInt(request.getParameter("isRepeat"));
 

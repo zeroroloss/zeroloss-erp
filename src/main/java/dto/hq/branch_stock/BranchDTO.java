@@ -11,9 +11,7 @@ public class BranchDTO {
 	private String status;
 	private LocalDateTime createdAt;
 
-	public BranchDTO() {
-		super();
-	}
+	public BranchDTO() { }
 
 	public BranchDTO(Integer branchCode, String regionCode, String branchName, String address, String phone, String status, LocalDateTime createdAt) {
 		super();

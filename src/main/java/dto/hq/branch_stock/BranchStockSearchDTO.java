@@ -11,10 +11,7 @@ public class BranchStockSearchDTO {
     private Integer expireWithinDays; // N일 이내 (ex: 3)
     private String stockStatus;
 	
-	public BranchStockSearchDTO() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+	public BranchStockSearchDTO() { }
 
 	public BranchStockSearchDTO(String branchCode, Integer materialGroupId, String materialCode, String keyword,
 			String tab) {

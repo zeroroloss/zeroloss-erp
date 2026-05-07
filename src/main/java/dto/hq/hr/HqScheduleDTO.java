@@ -14,9 +14,7 @@ public class HqScheduleDTO {
 	private String dept;
 	private String branchName;
 
-	public HqScheduleDTO() {
-		super();
-	}
+	public HqScheduleDTO() {}
 
 	public HqScheduleDTO(Integer scheduleId, Integer empNo, Integer branchCode, Date startDay, Date endDay, String memo,
 			String workType) {

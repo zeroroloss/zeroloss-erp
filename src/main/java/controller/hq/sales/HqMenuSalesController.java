@@ -19,6 +19,7 @@ import java.util.List;
 @WebServlet("/hq/sales/menu")
 public class HqMenuSalesController extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    
     private final HqSalesService hqSalesService = new HqSalesServiceImpl();
     private final Gson gson = GsonFactory.getGson();
 

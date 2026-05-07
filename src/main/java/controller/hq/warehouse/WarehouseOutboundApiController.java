@@ -31,10 +31,6 @@ public class WarehouseOutboundApiController extends HttpServlet {
     private final WarehouseOutboundService outboundService = new WarehouseOutboundServiceImpl();
     private Gson gson = GsonFactory.getGson();
 
-    public WarehouseOutboundApiController() {
-        super();
-    }
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

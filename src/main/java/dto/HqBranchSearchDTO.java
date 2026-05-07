@@ -15,8 +15,7 @@ public class HqBranchSearchDTO {
     private String managerEmail;
     private int employeeCount;
 
-    public HqBranchSearchDTO() {
-    }
+    public HqBranchSearchDTO() {}
 
     // 모든 필드를 포함하는 생성자
     public HqBranchSearchDTO(String id, String name, String region, String regionCode, String address, String phone, String status, String managerName, String managerPhone, String managerEmail, int employeeCount) {

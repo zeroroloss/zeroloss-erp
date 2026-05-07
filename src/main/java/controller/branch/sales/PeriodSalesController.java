@@ -25,6 +25,7 @@ import java.util.List;
 @WebServlet("/branch/sales/period")
 public class PeriodSalesController extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    
     private final SalesService salesService = new SalesServiceImpl();
     private final Gson gson = GsonFactory.getGson();
 

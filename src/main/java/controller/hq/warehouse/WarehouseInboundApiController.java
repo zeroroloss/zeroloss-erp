@@ -14,8 +14,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-
 import dto.hq.warehouse.InboundRecordDTO;
 import dto.hq.warehouse.InboundRequestDTO;
 import dto.hq.warehouse.InboundSearchDTO;
@@ -25,12 +23,9 @@ import service.hq.warehouse.WarehouseStockServiceImpl;
 @WebServlet("/api/hq/warehouse/inbound")
 public class WarehouseInboundApiController extends HttpServlet {
 
-    private final WarehouseStockService service;
-    private final Gson gson = new Gson();
-
-    public WarehouseInboundApiController() {
-        service = new WarehouseStockServiceImpl();
-    }
+	private static final long serialVersionUID = 1L;
+	
+	private final WarehouseStockService service = new WarehouseStockServiceImpl();
 
     // 입고 이력 조회
     @Override
@@ -93,7 +88,7 @@ public class WarehouseInboundApiController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         try {
-            InboundRequestDTO dto = gson.fromJson(request.getReader(), InboundRequestDTO.class);
+            InboundRequestDTO dto = util.GsonFactory.getGson().fromJson(request.getReader(), InboundRequestDTO.class);
             if (dto == null) {
                 throw new IllegalArgumentException("요청 데이터가 비어있습니다.");
             }
@@ -122,6 +117,6 @@ public class WarehouseInboundApiController extends HttpServlet {
             throws IOException {
         response.setStatus(status);
         response.setContentType("application/json; charset=UTF-8");
-        response.getWriter().write(gson.toJson(body));
+        response.getWriter().write(util.GsonFactory.getGson().toJson(body));
     }
 }

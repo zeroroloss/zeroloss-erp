@@ -30,10 +30,6 @@ public class InboundHistoryApiController extends HttpServlet {
 	private final InboundHistoryService inboundHistoryService = new InboundHistoryServiceImpl();
 	private final Gson gson = util.GsonFactory.getGson();
 
-	public InboundHistoryApiController() {
-		super();
-	}
-
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("application/json; charset=UTF-8");

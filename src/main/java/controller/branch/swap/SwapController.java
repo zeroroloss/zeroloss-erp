@@ -82,7 +82,7 @@ public class SwapController extends HttpServlet {
             if ("createSwapRequest".equals(action)) {
                 handleCreateSwapRequest(request, response, currentBranchCode);
             } else if ("approveSwapRequest".equals(action)) {
-                handleApproveSwapRequest(request, response, currentBranchCode);
+                handleApproveSwapRequest(request, response);
             } else if ("rejectSwapRequest".equals(action)) {
                 handleRejectSwapRequest(request, response);
             } else if ("cancelSwapRequest".equals(action)) {
@@ -213,7 +213,7 @@ public class SwapController extends HttpServlet {
         }
     }
 
-    private void handleApproveSwapRequest(HttpServletRequest request, HttpServletResponse response, int currentBranchCode) throws IOException {
+    private void handleApproveSwapRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             int swapId = Integer.parseInt(request.getParameter("swapId"));
             boolean success = swapService.approveSwapRequest(swapId);

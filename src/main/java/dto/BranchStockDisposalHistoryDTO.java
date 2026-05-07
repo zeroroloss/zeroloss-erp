@@ -17,9 +17,7 @@ public class BranchStockDisposalHistoryDTO {
 	private String groupName;
 	private String expireDate;
 
-	public BranchStockDisposalHistoryDTO() {
-		super();
-	}
+	public BranchStockDisposalHistoryDTO() {}
 	public BranchStockDisposalHistoryDTO(Integer disposalId, Integer changeId, String reason, String reasonDetail,
 			String branchStockCode, BigDecimal changeAmount, LocalDateTime changedAt, String materialName,
 			String groupName, String expireDate) {

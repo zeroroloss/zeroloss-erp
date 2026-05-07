@@ -9,9 +9,7 @@ public class NotificationReceiverDTO {
 	private Integer isRead;
 	private LocalDateTime readAt;
 	
-	public NotificationReceiverDTO() {
-		super();
-	}
+	public NotificationReceiverDTO() {}
 
 	public NotificationReceiverDTO(Integer notificationReceiverId, Integer notificationId, Integer accountId,
 			Integer isRead, LocalDateTime readAt) {

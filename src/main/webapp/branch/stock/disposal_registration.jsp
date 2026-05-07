@@ -29,64 +29,58 @@
 <%@ include file="/branch/common/layout/layout_head.jsp" %>
 </head>
 <body>
-<div class="zl-app">
-<%@ include file="/branch/common/layout/sidebar.jsp" %>
-<div class="zl-content">
-<%@ include file="/branch/common/layout/topbar.jsp" %>
-<div class="wrap p-6">
-	<div class="hero">
-		<div class="hero-mark">🗑️</div>
-		<div>
-			<h1>폐기 처리 등록</h1>
-			<p>유통기한 경과 또는 품질 문제 발생 시 폐기 내역을 등록하세요.</p>
-		</div>
-	</div>
+	<div class="zl-app">
+		<%@ include file="/branch/common/layout/sidebar.jsp"%>
+		<div class="zl-content">
+			<div class="wrap p-6">
+				<div class="hero">
+					<div class="hero-mark">🗑️</div>
+					<div>
+						<h1>폐기 처리 등록</h1>
+						<p>유통기한 경과 또는 품질 문제 발생 시 폐기 내역을 등록하세요.</p>
+					</div>
+				</div>
 
-	<div class="card">
-		<div class="grid">
-			<div class="field">
-				<label>재고 번호</label>
-				<input type="text" value="STK-2026-001" />
+				<div class="card">
+					<div class="grid">
+						<div class="field">
+							<label>재고 번호</label> <input type="text" value="STK-2026-001" />
+						</div>
+						<div class="field">
+							<label>품목명</label> <select>
+								<option>양상추</option>
+								<option>감자</option>
+								<option>생크림</option>
+								<option>소고기 패티</option>
+							</select>
+						</div>
+						<div class="field">
+							<label>폐기 수량</label> <input type="number" value="3" />
+						</div>
+						<div class="field">
+							<label>단위</label> <select>
+								<option>kg</option>
+								<option>개</option>
+								<option>L</option>
+							</select>
+						</div>
+						<div class="field">
+							<label>폐기 일시</label> <input type="datetime-local"
+								value="2026-03-29T12:40" />
+						</div>
+						<div class="field full">
+							<label>폐기 사유</label>
+							<textarea rows="4">유통기한 경과</textarea>
+						</div>
+					</div>
+					<div class="hint">등록 후 재고 이력과 폐기 처리 목록에 반영됩니다.</div>
+					<div class="actions">
+						<a class="cancel" href="/branch/stock/stock_change1.jsp">취소</a> <a
+							class="save" href="/branch/stock/stock_change1.jsp">폐기 등록</a>
+					</div>
+				</div>
 			</div>
-			<div class="field">
-				<label>품목명</label>
-				<select>
-					<option>양상추</option>
-					<option>감자</option>
-					<option>생크림</option>
-					<option>소고기 패티</option>
-				</select>
-			</div>
-			<div class="field">
-				<label>폐기 수량</label>
-				<input type="number" value="3" />
-			</div>
-			<div class="field">
-				<label>단위</label>
-				<select>
-					<option>kg</option>
-					<option>개</option>
-					<option>L</option>
-				</select>
-			</div>
-			<div class="field">
-				<label>폐기 일시</label>
-				<input type="datetime-local" value="2026-03-29T12:40" />
-			</div>
-			<div class="field full">
-				<label>폐기 사유</label>
-				<textarea rows="4">유통기한 경과</textarea>
-			</div>
-		</div>
-		<div class="hint">등록 후 재고 이력과 폐기 처리 목록에 반영됩니다.</div>
-		<div class="actions">
-			<a class="cancel" href="/branch/stock/stock_change1.jsp">취소</a>
-			<a class="save" href="/branch/stock/stock_change1.jsp">폐기 등록</a>
 		</div>
 	</div>
-</div>
-</main>
-</div>
-</div>
 </body>
 </html>

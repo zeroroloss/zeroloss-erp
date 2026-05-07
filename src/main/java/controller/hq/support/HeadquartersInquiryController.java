@@ -31,8 +31,9 @@ import java.util.stream.Collectors;
 
 @WebServlet("/hq/support/headquarters-inquiries-data")
 public class HeadquartersInquiryController extends HttpServlet {
-
-    private final InquiryService inquiryService = new InquiryServiceImpl();
+	private static final long serialVersionUID = 1L;
+	
+	private final InquiryService inquiryService = new InquiryServiceImpl();
     private final Gson gson = GsonFactory.getGson();
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 

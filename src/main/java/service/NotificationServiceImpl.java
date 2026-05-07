@@ -41,7 +41,6 @@ public class NotificationServiceImpl implements NotificationService {
 	@Override
 	public void modifyAllRead(Integer accountId) throws Exception {
 		notifDao.updateAllRead(accountId);
-		
 	}
 
 	@Override

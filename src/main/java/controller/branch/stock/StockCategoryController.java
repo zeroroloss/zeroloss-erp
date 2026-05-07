@@ -1,9 +1,7 @@
 package controller.branch.stock;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,32 +13,19 @@ import javax.servlet.http.HttpSession;
 import com.google.gson.Gson;
 
 import dto.AccountDTO;
-import dto.MaterialDTO;
 import dto.MaterialGroupDTO;
-import service.BranchService;
-import service.BranchServiceImpl;
 import service.branch.stock.BranchStockService;
 import service.branch.stock.BranchStockServiceImpl;
 
-/**
- * Servlet implementation class StockCategoryController
- */
 @WebServlet("/branch/stock/categories")
 public class StockCategoryController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * @see HttpServlet#HttpServlet()
-	 */
 	public StockCategoryController() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		response.setContentType("application/json;charset=UTF-8");

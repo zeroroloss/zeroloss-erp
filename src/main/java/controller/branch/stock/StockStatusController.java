@@ -27,25 +27,11 @@ import service.branch.stock.BranchStockAlertServiceImpl;
 import service.branch.stock.BranchStockService;
 import service.branch.stock.BranchStockServiceImpl;
 
-/**
- * Servlet implementation class StockStatusController
- */
 @WebServlet("/branch/stock/status")
 public class StockStatusController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * @see HttpServlet#HttpServlet()
-	 */
-	public StockStatusController() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		response.setContentType("application/json;charset=UTF-8");

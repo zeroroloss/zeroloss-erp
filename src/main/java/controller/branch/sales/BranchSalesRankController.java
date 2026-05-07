@@ -20,7 +20,9 @@ import java.util.Map;
 @WebServlet("/branch/sales/rank")
 public class BranchSalesRankController extends HttpServlet {
 
-    private final BranchSalesRankService salesRankService = new BranchSalesRankServiceImpl();
+	private static final long serialVersionUID = 1L;
+	
+	private final BranchSalesRankService salesRankService = new BranchSalesRankServiceImpl();
     private final Gson gson = new Gson();
 
     @Override

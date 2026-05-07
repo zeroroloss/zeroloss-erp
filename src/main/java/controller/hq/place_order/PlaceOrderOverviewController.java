@@ -10,18 +10,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-
 import service.hq.place_order.PlaceOrderOverviewService;
 import service.hq.place_order.PlaceOrderOverviewServiceImpl;
-import util.GsonFactory;
 
 @WebServlet("/hq/place_order/overview")
 public class PlaceOrderOverviewController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private final PlaceOrderOverviewService overviewService = new PlaceOrderOverviewServiceImpl();
-	private Gson gson = GsonFactory.getGson();
        
     public PlaceOrderOverviewController() {
         super();

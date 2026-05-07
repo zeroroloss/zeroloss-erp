@@ -16,26 +16,12 @@ import service.BranchServiceImpl;
 import service.branch.EmployeeService;
 import service.branch.EmployeeServiceImpl;
 
-/**
- * Servlet implementation class EmployeeManagementController
- */
 @WebServlet(urlPatterns = { "/branch/hr/main" })
 public class EmployeeMainController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private BranchService branchService = new BranchServiceImpl();
 	private EmployeeService employeeService = new EmployeeServiceImpl();
        
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public EmployeeMainController() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			Integer branchCode = (Integer) request.getSession().getAttribute("branchCode");

@@ -13,9 +13,7 @@ public class PaymentDTO {
 	private String status;
 	private LocalDateTime paidAt;
 
-	public PaymentDTO() {
-		super();
-	}
+	public PaymentDTO() {}
 
 	public PaymentDTO(Integer paymentId, Integer orderId, String payMethod, String cardCompany, String cardNoMasked, String pgApprovalNo, Integer paidAmount, String status, LocalDateTime paidAt) {
 		super();

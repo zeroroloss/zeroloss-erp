@@ -1,13 +1,13 @@
 package dto;
 
-public class RankDTO implements java.io.Serializable {
+public class RankDTO {
     private String name;
     private String meta;
     private double value;
 
     public RankDTO() {}
 
-    public RankDTO(String name, String meta, double value) {
+	public RankDTO(String name, String meta, double value) {
         this.name = name;
         this.meta = meta;
         this.value = value;

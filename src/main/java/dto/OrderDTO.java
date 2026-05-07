@@ -15,9 +15,7 @@ public class OrderDTO {
 	private LocalTime createdAt;
 	private Boolean isReceipt;
 
-	public OrderDTO() {
-		super();
-	}
+	public OrderDTO() {}
 
 	public OrderDTO(Integer orderId, Integer branchCode, Integer kioskId, String orderSeq, String orderType, Integer totalAmount, String status, LocalDate orderDate, LocalTime createdAt, Boolean isReceipt) {
 		super();

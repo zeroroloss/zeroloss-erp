@@ -6,8 +6,7 @@ public class HqTodaySalesSummaryDTO {
     private String popularMenu;
     private long monthlyCumulativeSales;
 
-    public HqTodaySalesSummaryDTO() {
-    }
+    public HqTodaySalesSummaryDTO() {}
 
     public HqTodaySalesSummaryDTO(long totalSales, int totalOrders, String popularMenu, long monthlyCumulativeSales) {
         this.totalSales = totalSales;

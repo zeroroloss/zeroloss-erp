@@ -11,7 +11,6 @@ public class DisposalRequestDTO {
     private String reasonDetail;    // 폐기 상세 사유 (선택)
 
     public DisposalRequestDTO() {
-        super();
         this.reason = "ETC";  // 기본값
     }
 

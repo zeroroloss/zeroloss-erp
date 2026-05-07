@@ -12,9 +12,7 @@ public class MaterialSwapDTO {
 	private String status;
 	private LocalDateTime reqDate;
 
-	public MaterialSwapDTO() {
-		super();
-	}
+	public MaterialSwapDTO() {}
 
 	public MaterialSwapDTO(Integer swapId, Integer reqBranchCode, Integer resBranchCode, String materialCode, BigDecimal qty, String status, LocalDateTime reqDate) {
 		super();

@@ -2,8 +2,6 @@ package service.branch.stock;
 
 import java.util.List;
 
-import dao.NotificationDao;
-import dao.NotificationDaoImpl;
 import dao.branch.stock.BranchNotificationDao;
 import dao.branch.stock.BranchNotificationDaoImpl;
 import dao.branch.stock.BranchStockAlertDao;

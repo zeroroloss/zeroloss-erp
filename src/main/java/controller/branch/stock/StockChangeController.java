@@ -11,10 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 public class StockChangeController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
-    public StockChangeController() {
-        super();
-    }
-
+    @Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.getRequestDispatcher("/branch/stock/stock_change.jsp").forward(request, response);
 	}

@@ -4,9 +4,7 @@ public class RoleDTO {
 	private Integer roleId;
 	private String roleName;
 
-	public RoleDTO() {
-		super();
-	}
+	public RoleDTO() {}
 
 	public RoleDTO(Integer roleId, String roleName) {
 		super();

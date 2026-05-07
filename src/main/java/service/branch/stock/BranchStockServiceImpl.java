@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import dao.branch.stock.BranchStockListDao;
-import dao.branch.stock.BranchStockListImpl;
+import dao.branch.stock.BranchStockListDaoImpl;
 import dto.BranchStockDTO;
 import dto.MaterialDTO;
 import dto.MaterialGroupDTO;
@@ -14,7 +14,7 @@ public class BranchStockServiceImpl implements BranchStockService {
 	private BranchStockListDao branchStockListDao;
 	
 	public BranchStockServiceImpl() {
-		branchStockListDao = new BranchStockListImpl();
+		branchStockListDao = new BranchStockListDaoImpl();
 	}
 
 	@Override

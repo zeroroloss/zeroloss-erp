@@ -18,6 +18,7 @@ import java.io.IOException;
 @WebServlet("/branch/sales/summary")
 public class SalesSummaryController extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    
     private final SalesService salesService = new SalesServiceImpl();
     private final Gson gson = new GsonBuilder().serializeNulls().create();
 

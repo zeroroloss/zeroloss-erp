@@ -25,6 +25,7 @@ public class SwapServiceImpl implements SwapService {
     public SwapServiceImpl() {
         this.swapDao = new SwapDaoImpl();
     }
+    @Override
     public List<SwapStockSearchResultDto> findNearbyBranchStocks(SwapStockSearchRequestDto searchDto) {
         BranchLocationDto currentLocation = swapDao.findBranchLocation(searchDto.getCurrentBranchCode());
         if (currentLocation == null) {

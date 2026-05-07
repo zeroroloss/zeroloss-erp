@@ -1,15 +1,11 @@
 package dto.hq.hr;
 
-import java.time.LocalDate;
-
 public class GradeDTO {
 	private String gradeCode;
 	private String gradeName;
 	private Integer gradeOrder;
 
-	public GradeDTO() {
-		super();
-	}
+	public GradeDTO() {	}
 
 	public GradeDTO(String gradeCode, String gradeName, Integer gradeOrder) {
 		super();

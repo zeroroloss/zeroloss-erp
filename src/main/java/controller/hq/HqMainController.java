@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import dto.hq.hr.EmployeeDTO;
 import dto.hq.sales.HqTodaySalesSummaryDTO;
 import service.hq.EmployeeService;
 import service.hq.EmployeeServiceImpl;
@@ -20,9 +19,6 @@ import service.hq.sales.HqSalesServiceImpl;
 import service.hq.warehouse.WarehouseStockAlertService;
 import service.hq.warehouse.WarehouseStockAlertServiceImpl;
 
-/**
- * Servlet implementation class HqMainController
- */
 @WebServlet("/hq/main/home")
 public class HqMainController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -30,17 +26,11 @@ public class HqMainController extends HttpServlet {
 	private PlaceOrderOverviewService overviewService = new PlaceOrderOverviewServiceImpl();
 	private HqSalesService hqSalesService = new HqSalesServiceImpl();
        
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
     public HqMainController() {
         super();
-        // TODO Auto-generated constructor stub
     }
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
+    
+    @Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			// 물류창고 알림 체크
@@ -48,7 +38,6 @@ public class HqMainController extends HttpServlet {
 	        WarehouseStockAlertService warehouseStockAlertService = new WarehouseStockAlertServiceImpl();
 	        warehouseStockAlertService.sendWarehouseAlerts(accountId);
 	        
-			EmployeeDTO employee = new EmployeeDTO();
 			Integer totalEmp = employeeService.selectEmpCnt();
 			Integer totalBranch = employeeService.selectBranchCnt();
 			Integer totalPending = overviewService.selectPendingCnt();

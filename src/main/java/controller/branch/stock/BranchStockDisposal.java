@@ -20,24 +20,11 @@ import service.branch.stock.BranchDisposalServiceImpl;
 import service.branch.stock.BranchStockAlertService;
 import service.branch.stock.BranchStockAlertServiceImpl;
 
-/**
- * Servlet implementation class BranchStockDisposal
- */
 @WebServlet("/branch/stock/disposal")
 public class BranchStockDisposal extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public BranchStockDisposal() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		 response.setContentType("application/json;charset=UTF-8");
 

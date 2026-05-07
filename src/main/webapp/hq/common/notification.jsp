@@ -236,6 +236,7 @@
     const ctx = "<%= request.getContextPath() %>";
 
     <%
+		@SuppressWarnings("unchecked")
 	    List<NotificationDTO> notificationList =
 	        (List<NotificationDTO>) request.getAttribute("notificationList");
 	%>

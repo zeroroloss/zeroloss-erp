@@ -7,9 +7,7 @@ public class BranchMaterialSafetyStockDTO {
 	private String materialCode;
 	private BigDecimal safeStockQty;
 
-	public BranchMaterialSafetyStockDTO() {
-		super();
-	}
+	public BranchMaterialSafetyStockDTO() {}
 
 	public BranchMaterialSafetyStockDTO(Integer branchCode, String materialCode, BigDecimal safeStockQty) {
 		super();

@@ -10,7 +10,7 @@ import dto.MaterialDTO;
 import dto.MaterialGroupDTO;
 import util.MyBatisSqlSessionFactory;
 
-public class BranchStockListImpl implements BranchStockListDao {
+public class BranchStockListDaoImpl implements BranchStockListDao {
 
 	@Override
 	public List<MaterialGroupDTO> selectCategoryList(Integer branchCode) throws Exception {

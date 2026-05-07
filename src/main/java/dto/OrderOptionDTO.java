@@ -6,9 +6,7 @@ public class OrderOptionDTO {
 	private String materialCode;
 	private Integer extraPrice;
 
-	public OrderOptionDTO() {
-		super();
-	}
+	public OrderOptionDTO() {}
 
 	public OrderOptionDTO(Integer orderOptionId, Integer orderMenuId, String materialCode, Integer extraPrice) {
 		super();

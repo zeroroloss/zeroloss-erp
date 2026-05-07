@@ -7,9 +7,7 @@ public class VehicleDTO {
 	private Integer capacity;
 	private Boolean isActive;
 
-	public VehicleDTO() {
-		super();
-	}
+	public VehicleDTO() {}
 
 	public VehicleDTO(Integer vehicleId, String regionCode, String plateNumber, Integer capacity, Boolean isActive) {
 		super();

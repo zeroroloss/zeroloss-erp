@@ -2,6 +2,7 @@ package controller.branch.place_order;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import dto.AccountDTO;
 import dto.branch.place_order.PlaceOrderDraftDetailDTO;
@@ -24,8 +26,10 @@ import util.GsonFactory;
 @WebServlet("/api/branch/place_order/draft")
 public class PlaceOrderDraftApiController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
 	private final PlaceOrderService service = new PlaceOrderServiceImpl();
 	private final Gson gson = GsonFactory.getGson();
+	private static final Type MAP_TYPE = new TypeToken<Map<String, Object>>() {}.getType();
 
     @Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -62,8 +66,10 @@ public class PlaceOrderDraftApiController extends HttpServlet {
 			}
 
 			Map<String, Object> payload = readBody(req);
-			String action = payload != null ? stringValue(payload.get("action")) : null;
-			Map<String, Object> itemMap = payload != null ? castMap(payload.get("item")) : null;
+			
+			String action = stringValue(payload.get("action"));
+			Map<String, Object> itemMap = castMap(payload.get("item"));
+			
 			if (!hasText(action) || itemMap == null || !hasText(stringValue(itemMap.get("materialCode")))) {
 				sendResponse(resp, 400, failBody("요청 데이터가 올바르지 않습니다."));
 				return;
@@ -129,17 +135,12 @@ public class PlaceOrderDraftApiController extends HttpServlet {
 	}
 
 	private Map<String, Object> readBody(HttpServletRequest request) throws IOException {
-		StringBuilder body = new StringBuilder();
+		
 		try (BufferedReader reader = request.getReader()) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				body.append(line);
-			}
+			
+			Map<String, Object> body = gson.fromJson(reader, MAP_TYPE);
+			return body == null ? new LinkedHashMap<>() : body;
 		}
-		if (!hasText(body.toString())) {
-			return null;
-		}
-		return gson.fromJson(body.toString(), Map.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -155,12 +156,12 @@ public class PlaceOrderDraftApiController extends HttpServlet {
 	}
 
 	private Integer toInteger(Object value) {
-		if (value == null) {
-			return null;
-		}
+		if (value == null) return null;
+		
 		if (value instanceof Number) {
 			return ((Number) value).intValue();
 		}
+		
 		try {
 			String text = String.valueOf(value).trim();
 			if (!hasText(text)) {

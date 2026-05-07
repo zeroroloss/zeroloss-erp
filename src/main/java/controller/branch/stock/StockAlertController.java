@@ -12,24 +12,11 @@ import dto.AccountDTO;
 import service.branch.stock.BranchStockAlertService;
 import service.branch.stock.BranchStockAlertServiceImpl;
 
-/**
- * Servlet implementation class StockAlertController
- */
 @WebServlet("/branch/stock/alert")
 public class StockAlertController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public StockAlertController() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		 HttpSession session = request.getSession(false);
 		try {
@@ -50,7 +37,6 @@ public class StockAlertController extends HttpServlet {
 		}
 		response.sendRedirect(request.getContextPath() + "/branch/main/home");
 	}
-	
 	
 	private AccountDTO getLoginUser(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);

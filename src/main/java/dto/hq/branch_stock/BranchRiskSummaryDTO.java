@@ -5,10 +5,7 @@ public class BranchRiskSummaryDTO {
     private Integer warningCount;
     private Integer disposalCount;
 	 
-	public BranchRiskSummaryDTO() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+	public BranchRiskSummaryDTO() {	}
 
 	public BranchRiskSummaryDTO(Integer urgentCount, Integer warningCount, Integer disposalCount) {
 		super();

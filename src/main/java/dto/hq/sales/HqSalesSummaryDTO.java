@@ -1,8 +1,6 @@
 package dto.hq.sales;
 
-import java.io.Serializable;
-
-public class HqSalesSummaryDTO implements Serializable {
+public class HqSalesSummaryDTO {
     private long totalSales;           // 전지점 통합 총 매출 (오늘)
     private int totalOrders;           // 총 주문건 수 (오늘)
     private String popularMenu;        // 인기 메뉴명

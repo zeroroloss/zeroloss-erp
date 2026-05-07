@@ -9,10 +9,7 @@ public class ExpireRiskDTO {
     private String receivedDate;
     private String unit;
     
-	public ExpireRiskDTO() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+	public ExpireRiskDTO() { }
 
 	public ExpireRiskDTO(String branchName, String materialName, Integer qty, String expireDate, Integer dDay,
 			String receivedDate, String unit) {

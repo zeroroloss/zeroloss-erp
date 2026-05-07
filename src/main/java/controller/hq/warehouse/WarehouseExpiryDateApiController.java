@@ -32,12 +32,8 @@ import service.hq.warehouse.WarehouseStockServiceImpl;
 public class WarehouseExpiryDateApiController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private final WarehouseStockService service;
+	private final WarehouseStockService service = new WarehouseStockServiceImpl();
 	private final Gson gson = new Gson();
-
-	public WarehouseExpiryDateApiController() {
-		service = new WarehouseStockServiceImpl();
-	}
 
     // GET /api/hq/warehouse/expiry_date - 조회하기 버튼 - 유통기한 임박 품목 조회
 	@Override

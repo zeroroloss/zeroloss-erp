@@ -1,10 +1,8 @@
 package dto.hq.warehouse;
 
-
 public class CategoryMaterialDTO {
     private String groupName;
     private String materialName;
-    
 
 	public String getGroupName() {
 		return groupName;

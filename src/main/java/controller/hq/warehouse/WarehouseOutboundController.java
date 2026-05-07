@@ -19,10 +19,6 @@ public class WarehouseOutboundController extends HttpServlet {
     
 	private final WarehouseOutboundService outboundService = new WarehouseOutboundServiceImpl();
        
-	public WarehouseOutboundController() {
-		super();
-	}
-
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// 지점명 가져오기 & 페이지에 넘겨주기

@@ -5,9 +5,7 @@ public class SubCategoryDTO {
 	private Integer mainCategoryId;
 	private String name;
 
-	public SubCategoryDTO() {
-		super();
-	}
+	public SubCategoryDTO() {}
 
 	public SubCategoryDTO(String subCategoryCode, Integer mainCategoryId, String name) {
 		super();

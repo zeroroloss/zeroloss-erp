@@ -2,16 +2,11 @@ package dto.branch.place_order;
 
 public class PlaceOrderDraftDetailDTO {
     private Integer draftDetailId;
-
     private Integer draftId;
-
     private String materialCode;
-
     private Integer requestedQty;
-
     // LOW_STOCK / MANUAL
     private String sourceType;
-
     // 화면 표시용 (조인해서 채움)
     private String materialName;
     private String categoryName;

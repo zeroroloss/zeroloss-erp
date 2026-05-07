@@ -7,9 +7,7 @@ public class DriverDTO {
 	private String phone;
 	private Boolean isActive;
 
-	public DriverDTO() {
-		super();
-	}
+	public DriverDTO() {}
 
 	public DriverDTO(Integer driverId, String regionCode, String name, String phone, Boolean isActive) {
 		super();

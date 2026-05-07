@@ -16,9 +16,7 @@ public class WarehouseStockDTO {
 	// join 필드
 	private String materialName;
 
-	public WarehouseStockDTO() {
-		super();
-	}
+	public WarehouseStockDTO() {}
 
 	public WarehouseStockDTO(String stockNo, String materialCode, Integer hqInboundId, BigDecimal qty, LocalDateTime receivedAt, LocalDate expiryDate, String status) {
 		super();

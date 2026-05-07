@@ -1,7 +1,6 @@
 package service.hq.warehouse;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import util.MyBatisSqlSessionFactory;
 
 import dao.hq.WarehouseStockDao;
 import dao.hq.WarehouseStockDaoImpl;
-import dto.hq.SupplierDTO;
 import dto.hq.warehouse.CategoryMaterialDTO;
 import dto.hq.warehouse.ExpiryItemDTO;
 import dto.hq.warehouse.ExpirySearchDTO;
@@ -100,12 +98,8 @@ public class WarehouseStockServiceImpl implements WarehouseStockService {
 	            return false;
 	        }
 
-	        Integer inboundId = dto.getHqInboundId();
+	        int inboundId = dto.getHqInboundId();
 	        System.out.println("inboundId = " + inboundId);
-	        if (inboundId == null) {
-	            sqlSession.rollback();
-	            throw new RuntimeException("inboundId 생성 실패");
-	        }
 	    	
 	        // 2. 재고 등록 + stockNo 즉시 반환
 	        String stockNo = dao.insertWarehouseStock(sqlSession, dto, inboundId);

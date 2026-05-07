@@ -16,7 +16,10 @@ import java.util.Map;
 
 @WebServlet("/hq/delivery/dispatch")
 public class DispatchController extends HttpServlet {
-    private final DispatchService dispatchService = new DispatchServiceImpl();
+
+	private static final long serialVersionUID = 1L;
+	
+	private final DispatchService dispatchService = new DispatchServiceImpl();
     private final Gson gson = new Gson();
 
     @Override

@@ -8,9 +8,7 @@ public class MainCategoryDTO {
 	private Boolean isActive;
 	private LocalDateTime createdAt;
 
-	public MainCategoryDTO() {
-		super();
-	}
+	public MainCategoryDTO() {}
 
 	public MainCategoryDTO(Integer categoryId, String name, Boolean isActive, LocalDateTime createdAt) {
 		super();

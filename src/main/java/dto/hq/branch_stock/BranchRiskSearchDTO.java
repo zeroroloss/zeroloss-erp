@@ -5,10 +5,7 @@ public class BranchRiskSearchDTO {
 	private String startDate;
 	private String endDate;
 	
-	public BranchRiskSearchDTO() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+	public BranchRiskSearchDTO() { }
 
 	public BranchRiskSearchDTO(Integer branchCode, String startDate, String endDate) {
 		super();

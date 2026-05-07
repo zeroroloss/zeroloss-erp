@@ -17,6 +17,7 @@ import java.time.LocalDate;
 @WebServlet("/hq/sales/headquarters")
 public class HqHeadquartersSalesController extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    
     private final HqSalesService hqSalesService = new HqSalesServiceImpl();
     private final Gson gson = GsonFactory.getGson();
 

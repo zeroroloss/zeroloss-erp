@@ -12,7 +12,7 @@ public class PlaceOrderOverviewDetailDTO {
 	private Integer totalItemCnt;
 	private Integer totalAmounts;
 
-	private List<PlaceOrderOverviewMaterialDTO> items ;
+	private List<PlaceOrderOverviewMaterialDTO> items;
 
 	public Integer getPoId() {
 		return poId;

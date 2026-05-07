@@ -6,9 +6,7 @@ public class MaterialGroupDTO {
 	private Integer groupMin;
 	private Integer groupMax;
 
-	public MaterialGroupDTO() {
-		super();
-	}
+	public MaterialGroupDTO() { }
 
 	public MaterialGroupDTO(Integer materialGroupId, String groupName, Integer groupMin, Integer groupMax) {
 		super();

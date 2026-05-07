@@ -21,96 +21,96 @@
     </style>
 </head>
 <body class="bg-gray-50">
-	    <%@ include file="/hq/common/sidebar.jsp" %>
-        <!-- 메인 콘텐츠 -->
-        <div class="lg:pl-72">
+    <%@ include file="/hq/common/sidebar.jsp" %>
+       <!-- 메인 콘텐츠 -->
+       <div class="lg:pl-72">
 
-            <!-- 페이지 콘텐츠 -->
-            <main class="p-6">
-                <div class="space-y-6">
-                    <!-- 페이지 헤더 -->
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h3 class="text-3xl font-bold text-gray-900">직영점 계정 발급/삭제 및 권한 부여</h3>
-                            <p class="text-gray-500 mt-1">직영점 계정을 통합 관리하고 권한을 설정하세요</p>
-                        </div>
-                        <button onclick="showAddModal()" class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
-                            <i class="fas fa-user-plus w-5 h-5"></i>
-                            <span>계정 추가</span>
-                        </button>
-                    </div>
-                    <!-- 통계 카드 -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-white rounded-lg border border-gray-200 p-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-shield w-6 h-6 text-blue-600"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">전체 계정</p>
-                                    <p class="text-2xl font-bold text-gray-900 mt-1" id="totalCount">${totalCnt}</p>
-                                </div>
-                            </div>
-                        </div>
+           <!-- 페이지 콘텐츠 -->
+           <main class="p-6">
+               <div class="space-y-6">
+                   <!-- 페이지 헤더 -->
+                   <div class="flex items-center justify-between">
+                       <div>
+                           <h3 class="text-3xl font-bold text-gray-900">직영점 계정 발급/삭제 및 권한 부여</h3>
+                           <p class="text-gray-500 mt-1">직영점 계정을 통합 관리하고 권한을 설정하세요</p>
+                       </div>
+                       <button onclick="showAddModal()" class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
+                           <i class="fas fa-user-plus w-5 h-5"></i>
+                           <span>계정 추가</span>
+                       </button>
+                   </div>
+                   <!-- 통계 카드 -->
+                   <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                       <div class="bg-white rounded-lg border border-gray-200 p-4">
+                           <div class="flex items-center gap-4">
+                               <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                   <i class="fas fa-shield w-6 h-6 text-blue-600"></i>
+                               </div>
+                               <div>
+                                   <p class="text-sm text-gray-500">전체 계정</p>
+                                   <p class="text-2xl font-bold text-gray-900 mt-1" id="totalCount">${totalCnt}</p>
+                               </div>
+                           </div>
+                       </div>
 
-                        <div class="bg-white rounded-lg border border-gray-200 p-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-circle-check w-6 h-6 text-green-600"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">활성 계정</p>
-                                    <p class="text-2xl font-bold text-gray-900 mt-1" id="activeCount">${activeCnt}</p>
-                                </div>
-                            </div>
-                        </div>
+                       <div class="bg-white rounded-lg border border-gray-200 p-4">
+                           <div class="flex items-center gap-4">
+                               <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                   <i class="fas fa-circle-check w-6 h-6 text-green-600"></i>
+                               </div>
+                               <div>
+                                   <p class="text-sm text-gray-500">활성 계정</p>
+                                   <p class="text-2xl font-bold text-gray-900 mt-1" id="activeCount">${activeCnt}</p>
+                               </div>
+                           </div>
+                       </div>
 
-                        <div class="bg-white rounded-lg border border-gray-200 p-4">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-circle-xmark w-6 h-6 text-red-600"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-500">비활성 계정</p>
-                                    <p class="text-2xl font-bold text-gray-900 mt-1" id="inactiveCount">${inactiveCnt}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                       <div class="bg-white rounded-lg border border-gray-200 p-4">
+                           <div class="flex items-center gap-4">
+                               <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                   <i class="fas fa-circle-xmark w-6 h-6 text-red-600"></i>
+                               </div>
+                               <div>
+                                   <p class="text-sm text-gray-500">비활성 계정</p>
+                                   <p class="text-2xl font-bold text-gray-900 mt-1" id="inactiveCount">${inactiveCnt}</p>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
 
-					<!-- 검색 및 필터 -->
-					<div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-					    <div class="flex flex-col gap-4">
-					        
-					        <!-- 검색 영역 -->
-					        <div class="flex items-center justify-between gap-4">
-					            <div>
-					                <h3 class="text-sm font-semibold text-gray-800">계정 검색</h3>
-					                <p class="text-xs text-gray-500 mt-1">이름, 아이디, 소속 매장 기준으로 검색할 수 있습니다.</p>
-					            </div>
-					
-					            <div class="flex items-center gap-2">
-					            	<!-- 소속명 선택 -->
-					                <select id="branchNameSelect"
-					                        class="w-44 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
-					                    <option value="">전체 소속</option>
-										<c:forEach var="branch" items="${branchNameList}">
-										    <option value="${branch.branchName}">
-										        ${branch.branchName}
-										    </option>
-										</c:forEach>
-					                </select>
-					                
-					                <div class="relative w-80">
-					                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-					                    <input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="검색어를 입력하세요"class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
-					                </div>
-					                <button type="button" onclick="applyFilters()" class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">조회</button>
-					                <button type="button" onclick="resetFilters()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">초기화</button>
-					            </div>
-					        </div>
-					    </div>
-					</div>
+				<!-- 검색 및 필터 -->
+				<div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+				    <div class="flex flex-col gap-4">
+				        
+				        <!-- 검색 영역 -->
+				        <div class="flex items-center justify-between gap-4">
+				            <div>
+				                <h3 class="text-sm font-semibold text-gray-800">계정 검색</h3>
+				                <p class="text-xs text-gray-500 mt-1">이름, 아이디, 소속 매장 기준으로 검색할 수 있습니다.</p>
+				            </div>
+				
+				            <div class="flex items-center gap-2">
+				            	<!-- 소속명 선택 -->
+				                <select id="branchNameSelect"
+				                        class="w-44 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+				                    <option value="">전체 소속</option>
+									<c:forEach var="branch" items="${branchNameList}">
+									    <option value="${branch.branchName}">
+									        ${branch.branchName}
+									    </option>
+									</c:forEach>
+				                </select>
+				                
+				                <div class="relative w-80">
+				                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+				                    <input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="검색어를 입력하세요"class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+				                </div>
+				                <button type="button" onclick="applyFilters()" class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">조회</button>
+				                <button type="button" onclick="resetFilters()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">초기화</button>
+				            </div>
+				        </div>
+				    </div>
+				</div>
 
                     <!-- 계정 테이블 -->
                     <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">

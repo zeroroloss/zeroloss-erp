@@ -25,13 +25,8 @@ import service.hq.warehouse.WarehouseStockServiceImpl;
 public class WarehouseStockApiController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private final WarehouseStockService service;
+    private final WarehouseStockService service = new WarehouseStockServiceImpl();
     private final Gson gson = new Gson();
-
-    public WarehouseStockApiController() {
-        super();
-        service = new WarehouseStockServiceImpl();
-    }
 
 	@Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

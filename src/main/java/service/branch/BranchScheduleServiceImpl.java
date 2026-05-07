@@ -1,7 +1,6 @@
 package service.branch;
 
 import java.sql.Date;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -146,41 +145,6 @@ public class BranchScheduleServiceImpl implements BranchScheduleService {
 		return copy;
 	}
 	
-	private boolean containsWeekday(String[] weekdayArr, int weekday) {
-		if (weekdayArr == null) {
-			return false;
-		}
-
-		for (String w : weekdayArr) {
-			if (Integer.parseInt(w) == weekday) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private int convertWeekday(DayOfWeek dayOfWeek) {
-		switch (dayOfWeek) {
-			case MONDAY:
-				return 1;
-			case TUESDAY:
-				return 2;
-			case WEDNESDAY:
-				return 3;
-			case THURSDAY:
-				return 4;
-			case FRIDAY:
-				return 5;
-			case SATURDAY:
-				return 6;
-			case SUNDAY:
-				return 7;
-			default:
-				return 0;
-		}
-	}
-
 	@Override
 	public List<EmployeeDTO> selectBranchEmployee(Integer branchCode) throws Exception {
 		return scheduleDao.selectBranchEmployee(branchCode);

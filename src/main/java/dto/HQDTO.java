@@ -7,9 +7,7 @@ public class HQDTO {
 	private String phone;
 	private String regionCode;
 
-	public HQDTO() {
-		super();
-	}
+	public HQDTO() {}
 
 	public HQDTO(Integer hqId, Integer branchCode, String address, String phone, String regionCode) {
 		super();

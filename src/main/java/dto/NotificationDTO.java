@@ -16,9 +16,7 @@ public class NotificationDTO {
 	private Integer isRead;
 	private LocalDateTime readAt;
 
-	public NotificationDTO() {
-		super();
-	}
+	public NotificationDTO() {}
 
 	public NotificationDTO(Integer notificationId, String category, String title, String message, String targetType,
 			Integer targetId, LocalDateTime createdAt) {

@@ -8,9 +8,7 @@ public class ExpirySearchDTO {
     private String itemName;      // 품목명 (선택)
     private String search;        // 검색어 (선택)
 
-    public ExpirySearchDTO() {
-        super();
-    }
+    public ExpirySearchDTO() {}
 
     public ExpirySearchDTO(String category, String itemName, String search) {
         this.category = category;

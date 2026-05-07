@@ -13,34 +13,18 @@ import dto.AccountDTO;
 import service.AccountService;
 import service.AccountServiceImpl;
 
-/**
- * Servlet implementation class Login
- */
-@WebServlet("/common/login")
+@WebServlet("/login")
 public class Login extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public Login() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
+    @Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.getRequestDispatcher("/common/login.jsp").forward(request, response);
 	}
-
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
+    
+    @Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
-		String contextPath = request.getContextPath();
 		String loginId = request.getParameter("loginId");
 		String password = request.getParameter("password");
 		

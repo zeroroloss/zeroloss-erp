@@ -34,7 +34,8 @@ public class BranchStockLossController extends HttpServlet {
     public BranchStockLossController() {
         super();
     }
-
+    
+    @Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		LocalDate today = LocalDate.now();
 		
@@ -86,7 +87,5 @@ public class BranchStockLossController extends HttpServlet {
 		result.put("disposalRiskList", disposalRiskList);
 
 		response.getWriter().write(new Gson().toJson(result));
-	
 	}
-
 }

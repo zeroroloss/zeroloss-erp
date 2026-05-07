@@ -17,9 +17,7 @@ public class AccountDTO {
 	private String roleName;
 	private String branchName;
 	
-	public AccountDTO() {
-		super();
-	}
+	public AccountDTO() {}
 
 	public AccountDTO(Integer accountId, Integer empNo, Integer branchCode, Integer hqId, Integer roleId, String loginId,
 			String password, String status, LocalDateTime lastLoginAt) {

@@ -5,9 +5,7 @@ public class PositionDTO {
 	private String positionName;
 	private Integer positionLevel;
 
-	public PositionDTO() {
-		super();
-	}
+	public PositionDTO() {}
 
 	public PositionDTO(String positionCode, String positionName, Integer positionLevel) {
 		super();

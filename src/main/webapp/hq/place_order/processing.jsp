@@ -9,123 +9,122 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50">
-	    <%@ include file="/hq/common/sidebar.jsp" %>
-        <!-- 메인 콘텐츠 -->
-        <div class="lg:pl-72">
+    <%@ include file="/hq/common/sidebar.jsp" %>
+       <!-- 메인 콘텐츠 -->
+       <div class="lg:pl-72">
 
-            <!-- 페이지 콘텐츠 -->
-            <main class="p-6">
-                <!-- 헤더 -->
-                <div class="mb-6">
-                    <h2 class="text-3xl font-bold text-gray-900">발주 요청 승인/반려</h2>
-                    <p class="text-gray-500 mt-1">발주 요청을 검토하고 승인 또는 반려 처리하세요</p>
-                </div>
+           <!-- 페이지 콘텐츠 -->
+           <main class="p-6">
+               <!-- 헤더 -->
+               <div class="mb-6">
+                   <h2 class="text-3xl font-bold text-gray-900">발주 요청 승인/반려</h2>
+                   <p class="text-gray-500 mt-1">발주 요청을 검토하고 승인 또는 반려 처리하세요</p>
+               </div>
 
-                <!-- 알림 배너 -->
-                <div id="alertBanner" class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mb-6">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-triangle-exclamation w-6 h-6 text-yellow-600 flex-shrink-0"></i>
-                        <div>
-                            <h3 class="font-semibold text-yellow-900">처리 대기 중인 발주 요청</h3>
-                            <p class="text-sm text-yellow-700"><span class="font-bold" id="pendingCount">0</span>건의 발주 요청이 승인 대기 중입니다.</p>
-                        </div>
-                    </div>
-                </div>
+               <!-- 알림 배너 -->
+               <div id="alertBanner" class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mb-6">
+                   <div class="flex items-center gap-3">
+                       <i class="fas fa-triangle-exclamation w-6 h-6 text-yellow-600 flex-shrink-0"></i>
+                       <div>
+                           <h3 class="font-semibold text-yellow-900">처리 대기 중인 발주 요청</h3>
+                           <p class="text-sm text-yellow-700"><span class="font-bold" id="pendingCount">0</span>건의 발주 요청이 승인 대기 중입니다.</p>
+                       </div>
+                   </div>
+               </div>
 
-                <!-- 두 컬럼 레이아웃 -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- 왼쪽: 발주 요청 목록 -->
-                    <div class="lg:col-span-1">
-                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                            <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
-                                <h3 class="font-semibold text-gray-900">발주 요청 목록</h3>
-                                <p class="text-xs text-gray-500 mt-1"><span id="totalOrderCount">0</span>건의 발주 요청</p>
-                            </div>
-                            <div class="divide-y divide-gray-200 max-h-[600px] overflow-y-auto" id="orderListContainer">
-                                <!-- 동적 생성 -->
-                            </div>
-                        </div>
-                    </div>
+               <!-- 두 컬럼 레이아웃 -->
+               <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                   <!-- 왼쪽: 발주 요청 목록 -->
+                   <div class="lg:col-span-1">
+                       <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                           <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
+                               <h3 class="font-semibold text-gray-900">발주 요청 목록</h3>
+                               <p class="text-xs text-gray-500 mt-1"><span id="totalOrderCount">0</span>건의 발주 요청</p>
+                           </div>
+                           <div class="divide-y divide-gray-200 max-h-[600px] overflow-y-auto" id="orderListContainer">
+                               <!-- 동적 생성 -->
+                           </div>
+                       </div>
+                   </div>
 
-                    <!-- 오른쪽: 발주 상세 -->
-                    <div class="lg:col-span-2">
-                        <div id="detailView" class="hidden bg-white rounded-lg border border-gray-200 overflow-hidden">
-                            <div id="headerSection" class="px-6 py-4 border-b">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div>
-                                        <h3 class="text-lg font-bold text-gray-900" id="detailOrderNumber"></h3>
-                                        <div class="flex items-center gap-4 mt-1">
-                                            <div class="flex items-center gap-2 text-sm text-gray-600">
-                                                <i class="fas fa-map-pin w-4 h-4"></i>
-                                                <span id="detailBranch"></span>
-                                            </div>
-                                            <div class="flex items-center gap-2 text-sm text-gray-600">
-                                                <i class="fas fa-calendar w-4 h-4"></i>
-                                                <span id="detailDate"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div id="detailStatus"></div>
-                                </div>
+                   <!-- 오른쪽: 발주 상세 -->
+                   <div class="lg:col-span-2">
+                       <div id="detailView" class="hidden bg-white rounded-lg border border-gray-200 overflow-hidden">
+                           <div id="headerSection" class="px-6 py-4 border-b">
+                               <div class="flex items-center justify-between mb-4">
+                                   <div>
+                                       <h3 class="text-lg font-bold text-gray-900" id="detailOrderNumber"></h3>
+                                       <div class="flex items-center gap-4 mt-1">
+                                           <div class="flex items-center gap-2 text-sm text-gray-600">
+                                               <i class="fas fa-map-pin w-4 h-4"></i>
+                                               <span id="detailBranch"></span>
+                                           </div>
+                                           <div class="flex items-center gap-2 text-sm text-gray-600">
+                                               <i class="fas fa-calendar w-4 h-4"></i>
+                                               <span id="detailDate"></span>
+                                           </div>
+                                       </div>
+                                   </div>
+                                   <div id="detailStatus"></div>
+                               </div>
 
-                                <div id="actionButtons" class="flex gap-2">
-                                    <button onclick="showRejectModal()" class="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm">
-                                        <i class="fas fa-circle-xmark w-4 h-4"></i>
-                                        반려
-                                    </button>
-                                    <button onclick="showApproveModal()" class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
-                                        <i class="fas fa-check-circle w-4 h-4"></i>
-                                        승인
-                                    </button>
-                                </div>
-                            </div>
+                               <div id="actionButtons" class="flex gap-2">
+                                   <button onclick="showRejectModal()" class="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors text-sm">
+                                       <i class="fas fa-circle-xmark w-4 h-4"></i>
+                                       반려
+                                   </button>
+                                   <button onclick="showApproveModal()" class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                                       <i class="fas fa-check-circle w-4 h-4"></i>
+                                       승인
+                                   </button>
+                               </div>
+                           </div>
 
-                            <!-- 항목 테이블 -->
-                            <div class="overflow-x-auto max-h-[520px]">
-                                <table class="w-full">
-                                    <thead class="bg-gray-50 border-b border-gray-200">
-                                        <tr>
-                                            <th class="text-left py-2.5 px-4 text-xs font-semibold text-gray-900">품목코드</th>
-                                            <th class="text-left py-2.5 px-4 text-xs font-semibold text-gray-900">품목명</th>
-                                            <th class="text-right py-2.5 px-4 text-sm font-semibold text-gray-900">지점 재고</th>
-                                            <th class="text-right py-2.5 px-4 text-sm font-semibold text-gray-900">요청 수량</th>
-                                            <th class="text-center py-2.5 px-4 text-sm font-semibold text-gray-900">확정 수량</th>
-                                            <th class="text-right py-2.5 px-4 text-sm font-semibold text-gray-900">본사 재고</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="detailItemsTable">
-                                        <!-- 동적 생성 -->
-                                    </tbody>
-                                </table>
-                            </div>
+                           <!-- 항목 테이블 -->
+                           <div class="overflow-x-auto max-h-[520px]">
+                               <table class="w-full">
+                                   <thead class="bg-gray-50 border-b border-gray-200">
+                                       <tr>
+                                           <th class="text-left py-2.5 px-4 text-xs font-semibold text-gray-900">품목코드</th>
+                                           <th class="text-left py-2.5 px-4 text-xs font-semibold text-gray-900">품목명</th>
+                                           <th class="text-right py-2.5 px-4 text-sm font-semibold text-gray-900">지점 재고</th>
+                                           <th class="text-right py-2.5 px-4 text-sm font-semibold text-gray-900">요청 수량</th>
+                                           <th class="text-center py-2.5 px-4 text-sm font-semibold text-gray-900">확정 수량</th>
+                                           <th class="text-right py-2.5 px-4 text-sm font-semibold text-gray-900">본사 재고</th>
+                                       </tr>
+                                   </thead>
+                                   <tbody id="detailItemsTable">
+                                       <!-- 동적 생성 -->
+                                   </tbody>
+                               </table>
+                           </div>
 
-                            <!-- 요약 -->
-                            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-gray-600">총 품목 수</span>
-                                    <span class="font-semibold text-gray-900" id="summaryItemCount"></span>
-                                </div>
-                                <div class="flex items-center justify-between mt-2">
-                                    <span class="text-sm text-gray-600">총 요청 수량</span>
-                                    <span class="font-semibold text-blue-600" id="summaryRequestedQty"></span>
-                                </div>
-                                <div class="flex items-center justify-between mt-2">
-                                    <span class="text-sm text-gray-600">총 확정 수량</span>
-                                    <span class="font-semibold text-green-700" id="summaryAdjustedQty"></span>
-                                </div>
-                            </div>
-                        </div>
+                           <!-- 요약 -->
+                           <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                               <div class="flex items-center justify-between">
+                                   <span class="text-sm text-gray-600">총 품목 수</span>
+                                   <span class="font-semibold text-gray-900" id="summaryItemCount"></span>
+                               </div>
+                               <div class="flex items-center justify-between mt-2">
+                                   <span class="text-sm text-gray-600">총 요청 수량</span>
+                                   <span class="font-semibold text-blue-600" id="summaryRequestedQty"></span>
+                               </div>
+                               <div class="flex items-center justify-between mt-2">
+                                   <span class="text-sm text-gray-600">총 확정 수량</span>
+                                   <span class="font-semibold text-green-700" id="summaryAdjustedQty"></span>
+                               </div>
+                           </div>
+                       </div>
 
-                        <div id="emptyView" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
-                            <i class="fas fa-eye w-16 h-16 text-gray-300 mx-auto mb-4" style="display: block;"></i>
-                            <p class="text-gray-500 text-lg">발주 요청을 선택하세요</p>
-                            <p class="text-gray-400 text-sm mt-2">왼쪽 목록에서 발주 요청을 클릭하면 상세 내용을 확인할 수 있습니다</p>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
+                       <div id="emptyView" class="bg-white rounded-lg border border-gray-200 p-12 text-center">
+                           <i class="fas fa-eye w-16 h-16 text-gray-300 mx-auto mb-4" style="display: block;"></i>
+                           <p class="text-gray-500 text-lg">발주 요청을 선택하세요</p>
+                           <p class="text-gray-400 text-sm mt-2">왼쪽 목록에서 발주 요청을 클릭하면 상세 내용을 확인할 수 있습니다</p>
+                       </div>
+                   </div>
+               </div>
+           </main>
+       </div>
 
     <!-- 승인 모달 -->
     <div id="approveModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">

@@ -107,107 +107,140 @@
 </head>
 <body class="bg-gray-50">
 <%@ include file="/hq/common/sidebar.jsp" %>
-<div class="lg:pl-72">
-    <main class="p-6">
-            <header class="head">
-                <h1 class="text-3xl font-bold">직영점 매출 조회</h1>
-                <p>일별, 기간별, 시간대별, 메뉴별 매출 데이터를 조회하고 분석합니다.</p>
-            </header>
+	<div class="lg:pl-72">
+		<main class="p-6">
+			<header class="head">
+				<h1 class="text-3xl font-bold">직영점 매출 조회</h1>
+				<p>일별, 기간별, 시간대별, 메뉴별 매출 데이터를 조회하고 분석합니다.</p>
+			</header>
 
-            <section class="search-panel">
-                <div class="filters">
-                    <div class="tabs" role="tablist">
-                        <button class="tab active" type="button" data-tab="daily">일별</button>
-                        <button class="tab" type="button" data-tab="period">기간별</button>
-                        <button class="tab" type="button" data-tab="hourly">시간대별</button>
-                        <button class="tab" type="button" data-tab="menu">메뉴별</button>
-                    </div>
-                    <div class="filter-inputs">
-                        <select id="branch-selector">
-                            <option value="" disabled selected>직영점을 선택하세요</option>
-                        </select>
-                    </div>
-                    <div class="filter-inputs" data-input="daily">
-                        <div class="date-picker-wrap">
-                            <input type="text" id="daily-date" placeholder="날짜 선택">
-                        </div>
-                    </div>
-                    <div class="filter-inputs is-hidden" data-input="period">
-                        <div class="date-picker-wrap">
-                            <input type="text" id="period-start" placeholder="시작일 선택">
-                        </div>
-                        <span class="text-gray-500">~</span>
-                        <div class="date-picker-wrap">
-                            <input type="text" id="period-end" placeholder="종료일 선택">
-                        </div>
-                    </div>
-                    <div class="filter-inputs is-hidden" data-input="hourly">
-                        <div class="date-picker-wrap">
-                            <input type="text" id="hourly-date" placeholder="날짜 선택">
-                        </div>
-                    </div>
-                    <div class="filter-inputs is-hidden" data-input="menu">
-                        <div class="date-picker-wrap">
-                            <input type="text" id="menu-date" placeholder="날짜 선택">
-                        </div>
-                    </div>
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-search" id="searchButton" type="button"><i class="fas fa-search mr-2"></i>검색</button>
-                </div>
-            </section>
+			<section class="search-panel">
+				<div class="filters">
+					<div class="tabs" role="tablist">
+						<button class="tab active" type="button" data-tab="daily">일별</button>
+						<button class="tab" type="button" data-tab="period">기간별</button>
+						<button class="tab" type="button" data-tab="hourly">시간대별</button>
+						<button class="tab" type="button" data-tab="menu">메뉴별</button>
+					</div>
+					<div class="filter-inputs">
+						<select id="branch-selector">
+							<option value="" disabled selected>직영점을 선택하세요</option>
+						</select>
+					</div>
+					<div class="filter-inputs" data-input="daily">
+						<div class="date-picker-wrap">
+							<input type="text" id="daily-date" placeholder="날짜 선택">
+						</div>
+					</div>
+					<div class="filter-inputs is-hidden" data-input="period">
+						<div class="date-picker-wrap">
+							<input type="text" id="period-start" placeholder="시작일 선택">
+						</div>
+						<span class="text-gray-500">~</span>
+						<div class="date-picker-wrap">
+							<input type="text" id="period-end" placeholder="종료일 선택">
+						</div>
+					</div>
+					<div class="filter-inputs is-hidden" data-input="hourly">
+						<div class="date-picker-wrap">
+							<input type="text" id="hourly-date" placeholder="날짜 선택">
+						</div>
+					</div>
+					<div class="filter-inputs is-hidden" data-input="menu">
+						<div class="date-picker-wrap">
+							<input type="text" id="menu-date" placeholder="날짜 선택">
+						</div>
+					</div>
+				</div>
+				<div class="btn-group">
+					<button class="btn btn-search" id="searchButton" type="button">
+						<i class="fas fa-search mr-2"></i>검색
+					</button>
+				</div>
+			</section>
 
-            <div id="daily-content" class="tab-content">
-                <div class="chart-wrap"><canvas id="daily-chart"></canvas></div>
-                <div class="result-card">
-                    <div class="result-head">일별 매출 상세</div>
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>일자</th>
-                            <th>요일</th>
-                            <th>매출액</th>
-                            <th>주문 건수</th>
-                            <th>누적 매출</th>
-                        </tr>
-                        </thead>
-                        <tbody id="daily-table"></tbody>
-                    </table>
-                </div>
-            </div>
+			<div id="daily-content" class="tab-content">
+				<div class="chart-wrap">
+					<canvas id="daily-chart"></canvas>
+				</div>
+				<div class="result-card">
+					<div class="result-head">일별 매출 상세</div>
+					<table>
+						<thead>
+							<tr>
+								<th>일자</th>
+								<th>요일</th>
+								<th>매출액</th>
+								<th>주문 건수</th>
+								<th>누적 매출</th>
+							</tr>
+						</thead>
+						<tbody id="daily-table"></tbody>
+					</table>
+				</div>
+			</div>
 
-            <div id="period-content" class="tab-content">
-                <div class="chart-wrap">
-                    <div id="period-summary" class="period-summary"></div>
-                    <canvas id="period-chart"></canvas>
-                </div>
-                <div class="result-card">
-                    <div class="result-head">기간별 매출 상세</div>
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>일자</th>
-                            <th>요일</th>
-                            <th>매출액</th>
-                            <th>주문 건수</th>
-                            <th>누적 매출</th>
-                        </tr>
-                        </thead>
-                        <tbody id="period-table"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div id="hourly-content" class="tab-content">
-                <div class="chart-wrap"><canvas id="hourly-chart"></canvas></div>
-                <div class="result-card"><div class="result-head">시간대별 매출 상세</div><table><thead><tr><th>시간대</th><th>매출액</th><th>주문수</th><th>평균 객단가</th></tr></thead><tbody id="hourly-table"></tbody></table></div>
-            </div>
-            <div id="menu-content" class="tab-content">
-                <div class="chart-wrap"><canvas id="menu-chart"></canvas></div>
-                <div class="result-card"><div class="result-head">메뉴별 매출 상세</div><table><thead><tr><th>메뉴명</th><th>판매량</th><th>매출액</th><th>매출 비중</th></tr></thead><tbody id="menu-table"></tbody></table></div>
-            </div>
-        </main>
-    </div>
-</div>
+			<div id="period-content" class="tab-content">
+				<div class="chart-wrap">
+					<div id="period-summary" class="period-summary"></div>
+					<canvas id="period-chart"></canvas>
+				</div>
+				<div class="result-card">
+					<div class="result-head">기간별 매출 상세</div>
+					<table>
+						<thead>
+							<tr>
+								<th>일자</th>
+								<th>요일</th>
+								<th>매출액</th>
+								<th>주문 건수</th>
+								<th>누적 매출</th>
+							</tr>
+						</thead>
+						<tbody id="period-table"></tbody>
+					</table>
+				</div>
+			</div>
+			<div id="hourly-content" class="tab-content">
+				<div class="chart-wrap">
+					<canvas id="hourly-chart"></canvas>
+				</div>
+				<div class="result-card">
+					<div class="result-head">시간대별 매출 상세</div>
+					<table>
+						<thead>
+							<tr>
+								<th>시간대</th>
+								<th>매출액</th>
+								<th>주문수</th>
+								<th>평균 객단가</th>
+							</tr>
+						</thead>
+						<tbody id="hourly-table"></tbody>
+					</table>
+				</div>
+			</div>
+			<div id="menu-content" class="tab-content">
+				<div class="chart-wrap">
+					<canvas id="menu-chart"></canvas>
+				</div>
+				<div class="result-card">
+					<div class="result-head">메뉴별 매출 상세</div>
+					<table>
+						<thead>
+							<tr>
+								<th>메뉴명</th>
+								<th>판매량</th>
+								<th>매출액</th>
+								<th>매출 비중</th>
+							</tr>
+						</thead>
+						<tbody id="menu-table"></tbody>
+					</table>
+				</div>
+			</div>
+		</main>
+	</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

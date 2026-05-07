@@ -1,13 +1,11 @@
 package dao.hq.place_order;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
 import dto.hq.place_order.OrderQuantityLimitDTO;
-import util.MyBatisSqlSessionFactory;
 
 public class OrderQuantityLimitDaoImpl implements OrderQuantityLimitDao {
 

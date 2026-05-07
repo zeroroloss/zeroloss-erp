@@ -9,6 +9,7 @@ public class PlaceOrderOverviewDTO {
 	private Integer totalItemCnt; 		// 품목 수
 	private Integer totalAmounts; 		// 총 수량
 	private String status; 				// 처리 상태
+	
 	@Override
 	public String toString() {
 		return "PlaceOrderOverviewDTO [poId=" + poId + ", poNo=" + poNo + ", branchName=" + branchName

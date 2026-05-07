@@ -12,8 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.google.gson.Gson;
-
 import dto.AccountDTO;
 import dto.MaterialDTO;
 import dto.MaterialGroupDTO;
@@ -26,7 +24,6 @@ public class PlaceOrderDraftController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private final PlaceOrderService service = new PlaceOrderServiceImpl();
-	private final Gson gson = new Gson();
 
 	public PlaceOrderDraftController() {
         super();

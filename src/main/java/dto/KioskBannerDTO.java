@@ -1,17 +1,12 @@
 package dto;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 public class KioskBannerDTO {
 	private Integer bannerId;
 	private Integer kioskId;
 	private String mediaUrl;
 	private Boolean isActive;
 
-	public KioskBannerDTO() {
-		super();
-	}
+	public KioskBannerDTO() {}
 
 	public KioskBannerDTO(Integer bannerId, Integer kioskId, String mediaUrl, Boolean isActive) {
 		super();

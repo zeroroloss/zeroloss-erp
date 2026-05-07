@@ -4,8 +4,7 @@ public class SubCategoryDTO {
     private String subCategoryCode;
     private String name;
 
-    public SubCategoryDTO() {
-    }
+    public SubCategoryDTO() {}
 
     public SubCategoryDTO(String subCategoryCode, String name) {
         this.subCategoryCode = subCategoryCode;

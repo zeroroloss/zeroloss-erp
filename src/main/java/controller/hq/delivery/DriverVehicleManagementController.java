@@ -19,7 +19,9 @@ import java.util.Map;
 
 @WebServlet(urlPatterns = {"/hq/delivery/driver-vehicle", "/hq/delivery/driver-vehicle-management"})
 public class DriverVehicleManagementController extends HttpServlet {
-    private final DeliveryService deliveryService = new DeliveryServiceImpl();
+	private static final long serialVersionUID = 1L;
+	
+	private final DeliveryService deliveryService = new DeliveryServiceImpl();
     private final Gson gson = new GsonBuilder().serializeNulls().create();
 
     @Override

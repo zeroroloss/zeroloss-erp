@@ -64,7 +64,6 @@
 <div class="zl-app">
     <%@ include file="/branch/common/layout/sidebar.jsp" %>
     <div class="zl-content">
-        <%@ include file="/branch/common/layout/topbar.jsp" %>
         <div class="wrap p-6">
             <div class="page-header">
                 <header class="head">
@@ -235,8 +234,7 @@
         </div>
     </div>
 </div>
-    </div>
-</div>
+
 <script>
     // 🟢 1. 최상단에 컨텍스트 경로를 안전하게 자바스크립트 변수로 선언!
     const CTX = "<%= request.getContextPath() %>";

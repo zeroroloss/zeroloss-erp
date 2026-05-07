@@ -70,7 +70,6 @@
 <div class="zl-app">
     <%@ include file="/branch/common/layout/sidebar.jsp" %>
     <div class="zl-content">
-        <%@ include file="/branch/common/layout/topbar.jsp" %>
         <main class="p-6">
             <header class="head">
                 <h1 class="text-3xl font-bold">매출 조회</h1>

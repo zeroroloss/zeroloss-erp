@@ -18,9 +18,7 @@ public class ExpiryItemDTO {
     private Integer totalValue;         // 자산 가치 (수량 * 단가)
     private String status;              // 상태 (urgent: 1일 이내, warning: 3일 이내, normal: 그 외)
 
-    public ExpiryItemDTO() {
-        super();
-    }
+    public ExpiryItemDTO() {}
 
     public ExpiryItemDTO(Integer id, String stockNo, String itemCode, String category, String itemName,
                          Integer quantity, String unit, String receivedDate, String expiryDate,

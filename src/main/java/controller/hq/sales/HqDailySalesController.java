@@ -1,7 +1,6 @@
 package controller.hq.sales;
 
 import com.google.gson.Gson;
-import dto.AccountDTO;
 import dto.branch.sales.DailySalesDTO;
 import service.hq.sales.HqSalesService;
 import service.hq.sales.HqSalesServiceImpl;

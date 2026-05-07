@@ -1,6 +1,5 @@
 package dto.branch.place_order;
 
-
 // 발주 품목 상세
 public class PlaceOrderDetailDTO {
 

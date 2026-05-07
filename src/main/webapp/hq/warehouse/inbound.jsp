@@ -17,7 +17,9 @@
 }
 </style>
 <%
+@SuppressWarnings("unchecked")
 List<String> supplierNameList = (List<String>) request.getAttribute("supplierNameList");
+@SuppressWarnings("unchecked")
 Map<String, List<String>> categoryMaterialMap = (Map<String, List<String>>) request.getAttribute("categoryMaterialMap");
 
 Gson gson = new Gson();
@@ -25,6 +27,7 @@ String supplierJson = gson.toJson(supplierNameList);
 String categoryJson = gson.toJson(categoryMaterialMap);
 
 // 품목 - 단가
+@SuppressWarnings("unchecked")
 Map<String, Integer> materialPriceMap = (Map<String, Integer>) request.getAttribute("materialPriceMap");
 String priceJson = gson.toJson(materialPriceMap);
 %>

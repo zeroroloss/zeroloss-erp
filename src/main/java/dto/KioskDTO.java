@@ -1,18 +1,12 @@
 package dto;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
 public class KioskDTO {
 	private Integer kioskId;
 	private Integer branchCode;
 	private String status;
 	private Integer startSeq;
 
-	public KioskDTO() {
-		super();
-	}
+	public KioskDTO() {}
 
 	public KioskDTO(Integer kioskId, Integer branchCode, String status, Integer startSeq) {
 		super();

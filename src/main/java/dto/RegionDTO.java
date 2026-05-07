@@ -4,9 +4,7 @@ public class RegionDTO {
 	private String regionCode;
 	private String name;
 
-	public RegionDTO() {
-		super();
-	}
+	public RegionDTO() {}
 
 	public RegionDTO(String regionCode, String name) {
 		super();

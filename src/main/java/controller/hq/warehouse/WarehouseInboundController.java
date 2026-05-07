@@ -1,6 +1,7 @@
 package controller.hq.warehouse;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,25 +13,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import dto.hq.warehouse.InboundRequestDTO;
 import service.hq.warehouse.WarehouseStockService;
 import service.hq.warehouse.WarehouseStockServiceImpl;
+import util.GsonFactory;
 
 @WebServlet("/hq/warehouse/inbound")
 public class WarehouseInboundController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	private final WarehouseStockService service;
-    private final Gson gson = new Gson();
-	
-	public WarehouseInboundController() {
-        super();
-        service = new WarehouseStockServiceImpl();
-    }
+	private final WarehouseStockService service = new WarehouseStockServiceImpl();
 
-	// 
 	@Override 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("text/html; charset=UTF-8");
@@ -60,23 +55,13 @@ public class WarehouseInboundController extends HttpServlet {
 	// 신규 입고 등록 폼 POST 요청 시 호출된다.
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		/* 
-		fetch('/api/hq/warehouse/inbound', {
-		    method: 'POST',
-		    headers: { 'Content-Type': 'application/json' },
-		    body: JSON.stringify(payload)
-		}); 
-		*/
-		
 		try {
-			// JSON → Java 객체 변환
-			Map<String, Object> body = gson.fromJson(req.getReader(), Map.class);
+			Type type = new TypeToken<Map<String, Object>>() {}.getType();
+			Map<String, Object> body = GsonFactory.getGson().fromJson(req.getReader(), type);
             String supplier = (String)body.get("supplier");
             String category = (String)body.get("category");
             String itemName = (String)body.get("itemName");
             String quantity = (String)body.get("quantity");
-            String unitPrice =  (String)body.get("unitPrice");
-            String expiryDate = (String)body.get("expiryDate");
             
             InboundRequestDTO inboundReqDTO = new InboundRequestDTO();
             inboundReqDTO.setSupplier(supplier);
@@ -96,16 +81,14 @@ public class WarehouseInboundController extends HttpServlet {
                 "message", e.getMessage()
             ));
         }
-		
 	}
 	
-
      // 공통 JSON 응답 처리
     private void sendResponse(HttpServletResponse response, int status, Object body)
             throws IOException {
 
         response.setStatus(status);
         response.setContentType("application/json; charset=UTF-8");
-        response.getWriter().write(gson.toJson(body));
+        response.getWriter().write(GsonFactory.getGson().toJson(body));
     }
 }

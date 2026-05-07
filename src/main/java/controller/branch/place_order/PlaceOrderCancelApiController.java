@@ -2,6 +2,7 @@ package controller.branch.place_order;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class PlaceOrderCancelApiController extends HttpServlet {
         super();
         
     }
-
+    @Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("application/json; charset=UTF-8");
 		response.setCharacterEncoding("UTF-8");
@@ -53,8 +54,12 @@ public class PlaceOrderCancelApiController extends HttpServlet {
 			    write(response, 400, "fail", "요청 body가 비어있습니다.");
 			    return;
 			}
-
-			Map<String, Object> body = gson.fromJson(raw, Map.class);
+			
+			// TypeToken
+			// new TypeToken<...>() → TypeToken 객체 생성
+			// {} → 익명 클래스 생성
+			Type type = new com.google.gson.reflect.TypeToken<Map<String, Object>>() {}.getType();
+			Map<String, Object> body = gson.fromJson(raw, type);
 			System.out.println("body = " + body);
 			if (body == null) {
 			    write(response, 400, "fail", "JSON 파싱 실패");

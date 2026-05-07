@@ -15,6 +15,7 @@ public class SafetyStockServiceImpl implements SafetyStockService {
 	
 	private final SatefyStockDao dao = new SafetyStockDaoImpl();
 
+	@Override
 	public List<BranchSafetyStockRowDTO> selectSafetyStocks(int branchCode, String categoryName, String itemName) throws Exception {
 		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
 			Map<String, Object> param = new HashMap<>();

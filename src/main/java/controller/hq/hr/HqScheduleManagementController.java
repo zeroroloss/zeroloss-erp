@@ -20,27 +20,15 @@ import service.branch.BranchScheduleServiceImpl;
 import service.hq.HqScheduleService;
 import service.hq.HqScheduleServiceImpl;
 
-/**
- * Servlet implementation class HqScheduleManagementController
- */
 @WebServlet("/hq/hr/hqschedule")
 public class HqScheduleManagementController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
 	private HqScheduleService scheduleService = new HqScheduleServiceImpl();
 	private BranchScheduleService branchScheduleService = new BranchScheduleServiceImpl();
 	private BranchService branchService = new BranchServiceImpl();
-       
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public HqScheduleManagementController() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			HqScheduleDTO schedule = new HqScheduleDTO();
@@ -67,9 +55,7 @@ public class HqScheduleManagementController extends HttpServlet {
 		}
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("application/json; charset=UTF-8");	
@@ -115,7 +101,6 @@ public class HqScheduleManagementController extends HttpServlet {
 	    String startDayStr = request.getParameter("startDay");
 	    String endDayStr = request.getParameter("endDay");
 	    String workType = request.getParameter("workType");
-	    String memo = request.getParameter("memo");
 
 	    if (scheduleIdStr == null || scheduleIdStr.isEmpty()) {
 	        response.getWriter().write("{\"success\":false,\"message\":\"일정 번호가 없습니다.\"}");

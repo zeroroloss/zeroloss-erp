@@ -8,9 +8,7 @@ public class MaterialOrderLimitDTO {
 	private BigDecimal minQty;
 	private BigDecimal maxQty;
 
-	public MaterialOrderLimitDTO() {
-		super();
-	}
+	public MaterialOrderLimitDTO() {}
 
 	public MaterialOrderLimitDTO(Integer moLimitId, String materialCode, BigDecimal minQty, BigDecimal maxQty) {
 		super();

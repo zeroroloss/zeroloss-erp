@@ -7,9 +7,7 @@ public class DispatchDTO {
 	private Integer vehicleId;
 	private String status;
 
-	public DispatchDTO() {
-		super();
-	}
+	public DispatchDTO() {}
 
 	public DispatchDTO(Integer deliveryId, String poNo, Integer driverId, Integer vehicleId, String status) {
 		super();

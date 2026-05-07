@@ -4,8 +4,7 @@ public class CategoryDTO {
     private int categoryId;
     private String name;
 
-    public CategoryDTO() {
-    }
+    public CategoryDTO() { }
 
     public CategoryDTO(int categoryId, String name) {
         this.categoryId = categoryId;

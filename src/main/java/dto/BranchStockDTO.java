@@ -18,9 +18,8 @@ public class BranchStockDTO {
 	private BigDecimal safeStockQty;
 	private String unit;
 
-	public BranchStockDTO() {
-		super();
-	}
+
+	public BranchStockDTO() {}
 
 	public BranchStockDTO(String branchStockCode, Integer branchCode, String materialCode, LocalDate expireDate,
 			LocalDateTime receivedAt, BigDecimal currentQty, String groupName, String materialName,
@@ -108,6 +107,13 @@ public class BranchStockDTO {
 	public void setSafeStockQty(BigDecimal safeStockQty) {
 		this.safeStockQty = safeStockQty;
 	}
-	
+
+	public String getUnit() {
+		return unit;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
 }
 

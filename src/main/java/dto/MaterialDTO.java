@@ -9,9 +9,7 @@ public class MaterialDTO {
     private String unit;
 
     // 기본 생성자
-    public MaterialDTO() {
-        super();
-    }
+    public MaterialDTO() {}
 
     // 모든 필드를 포함하는 생성자
     public MaterialDTO(String materialCode, Integer materialGroupId, String materialName, Integer materialPrice, Integer price, String unit) {

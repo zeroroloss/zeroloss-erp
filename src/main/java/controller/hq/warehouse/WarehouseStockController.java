@@ -11,8 +11,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-
 import service.hq.warehouse.WarehouseStockService;
 import service.hq.warehouse.WarehouseStockServiceImpl;
 
@@ -21,13 +19,7 @@ import service.hq.warehouse.WarehouseStockServiceImpl;
 public class WarehouseStockController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	private final WarehouseStockService service;
-    private final Gson gson = new Gson();
-
-    public WarehouseStockController() {
-        super();
-        service = new WarehouseStockServiceImpl();
-    }
+	private final WarehouseStockService service = new WarehouseStockServiceImpl();
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -37,9 +29,7 @@ public class WarehouseStockController extends HttpServlet {
 	        categoryMaterialMap = new LinkedHashMap<>();
 	    }
 	    
-	    // Gson/Jackson 등 프로젝트 표준 사용
 	    request.setAttribute("categoryMaterialMap", categoryMaterialMap);
-
 	    request.getRequestDispatcher("/hq/warehouse/stock.jsp").forward(request, response);
 	}
 }

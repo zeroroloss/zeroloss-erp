@@ -10,9 +10,7 @@ public class HqOutboundDTO {
 	private String handler;
 	private LocalDateTime shippedAt;
 
-	public HqOutboundDTO() {
-		super();
-	}
+	public HqOutboundDTO() {}
 
 	public HqOutboundDTO(Integer hqOutboundNo, String poNo, Integer branchCode, String status, String handler, LocalDateTime shippedAt) {
 		super();

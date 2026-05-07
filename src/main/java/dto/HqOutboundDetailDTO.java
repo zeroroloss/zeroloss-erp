@@ -8,9 +8,7 @@ public class HqOutboundDetailDTO {
 	private String materialCode;
 	private BigDecimal qty;
 
-	public HqOutboundDetailDTO() {
-		super();
-	}
+	public HqOutboundDetailDTO() {}
 
 	public HqOutboundDetailDTO(Integer hqOutboundDetailId, Integer outboundNo, String materialCode, BigDecimal qty) {
 		super();

@@ -9,109 +9,108 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50">
-	    <%@ include file="/hq/common/sidebar.jsp" %>
-        <!-- 메인 콘텐츠 -->
-        <div class="lg:pl-72">
+    <%@ include file="/hq/common/sidebar.jsp" %>
+       <!-- 메인 콘텐츠 -->
+       <div class="lg:pl-72">
 
-            <!-- 페이지 콘텐츠 -->
-            <main class="p-6">
-                <!-- 헤더 + 액션 버튼 -->
-                <div class="flex items-center justify-between mb-6">
-                    <div>
-                        <h2 class="text-3xl font-bold text-gray-900">물류창고 내 품목</h2>
-                        <p class="text-gray-500 mt-1">전체 품목 마스터를 관리하세요</p>
-                    </div>
-                    <button onclick="handleNewItem()" class="flex items-center gap-2 px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors">
-                        <i class="fas fa-plus w-5 h-5"></i>
-                        신규 품목 등록
-                    </button>
-                </div>
+           <!-- 페이지 콘텐츠 -->
+           <main class="p-6">
+               <!-- 헤더 + 액션 버튼 -->
+               <div class="flex items-center justify-between mb-6">
+                   <div>
+                       <h2 class="text-3xl font-bold text-gray-900">물류창고 내 품목</h2>
+                       <p class="text-gray-500 mt-1">전체 품목 마스터를 관리하세요</p>
+                   </div>
+                   <button onclick="handleNewItem()" class="flex items-center gap-2 px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors">
+                       <i class="fas fa-plus w-5 h-5"></i>
+                       신규 품목 등록
+                   </button>
+               </div>
 
-                <!-- 필터 -->
-                <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
-                            <select id="filterCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" onchange="updateItemNames();">
-                                <option value="전체">전체</option>
-                                <option value="단백질">단백질</option>
-                                <option value="야채">야채</option>
-                                <option value="치즈">치즈</option>
-                                <option value="빵류">빵류</option>
-                                <option value="소스">소스</option>
-                                <option value="음료">음료</option>
-                                <option value="쿠키">쿠키</option>
-                            </select>
-                        </div>
+               <!-- 필터 -->
+               <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+                   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                       <div>
+                           <label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
+                           <select id="filterCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" onchange="updateItemNames();">
+                               <option value="전체">전체</option>
+                               <option value="단백질">단백질</option>
+                               <option value="야채">야채</option>
+                               <option value="치즈">치즈</option>
+                               <option value="빵류">빵류</option>
+                               <option value="소스">소스</option>
+                               <option value="음료">음료</option>
+                               <option value="쿠키">쿠키</option>
+                           </select>
+                       </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">재료명</label>
-                            <select id="filterItemName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                                <option value="전체">전체</option>
-                            </select>
-                        </div>
+                       <div>
+                           <label class="block text-sm font-medium text-gray-700 mb-2">재료명</label>
+                           <select id="filterItemName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                               <option value="전체">전체</option>
+                           </select>
+                       </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">품목 검색</label>
-                            <div class="relative">
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                                <input type="text" id="searchQuery" placeholder="품목명 또는 품목코드 입력..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                            </div>
-                        </div>
-                    </div>
+                       <div>
+                           <label class="block text-sm font-medium text-gray-700 mb-2">품목 검색</label>
+                           <div class="relative">
+                               <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                               <input type="text" id="searchQuery" placeholder="품목명 또는 품목코드 입력..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+                           </div>
+                       </div>
+                   </div>
 
-                    <div class="flex items-center gap-2">
-                        <button onclick="filterItems()" class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
-                            조회하기
-                        </button>
-                        <button onclick="resetFilters()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
-                            초기화
-                        </button>
-                    </div>
-                </div>
+                   <div class="flex items-center gap-2">
+                       <button onclick="filterItems()" class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
+                           조회하기
+                       </button>
+                       <button onclick="resetFilters()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
+                           초기화
+                       </button>
+                   </div>
+               </div>
 
-					
+				
 
-                <!-- 품목 테이블 -->
-                <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                   	<div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-                        <div>
-                        	<h3 class="font-semibold text-lg text-gray-900">물류창고 내 품목 리스트 </h3>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="text-right">
-                                <span id="totalItemsCount" class="text-xl font-bold text-green-700">0개</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50 border-b border-gray-200">
-                                <tr>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">재고 코드</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">카테고리</th>
-                                    <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
-                                    <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">단위당 가격</th>
-                                    <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">안전 재고</th>
-                                    <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">관리</th>
-                                </tr>
-                            </thead>
-                            <tbody id="itemsTableBody">
-                                <!-- 동적으로 생성됨 -->
-                            </tbody>
-                        </table>
-                    </div>
+               <!-- 품목 테이블 -->
+               <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  	<div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                       <div>
+                       	<h3 class="font-semibold text-lg text-gray-900">물류창고 내 품목 리스트 </h3>
+                       </div>
+                       <div class="flex items-center gap-4">
+                           <div class="text-right">
+                               <span id="totalItemsCount" class="text-xl font-bold text-green-700">0개</span>
+                           </div>
+                       </div>
+                   </div>
+                   
+                   <div class="overflow-x-auto">
+                       <table class="w-full">
+                           <thead class="bg-gray-50 border-b border-gray-200">
+                               <tr>
+                                   <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">재고 코드</th>
+                                   <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">카테고리</th>
+                                   <th class="text-left py-4 px-6 text-sm font-semibold text-gray-900">품목명</th>
+                                   <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">단위당 가격</th>
+                                   <th class="text-right py-4 px-6 text-sm font-semibold text-gray-900">안전 재고</th>
+                                   <th class="text-center py-4 px-6 text-sm font-semibold text-gray-900">관리</th>
+                               </tr>
+                           </thead>
+                           <tbody id="itemsTableBody">
+                               <!-- 동적으로 생성됨 -->
+                           </tbody>
+                       </table>
+                   </div>
 
-                    <div id="emptyState" class="hidden py-12 text-center">
-                        <i class="fas fa-box w-16 h-16 text-gray-300 mx-auto mb-4" style="display: block;"></i>
-                        <p class="text-gray-500 text-lg mb-2">검색 결과가 없습니다</p>
-                        <p class="text-gray-400 text-sm">다른 검색어나 카테고리를 선택해보세요</p>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
+                   <div id="emptyState" class="hidden py-12 text-center">
+                       <i class="fas fa-box w-16 h-16 text-gray-300 mx-auto mb-4" style="display: block;"></i>
+                       <p class="text-gray-500 text-lg mb-2">검색 결과가 없습니다</p>
+                       <p class="text-gray-400 text-sm">다른 검색어나 카테고리를 선택해보세요</p>
+                   </div>
+               </div>
+           </main>
+       </div>
 
     <!-- 상세 정보 모달 -->
     <div id="detailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">

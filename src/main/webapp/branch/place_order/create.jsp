@@ -440,7 +440,8 @@
 <%
     Integer lowStockTotalCount = (Integer) request.getAttribute("lowStockTotalCount");
     if (lowStockTotalCount == null) lowStockTotalCount = 0;
-
+    
+	@SuppressWarnings("unchecked")
     Map<String, List<String>> categoryMaterialMap = (Map<String, List<String>>) request.getAttribute("categoryMaterialMap");
     if (categoryMaterialMap == null) categoryMaterialMap = new java.util.LinkedHashMap<>();
 
@@ -457,8 +458,6 @@
 <div class="zl-app">
     <%@ include file="/branch/common/layout/sidebar.jsp" %>
     <div class="zl-content">
-        <%@ include file="/branch/common/layout/topbar.jsp" %>
-
         <div class="wrap p-6 place-wrap">
             <div class="page-head">
                 <div>

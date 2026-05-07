@@ -136,139 +136,149 @@
 %>
 </head>
 <body>
-<div class="zl-app">
-<%@ include file="/branch/common/layout/sidebar.jsp" %>
-<div class="zl-content">
-<%@ include file="/branch/common/layout/topbar.jsp" %>
-<div class="wrap p-6">
-	<div class="page-head">
-		<h1 class="page-title">재고 변동</h1>
-		<p class="page-sub">재고 이력과 폐기 처리 내역을 확인합니다.</p>
-	</div>
+	<div class="zl-app">
+		<%@ include file="/branch/common/layout/sidebar.jsp"%>
+		<div class="zl-content">
+			<div class="wrap p-6">
+				<div class="page-head">
+					<h1 class="page-title">재고 변동</h1>
+					<p class="page-sub">재고 이력과 폐기 처리 내역을 확인합니다.</p>
+				</div>
 
-	<div class="filter-card">
-		<div class="filter-line">
-			<!-- 필터 필드 -->
-			<div class="filter-fields">
-				<div class="field">
-					<label for="categoryFilter">카테고리</label>
-					<select id="categoryFilter" onchange="onCategoryChange()">
-						<option value="">전체</option>
-					</select>
-				</div>
-				<div class="field">
-					<label for="itemFilter">품목명</label>
-					<select id="itemFilter">
-						<option value="">전체</option>
-					</select>
-				</div>
-				<div class="field">
-					<label>변동 시점</label>
-					<div class="date-range">
-						<div class="date-picker-wrap">
-							<input type="text" id="filterStartDate" placeholder="시작일" readonly>
+				<div class="filter-card">
+					<div class="filter-line">
+						<!-- 필터 필드 -->
+						<div class="filter-fields">
+							<div class="field">
+								<label for="categoryFilter">카테고리</label> <select
+									id="categoryFilter" onchange="onCategoryChange()">
+									<option value="">전체</option>
+								</select>
+							</div>
+							<div class="field">
+								<label for="itemFilter">품목명</label> <select id="itemFilter">
+									<option value="">전체</option>
+								</select>
+							</div>
+							<div class="field">
+								<label>변동 시점</label>
+								<div class="date-range">
+									<div class="date-picker-wrap">
+										<input type="text" id="filterStartDate" placeholder="시작일"
+											readonly>
+									</div>
+									<span>~</span>
+									<div class="date-picker-wrap">
+										<input type="text" id="filterEndDate" placeholder="종료일"
+											readonly>
+									</div>
+								</div>
+							</div>
 						</div>
-						<span>~</span>
-						<div class="date-picker-wrap">
-							<input type="text" id="filterEndDate" placeholder="종료일" readonly>
+						<!-- 버튼 오른쪽 정렬 -->
+						<div class="filter-actions">
+							<button type="button" class="filter-btn primary"
+								onclick="applyFilters()">조회하기</button>
+							<button type="button" class="filter-btn secondary"
+								onclick="resetFilters()">초기화</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="table-card" id="tableCard" style="display: none;">
+					<div class="tabs">
+						<button class="tab-link active" data-tab="history"
+							onclick="switchTab('history')">변동 이력</button>
+						<button class="tab-link disposal" data-tab="disposal"
+							onclick="switchTab('disposal')">폐기 내역</button>
+					</div>
+
+					<!-- 변동 이력 탭 -->
+					<div id="historyPanel" class="tab-panel active">
+						<div class="panel">
+							<div class="panel-head">
+								<div class="panel-head-info">
+									<h2 class="panel-title">재고 변동 이력</h2>
+									<p class="panel-sub">입고, 교환, 폐기 등 재고 변동 내역입니다.</p>
+								</div>
+								<div class="stock-search">
+									<input type="text" id="historyStockSearch"
+										placeholder="재고 번호 검색" oninput="onStockSearch('history')">
+								</div>
+							</div>
+							<div class="table-wrap">
+								<table>
+									<thead>
+										<tr>
+											<th>재고 번호</th>
+											<th>카테고리</th>
+											<th>품목명</th>
+											<th>변동 시점</th>
+											<th>변동 유형</th>
+											<th>변동 수량</th>
+											<th>처리 후 수량</th>
+											<th>유통기한</th>
+										</tr>
+									</thead>
+									<tbody id="historyTableBody"></tbody>
+								</table>
+								<div id="historyEmptyState" class="empty-state">조회 결과가
+									없습니다.</div>
+								<div class="paging-wrap" id="historyPaging"
+									style="display: none;"></div>
+							</div>
+						</div>
+					</div>
+
+					<!-- 폐기 내역 탭 -->
+					<div id="disposalPanel" class="tab-panel">
+						<div class="disposal-banner">
+							<div>
+								<h2 class="disposal-title">재고 폐기 내역</h2>
+								<p class="disposal-text">유통기한 만료, 품질 불량, 파손 등으로 폐기된 품목
+									내역입니다.</p>
+							</div>
+						</div>
+						<div class="panel">
+							<div class="panel-head">
+								<div class="panel-head-info">
+									<h2 class="panel-title">폐기 처리 내역</h2>
+									<p class="panel-sub">폐기 등록은 재고 현황 페이지에서 처리할 수 있습니다.</p>
+								</div>
+								<div class="stock-search">
+									<input type="text" id="disposalStockSearch"
+										placeholder="재고 번호 검색" oninput="onStockSearch('disposal')">
+								</div>
+							</div>
+							<div class="table-wrap">
+								<table>
+									<thead>
+										<tr>
+											<th>재고 번호</th>
+											<th>카테고리</th>
+											<th>품목명</th>
+											<th>폐기 시점</th>
+											<th>폐기 수량</th>
+											<th>폐기 사유</th>
+											<th>상세 내용</th>
+											<th>유통기한</th>
+										</tr>
+									</thead>
+									<tbody id="disposalTableBody"></tbody>
+								</table>
+								<div id="disposalEmptyState" class="empty-state">조회 결과가
+									없습니다.</div>
+								<div class="paging-wrap" id="disposalPaging"
+									style="display: none;"></div>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-			<!-- 버튼 오른쪽 정렬 -->
-			<div class="filter-actions">
-				<button type="button" class="filter-btn primary"   onclick="applyFilters()">조회하기</button>
-				<button type="button" class="filter-btn secondary" onclick="resetFilters()">초기화</button>
-			</div>
 		</div>
 	</div>
 
-	<div class="table-card" id="tableCard" style="display:none;">
-		<div class="tabs">
-			<button class="tab-link active"   data-tab="history"  onclick="switchTab('history')">변동 이력</button>
-			<button class="tab-link disposal" data-tab="disposal" onclick="switchTab('disposal')">폐기 내역</button>
-		</div>
-
-		<!-- 변동 이력 탭 -->
-		<div id="historyPanel" class="tab-panel active">
-			<div class="panel">
-				<div class="panel-head">
-					<div class="panel-head-info">
-						<h2 class="panel-title">재고 변동 이력</h2>
-						<p class="panel-sub">입고, 교환, 폐기 등 재고 변동 내역입니다.</p>
-					</div>
-					<div class="stock-search">
-						<input type="text" id="historyStockSearch" placeholder="재고 번호 검색" oninput="onStockSearch('history')">
-					</div>
-				</div>
-				<div class="table-wrap">
-					<table>
-						<thead>
-							<tr>
-								<th>재고 번호</th>
-								<th>카테고리</th>
-								<th>품목명</th>
-								<th>변동 시점</th>
-								<th>변동 유형</th>
-								<th>변동 수량</th>
-								<th>처리 후 수량</th>
-								<th>유통기한</th>
-							</tr>
-						</thead>
-						<tbody id="historyTableBody"></tbody>
-					</table>
-					<div id="historyEmptyState" class="empty-state">조회 결과가 없습니다.</div>
-					<div class="paging-wrap" id="historyPaging" style="display:none;"></div>
-				</div>
-			</div>
-		</div>
-
-		<!-- 폐기 내역 탭 -->
-		<div id="disposalPanel" class="tab-panel">
-			<div class="disposal-banner">
-				<div>
-					<h2 class="disposal-title">재고 폐기 내역</h2>
-					<p class="disposal-text">유통기한 만료, 품질 불량, 파손 등으로 폐기된 품목 내역입니다.</p>
-				</div>
-			</div>
-			<div class="panel">
-				<div class="panel-head">
-					<div class="panel-head-info">
-						<h2 class="panel-title">폐기 처리 내역</h2>
-						<p class="panel-sub">폐기 등록은 재고 현황 페이지에서 처리할 수 있습니다.</p>
-					</div>
-					<div class="stock-search">
-						<input type="text" id="disposalStockSearch" placeholder="재고 번호 검색" oninput="onStockSearch('disposal')">
-					</div>
-				</div>
-				<div class="table-wrap">
-					<table>
-						<thead>
-							<tr>
-								<th>재고 번호</th>
-								<th>카테고리</th>
-								<th>품목명</th>
-								<th>폐기 시점</th>
-								<th>폐기 수량</th>
-								<th>폐기 사유</th>
-								<th>상세 내용</th>
-								<th>유통기한</th>
-							</tr>
-						</thead>
-						<tbody id="disposalTableBody"></tbody>
-					</table>
-					<div id="disposalEmptyState" class="empty-state">조회 결과가 없습니다.</div>
-					<div class="paging-wrap" id="disposalPaging" style="display:none;"></div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-</main>
-</div>
-</div>
-
-<script>
+	<script>
 (function () {
 	var contextPath      = '<%= request.getContextPath() %>';
 	var defaultStartDate = '<%= defaultStartDate %>';

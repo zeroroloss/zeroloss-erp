@@ -16,6 +16,7 @@ public class InboundProcessingController extends HttpServlet {
         super();
     }
 
+    @Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.getRequestDispatcher("/branch/inbound/processing.jsp").forward(request, response);
 

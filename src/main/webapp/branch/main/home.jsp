@@ -16,7 +16,6 @@
 	<%@ include file="/branch/common/layout/sidebar.jsp" %>
 
 		<div class="zl-content">
-		<%@ include file="/branch/common/layout/topbar.jsp" %>
 
 			<div class="p-6 space-y-5">
 
@@ -97,7 +96,6 @@
 			    <!-- 빠른 작업 -->
 				<div>
 				    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-				        <div class="w-1 h-6 bg-[#00853D] rounded-full"></div>
 				        빠른 작업
 				    </h3>
 				
@@ -185,7 +183,6 @@
 				<div class="bg-white rounded-xl border-2 border-[#00853D]/10 p-6 shadow-sm">
 				    <div class="flex items-center justify-between mb-4">
 				        <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-				           <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
 				            공지사항
 				        </h3>
 				

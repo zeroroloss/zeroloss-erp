@@ -15,8 +15,6 @@ import javax.servlet.http.HttpSession;
 
 import com.google.gson.Gson;
 
-import dao.branch.stock.BranchSafetyStockDao;
-import dao.branch.stock.BranchSafetyStockDaoImpl;
 import dto.AccountDTO;
 import dto.branch.stock.BranchSafetyStockRowDTO;
 import service.branch.stock.SafetyStockService;
@@ -27,7 +25,6 @@ import util.GsonFactory;
 public class SafetyStockApiController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	private final BranchSafetyStockDao branchSafetyStockDao = new BranchSafetyStockDaoImpl();
 	private final SafetyStockService service = new SafetyStockServiceImpl();
 	private final Gson gson = GsonFactory.getGson();
 

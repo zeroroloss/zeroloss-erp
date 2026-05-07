@@ -16,26 +16,13 @@ import service.AccountServiceImpl;
 import service.BranchService;
 import service.BranchServiceImpl;
 
-/**
- * Servlet implementation class AccountManagementController
- */
 @WebServlet("/hq/hr/main")
 public class AccountManagementController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private BranchService branchService = new BranchServiceImpl();
 	private AccountService accountService = new AccountServiceImpl();
        
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public AccountManagementController() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
+	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			List<BranchOptionDTO> branchNameList = branchService.searchBranchName();
@@ -59,9 +46,7 @@ public class AccountManagementController extends HttpServlet {
 		}
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
+	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("application/json; charset=UTF-8");	

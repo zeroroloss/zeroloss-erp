@@ -1,7 +1,5 @@
 package dto;
 
-import java.util.Objects;
-
 public class NoticeDTO {
     private int noticeId;
     private int authorId;

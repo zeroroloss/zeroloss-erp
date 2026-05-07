@@ -8,10 +8,7 @@ public class DisposalRiskDTO {
     private Integer lossAmount;
     private String reason;
 	 
-	public DisposalRiskDTO() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+	public DisposalRiskDTO() { }
 
 	public DisposalRiskDTO(String disposalDate, String branchName, String materialName, Integer qty, Integer lossAmount,
 			String reason) {

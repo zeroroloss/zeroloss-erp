@@ -21,97 +21,97 @@
     </style>
 </head>
 <body class="bg-gray-50">
-	    <%@ include file="/hq/common/sidebar.jsp" %>
-        <!-- 메인 콘텐츠 -->
-        <div class="lg:pl-72">
+    <%@ include file="/hq/common/sidebar.jsp" %>
+       <!-- 메인 콘텐츠 -->
+       <div class="lg:pl-72">
 
-            <!-- 페이지 콘텐츠 -->
-            <main class="p-6">
-                <div class="space-y-6">
-                    
-                    <!-- 페이지 헤더 -->
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h2 class="text-3xl font-bold text-gray-900">본사 및 지점별 직원 정보 통합 조회</h2>
-                            <p class="text-gray-500 mt-1">전체 직원 정보를 통합하여 관리하세요</p>
-                        </div>
-                        <button onclick="showAddModal()" class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
-                            <i class="fas fa-user-plus w-5 h-5"></i>
-                            <span>신규 직원 등록</span>
-                        </button>
-                    </div>
+           <!-- 페이지 콘텐츠 -->
+           <main class="p-6">
+               <div class="space-y-6">
+                   
+                   <!-- 페이지 헤더 -->
+                   <div class="flex items-center justify-between">
+                       <div>
+                           <h2 class="text-3xl font-bold text-gray-900">본사 및 지점별 직원 정보 통합 조회</h2>
+                           <p class="text-gray-500 mt-1">전체 직원 정보를 통합하여 관리하세요</p>
+                       </div>
+                       <button onclick="showAddModal()" class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
+                           <i class="fas fa-user-plus w-5 h-5"></i>
+                           <span>신규 직원 등록</span>
+                       </button>
+                   </div>
 
-                    <!-- 통계 카드 -->
-					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-					    <div class="bg-white rounded-lg border border-gray-200 p-4">
-					        <div class="flex items-center gap-4">
-					            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-					                <i class="fas fa-users w-6 h-6 text-green-600"></i>
-					            </div>
-					            <div>
-					                <p class="text-sm text-gray-500">총 재직 인원</p>
-					                <p class="text-2xl font-bold text-gray-900 mt-1" id="totalEmp">${totalEmp}</p>
-					            </div>
-					        </div>
-					    </div>
-					
-					    <div class="bg-white rounded-lg border border-gray-200 p-4">
-					        <div class="flex items-center gap-4">
-					            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-					                <i class="fas fa-building w-6 h-6 text-blue-600"></i>
-					            </div>
-					            <div>
-					                <p class="text-sm text-gray-500">전체 직영점 수</p>
-					                <p class="text-2xl font-bold text-gray-900 mt-1" id="totalBranch">${totalBranch - 1}</p>
-					            </div>
-					        </div>
-					    </div>
-					
-					    <div class="bg-white rounded-lg border border-gray-200 p-4">
-					        <div class="flex items-center gap-4">
-					            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-					                <i class="fas fa-user-plus w-6 h-6 text-yellow-600"></i>
-					            </div>
-					            <div>
-					                <p class="text-sm text-gray-500">올해 신입 인원</p>
-					                <p class="text-2xl font-bold text-gray-900 mt-1" id="newEmpCnt">${newEmpCnt}</p>
-					            </div>
-					        </div>
-					    </div>
-					</div>
+                   <!-- 통계 카드 -->
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+				    <div class="bg-white rounded-lg border border-gray-200 p-4">
+				        <div class="flex items-center gap-4">
+				            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+				                <i class="fas fa-users w-6 h-6 text-green-600"></i>
+				            </div>
+				            <div>
+				                <p class="text-sm text-gray-500">총 재직 인원</p>
+				                <p class="text-2xl font-bold text-gray-900 mt-1" id="totalEmp">${totalEmp}</p>
+				            </div>
+				        </div>
+				    </div>
+				
+				    <div class="bg-white rounded-lg border border-gray-200 p-4">
+				        <div class="flex items-center gap-4">
+				            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+				                <i class="fas fa-building w-6 h-6 text-blue-600"></i>
+				            </div>
+				            <div>
+				                <p class="text-sm text-gray-500">전체 직영점 수</p>
+				                <p class="text-2xl font-bold text-gray-900 mt-1" id="totalBranch">${totalBranch - 1}</p>
+				            </div>
+				        </div>
+				    </div>
+				
+				    <div class="bg-white rounded-lg border border-gray-200 p-4">
+				        <div class="flex items-center gap-4">
+				            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+				                <i class="fas fa-user-plus w-6 h-6 text-yellow-600"></i>
+				            </div>
+				            <div>
+				                <p class="text-sm text-gray-500">올해 신입 인원</p>
+				                <p class="text-2xl font-bold text-gray-900 mt-1" id="newEmpCnt">${newEmpCnt}</p>
+				            </div>
+				        </div>
+				    </div>
+				</div>
 
-                    <!-- 필터 섹션 -->
-                    <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                        <div class="flex flex-col gap-4">
-                            <!-- 검색 -->
-                            <div class="flex items-center justify-between gap-4">
-                            	<div>
-                            		<h3 class="text-sm font-semibold text-gray-800">직원 검색</h3>
-                            		<p class="text-xs text-gray-500 mt-1">사번, 소속, 부서, 이름 기준으로 검색할 수 있습니다.</p>
-                            	</div>
-                            	
-                            	<div class="flex items-center gap-2">
-                            		<!-- 소속명 선택 -->
-					                <select id="branchNameSelect"
-					                        class="w-44 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
-					                    <option value="">전체 소속</option>
-										<c:forEach var="branch" items="${branchNameList}">
-										    <option value="${branch.branchName}">
-										        ${branch.branchName}
-										    </option>
-										</c:forEach>
-					                </select>
-                            	
-					                <div class="relative w-80">
-					                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                            			<input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="검색어를 입력하세요"class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
-					                </div>
-                            		<button type="button" onclick="applyFilters()" class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">조회</button>
-					                <button type="button" onclick="resetFilters()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">초기화</button>
-					            </div>
-					        </div>
-					    </div>
-					</div>
+                   <!-- 필터 섹션 -->
+                   <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                       <div class="flex flex-col gap-4">
+                           <!-- 검색 -->
+                           <div class="flex items-center justify-between gap-4">
+                           	<div>
+                           		<h3 class="text-sm font-semibold text-gray-800">직원 검색</h3>
+                           		<p class="text-xs text-gray-500 mt-1">사번, 소속, 부서, 이름 기준으로 검색할 수 있습니다.</p>
+                           	</div>
+                           	
+                           	<div class="flex items-center gap-2">
+                           		<!-- 소속명 선택 -->
+				                <select id="branchNameSelect"
+				                        class="w-44 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+				                    <option value="">전체 소속</option>
+									<c:forEach var="branch" items="${branchNameList}">
+									    <option value="${branch.branchName}">
+									        ${branch.branchName}
+									    </option>
+									</c:forEach>
+				                </select>
+                           	
+				                <div class="relative w-80">
+				                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                           			<input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="검색어를 입력하세요"class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+				                </div>
+                           		<button type="button" onclick="applyFilters()" class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">조회</button>
+				                <button type="button" onclick="resetFilters()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">초기화</button>
+				            </div>
+				        </div>
+				    </div>
+				</div>
 
                     <!-- 직원 테이블 -->
 					<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">

@@ -15,9 +15,7 @@ public class PlaceOrderMaterialDTO {
 	private Integer maxQty;			// 품목의 최대 발주 수량
 	
 	
-	public PlaceOrderMaterialDTO() {
-		super();
-	}
+	public PlaceOrderMaterialDTO() {}
 	
 	public PlaceOrderMaterialDTO(String materialCode, String materialName, String categoryName, int currentQtySum,
 			int safetyQty, int requestQty, String unit, Integer minQty, Integer maxQty) {

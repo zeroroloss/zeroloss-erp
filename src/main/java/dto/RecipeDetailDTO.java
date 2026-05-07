@@ -8,9 +8,7 @@ public class RecipeDetailDTO {
 	private String materialCode;
 	private BigDecimal requiredQty;
 
-	public RecipeDetailDTO() {
-		super();
-	}
+	public RecipeDetailDTO() {}
 
 	public RecipeDetailDTO(Integer recipeDetailId, String recipeCode, String materialCode, BigDecimal requiredQty) {
 		super();

@@ -8,9 +8,7 @@ public class OrderMenuDTO {
 	private Integer unitPrice;
 	private Integer lineTotalAmount;
 
-	public OrderMenuDTO() {
-		super();
-	}
+	public OrderMenuDTO() {}
 
 	public OrderMenuDTO(Integer orderMenuId, Integer orderId, String recipeCode, Integer qty, Integer unitPrice, Integer lineTotalAmount) {
 		super();

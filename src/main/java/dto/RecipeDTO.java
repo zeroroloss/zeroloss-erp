@@ -10,9 +10,7 @@ public class RecipeDTO {
 	private String imgUrl;
 	private Boolean isActive;
 
-	public RecipeDTO() {
-		super();
-	}
+	public RecipeDTO() {}
 
 	public RecipeDTO(String recipeCode, Integer categoryId, String subCategoryCode, String name, Integer price, String instruction, String imgUrl, Boolean isActive) {
 		super();

@@ -14,8 +14,9 @@ import java.util.List;
 
 @WebServlet("/hq/support/inquiries")
 public class HeadquartersInquiriesPageController extends HttpServlet {
-
-    private final BranchService branchService = new BranchServiceImpl();
+	private static final long serialVersionUID = 1L;
+	
+	private final BranchService branchService = new BranchServiceImpl();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

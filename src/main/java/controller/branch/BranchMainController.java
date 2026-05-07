@@ -1,7 +1,6 @@
 package controller.branch;
 
 import java.io.IOException;
-import java.time.LocalDate;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,31 +9,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import dto.branch.hr.EmployeeDTO;
 import service.branch.EmployeeService;
 import service.branch.EmployeeServiceImpl;
 import service.branch.stock.BranchStockAlertService;
 import service.branch.stock.BranchStockAlertServiceImpl;
 
-/**
- * Servlet implementation class BranchMainController
- */
 @WebServlet("/branch/main/home")
 public class BranchMainController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private EmployeeService employeeService = new EmployeeServiceImpl();
        
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
     public BranchMainController() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
+    @Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			HttpSession session = request.getSession();

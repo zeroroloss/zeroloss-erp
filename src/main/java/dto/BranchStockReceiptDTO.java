@@ -11,9 +11,7 @@ public class BranchStockReceiptDTO {
 	private Integer branchCode;
 	private String materialCode;
 
-	public BranchStockReceiptDTO() {
-		super();
-	}
+	public BranchStockReceiptDTO() {}
 
 	public BranchStockReceiptDTO(Integer receiptId, String branchStockCode, Integer purchaseOrderId, LocalDateTime receivedAt, Integer receivedCnt, Integer branchCode, String materialCode) {
 		super();

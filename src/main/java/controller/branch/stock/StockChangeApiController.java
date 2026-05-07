@@ -32,7 +32,8 @@ public class StockChangeApiController extends HttpServlet {
     public StockChangeApiController() {
         super();
     }
-
+    
+    @Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("application/json;charset=UTF-8");
 
