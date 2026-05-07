@@ -21,6 +21,13 @@
 					<p class="text-gray-500 mt-1">품목별 발주 제한을 설정하여 과다 발주를 방지하세요</p>
 				</div>
 
+				<div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+					<div class="flex items-center gap-2">
+						<i class="fas fa-box w-5 h-5 text-blue-600"></i>
+						<p class="text-sm text-blue-900">총 <span class="font-semibold" id="totalItemsCount">0개 품목</span>의 발주 제한이 설정되어 있습니다.</p>
+					</div>
+				</div>
+				
 				<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
 					<div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
 						<h3 class="font-semibold text-lg text-gray-900">발주 제한 설정 리스트</h3>
@@ -68,23 +75,16 @@
 						<p class="text-gray-400 text-sm">선택한 필터 조건에 해당하는 품목이 없습니다</p>
 					</div>
 
-					<div id="paginationContainer" class="flex justify-between items-center px-6 py-4 border-t border-gray-200 hidden">
-						<button onclick="previousPage()" id="prevBtn" class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-500 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
-							<i class="fas fa-chevron-left w-4 h-4"></i>
-							이전
-						</button>
-						<div class="text-sm text-gray-500"><span id="pageInfo">1 / 1</span></div>
-						<button onclick="nextPage()" id="nextBtn" class="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-500 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
-							다음
-							<i class="fas fa-chevron-right w-4 h-4"></i>
-						</button>
-					</div>
-				</div>
-
-				<div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-					<div class="flex items-center gap-2">
-						<i class="fas fa-box w-5 h-5 text-blue-600"></i>
-						<p class="text-sm text-blue-900">총 <span class="font-semibold" id="totalItemsCount">0개 품목</span>의 발주 제한이 설정되어 있습니다.</p>
+					<div id="paginationContainer"
+						class="px-6 py-4 border-t border-gray-200 flex flex-col items-center justify-center gap-3 hidden">
+						<div id="paginationInfo" class="text-sm text-gray-600">
+						<!-- 동적으로 생성됨 -->
+						</div>
+						<div class="flex items-center justify-center gap-2">
+							<div id="pageButtons" class="flex items-center gap-1">
+							<!-- 동적으로 생성됨 -->
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -99,6 +99,7 @@
 		var editingCode = null;
 		var currentPage = 1;
 		var itemsPerPage = 10;
+		var PAGE_SIZE = 5;
 
 		function hasText(value) {
 			return value !== null && value !== undefined && String(value).trim() !== '';
@@ -267,30 +268,68 @@
 		}
 
 		function updatePagination(totalPages, itemCount) {
-			var paginationContainer = document.getElementById('paginationContainer');
-			if (itemCount > itemsPerPage) {
-				paginationContainer.classList.remove('hidden');
-			} else {
-				paginationContainer.classList.add('hidden');
-			}
-			document.getElementById('pageInfo').textContent = currentPage + ' / ' + totalPages;
-			document.getElementById('prevBtn').disabled = currentPage === 1;
-			document.getElementById('nextBtn').disabled = currentPage === totalPages;
+		    var paginationContainer = document.getElementById('paginationContainer');
+		    var pageButtons = document.getElementById('pageButtons');
+		    var paginationInfo = document.getElementById('paginationInfo');
+
+		    if (itemCount <= itemsPerPage) {
+		        paginationContainer.classList.add('hidden');
+		        return;
+		    }
+
+		    paginationContainer.classList.remove('hidden');
+
+		    var startIndex = (currentPage - 1) * itemsPerPage;
+		    var endIndex = Math.min(startIndex + itemsPerPage, itemCount);
+
+		    paginationInfo.textContent =
+		        (startIndex + 1) + '-' + endIndex + ' / ' + itemCount + '개';
+
+		    var base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+		    var active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+		    var arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+
+		    var blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+		    var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+
+		    var html = '';
+
+		    html += '<button class="' + arrow + '" onclick="goToPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+		    html += '<i class="fas fa-angles-left text-xs"></i>';
+		    html += '</button>';
+
+		    var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+		    html += '<button class="' + arrow + '" onclick="goToPage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+		    html += '<i class="fas fa-chevron-left text-xs"></i>';
+		    html += '</button>';
+
+		    for (var i = blockStart; i <= blockEnd; i++) {
+		        html += '<button class="' + (i === currentPage ? active : base) + '" onclick="goToPage(' + i + ')">';
+		        html += i;
+		        html += '</button>';
+		    }
+
+		    var nextBlockPage = Math.min(totalPages, blockEnd + 1);
+		    html += '<button class="' + arrow + '" onclick="goToPage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+		    html += '<i class="fas fa-chevron-right text-xs"></i>';
+		    html += '</button>';
+
+		    html += '<button class="' + arrow + '" onclick="goToPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+		    html += '<i class="fas fa-angles-right text-xs"></i>';
+		    html += '</button>';
+
+		    pageButtons.innerHTML = html;
 		}
 
-		function previousPage() {
-			if (currentPage > 1) {
-				currentPage -= 1;
-				renderTable();
-			}
-		}
+		function goToPage(page) {
+		    currentPage = page;
+		    editingCode = null;
+		    renderTable();
 
-		function nextPage() {
-			var totalPages = Math.max(1, Math.ceil(getFilteredItems().length / itemsPerPage));
-			if (currentPage < totalPages) {
-				currentPage += 1;
-				renderTable();
-			}
+		    window.scrollTo({
+		        top: 0,
+		        behavior: 'smooth'
+		    });
 		}
 
 		function handleEdit(code) {

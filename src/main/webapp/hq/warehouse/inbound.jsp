@@ -172,102 +172,125 @@ String priceJson = gson.toJson(materialPriceMap);
 
 	<!-- ===== 신규 입고 등록 모달 ===== -->
 	<div id="receiveModal"
-		class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-		<div
-			class="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
-
-			<!-- 모달 헤더 -->
-			<div class="flex items-center justify-between mb-6">
-				<h3 class="text-xl font-bold text-gray-900">신규 입고 등록</h3>
-				<button onclick="closeReceiveModal()"
-					class="text-gray-400 hover:text-gray-600">
-					<i class="fas fa-times w-6 h-6"></i>
-				</button>
+	     class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+	     onclick="if(event.target === this) closeReceiveModal()">
+	
+	    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+	         onclick="event.stopPropagation()">
+	
+	        <!-- 모달 헤더 -->
+	        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
+	            <h3 class="text-lg font-bold text-gray-900">신규 입고 등록</h3>
+	            <button type="button" onclick="closeReceiveModal()" class="text-gray-400 hover:text-gray-600">
+	                <i class="fas fa-times w-5 h-5"></i>
+	            </button>
+	        </div>
+	
+	        <!-- 입고 등록 폼 -->
+	        <div class="p-6 space-y-4">
+	            <div class="grid grid-cols-2 gap-4">
+	
+	                <!-- 공급사 -->
+	                <div>
+	                    <label class="block text-sm font-medium text-gray-700 mb-1">공급사 <span class="text-red-500">*</span></label>
+	                    <select id="formSupplier"
+	                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
+	                        <option value="">선택하세요</option>
+	                        <%
+	                        for (String supplier : supplierNameList) {
+	                        %>
+	                        <option value="<%=supplier%>"><%=supplier%></option>
+	                        <%
+	                        }
+	                        %>
+	                    </select>
+	                </div>
+	
+	                <!-- 카테고리 -->
+	                <div>
+	                    <label class="block text-sm font-medium text-gray-700 mb-1">카테고리 <span class="text-red-500">*</span></label>
+	                    <select id="formCategory"
+	                            onchange="updateFormItemNames()"
+	                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
+	                        <option value="">선택하세요</option>
+	                        <%
+	                        for (String category : categoryMaterialMap.keySet()) {
+	                        %>
+	                        <option value="<%=category%>"><%=category%></option>
+	                        <%
+	                        }
+	                        %>
+	                    </select>
+	                </div>
+	
+	                <!-- 품목 -->
+	                <div>
+	                    <label class="block text-sm font-medium text-gray-700 mb-1">품목명 <span class="text-red-500">*</span></label>
+	                    <select id="formItem"
+	                            onchange="handleItemChange()"
+	                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
+	                        <option value="">카테고리를 먼저 선택하세요</option>
+	                    </select>
+	                </div>
+	
+	                <!-- 수량 -->
+	                <div>
+	                    <label class="block text-sm font-medium text-gray-700 mb-1">수량 <span class="text-red-500">*</span></label>
+	                    <input type="number"
+	                           id="formQuantity"
+	                           min="1"
+	                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
+	                </div>
+	
+	                <!-- 단가 -->
+	                <div>
+	                    <label class="block text-sm font-medium text-gray-700 mb-1">단가</label>
+	                    <div class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-sm text-gray-900">
+	                        <p id="unitPriceDisplay">₩0</p>
+	                    </div>
+	                </div>
+	
+	                <!-- 합계 -->
+	                <div>
+	                    <label class="block text-sm font-medium text-gray-700 mb-1">합계</label>
+	                    <div class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm text-gray-900">
+	                        <p id="totalAmount">₩0</p>
+	                    </div>
+	                </div>
+	
+	                <!-- 유통기한 -->
+	                <div>
+	                    <label class="block text-sm font-medium text-gray-700 mb-1">유통기한 <span class="text-red-500">*</span></label>
+	                    <input type="date"
+	                           id="formExpiryDate"
+	                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
+	                </div>
+	
+	            </div>
+	        </div>
+	
+	        <!-- 하단 버튼 -->
+			<div class="border-t border-gray-200 px-6 py-3 flex items-center justify-between sticky bottom-0 bg-white">
+			    <!-- 필수 항목 안내 -->
+			    <p class="text-xs text-gray-500">
+			        <span class="text-red-500 font-semibold">*</span> 필수 항목
+			    </p>
+			
+			    <div class="flex justify-end gap-3">
+			        <button type="button"
+			                onclick="closeReceiveModal()"
+			                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+			            취소
+			        </button>
+			        <button type="button"
+			                onclick="handleReceive()"
+			                class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+			            입고 등록
+			        </button>
+			    </div>
 			</div>
-
-			<!-- 입고 등록 폼 -->
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-				<!-- 공급사 -->
-				<div>
-					<label class="block text-sm font-medium text-gray-700 mb-2">공급사
-						*</label> <select id="formSupplier"
-						class="w-full px-4 py-2 border rounded-lg">
-						<option value="">선택하세요</option>
-						<%
-						for (String supplier : supplierNameList) {
-						%>
-						<option value="<%=supplier%>"><%=supplier%></option>
-						<%
-						}
-						%>
-					</select>
-				</div>
-
-				<!-- 카테고리 -->
-				<div>
-					<label class="block text-sm font-medium text-gray-700 mb-2">카테고리
-						*</label> <select id="formCategory" onchange="updateFormItemNames()"
-						class="w-full px-4 py-2 border rounded-lg">
-						<option value="">선택하세요</option>
-						<%
-						for (String category : categoryMaterialMap.keySet()) {
-						%>
-						<option value="<%=category%>"><%=category%></option>
-						<%
-						}
-						%>
-					</select>
-				</div>
-
-				<!-- 품목 -->
-				<div>
-					<label class="block text-sm font-medium text-gray-700 mb-2">품목명
-						*</label> <select id="formItem" onchange="handleItemChange()"
-						class="w-full px-4 py-2 border rounded-lg">
-						<option value="">카테고리를 먼저 선택하세요</option>
-					</select>
-				</div>
-
-				<!-- 수량 -->
-				<div>
-					<label class="block text-sm font-medium text-gray-700 mb-2">수량
-						*</label> <input type="number" id="formQuantity" min="1"
-						class="w-full px-4 py-2 border rounded-lg">
-				</div>
-
-				<!-- 단가 (자동) -->
-				<div>
-					<label class="block text-sm font-medium text-gray-700 mb-2">단가</label>
-					<div class="px-4 py-2 border rounded-lg bg-gray-100">
-						<p id="unitPriceDisplay">₩0</p>
-					</div>
-				</div>
-
-				<!-- 합계 -->
-				<div>
-					<label class="block text-sm font-medium text-gray-700 mb-2">합계</label>
-					<div class="px-4 py-2 border rounded-lg bg-gray-50">
-						<p id="totalAmount">₩0</p>
-					</div>
-				</div>
-
-				<!-- 유통기한 -->
-				<div>
-					<label class="block text-sm font-medium text-gray-700 mb-2">유통기한
-						*</label> <input type="date" id="formExpiryDate"
-						class="w-full px-4 py-2 border rounded-lg">
-				</div>
-
-
-				<div class="flex justify-end gap-2">
-					<button type="button" onclick="closeReceiveModal()"
-						class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">취소</button>
-					<button type="button" onclick="handleReceive()"
-						class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">입고
-						등록</button>
-				</div>
-			</div>
-		</div>
+	    </div>
+	</div>
 
 		<script>
     // ============================================================

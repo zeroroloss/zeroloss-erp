@@ -49,7 +49,18 @@
                 <i class="fas fa-search w-16 h-16 text-gray-300 mx-auto mb-4"></i>
                 <p class="text-gray-500 text-lg mb-2">검색 결과가 없습니다</p>
             </div>
-            <div id="paginationArea"></div>
+            <div id="paginationContainer"
+				class="px-6 py-4 border-t border-gray-200 flex flex-col items-center justify-center gap-3 hidden">
+				<div id="paginationInfo" class="text-sm text-gray-600">
+					<!-- 동적으로 생성됨 -->
+				</div>
+
+				<div class="flex items-center justify-center gap-2">
+					<div id="pageButtons" class="flex items-center gap-1">
+						<!-- 동적으로 생성됨 -->
+					</div>
+				</div>
+			</div>
         </div>
     </main>
 </div>
@@ -117,6 +128,7 @@
     let selectedRegion = '전체';
     let currentPage = 1;
     const itemsPerPage = 9;
+    const PAGE_SIZE = 5;
 
     let selectedBranchForDetail = null;
     let editingBranchId = null; // 폼 모달이 등록 모드인지 수정 모드인지 판단
@@ -189,25 +201,80 @@
     }
 
     function renderPagination() {
-        const paginationArea = document.getElementById('paginationArea');
-        const totalPages = Math.ceil(currentBranches.length / itemsPerPage);
-        if (totalPages <= 1) { paginationArea.innerHTML = ''; return; }
+        const paginationContainer = document.getElementById('paginationContainer');
+        const paginationInfo = document.getElementById('paginationInfo');
+        const pageButtons = document.getElementById('pageButtons');
 
-        let html = '<div class="flex justify-center gap-2">';
-        html += `<button onclick="setPage(Math.max(1, \${currentPage} - 1))" class="p-2 border rounded-lg hover:bg-gray-100"><i class="fas fa-chevron-left text-xs"></i></button>`;
-        for (let i = 1; i <= totalPages; i++) {
-            if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-                html += `<button onclick="setPage(\${i})" class="px-3 py-1 border rounded-lg \${currentPage === i ? 'bg-[#00853D] text-white' : 'hover:bg-gray-100'}">\${i}</button>`;
-            } else if ((i === 2 && currentPage > 4) || (i === totalPages - 1 && currentPage < totalPages - 3)) {
-                html += `<span class="px-2">...</span>`;
-            }
+        const totalPages = Math.ceil(currentBranches.length / itemsPerPage);
+
+        if (totalPages <= 1) {
+            paginationContainer.classList.add('hidden');
+            paginationInfo.textContent = '';
+            pageButtons.innerHTML = '';
+            return;
         }
-        html += `<button onclick="setPage(Math.min(\${totalPages}, \${currentPage} + 1))" class="p-2 border rounded-lg hover:bg-gray-100"><i class="fas fa-chevron-right text-xs"></i></button></div>`;
-        paginationArea.innerHTML = html;
+
+        paginationContainer.classList.remove('hidden');
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, currentBranches.length);
+
+        paginationInfo.textContent =
+            (startIndex + 1) + '-' + endIndex + ' / ' + currentBranches.length + '개';
+
+        const base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+        const active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+        const arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+
+        const blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+        const blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+
+        let html = '';
+
+        html += '<button class="' + arrow + '" onclick="setPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-angles-left text-xs"></i>';
+        html += '</button>';
+
+        const prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+        html += '<button class="' + arrow + '" onclick="setPage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-chevron-left text-xs"></i>';
+        html += '</button>';
+
+        for (let i = blockStart; i <= blockEnd; i++) {
+            html += '<button class="' + (i === currentPage ? active : base) + '" onclick="setPage(' + i + ')">';
+            html += i;
+            html += '</button>';
+        }
+
+        const nextBlockPage = Math.min(totalPages, blockEnd + 1);
+        html += '<button class="' + arrow + '" onclick="setPage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-chevron-right text-xs"></i>';
+        html += '</button>';
+
+        html += '<button class="' + arrow + '" onclick="setPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-angles-right text-xs"></i>';
+        html += '</button>';
+
+        pageButtons.innerHTML = html;
     }
 
     function setRegion(region) { selectedRegion = region; applyFilters(); renderRegionFilters(); }
-    function setPage(page) { currentPage = page; renderBranches(); renderPagination(); }
+    function setPage(page) {
+        const totalPages = Math.ceil(currentBranches.length / itemsPerPage);
+
+        if (page < 1 || page > totalPages) {
+            return;
+        }
+
+        currentPage = page;
+        renderBranches();
+        renderPagination();
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
 
     // 상세 모달 열기 (수정/삭제 버튼 추가)
     function viewBranchDetail(branchId) {

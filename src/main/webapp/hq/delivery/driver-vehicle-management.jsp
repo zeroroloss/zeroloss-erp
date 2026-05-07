@@ -95,7 +95,7 @@ function renderDrivers() {
             <div class="col-span-3">\${d.phone}</div>
             <div class="col-span-2"><span class="px-2.5 py-1 text-xs font-medium border rounded-md">\${d.regionName}</span></div>
             <div class="col-span-1 text-center"><span class="px-2.5 py-1 text-xs font-bold border rounded-full \${d.active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}">\${d.active ? '활동중' : '비활동'}</span></div>
-            <div class="col-span-2 text-center"><button onclick="openEditDriverModal(\${d.driverId})" class="px-3 py-1.5 text-xs border rounded">수정</button></div>
+            <div class="col-span-2 text-center"><button onclick="openEditDriverModal(\${d.driverId})" class="text-blue-600 hover:text-blue-700"><i class="fas fa-edit w-4 h-4"></i> 수정</button></div>
         </div>
     `).join('') || '<div class="p-12 text-center text-gray-500">결과 없음</div>';
     renderPagination('driversPaginationArea', totalPages, currentDriverPage, 'changeDriverPage');
@@ -112,7 +112,7 @@ function renderVehicles() {
             <div class="col-span-2 text-center"><span class="px-2.5 py-1 text-xs border rounded-md">\${v.tempType}</span></div>
             <div class="col-span-2 text-center"><span class="px-2.5 py-1 text-xs font-bold border rounded-full whitespace-nowrap \${v.active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}">\${v.active ? '활성' : '비활성'}</span></div>
             <div class="col-span-1 text-center"><span class="px-2.5 py-1 text-xs font-bold border rounded-full \${{'AVAILABLE':'bg-green-50 text-green-700','IN_TRANSIT':'bg-blue-50 text-blue-700','MAINTENANCE':'bg-yellow-50 text-yellow-700'}[v.status]}">\${{'AVAILABLE':'가용','IN_TRANSIT':'배송 중','MAINTENANCE':'점검 중'}[v.status]}</span></div>
-            <div class="col-span-1 text-center"><button onclick="openEditVehicleModal(\${v.vehicleId})" class="px-3 py-1.5 text-xs border rounded">수정</button></div>
+            <div class="col-span-1 text-center"><button onclick="openEditVehicleModal(\${v.vehicleId})" class="text-blue-600 hover:text-blue-700"><i class="fas fa-edit w-4 h-4"></i> 수정</button></div>
         </div>
     `).join('') || '<div class="p-12 text-center text-gray-500">결과 없음</div>';
     renderPagination('vehiclesPaginationArea', totalPages, currentVehiclePage, 'changeVehiclePage');

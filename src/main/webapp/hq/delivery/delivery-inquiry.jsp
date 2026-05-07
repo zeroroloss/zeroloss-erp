@@ -59,7 +59,18 @@
                 </div>
 
                 <!-- 페이지네이션 -->
-                <div id="paginationArea" class="flex items-center justify-center gap-2 mt-6"></div>
+				<div id="paginationContainer"
+				     class="px-6 py-4 border-t border-gray-200 flex flex-col items-center justify-center gap-3 hidden">
+				    <div id="paginationInfo" class="text-sm text-gray-600">
+				        <!-- 동적으로 생성됨 -->
+				    </div>
+				
+				    <div class="flex items-center justify-center gap-2">
+				        <div id="pageButtons" class="flex items-center gap-1">
+				            <!-- 동적으로 생성됨 -->
+				        </div>
+				    </div>
+				</div>
 
             </div>
         </main>
@@ -85,7 +96,8 @@
         const contextPath = '<%=request.getContextPath()%>';
         let allDeliveries = [];
         let currentPage = 1;
-        const itemsPerPage = 8;
+        const itemsPerPage = 10;
+        const PAGE_SIZE = 5;
 
         function getStatusBadge(dispatchStatus, placeOrderStatus) {
             // 배송 완료는 입고 확정(=COMPLETED) 또는 별도 배송완료 상태일 때만 표시
@@ -165,13 +177,13 @@
                     html += '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">' + (d.vehiclePlate || '-') + '</td>';
                     html += '<td class="px-6 py-4 whitespace-nowrap text-center text-sm">' + getStatusBadge(d.dispatchStatus, d.placeOrderStatus) + '</td>';
                     html += '<td class="px-6 py-4 whitespace-nowrap text-center text-sm">' +
-                        '<button onclick="openDetailModal(' + d.deliveryId + ')" class="px-3 py-1.5 text-xs font-medium border border-gray-300 text-gray-700 rounded-md hover:bg-gray-100 transition-colors">상세보기</button>' +
+                        '<button onclick="openDetailModal(' + d.deliveryId + ')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">상세보기</button>' +
                     '</td>';
                     html += '</tr>';
                 }
             }
             tableBody.innerHTML = html;
-            renderPagination(totalPages);
+            renderPagination(totalPages, filtered.length);
         }
 
         async function openDetailModal(deliveryId) {
@@ -238,19 +250,77 @@
         }
 
         function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
-        function renderPagination(totalPages) {
-            const paginationArea = document.getElementById('paginationArea');
-            if (totalPages <= 1) { paginationArea.innerHTML = ''; return; }
-            let html = '';
-            html += '<button onclick="changePage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + ' class="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-chevron-left w-4 h-4"></i></button>';
-            for (let i = 1; i <= totalPages; i++) {
-                html += '<button onclick="changePage(' + i + ')" class="px-4 py-2 rounded-lg border ' + (currentPage === i ? 'bg-[#00853D] text-white border-[#00853D]' : 'border-gray-300 hover:bg-gray-100') + '">' + i + '</button>';
+        function renderPagination(totalPages, totalItems) {
+            const paginationContainer = document.getElementById('paginationContainer');
+            const paginationInfo = document.getElementById('paginationInfo');
+            const pageButtons = document.getElementById('pageButtons');
+
+            if (totalPages <= 1) {
+                paginationContainer.classList.add('hidden');
+                paginationInfo.textContent = '';
+                pageButtons.innerHTML = '';
+                return;
             }
-            html += '<button onclick="changePage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + ' class="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"><i class="fas fa-chevron-right w-4 h-4"></i></button>';
-            paginationArea.innerHTML = html;
+
+            paginationContainer.classList.remove('hidden');
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+            paginationInfo.textContent =
+                (startIndex + 1) + '-' + endIndex + ' / ' + totalItems + '개';
+
+            const base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+            const active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+            const arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+
+            const blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+            const blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+
+            let html = '';
+
+            html += '<button class="' + arrow + '" onclick="changePage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+            html += '<i class="fas fa-angles-left text-xs"></i>';
+            html += '</button>';
+
+            const prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+            html += '<button class="' + arrow + '" onclick="changePage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+            html += '<i class="fas fa-chevron-left text-xs"></i>';
+            html += '</button>';
+
+            for (let i = blockStart; i <= blockEnd; i++) {
+                html += '<button class="' + (i === currentPage ? active : base) + '" onclick="changePage(' + i + ')">';
+                html += i;
+                html += '</button>';
+            }
+
+            const nextBlockPage = Math.min(totalPages, blockEnd + 1);
+            html += '<button class="' + arrow + '" onclick="changePage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+            html += '<i class="fas fa-chevron-right text-xs"></i>';
+            html += '</button>';
+
+            html += '<button class="' + arrow + '" onclick="changePage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+            html += '<i class="fas fa-angles-right text-xs"></i>';
+            html += '</button>';
+
+            pageButtons.innerHTML = html;
         }
 
-        function changePage(page) { if (page < 1) return; currentPage = page; renderTable(); }
+        function changePage(page) {
+            const totalPages = Math.ceil(getFilteredDeliveries().length / itemsPerPage);
+
+            if (page < 1 || page > totalPages) {
+                return;
+            }
+
+            currentPage = page;
+            renderTable();
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
 
         document.addEventListener('DOMContentLoaded', function() { loadDeliveries(); });
     </script>

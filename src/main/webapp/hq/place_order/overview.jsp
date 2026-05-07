@@ -124,19 +124,17 @@
             </div>
 
             <!-- 페이지네이션 -->
-            <div id="pagination" class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between hidden">
-                <button onclick="previousPage()" id="prevBtn"
-                    class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50">
-                    <i class="fas fa-chevron-left"></i> 이전
-                </button>
-                <p class="text-sm text-gray-500">
-                    <span id="currentPageNum">1</span> / <span id="totalPageNum">1</span>
-                </p>
-                <button onclick="nextPage()" id="nextBtn"
-                    class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50">
-                    다음 <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
+			<div id="paginationContainer"
+				class="px-6 py-4 border-t border-gray-200 flex flex-col items-center justify-center gap-3 hidden">
+				<div id="paginationInfo" class="text-sm text-gray-600">
+					<!-- 동적으로 생성됨 -->
+				</div>
+				<div class="flex items-center justify-center gap-2">
+					<div id="pageButtons" class="flex items-center gap-1">
+						<!-- 동적으로 생성됨 -->
+					</div>
+				</div>
+			</div>
         </div>
 
     </main>
@@ -212,8 +210,9 @@
     var allOrders      = [];
     var filteredOrders = [];
     var currentStatusFilter = '전체';
-    var currentPage    = 1;
-    var itemsPerPage   = 10;
+    var currentPage = 1;
+    var itemsPerPage = 10;
+    var PAGE_SIZE = 5;
 
     // ============================================================
     // 사이드바 / 네비게이션
@@ -320,7 +319,6 @@
     // 데이터 조회 (API)
     // ============================================================
     async function applyFilters() {
-        console.log("applyFilters 실행됨");
         var params = new URLSearchParams({
             branchName:    document.getElementById('filterBranch').value,
             startDate: document.getElementById('filterStartDate').value,
@@ -374,21 +372,23 @@
     function renderTable() {
         var tbody      = document.getElementById('orderTableBody');
         var emptyState = document.getElementById('emptyState');
-        var pagination = document.getElementById('pagination');
+
         tbody.innerHTML = '';
 
         document.getElementById('recordCount').textContent = filteredOrders.length + '건';
 
+        var totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+        var startIndex = (currentPage - 1) * itemsPerPage;
+        var endIndex = startIndex + itemsPerPage;
+        var pageOrders = filteredOrders.slice(startIndex, endIndex);
+        
         if (filteredOrders.length === 0) {
             emptyState.classList.remove('hidden');
-            pagination.classList.add('hidden');
+            document.getElementById('paginationContainer').classList.add('hidden');
             return;
         }
 
         emptyState.classList.add('hidden');
-
-        var start      = (currentPage - 1) * itemsPerPage;
-        var pageOrders = filteredOrders.slice(start, start + itemsPerPage);
 
         pageOrders.forEach(function(order) {
             var meta = STATUS_CONFIG[order.status] || STATUS_CONFIG['default'];
@@ -401,28 +401,81 @@
                 '<td class="py-4 px-6 text-right font-semibold text-gray-900">' + order.totalItemCnt + '개</td>' +
                 '<td class="py-4 px-6 text-right font-semibold text-blue-600">' + order.totalAmounts + '</td>' +
                 '<td class="py-4 px-6 text-center"><span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '">' + meta.label + '</span></td>' +
-                '<td class="py-4 px-6 text-center"><button onclick="openDetail(\'' + order.poId + '\')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"><i class="fas fa-eye"></i>상세조회</button></td>';
+                '<td class="py-4 px-6 text-center"><button onclick="openDetail(\'' + order.poId + '\')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">상세조회</button></td>';
             tbody.appendChild(tr);
         });
+        
+        updatePagination(totalPages, startIndex, endIndex);
+    }
+    
+ 	// ============================================================
+    // 페이징 처리
+    // ============================================================
 
-        // 페이지네이션
-        var totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-        if (totalPages > 1) {
-            pagination.classList.remove('hidden');
-            document.getElementById('currentPageNum').textContent = currentPage;
-            document.getElementById('totalPageNum').textContent   = totalPages;
-            document.getElementById('prevBtn').disabled = (currentPage === 1);
-            document.getElementById('nextBtn').disabled = (currentPage === totalPages);
-        } else {
-            pagination.classList.add('hidden');
+    function updatePagination(totalPages, startIndex, endIndex) {
+        var container = document.getElementById('paginationContainer');
+
+        if (totalPages <= 1) {
+            container.classList.add('hidden');
+            return;
         }
+
+        container.classList.remove('hidden');
+
+        document.getElementById('paginationInfo').textContent =
+            (startIndex + 1)
+            + '-'
+            + Math.min(endIndex, filteredOrders.length)
+            + ' / '
+            + filteredOrders.length
+            + '개';
+
+        var pageButtons = document.getElementById('pageButtons');
+
+        var base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+        var active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+        var arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+
+        var blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+        var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+
+        var html = '';
+
+        html += '<button class="' + arrow + '" onclick="goToPage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-angles-left text-xs"></i>';
+        html += '</button>';
+
+        var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+        html += '<button class="' + arrow + '" onclick="goToPage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-chevron-left text-xs"></i>';
+        html += '</button>';
+
+        for (var i = blockStart; i <= blockEnd; i++) {
+            html += '<button class="' + (i === currentPage ? active : base) + '" onclick="goToPage(' + i + ')">';
+            html += i;
+            html += '</button>';
+        }
+
+        var nextBlockPage = Math.min(totalPages, blockEnd + 1);
+        html += '<button class="' + arrow + '" onclick="goToPage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-chevron-right text-xs"></i>';
+        html += '</button>';
+
+        html += '<button class="' + arrow + '" onclick="goToPage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-angles-right text-xs"></i>';
+        html += '</button>';
+
+        pageButtons.innerHTML = html;
     }
 
-    function previousPage() {
-        if (currentPage > 1) { currentPage--; renderTable(); window.scrollTo(0, 0); }
-    }
-    function nextPage() {
-        if (currentPage < Math.ceil(filteredOrders.length / itemsPerPage)) { currentPage++; renderTable(); window.scrollTo(0, 0); }
+    function goToPage(page) {
+        currentPage = page;
+        renderTable();
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
     }
 
     // ============================================================

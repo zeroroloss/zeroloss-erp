@@ -146,7 +146,7 @@ function renderOrders() {
             '<td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-900">' + order.totalMaterialCnt + '</td>' +
             '<td class="px-6 py-4 whitespace-nowrap text-sm text-right font-semibold text-gray-900">' + formatNumber(order.totalAmount) + '원</td>' +
             '<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">' +
-                '<button onclick="openDetailModal(\'' + order.poNo + '\')" class="px-3 py-1 text-xs font-medium border border-gray-300 text-gray-700 rounded hover:bg-gray-100 transition-colors">상세보기</button>' +
+                '<button onclick="openDetailModal(\'' + order.poNo + '\')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">상세보기</button>' +
             '</td>' +
         '</tr>';
     }).join('') || '<tr><td colspan="7" class="p-12 text-center text-gray-500">배차 대기 중인 발주가 없습니다.</td></tr>';

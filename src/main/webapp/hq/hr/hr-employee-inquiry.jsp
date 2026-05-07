@@ -134,7 +134,19 @@
 					            </tbody>
 					        </table>
 					    </div>
-					    <div id="pagination" class="flex justify-center items-center gap-2 p-4"></div>
+						<div id="paginationContainer"
+							class="px-6 py-4 border-t border-gray-200 flex flex-col items-center justify-center gap-3 hidden">
+							<div id="paginationInfo" class="text-sm text-gray-600">
+								<!-- 동적으로 생성됨 -->
+							</div>
+		
+							<div class="flex items-center justify-center gap-2">
+								<div id="pageButtons" class="flex items-center gap-1">
+									<!-- 동적으로 생성됨 -->
+								</div>
+							</div>
+						</div>
+						
 					</div>
                 </div>
             </main>
@@ -359,6 +371,7 @@
 	    var selectedEmployee = null;
 	    var currentPage = 1;
 	    var pageSize = 10;
+	    var PAGE_SIZE = 5;
 	
 	    var employees = [
 	        <c:forEach var="emp" items="${employeeList}" varStatus="st">
@@ -468,7 +481,7 @@
 
 	        if (filtered.length === 0) {
 	            tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-gray-500">검색 결과가 없습니다.</td></tr>';
-	            document.getElementById("pagination").innerHTML = "";
+	            renderPagination(0, 0);
 	            return;
 	        }
 
@@ -537,7 +550,7 @@
 	            '</tr>';
 	        }).join('');
 
-	        renderPagination(totalPages);
+	        renderPagination(totalPages, filtered.length);
 	    }
 	
 	    function clearEmployeeTable() {
@@ -657,54 +670,110 @@
 	        });
 	    }
 	
-	    function renderPagination(totalPages) {
-	        var pagination = document.getElementById("pagination");
-	        var html = "";
+	    function renderPagination(totalPages, totalItems) {
+	        var paginationContainer = document.getElementById('paginationContainer');
+	        var paginationInfo = document.getElementById('paginationInfo');
+	        var pageButtons = document.getElementById('pageButtons');
 
-	        var maxVisiblePages = 5;
-
-	        var startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-	        var endPage = startPage + maxVisiblePages - 1;
-
-	        if (endPage > totalPages) {
-	            endPage = totalPages;
-	            startPage = Math.max(1, endPage - maxVisiblePages + 1);
-	        }
-
-	        // 이전 버튼
-	        html += '<button type="button" onclick="changePage(' + (currentPage - 1) + ')" ' +
-	                (currentPage === 1 ? 'disabled' : '') +
-	                ' class="w-9 h-9 border border-gray-300 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">' +
-	                    '<i class="fas fa-chevron-left text-xs"></i>' +
-	                '</button>';
-
-	        // 페이지 번호 버튼
-	        for (var i = startPage; i <= endPage; i++) {
-	            html += '<button type="button" onclick="changePage(' + i + ')" ' +
-	                    'class="w-9 h-9 border rounded-lg text-sm font-medium transition-colors ' +
-	                    (i === currentPage
-	                        ? 'bg-[#00853D] text-white border-[#00853D]'
-	                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50') +
-	                    '">' + i + '</button>';
-	        }
-
-	        // 다음 버튼
-	        html += '<button type="button" onclick="changePage(' + (currentPage + 1) + ')" ' +
-	                (currentPage === totalPages ? 'disabled' : '') +
-	                ' class="w-9 h-9 border border-gray-300 rounded-lg flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">' +
-	                    '<i class="fas fa-chevron-right text-xs"></i>' +
-	                '</button>';
-
-	        pagination.innerHTML = html;
-	    }
-	
-	    function changePage(page) {
-	        if (page < 1) {
+	        if (!paginationContainer || !paginationInfo || !pageButtons) {
+	            console.error('페이지네이션 HTML 요소를 찾을 수 없습니다.');
 	            return;
 	        }
-	
+
+	        if (totalPages <= 1 || totalItems <= pageSize) {
+	            paginationContainer.classList.add('hidden');
+	            paginationInfo.textContent = '';
+	            pageButtons.innerHTML = '';
+	            return;
+	        }
+
+	        paginationContainer.classList.remove('hidden');
+
+	        var startIndex = (currentPage - 1) * pageSize;
+	        var endIndex = Math.min(startIndex + pageSize, totalItems);
+
+	        paginationInfo.textContent =
+	            (startIndex + 1) + '-' + endIndex + ' / ' + totalItems + '개';
+
+	        var base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+	        var active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+	        var arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+
+	        var blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+	        var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+
+	        var html = '';
+
+	        html += '<button class="' + arrow + '" onclick="changePage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-angles-left text-xs"></i>';
+	        html += '</button>';
+
+	        var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+	        html += '<button class="' + arrow + '" onclick="changePage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-chevron-left text-xs"></i>';
+	        html += '</button>';
+
+	        for (var i = blockStart; i <= blockEnd; i++) {
+	            html += '<button class="' + (i === currentPage ? active : base) + '" onclick="changePage(' + i + ')">';
+	            html += i;
+	            html += '</button>';
+	        }
+
+	        var nextBlockPage = Math.min(totalPages, blockEnd + 1);
+	        html += '<button class="' + arrow + '" onclick="changePage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-chevron-right text-xs"></i>';
+	        html += '</button>';
+
+	        html += '<button class="' + arrow + '" onclick="changePage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-angles-right text-xs"></i>';
+	        html += '</button>';
+
+	        pageButtons.innerHTML = html;
+	    }
+	    
+	    function changePage(page) {
+	        var searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
+	        var selectedBranchName = document.getElementById("branchNameSelect").value.trim();
+
+	        var filtered = employees.filter(function(employee) {
+	            var empNo = String(employee.empNo || "").toLowerCase();
+	            var name = String(employee.name || "").toLowerCase();
+	            var branchName = String(employee.branchName || "").toLowerCase();
+	            var dept = String(employee.dept || "").toLowerCase();
+	            var gradeName = String(employee.gradeName || "").toLowerCase();
+	            var gradeCode = String(employee.gradeCode || "").toLowerCase();
+	            var positionName = String(employee.positionName || "").toLowerCase();
+	            var positionCode = String(employee.positionCode || "").toLowerCase();
+
+	            var matchesSearch = searchTerm === "" ||
+	                empNo.includes(searchTerm) ||
+	                name.includes(searchTerm) ||
+	                branchName.includes(searchTerm) ||
+	                dept.includes(searchTerm) ||
+	                gradeName.includes(searchTerm) ||
+	                gradeCode.includes(searchTerm) ||
+	                positionName.includes(searchTerm) ||
+	                positionCode.includes(searchTerm);
+
+	            var matchesBranch = selectedBranchName === "" ||
+	                employee.branchName === selectedBranchName;
+
+	            return matchesSearch && matchesBranch;
+	        });
+
+	        var totalPages = Math.ceil(filtered.length / pageSize);
+
+	        if (page < 1 || page > totalPages) {
+	            return;
+	        }
+
 	        currentPage = page;
 	        renderEmployees();
+
+	        window.scrollTo({
+	            top: 0,
+	            behavior: 'smooth'
+	        });
 	    }
 	
 	    function changeToEditMode() {
@@ -784,7 +853,10 @@
 	        document.getElementById('branchNameSelect').value = '';
 	        currentPage = 1;
 	        clearEmployeeTable();
-	        document.getElementById("pagination").innerHTML = "";
+
+	        document.getElementById('paginationContainer').classList.add('hidden');
+	        document.getElementById('paginationInfo').textContent = '';
+	        document.getElementById('pageButtons').innerHTML = '';
 	    }
 
 	    function showAddModal() {

@@ -167,7 +167,18 @@
                             </div>
 
                             <!-- 페이지네이션 -->
-                            <div class="flex items-center justify-center gap-2 mt-6" id="paginationArea"></div>
+							<div id="paginationContainer"
+							     class="px-6 py-4 border-t border-gray-200 flex flex-col items-center justify-center gap-3 hidden">
+							    <div id="paginationInfo" class="text-sm text-gray-600">
+							        <!-- 동적으로 생성됨 -->
+							    </div>
+							
+							    <div class="flex items-center justify-center gap-2">
+							        <div id="pageButtons" class="flex items-center gap-1">
+							            <!-- 동적으로 생성됨 -->
+							        </div>
+							    </div>
+							</div>
                         </div>
                     </div>
 
@@ -184,6 +195,7 @@
             let searched = false;
             let currentPage = 1;
             const itemsPerPage = 10;
+            const PAGE_SIZE = 5;
             let currentSearchResults = [];
 
             let datePickerInstance;
@@ -518,35 +530,70 @@
 
             function renderPagination(totalItems) {
                 const totalPages = Math.ceil(totalItems / itemsPerPage);
-                const paginationArea = document.getElementById("paginationArea");
-                paginationArea.innerHTML = "";
-                if (totalPages <= 1) return;
+                const paginationContainer = document.getElementById("paginationContainer");
+                const paginationInfo = document.getElementById("paginationInfo");
+                const pageButtons = document.getElementById("pageButtons");
 
-                const maxVisiblePages = 5;
-                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-                if (endPage - startPage < maxVisiblePages - 1) startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                if (totalPages <= 1) {
+                    paginationContainer.classList.add("hidden");
+                    pageButtons.innerHTML = "";
+                    paginationInfo.textContent = "";
+                    return;
+                }
 
-                let html = '<button onclick="changePage(' + Math.max(1, currentPage - 1) + ')" ' + (currentPage == 1 ? "disabled" : "") + ' class="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50"><i class="fas fa-chevron-left w-4 h-4"></i></button>';
-                if (startPage > 1) {
-                    html += '<button onclick="changePage(1)" class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-100">1</button>';
-                    if (startPage > 2) html += '<span class="px-2">...</span>';
+                paginationContainer.classList.remove("hidden");
+
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+                paginationInfo.textContent =
+                    (startIndex + 1) + '-' + endIndex + ' / ' + totalItems + '개';
+
+                const base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+                const active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+                const arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+
+                const blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+                const blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+
+                let html = '';
+
+                html += '<button class="' + arrow + '" onclick="changePage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+                html += '<i class="fas fa-angles-left text-xs"></i>';
+                html += '</button>';
+
+                const prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+                html += '<button class="' + arrow + '" onclick="changePage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+                html += '<i class="fas fa-chevron-left text-xs"></i>';
+                html += '</button>';
+
+                for (let i = blockStart; i <= blockEnd; i++) {
+                    html += '<button class="' + (i === currentPage ? active : base) + '" onclick="changePage(' + i + ')">';
+                    html += i;
+                    html += '</button>';
                 }
-                for (let i = startPage; i <= endPage; i++) {
-                    html += '<button onclick="changePage(' + i + ')" class="px-3 py-2 rounded-lg border ' + (currentPage == i ? 'bg-[#00853D] text-white border-[#00853D]' : 'border-gray-300 hover:bg-gray-100') + '">' + i + '</button>';
-                }
-                if (endPage < totalPages) {
-                    if (endPage < totalPages - 1) html += '<span class="px-2">...</span>';
-                    html += '<button onclick="changePage(' + totalPages + ')" class="px-3 py-2 rounded-lg border border-gray-300 hover:bg-gray-100">' + totalPages + '</button>';
-                }
-                html += '<button onclick="changePage(' + Math.min(totalPages, currentPage + 1) + ')" ' + (currentPage == totalPages ? "disabled" : "") + ' class="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50"><i class="fas fa-chevron-right w-4 h-4"></i></button>';
-                paginationArea.innerHTML = html;
+
+                const nextBlockPage = Math.min(totalPages, blockEnd + 1);
+                html += '<button class="' + arrow + '" onclick="changePage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+                html += '<i class="fas fa-chevron-right text-xs"></i>';
+                html += '</button>';
+
+                html += '<button class="' + arrow + '" onclick="changePage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+                html += '<i class="fas fa-angles-right text-xs"></i>';
+                html += '</button>';
+
+                pageButtons.innerHTML = html;
             }
 
             window.changePage = function(page) {
                 currentPage = page;
                 renderDataTable(currentSearchResults);
-            }
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            };
 
             // Event Listeners
             document.querySelectorAll('.filterBtn').forEach(btn => {
