@@ -29,6 +29,21 @@
         .btn-send { border: 0; background: #2563eb; color: #fff; }
         .btn-send:hover { background: #1d4ed8; }
 
+        .meta-divider {
+            margin: 10px 0;
+            border-top: 1px dashed #93c5fd;
+        }
+
+        .total-row {
+            padding-top: 4px;
+            font-size: 15px;
+        }
+
+        .total-row .k,
+        .total-row .v {
+            font-weight: 900;
+        }
+
         @media (max-width: 900px) {
             .title { font-size: 22px; }
             .meta-row { font-size: 13px; }
@@ -58,23 +73,24 @@
             </div>
         </div>
 
-        <div class="meta">
-            <div class="meta-row">
-                <span class="k">발주 품목 수</span>
-                <span class="v" id="itemCount">0개</span>
-            </div>
-            <div class="meta-row">
-                <span class="k">재고 부족 품목</span>
-                <span class="v red" id="lowStockCount">0개</span>
-            </div>
-
-            <div class="meta-row">
-                <span class="k">수동 추가 품목</span>
-                <span class="v" id="manualCount">0개</span>
-            </div>
+        <div class="meta-row">
+            <span class="k">안전재고 미달 품목</span>
+            <span class="v red" id="lowStockCount">0개</span>
         </div>
 
-        <div class="notice"><strong>안내:</strong> 전송 시 해당 발주서는 발주 내역의 전송 탭에서 확인 가능하며, 본사에 의해 승인/반려 처리됩니다.</div>
+        <div class="meta-row">
+            <span class="k">그 외 품목</span>
+            <span class="v" id="manualCount">0개</span>
+        </div>
+
+        <div class="meta-divider"></div>
+
+        <div class="meta-row total-row">
+            <span class="k">총 발주 품목</span>
+            <span class="v" id="itemCount">0개</span>
+        </div>
+
+        <div class="notice"><strong>안내:</strong> 전송 시 발주 내역 화면에서 확인 가능하며, 본사에 의해 승인/반려 처리됩니다.</div>
 
         <div class="actions">
 			<a class="btn btn-cancel" href="#" onclick="closePopup()">취소</a>
@@ -93,14 +109,15 @@ window.addEventListener('message', function(event) {
 
     const lowStock = message.data?.lowStock || [];
     const added = message.data?.added || [];
+    const totalLowStockCount = Number(message.data?.totalLowStockCount || 0);
 
     // === 화면 반영 ===
     // 발주 품목 수
     const itemCount = lowStock.length + added.length;
     document.getElementById('itemCount').textContent = itemCount + '개';
     // 재고 부족 품목
-    document.getElementById('lowStockCount').textContent = lowStock.length + '개';
-    // 수동 추가 품목
+    document.getElementById('lowStockCount').textContent =
+        lowStock.length + '개 / ' + totalLowStockCount + '개';
     document.getElementById('manualCount').textContent = added.length + '개';
 
     console.log('lowStock(안전재고 미달 품목): ', lowStock);

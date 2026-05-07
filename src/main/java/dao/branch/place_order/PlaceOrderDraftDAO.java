@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
+import dto.MaterialDTO;
+import dto.MaterialGroupDTO;
 import dto.branch.place_order.PlaceOrderDraftDTO;
 import dto.branch.place_order.PlaceOrderDraftDetailDTO;
 
@@ -39,6 +41,12 @@ public interface PlaceOrderDraftDAO {
 
 	// 팝업용 전체 품목 조회 (드래프트 포함 상태 + 재고/안전재고)
 	List<Map<String, Object>> findSelectableItems(SqlSession sqlSession, int branchCode, int draftId);
+
+	// 발주용 카테고리 조회
+	List<MaterialGroupDTO> findSelectableCategories(SqlSession sqlSession, int branchCode);
+
+	// 발주용 품목명 조회
+	List<MaterialDTO> findSelectableMaterials(SqlSession sqlSession, Integer materialGroupId);
 
 	// 드래프트 전송 후 상태 업데이트 (po_id 연결 + 상태 변경)
 	int updateDraftStatusAfterSend(SqlSession sqlSession, int draftId, int poId, String status);

@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
+import dto.MaterialDTO;
+import dto.MaterialGroupDTO;
 import dto.branch.place_order.PlaceOrderDraftDTO;
 import dto.branch.place_order.PlaceOrderDraftDetailDTO;
 
@@ -75,6 +77,16 @@ public class PlaceOrderDraftDAOImpl implements PlaceOrderDraftDAO {
 		params.put("branchCode", branchCode);
 		params.put("draftId", draftId);
 		return sqlSession.selectList(MAPPER_NAMESPACE + "findSelectableItems", params);
+	}
+
+	@Override
+	public List<MaterialGroupDTO> findSelectableCategories(SqlSession sqlSession, int branchCode) {
+		return sqlSession.selectList(MAPPER_NAMESPACE + "findSelectableCategories", branchCode);
+	}
+
+	@Override
+	public List<MaterialDTO> findSelectableMaterials(SqlSession sqlSession, Integer materialGroupId) {
+		return sqlSession.selectList(MAPPER_NAMESPACE + "findSelectableMaterials", materialGroupId);
 	}
 
 	@Override

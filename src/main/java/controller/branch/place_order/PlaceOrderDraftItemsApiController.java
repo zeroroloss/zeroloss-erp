@@ -1,8 +1,8 @@
 package controller.branch.place_order;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -15,6 +15,8 @@ import javax.servlet.http.HttpSession;
 import com.google.gson.Gson;
 
 import dto.AccountDTO;
+import dto.MaterialDTO;
+import dto.MaterialGroupDTO;
 import service.branch.place_order.PlaceOrderService;
 import service.branch.place_order.PlaceOrderServiceImpl;
 import util.GsonFactory;
@@ -36,6 +38,24 @@ public class PlaceOrderDraftItemsApiController extends HttpServlet {
 				return;
 			}
 			int branchCode = resolveBranchCode(loginUser);
+			String type = request.getParameter("type");
+
+			if ("categories".equalsIgnoreCase(type)) {
+				List<MaterialGroupDTO> categories = service.getSelectableCategories(branchCode);
+				sendResponse(response, 200, successBody(categories));
+				return;
+			}
+
+			if ("materials".equalsIgnoreCase(type)) {
+				Integer materialGroupId = null;
+				String materialGroupIdParam = request.getParameter("materialGroupId");
+				if (hasText(materialGroupIdParam)) {
+					materialGroupId = Integer.valueOf(materialGroupIdParam);
+				}
+				List<MaterialDTO> materials = service.getSelectableMaterials(materialGroupId);
+				sendResponse(response, 200, successBody(materials));
+				return;
+			}
 
 			String category = request.getParameter("category");
 			String item = request.getParameter("item");

@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="java.util.*" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -6,521 +7,1141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>발주서 작성</title>
     <style>
-        body { margin: 0; font-family: "Malgun Gothic", sans-serif; background: #f4f7fb; color: #111827; }
-        .wrap {
-    width: 100%; max-width: none; margin: 0; }
-        .page-head { padding: 18px 0 12px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-        .page-title { margin: 0; font-size: 30px; line-height: 1.15; font-weight: 800; letter-spacing: -0.03em; }
-        .page-sub { margin: 8px 0 0; font-size: 15px; color: #6b7280; }
-
-        .head-actions { display: flex; gap: 10px; }
-        .btn { height: 42px; padding: 0 16px; border-radius: 12px; border: 1px solid #d6dae3; background: #fff; color: #111827; font-size: 14px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
-        .btn:hover { background: #f9fafb; }
-        .btn-primary { border-color: #2563eb; background: #2563eb; color: #fff; }
-        .btn-primary:hover { background: #1d4ed8; }
-        .btn-add { border: 0; background: #16a34a; color: #fff; min-width: 150px; justify-content: center; box-shadow: 0 8px 18px rgba(22, 163, 74, 0.3); }
-        .btn-add:hover { background: #15803d; }
-
-        .place-popup-overlay { position: fixed; inset: 0; z-index: 3000; background: rgba(0, 0, 0, 0.72); display: none; align-items: center; justify-content: center; padding: 18px; box-sizing: border-box; }
-        .place-popup-overlay.active { display: flex; }
-        .place-popup-frame { width: min(980px, 100%); height: min(94vh, 920px); border: 0; border-radius: 14px; background: transparent; }
-
-        .card { margin-top: 12px; background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05); }
-        .card.warn { border-color: #e7ce57; }
-        .card.warn .card-head { background: #fef9dd; border-bottom-color: #e7ce57; }
-        .card.added { border-color: #9ec6ff; }
-        .card.added .card-head { background: #eaf2ff; border-bottom-color: #9ec6ff; }
-
-        .card-head { height: 74px; padding: 0 22px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
-        .card-title-wrap { display: flex; align-items: center; gap: 12px; }
-        .card-icon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; }
-        .card.warn .card-icon { background: #fff1b3; color: #b7791f; }
-        .card.added .card-icon { background: #d9e8ff; color: #2563eb; }
-        .card-title { margin: 0; font-size: 20px; line-height: 1.1; font-weight: 800; letter-spacing: -0.02em; }
-        .card-sub { margin: 4px 0 0; font-size: 13px; color: #6b7280; font-weight: 700; }
-        .card-count { height: 32px; min-width: 40px; padding: 0 10px; border-radius: 10px; font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
-        .card.warn .card-count { background: #fde68a; color: #7c5f00; }
-        .card.added .card-count { background: #bfdbfe; color: #1d4ed8; }
-
-        .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px 14px; border-bottom: 1px solid #edf0f5; text-align: left; font-size: 14px; }
-        th { background: #fafbfc; color: #111827; font-weight: 900; }
-        tbody tr:last-child td { border-bottom: 0; }
-
-        .chip { display: inline-flex; align-items: center; height: 24px; padding: 0 9px; border-radius: 999px; background: #eef2f7; color: #475569; font-size: 12px; font-weight: 700; }
-        .stock-low { color: #ef4444; font-weight: 900; }
-        .qty-cell { display: inline-flex; align-items: center; gap: 8px; }
-        .qty-input { width: 80px; height: 36px; box-sizing: border-box; padding: 0 10px; border: 1px solid #cfd6e2; border-radius: 10px; font-size: 14px; font-weight: 700; color: #2563eb; }
-        .trash { color: #ef4444; font-size: 15px; font-weight: 700; }
-        .center { text-align: center; }
-        .unit { color: #475569; font-weight: 700; }
-        .add-action { margin-top: 16px; display: flex; justify-content: center; }
-
-        @media (max-width: 1280px) {
-            .page-title { font-size: 28px; }
-            .card-title { font-size: 18px; }
-            .card-count { font-size: 16px; }
-            th, td { font-size: 13px; }
-            .chip { font-size: 11px; }
-            .qty-input { font-size: 13px; }
-            .trash { font-size: 14px; }
+        :root {
+            --bg: #f4f7fb;
+            --panel: #ffffff;
+            --line: #e5e7eb;
+            --muted: #6b7280;
+            --text: #111827;
+            --blue: #2563eb;
+            --blue-dark: #1d4ed8;
+            --red: #ef4444;
+            --green: #16a34a;
+            --amber: #f59e0b;
+            --chip: #eef2f7;
         }
 
-        @media (max-width: 980px) {
-            .page-head { flex-direction: column; }
-            .page-title { font-size: 26px; }
-            .card-title { font-size: 16px; }
-            .card-count { font-size: 14px; min-width: 34px; height: 26px; }
-            th, td { font-size: 14px; }
-            .chip { font-size: 11px; height: 22px; }
-            .qty-input { width: 70px; height: 34px; font-size: 13px; }
-            .trash { font-size: 14px; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            font-family: "Malgun Gothic", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        .zl-app, .zl-content { height: 100%; }
+
+        .wrap.place-wrap {
+            padding-top: 18px;
+            padding-bottom: 18px;
+            height: 96%;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .page-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 14px;
+            flex-shrink: 0;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: 30px;
+            line-height: 1.15;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+
+        .page-sub {
+            margin: 8px 0 0;
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .btn {
+            height: 42px;
+            padding: 0 16px;
+            border-radius: 12px;
+            border: 1px solid #d6dae3;
+            background: #fff;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            border-color: var(--blue);
+            background: var(--blue);
+            color: #fff;
+        }
+
+        .btn-primary:hover { background: var(--blue-dark); }
+
+        .editor-shell {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 1.18fr 40px 1fr;
+            gap: 10px;
+            overflow: hidden;
+        }
+
+        .editor-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1e3a8a;
+            font-size: 16px;
+            font-weight: 700;
+            user-select: none;
+        }
+
+        .panel {
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: var(--panel);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .panel-head {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: #fafbfd;
+            flex-shrink: 0;
+        }
+
+        .panel-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+
+        .panel-sub {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .count-badge {
+            min-width: 34px;
+            height: 30px;
+            border-radius: 999px;
+            padding: 0 10px;
+            background: #dbeafe;
+            color: var(--blue);
+            font-size: 13px;
+            font-weight: 900;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter-wrap {
+            padding: 10px;
+            border-bottom: 1px solid var(--line);
+            background: #f8fafc;
+            flex-shrink: 0;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--muted);
+        }
+
+        .filter-select,
+        .filter-input {
+            width: 100%;
+            height: 36px;
+            border: 1px solid #cfd6e2;
+            border-radius: 8px;
+            padding: 0 10px;
+            background: #fff;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .toggle-wrap {
+            height: 36px;
+            border: 1px solid #cfd6e2;
+            border-radius: 8px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            color: #374151;
+        }
+
+        .panel-body {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #edf0f5;
+            text-align: left;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: #fafbfc;
+            color: #111827;
+            font-weight: 900;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            padding: 0 8px;
+            border-radius: 999px;
+            background: var(--chip);
+            color: #475569;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .status-low {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            border-radius: 999px;
+            padding: 0 8px;
+            background: #fef3c7;
+            color: #92400e;
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .status-normal {
+            display: inline-flex;
+            align-items: center;
+            height: 22px;
+            border-radius: 999px;
+            padding: 0 8px;
+            background: #e5e7eb;
+            color: #4b5563;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .code-cell {
+            white-space: nowrap;
+            word-break: keep-all;
+            overflow-wrap: normal;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.01em;
+        }
+
+        .stock-low { color: var(--red); font-weight: 900; }
+        .center { text-align: center; }
+
+        .btn-add-item,
+        .btn-remove-item {
+            height: 30px;
+            border-radius: 999px;
+            border: 0;
+            padding: 0 10px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .btn-add-item {
+            background: var(--green);
+            color: #fff;
+        }
+
+        .btn-add-item.is-added {
+            background: #d1d5db;
+            color: #6b7280;
+            cursor: default;
+        }
+
+        .btn-remove-item {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .qty-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 132px;
+        }
+
+        .qty-input-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .qty-input {
+            width: 78px;
+            height: 32px;
+            border: 1px solid #cfd6e2;
+            border-radius: 8px;
+            padding: 0 8px;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--blue);
+        }
+
+        .qty-limit {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .unit {
+            color: #475569;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .panel-foot {
+            padding: 10px 12px;
+            border-top: 1px solid var(--line);
+            background: #fbfcff;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .foot-summary {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .foot-chip {
+            height: 30px;
+            padding: 0 10px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fff;
+            border: 1px solid var(--line);
+            color: #374151;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .foot-chip strong {
+            color: var(--text);
+            font-weight: 900;
+        }
+
+        .empty-row {
+            color: #9ca3af;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .place-popup-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            background: rgba(0, 0, 0, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            box-sizing: border-box;
+        }
+
+        .place-popup-overlay.active { display: flex; }
+
+        .place-popup-frame {
+            width: min(980px, 100%);
+            height: min(94vh, 920px);
+            border: 0;
+            border-radius: 14px;
+            background: transparent;
+        }
+
+        @media (max-width: 1200px) {
+            .editor-shell { grid-template-columns: 1fr 1fr; }
+            .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 900px) {
+            body { overflow: auto; }
+            .wrap.place-wrap {
+                height: auto;
+                min-height: 0;
+                overflow: visible;
+            }
+            .editor-shell {
+                grid-template-columns: 1fr;
+                overflow: visible;
+            }
+            .panel { min-height: 380px; }
+            .panel-body { overflow: auto; }
         }
     </style>
 
 <%@ include file="/branch/common/layout/layout_head.jsp" %>
 <%
-	Integer lowStockTotalCount = (Integer) request.getAttribute("lowStockTotalCount");
-	if (lowStockTotalCount == null) lowStockTotalCount = 0;
+    Integer lowStockTotalCount = (Integer) request.getAttribute("lowStockTotalCount");
+    if (lowStockTotalCount == null) lowStockTotalCount = 0;
 
-	Object draftAttr = request.getAttribute("draft");
-	String draftJson = new com.google.gson.Gson().toJson(
+    Map<String, List<String>> categoryMaterialMap = (Map<String, List<String>>) request.getAttribute("categoryMaterialMap");
+    if (categoryMaterialMap == null) categoryMaterialMap = new java.util.LinkedHashMap<>();
+
+    Object draftAttr = request.getAttribute("draft");
+    String draftJson = new com.google.gson.Gson().toJson(
         draftAttr != null ? draftAttr : new dto.branch.place_order.PlaceOrderDraftDTO()
     );
-
+    String categoryJson = new com.google.gson.Gson().toJson(categoryMaterialMap);
 %>
+<script type="application/json" id="categoryMaterialJson"><%=categoryJson%></script>
 </head>
 
 <body>
 <div class="zl-app">
-	<%@ include file="/branch/common/layout/sidebar.jsp" %>
-	<div class="zl-content">
-		<%@ include file="/branch/common/layout/topbar.jsp" %>
-		<div class="wrap p-6">
-		    <div class="page-head">
-		        <div>
-		            <h1 class="page-title">발주서 작성</h1>
-		            <p class="page-sub">자동 생성된 발주서를 확인하고 품목을 추가하거나 수정하세요</p>
-		        </div>
-		        <div class="head-actions">
-		            <a class="btn btn-primary open-place-popup" data-type="send"
-						href="<%= request.getContextPath() %>/branch/place_order/send.jsp">✈ 본사 전송</a>
-		        </div>
-		    </div>
-		
-		    <section class="card warn">
-		        <div class="card-head">
-		            <div class="card-title-wrap">
-		                <div class="card-icon">⚠</div>
-		                <div>
-		                    <h2 class="card-title">안전재고 미달 품목</h2>
-		                    <p class="card-sub">총 <%= lowStockTotalCount %>개 품목이 안전 재고 미달입니다</p>
-		                </div>
-		            </div>
-		            <div class="card-count"><!-- 0개 --></div>
-		        </div>
-		        <div class="table-wrap">
-		            <table>
-		                <thead>
-		                <tr>
-		                    <th>품목코드</th>
-		                    <th>품목명</th>
-		                    <th>카테고리</th>
-		                    <th>현재 재고 합계</th>
-		                    <th>안전 재고</th>
-		                    <th>요청 수량</th>
-		                    <th class="center">삭제</th>
-		                </tr>
-		                </thead>
-		                <!-- 안전재고 미달 -->
-		                <tbody id="lowStockTbody">
-		                </tbody>
-		            </table>
-		        </div>
-		    </section>
-		
-		    <section class="card added">
-		        <div class="card-head">
-		            <div class="card-title-wrap">
-		                <div class="card-icon">＋</div>
-		                <div>
-		                    <h2 class="card-title">추가 발주 품목</h2>
-		                    <p class="card-sub">수동으로 추가한 발주 품목입니다</p>
-		                </div>
-		            </div>
-		            <div class="card-count">0개</div>
-		        </div>
-		        <div class="table-wrap">
-		            <table>
-		                <thead>
-		                <tr>
-		                    <th>품목코드</th>
-		                    <th>품목명</th>
-		                    <th>카테고리</th>
-		                    <th>현재 재고 합계</th>
-		                    <th>안전 재고</th>
-		                    <th>요청 수량</th>
-		                    <th class="center">삭제</th>
-		                </tr>
-		                </thead>
-		                <tbody id="addedItemTbody">
-		                </tbody>
-		            </table>
-		        </div>
-		    </section>
-		
-		    <div class="add-action">
-		                <a class="btn btn-add open-place-popup" data-type="add" 
-							href="<%= request.getContextPath() %>/branch/place_order/create_add.jsp">＋ 품목 추가</a>
-		    </div>
-		</div>
-	</div>
+    <%@ include file="/branch/common/layout/sidebar.jsp" %>
+    <div class="zl-content">
+        <%@ include file="/branch/common/layout/topbar.jsp" %>
+
+        <div class="wrap p-6 place-wrap">
+            <div class="page-head">
+                <div>
+                    <h1 class="page-title">발주서 작성</h1>
+                    <p class="page-sub">좌측에서 발주할 품목을 확인하고 우측의 발주서에 추가해 전송하세요.</p>
+                </div>
+            </div>
+
+            <div class="editor-shell">
+                <section class="panel" aria-label="품목 탐색">
+                    <div class="panel-head">
+                        <div>
+                            <h2 class="panel-title">전체 품목</h2>
+                            <p class="panel-sub">발주할 품목을 우측의 발주서에 추가하세요</p>
+                        </div>
+                    </div>
+
+                    <div class="filter-wrap">
+                        <div class="filter-grid">
+                            <div class="filter-group">
+                                <label for="categoryFilter">카테고리</label>
+                                <select id="categoryFilter" class="filter-select">
+                                    <option value="">카테고리 전체</option>
+                                    <%
+                                    for (String categoryName : categoryMaterialMap.keySet()) {
+                                    %>
+                                    <option value="<%=categoryName%>"><%=categoryName%></option>
+                                    <%
+                                    }
+                                    %>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="itemFilter">품목명</label>
+                                <select id="itemFilter" class="filter-select"></select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="searchFilter">검색</label>
+                                <input id="searchFilter" class="filter-input" type="text" placeholder="품목코드, 카테고리, 품목 검색" />
+                            </div>
+                            <div class="filter-group">
+                                <label for="lowStockOnly">재고 필터</label>
+                                <div class="toggle-wrap">
+                                    <input id="lowStockOnly" type="checkbox" />
+                                    <span>안전재고 미달만 보기</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-body">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>품목코드</th>
+                                <th>품목명</th>
+                                <th>카테고리</th>
+                                <th>현재 재고</th>
+                                <th>안전 재고</th>
+                                <th>상태</th>
+                                <th class="center">추가</th>
+                            </tr>
+                            </thead>
+                            <tbody id="materialTbody"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <div class="editor-divider">
+                    ⇄
+                </div>
+
+                <section class="panel" aria-label="발주서 편집">
+                    <div class="panel-head">
+                        <div>
+                            <h2 class="panel-title">발주서</h2>
+                            <p class="panel-sub">요청 수량을 조정하고 추가한 품목을 삭제할 수 있습니다</p>
+                        </div>
+
+                        <div class="foot-summary" aria-label="발주 요약">
+                            <span class="foot-chip">
+                                안전재고 미달
+                                <strong id="lowStockSummary" data-total="<%= lowStockTotalCount %>">0/0개</strong>
+                            </span>
+
+                            <span class="foot-chip">
+                                그 외 품목
+                                <strong id="manualSummary">0개</strong>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="panel-body">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>품목코드</th>
+                                <th>품목명</th>
+                                <th>카테고리</th>
+                                <th>현재 재고</th>
+                                <th>안전 재고</th>
+                                <th>요청 수량</th>
+                                <th class="center">삭제</th>
+                            </tr>
+                            </thead>
+                            <tbody id="orderTbody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="panel-foot">
+                        <a class="btn btn-primary open-place-popup" data-type="send" href="<%= request.getContextPath() %>/branch/place_order/send.jsp">본사 전송</a>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="placePopupOverlay" class="place-popup-overlay" aria-hidden="true">
-        <iframe id="placePopupFrame" class="place-popup-frame" title="발주 팝업"></iframe>
+    <iframe id="placePopupFrame" class="place-popup-frame" title="발주 전송 팝업"></iframe>
 </div>
 
 <script type="application/json" id="draftJson"><%= draftJson %></script>
 <script>
-	// JS에서 데이터 파싱
-	var draftData = {};
-	var lowStockData = [];
-	var addedItemData = [];
-	
-	try {
-		draftData = JSON.parse(document.getElementById('draftJson').textContent || '{}');
-		
-		var details = draftData.details || [];
-		
-		details.forEach(function(item) {
-			if (item.sourceType === 'LOW_STOCK') {
-				lowStockData.push(item);
-			} else {
-				addedItemData.push(item);
-			}
-		});
-		
-	} catch (e) {
-		draftData = {};
-		lowStockData = [];
-		addedItemData = [];
-	}
-	
-	
-	// 데이터 행 html
-	function buildRow(item, isLowStock) {
-	    var stockClass = isLowStock ? 'stock-low' : '';
-	
-	    return '<tr data-id="' + item.materialCode + '">' +
-	        '<td>' + item.materialCode + '</td>' +
-	        '<td>' + item.materialName + '</td>' +
-	        '<td><span class="chip">' + item.categoryName + '</span></td>' +
-	        '<td class="' + stockClass + '">' + (item.currentStock || 0) + (item.unit || '') + '</td>' +
-	        '<td>' + (item.safeStock || 0) + (item.unit || '') + '</td>' +
-	        '<td>' +
-	            '<span class="qty-cell">' +
-					'<input class="qty-input" type="number" ' +
-						'value="' + (item.requestedQty != null ? item.requestedQty : (item.safeStock != null ? item.safeStock : 0)) + '" ' +
-						'min="0" step="1">' +
-	                '<span class="unit">' + (item.unit || '') + '</span>' +
-	            '</span>' +
-	        '</td>' +
-	        '<td class="center"><span class="trash">🗑</span></td>' +
-	    '</tr>';
-	}
-	
-	// 테이블에 데이터 넣기
-	function renderTables() {
-	    var lowTbody = document.getElementById('lowStockTbody');
-	    var addTbody = document.getElementById('addedItemTbody');
-	
-	    lowTbody.innerHTML = '';
-	    addTbody.innerHTML = '';
-	
-    	// 데이터 행 넣기
-	    lowStockData.forEach(function(item) {
-	        lowTbody.insertAdjacentHTML('beforeend', buildRow(item, true));
-	    });
-	
-	    addedItemData.forEach(function(item) {
-	        addTbody.insertAdjacentHTML('beforeend', buildRow(item, false));
-	    });
-	
-	    updateCounts();
-	}
+(function() {
+    var itemsApiUrl = '<%= request.getContextPath() %>/api/branch/place_order/draft/items';
+    var draftApiUrl = '<%= request.getContextPath() %>/api/branch/place_order/draft';
 
-	function syncPopupState() {
-		var frame = document.getElementById('placePopupFrame');
-		if (!frame || !frame.contentWindow) return;
+    var allMaterials = [];
+    var orderItemsByCode = {};
 
-		frame.contentWindow.postMessage({
-			type: 'sync-order-state',
-			data: {
-				lowStock: lowStockData,
-				added: addedItemData
-			}
-		}, '*');
-	}
+    var selectedCategoryName = '';
+    var selectedItemName = '';
+    var searchText = '';
+    var lowStockOnly = false;
+    var searchTimer = null;
 
-	function persistDraftChange(action, item) {
-		return fetch('<%= request.getContextPath() %>/api/branch/place_order/draft', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json; charset=UTF-8',
-				'Accept': 'application/json'
-			},
-			body: JSON.stringify({
-				action: action,
-				item: item
-			})
-		}).then(function(response) {
-			if (!response.ok) {
-				return response.json().catch(function() { return {}; }).then(function(payload) {
-					throw new Error((payload && payload.message) || '발주 임시저장 반영에 실패했습니다.');
-				});
-			}
-			return response.json().catch(function() { return {}; });
-		});
-	}
+    var categoryFilter = document.getElementById('categoryFilter');
+    var itemFilter = document.getElementById('itemFilter');
+    var searchFilter = document.getElementById('searchFilter');
+    var lowStockOnlyFilter = document.getElementById('lowStockOnly');
 
-	function applyLocalDraftChange(action, item) {
-		if (!item || !item.materialCode) return;
+    var materialTbody = document.getElementById('materialTbody');
+    var orderTbody = document.getElementById('orderTbody');
+    var lowStockSummary = document.getElementById('lowStockSummary');
+    var manualSummary = document.getElementById('manualSummary');
+    var totalLowStockCount = Number((lowStockSummary && lowStockSummary.dataset && lowStockSummary.dataset.total) || 0);
+    var categoryMaterialMap = JSON.parse(document.getElementById('categoryMaterialJson').textContent || '{}');
 
-		if (action === 'add') {
-			var normalized = {
-				materialCode: item.materialCode,
-				materialName: item.materialName || '',
-				categoryName: item.categoryName || '',
-				currentStock: Number(item.currentStock || 0),
-				safeStock: Number(item.safeStock || 0),
-				unit: item.unit || '',
-				sourceType: item.sourceType || 'MANUAL',
-				requestedQty: item.requestedQty != null ? Number(item.requestedQty) : (Number(item.safeStock || 0))
-			};
+    var overlay = document.getElementById('placePopupOverlay');
+    var frame = document.getElementById('placePopupFrame');
 
-			if (normalized.sourceType === 'LOW_STOCK') {
-				if (!lowStockData.some(function(existing) { return existing.materialCode === normalized.materialCode; })) {
-					lowStockData.unshift(normalized);
-				}
-			} else if (!addedItemData.some(function(existing) { return existing.materialCode === normalized.materialCode; })) {
-				addedItemData.unshift(normalized);
-			}
-			return;
-		}
+    function hasText(value) {
+        return value !== null && value !== undefined && String(value).trim() !== '';
+    }
 
-		lowStockData = lowStockData.filter(function(existing) {
-			return existing.materialCode !== item.materialCode;
-		});
-		addedItemData = addedItemData.filter(function(existing) {
-			return existing.materialCode !== item.materialCode;
-		});
-	}
-	
-	// 카운트 동적 처리
-	function updateCounts() {
-	    var lowCount = lowStockData.length;
-	    var addCount = addedItemData.length;
+    function toNumber(value) {
+        var parsed = Number(value);
+        return isNaN(parsed) ? 0 : parsed;
+    }
 
-	    // 카드 개수
-	    document.querySelector('.card.warn .card-count').textContent = lowCount + '개';
-	    document.querySelector('.card.added .card-count').textContent = addCount + '개';
-	}
-	
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
 
-	renderTables();
-</script>
+    function normalizeResponse(payload) {
+        if (!payload) { return []; }
+        if (payload.status === 'success' && Array.isArray(payload.data)) { return payload.data; }
+        if (Array.isArray(payload)) { return payload; }
+        if (Array.isArray(payload.data)) { return payload.data; }
+        return [];
+    }
 
-<script>
-    (function () {
-        var overlay = document.getElementById('placePopupOverlay');
-        var frame = document.getElementById('placePopupFrame');
-
-		function openPopup(url, popupType) {
-            if (!overlay || !frame || !url) return;
-            frame.src = url;
-            overlay.classList.add('active');
-            overlay.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-
-			frame.onload = function () {
-				syncPopupState();
-
-				// send 팝업일 때만 데이터 전달
-				// postMessage가 'message' 이벤트를 발생시킴
-				if (popupType === 'send') {
-					frame.contentWindow.postMessage({
-						type: 'init-order-data',
-						data: {
-							lowStock: lowStockData,
-							added: addedItemData
-						}
-					}, '*');
-				}
-			};
+    function normalizeMaterial(item) {
+        var minQty = Math.max(0, toNumber(item.minQty));
+        var maxQty = Math.max(0, toNumber(item.maxQty));
+        if (maxQty > 0 && maxQty < minQty) {
+            maxQty = minQty;
         }
 
-		// send.jsp에 데이터 넘기는 함수
-		function buildSummary() {
-			var allItems = lowStockData.concat(addedItemData);
+        return {
+            materialCode: item.materialCode,
+            materialName: item.materialName || '',
+            categoryName: item.categoryName || '',
+            unit: item.unit || '',
+            currentStock: toNumber(item.currentStock),
+            safeStock: toNumber(item.safeStock),
+            minQty: minQty,
+            maxQty: maxQty,
+            isLowStock: String(item.isLowStock) === '1' || item.isLowStock === true,
+            sourceType: item.sourceType || ((String(item.isLowStock) === '1' || item.isLowStock === true) ? 'LOW_STOCK' : 'MANUAL')
+        };
+    }
 
-			var totalQty = 0;
-			allItems.forEach(function(item) {
-				totalQty += Number(item.requestedQty || 0);
-			});
+    function normalizeOrderItem(item) {
+        var normalized = normalizeMaterial(item);
+        normalized.sourceType = item.sourceType || normalized.sourceType || 'MANUAL';
+        normalized.requestedQty = toNumber(item.requestedQty);
+        normalized.requestedQty = clampQty(normalized, normalized.requestedQty);
+        return normalized;
+    }
 
-			return {
-				itemCount: allItems.length,
-				totalQty: totalQty,
-				lowStockCount: lowStockData.length
-			};
-		}
+    function clampQty(item, qty) {
+        var minQty = Math.max(0, toNumber(item.minQty));
+        var maxQty = Math.max(0, toNumber(item.maxQty));
+        var adjusted = Math.max(0, toNumber(qty));
 
-        function closePopup() {
-            if (!overlay || !frame) return;
-            overlay.classList.remove('active');
-            overlay.setAttribute('aria-hidden', 'true');
-            frame.src = '';
-            document.body.style.overflow = '';
+        if (adjusted < minQty) {
+            adjusted = minQty;
         }
+        if (maxQty > 0 && adjusted > maxQty) {
+            adjusted = maxQty;
+        }
+        return adjusted;
+    }
 
-        document.addEventListener('click', function (event) {
-			var target = event.target.closest('.open-place-popup');
-			if (!target) return;
+    function buildOptionHtml(values) {
+        return values.map(function(value) {
+            return '<option value="' + escapeHtml(value) + '">' + escapeHtml(value) + '</option>';
+        }).join('');
+    }
 
-			event.preventDefault();
+    function buildMaterialOption(item, isSelected) {
+        var materialName = escapeHtml(item.materialName);
+        var selectedAttr = isSelected ? ' selected' : '';
+        return '<option value="' + materialName + '"' + selectedAttr + '>' + materialName + '</option>';
+    }
 
-			var type = target.dataset.type;
-			var url = target.getAttribute('href');
+    function updateFilterItemNames() {
+        var select = itemFilter;
+        var categoryName = categoryFilter.value || '';
+        select.innerHTML = '<option value="">품목명 전체</option>';
 
-			openPopup(url, type);
+        (categoryMaterialMap[categoryName] || []).forEach(function(itemName) {
+            var opt = document.createElement('option');
+            opt.value = itemName;
+            opt.textContent = itemName;
+            select.appendChild(opt);
         });
-        
-     	// 삭제 버튼 클릭 시 해당 row 제거
-        document.addEventListener('click', function (event) {
-		    var btn = event.target.closest('.trash');
-		    if (!btn) return;
-		
-		    var row = btn.closest('tr'); // 선택된 trash가 포함된 가장 가까운 tr
-		    var id = row.dataset.id;
-		    
-		    if (!row || !confirm('발주 대상에서 삭제하시겠습니까?')) return;
 
+        if (selectedItemName && (categoryMaterialMap[categoryName] || []).indexOf(selectedItemName) < 0) {
+            selectedItemName = '';
+        }
+        itemFilter.value = selectedItemName;
+    }
 
-		    // 배열 데이터에서도 제거
-	    	// confirm은 동기함수. 버튼 누를 때까지 멈춰 있는다.
-		    if (row.parentNode.id === 'lowStockTbody') {
-		    	// 안전재고 미달 품목
-		        lowStockData = lowStockData.filter(i => i.materialCode !== id);
-		    } else {
-		    	// 수동 추가 품목
-		        addedItemData = addedItemData.filter(i => i.materialCode !== id);
-		    }
-		    
-	        renderTables();
-	        syncPopupState();
-		});
-     	
-     	// 입력 시마다 호출되는 이벤트!
-     	// 요청 수량 변경 시 -> 데이터 반영
-     	document.addEventListener('input', function(e) {
-     		if (!e.target.classList.contains('qty-input')) return;
-     		
-     		var row = e.target.closest('tr');
-     		var id = row.dataset.id;
-     		var qty = Number(e.target.value) || 0; // 수량
-     		
-     	    // 품목 발주 수량 검사
-     	    var min = Number(e.target.min) || 0;
-     	    var max = e.target.max ? Number(e.target.max) : Infinity;
+    function persistDraftChange(action, item) {
+        return fetch(draftApiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ action: action, item: item })
+        }).then(function(response) {
+            if (!response.ok) {
+                return response.json().catch(function() { return {}; }).then(function(payload) {
+                    throw new Error((payload && payload.message) || '발주 임시저장 반영에 실패했습니다.');
+                });
+            }
+            return response.json().catch(function() { return {}; });
+        });
+    }
 
-     	    if (qty < min) qty = min;
-     	    if (qty > max) qty = max;
+    function findMaterialByCode(materialCode) {
+        for (var i = 0; i < allMaterials.length; i += 1) {
+            if (String(allMaterials[i].materialCode) === String(materialCode)) {
+                return allMaterials[i];
+            }
+        }
+        return null;
+    }
 
-     	    // 보정 된 값 다시 input에 반영
-     	    e.target.value = qty;
-     		
-     	    // 데이터 반영
-			if (row.parentNode.id === 'lowStockTbody') {
-			    var item = lowStockData.find(i => i.materialCode === id);
-			    if (item) item.requestedQty = qty;
-			} else {
-			    var item = addedItemData.find(i => i.materialCode === id);
-			    if (item) item.requestedQty = qty;
-			}
-			syncPopupState();
-     	});
+    function getOrderList() {
+        return Object.keys(orderItemsByCode).map(function(code) {
+            return orderItemsByCode[code];
+        });
+    }
 
-		  // 입력 필드에서 포커스가 빠져나갈 때 서버에 요청수량을 반영한다 (blur / focusout)
-		  document.addEventListener('focusout', function(e) {
-			  if (!e.target.classList.contains('qty-input')) return;
+    function getLowStockAndManualLists() {
+        var lowStock = [];
+        var added = [];
 
-			  var row = e.target.closest('tr');
-			  if (!row) return;
-			  var id = row.dataset.id;
-			  var qty = Number(e.target.value) || 0;
+        getOrderList().forEach(function(item) {
+            if (item.sourceType === 'LOW_STOCK') {
+                lowStock.push(item);
+            } else {
+                added.push(item);
+            }
+        });
 
-			  var payload = { materialCode: id, requestedQty: qty };
+        return {
+            lowStock: lowStock,
+            added: added
+        };
+    }
 
-			  persistDraftChange('update-qty', payload)
-				  .then(function() {
-					  // 성공 시 추가 동작 없음 (로컬 상태는 이미 업데이트되어 있음)
-				  })
-				  .catch(function(error) {
-					  alert(error.message || '요청 수량 반영에 실패했습니다.');
-				  });
-		  });
-     	
+    function mergeOrderInfoWithLatestMaterials() {
+        Object.keys(orderItemsByCode).forEach(function(code) {
+            var orderItem = orderItemsByCode[code];
+            var latest = findMaterialByCode(code);
+            if (!latest) {
+                return;
+            }
 
-        if (overlay) {
-            overlay.addEventListener('click', function (event) {
-                if (event.target === overlay) closePopup();
+            orderItem.materialName = latest.materialName;
+            orderItem.categoryName = latest.categoryName;
+            orderItem.unit = latest.unit;
+            orderItem.currentStock = latest.currentStock;
+            orderItem.safeStock = latest.safeStock;
+            orderItem.minQty = latest.minQty;
+            orderItem.maxQty = latest.maxQty;
+            if (orderItem.sourceType !== 'MANUAL') {
+                orderItem.sourceType = latest.isLowStock ? 'LOW_STOCK' : 'MANUAL';
+            }
+            orderItem.requestedQty = clampQty(orderItem, orderItem.requestedQty);
+        });
+    }
+
+    function renderMaterialTable() {
+        var filtered = allMaterials.filter(function(item) {
+            if (lowStockOnly && !item.isLowStock) {
+                return false;
+            }
+            return true;
+        });
+
+        filtered.sort(function(a, b) {
+            var aAdded = !!orderItemsByCode[a.materialCode];
+            var bAdded = !!orderItemsByCode[b.materialCode];
+            if (aAdded !== bAdded) {
+                return aAdded ? -1 : 1;
+            }
+            if (a.isLowStock !== b.isLowStock) {
+                return a.isLowStock ? -1 : 1;
+            }
+            return String(a.materialName).localeCompare(String(b.materialName), 'ko');
+        });
+
+        if (!filtered.length) {
+            materialTbody.innerHTML = '<tr><td class="empty-row" colspan="7">조회 결과가 없습니다.</td></tr>';
+            return;
+        }
+
+        materialTbody.innerHTML = filtered.map(function(item) {
+            var isAdded = !!orderItemsByCode[item.materialCode];
+            var stockClass = item.isLowStock ? 'stock-low' : '';
+            var statusHtml = item.isLowStock
+                ? '<span class="status-low">안전재고 미달</span>'
+                : '<span class="status-normal">정상</span>';
+            var buttonClass = isAdded ? 'btn-add-item is-added' : 'btn-add-item';
+            var buttonLabel = isAdded ? '추가됨' : '추가';
+            var buttonDisabled = isAdded ? 'disabled' : '';
+
+            return '<tr data-code="' + escapeHtml(item.materialCode) + '">' +
+                '<td class="code-cell">' + escapeHtml(item.materialCode) + '</td>' +
+                '<td>' + escapeHtml(item.materialName) + '</td>' +
+                '<td><span class="chip">' + escapeHtml(item.categoryName) + '</span></td>' +
+                '<td class="' + stockClass + '">' + item.currentStock + escapeHtml(item.unit) + '</td>' +
+                '<td>' + item.safeStock + escapeHtml(item.unit) + '</td>' +
+                '<td>' + statusHtml + '</td>' +
+                '<td class="center"><button type="button" class="' + buttonClass + '" data-action="add" data-code="' + escapeHtml(item.materialCode) + '" ' + buttonDisabled + '>' + buttonLabel + '</button></td>' +
+                '</tr>';
+        }).join('');
+    }
+
+    function renderOrderTable() {
+        var orderList = getOrderList();
+
+        orderList.sort(function(a, b) {
+            var aLow = a.sourceType === 'LOW_STOCK';
+            var bLow = b.sourceType === 'LOW_STOCK';
+            if (aLow !== bLow) {
+                return aLow ? -1 : 1;
+            }
+            return String(a.materialName).localeCompare(String(b.materialName), 'ko');
+        });
+
+        var lowStockCount = 0;
+        var manualCount = 0;
+
+        orderList.forEach(function(item) {
+            if (item.sourceType === 'LOW_STOCK') {
+                lowStockCount += 1;
+            } else {
+                manualCount += 1;
+            }
+        });
+
+        lowStockSummary.textContent = lowStockCount + '/' + totalLowStockCount + '개';
+        manualSummary.textContent = manualCount + '개';
+
+        if (!orderList.length) {
+            orderTbody.innerHTML = '<tr><td class="empty-row" colspan="7">발주 품목이 없습니다.</td></tr>';
+            return;
+        }
+
+        orderTbody.innerHTML = orderList.map(function(item) {
+            var minQty = Math.max(0, toNumber(item.minQty));
+            var maxQty = Math.max(0, toNumber(item.maxQty));
+            var hasMax = maxQty > 0;
+            var limitText = hasMax
+                ? ('최소 ' + minQty + ' / 최대 ' + maxQty)
+                : ('최소 ' + minQty);
+            var stockClass = item.sourceType === 'LOW_STOCK' ? 'stock-low' : '';
+
+            return '<tr data-code="' + escapeHtml(item.materialCode) + '">' +
+                '<td class="code-cell">' + escapeHtml(item.materialCode) + '</td>' +
+                '<td>' + escapeHtml(item.materialName) + '</td>' +
+                '<td><span class="chip">' + escapeHtml(item.categoryName) + '</span></td>' +
+                '<td class="' + stockClass + '">' + item.currentStock + escapeHtml(item.unit) + '</td>' +
+                '<td>' + item.safeStock + escapeHtml(item.unit) + '</td>' +
+                '<td>' +
+                    '<div class="qty-cell">' +
+                        '<span class="qty-input-wrap">' +
+                            '<input class="qty-input" type="number" min="' + minQty + '" ' + (hasMax ? ('max="' + maxQty + '"') : '') + ' step="1" value="' + item.requestedQty + '" data-code="' + escapeHtml(item.materialCode) + '">' +
+                            '<span class="unit">' + escapeHtml(item.unit) + '</span>' +
+                        '</span>' +
+                        '<span class="qty-limit">' + limitText + '</span>' +
+                    '</div>' +
+                '</td>' +
+                '<td class="center"><button type="button" class="btn-remove-item" data-action="remove" data-code="' + escapeHtml(item.materialCode) + '">삭제</button></td>' +
+                '</tr>';
+        }).join('');
+    }
+
+    function renderAll() {
+        renderMaterialTable();
+        renderOrderTable();
+    }
+
+    function loadItems() {
+        var params = [];
+
+        if (selectedCategoryName) {
+            params.push('category=' + encodeURIComponent(selectedCategoryName));
+        }
+        if (selectedItemName) {
+            params.push('item=' + encodeURIComponent(selectedItemName));
+        }
+        if (hasText(searchText)) {
+            params.push('search=' + encodeURIComponent(searchText));
+        }
+
+        var requestUrl = itemsApiUrl + (params.length ? ('?' + params.join('&')) : '');
+
+        fetch(requestUrl, { headers: { 'Accept': 'application/json' } })
+            .then(function(response) { return response.json(); })
+            .then(function(payload) {
+                allMaterials = normalizeResponse(payload).map(normalizeMaterial);
+                mergeOrderInfoWithLatestMaterials();
+                renderAll();
+            })
+            .catch(function() {
+                allMaterials = [];
+                renderAll();
+                materialTbody.innerHTML = '<tr><td class="empty-row" colspan="7">데이터를 불러오지 못했습니다.</td></tr>';
             });
+    }
+
+    function initializeDraft() {
+        try {
+            var draftData = JSON.parse(document.getElementById('draftJson').textContent || '{}');
+            var details = draftData.details || [];
+
+            details.forEach(function(item) {
+                if (!item || !item.materialCode) {
+                    return;
+                }
+                var normalized = normalizeOrderItem(item);
+                if (!normalized.requestedQty) {
+                    normalized.requestedQty = clampQty(normalized, normalized.safeStock);
+                }
+                orderItemsByCode[normalized.materialCode] = normalized;
+            });
+        } catch (error) {
+            orderItemsByCode = {};
+        }
+    }
+
+    function openPopup(url, popupType) {
+        if (!overlay || !frame || !url) {
+            return;
         }
 
-        window.addEventListener('message', function (event) {
-			if (!event.data || !event.data.type) return;
+        frame.src = url;
+        overlay.classList.add('active');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
 
-			if (event.data.type === 'close-place-popup') {
-				closePopup();
-				return;
-			}
+        frame.onload = function() {
+            if (popupType !== 'send') {
+                return;
+            }
 
-			if (event.data.type === 'add-item') {
-				var addItem = event.data.item || {};
-				if (!addItem.materialCode) return;
+            frame.contentWindow.postMessage({
+                type: 'init-order-data',
+                data: {
+                        lowStock: getLowStockAndManualLists().lowStock,
+                        added: getLowStockAndManualLists().added,
+                        totalLowStockCount: totalLowStockCount
+                    }
+            }, '*');
+        };
+    }
 
-				persistDraftChange('add', addItem)
-					.then(function() {
-						applyLocalDraftChange('add', addItem);
-						renderTables();
-						syncPopupState();
-					})
-					.catch(function(error) {
-						alert(error.message || '발주 임시저장 반영에 실패했습니다.');
-						syncPopupState();
-					});
-				return;
-			}
+    function closePopup() {
+        if (!overlay || !frame) {
+            return;
+        }
 
-			if (event.data.type === 'remove-item') {
-				var removeItem = event.data.item || {};
-				if (!removeItem.materialCode) return;
+        overlay.classList.remove('active');
+        overlay.setAttribute('aria-hidden', 'true');
+        frame.src = '';
+        document.body.style.overflow = '';
+    }
 
-				persistDraftChange('remove', removeItem)
-					.then(function() {
-						applyLocalDraftChange('remove', removeItem);
-						renderTables();
-						syncPopupState();
-					})
-					.catch(function(error) {
-						alert(error.message || '발주 임시저장 반영에 실패했습니다.');
-						syncPopupState();
-					});
-			}
+    document.addEventListener('click', function(event) {
+        var sendButton = event.target.closest('.open-place-popup');
+        if (!sendButton) {
+            return;
+        }
+
+        event.preventDefault();
+
+        if (!getOrderList().length) {
+            alert('발주 품목이 없습니다. 품목을 추가한 뒤 전송하세요.');
+            return;
+        }
+
+        openPopup(sendButton.getAttribute('href'), sendButton.dataset.type);
+    });
+
+    materialTbody.addEventListener('click', function(event) {
+        var addButton = event.target.closest('button[data-action="add"]');
+        if (!addButton || addButton.disabled) {
+            return;
+        }
+
+        var code = addButton.dataset.code;
+        var baseMaterial = findMaterialByCode(code);
+        if (!baseMaterial) {
+            return;
+        }
+
+        var sourceType = baseMaterial.isLowStock ? 'LOW_STOCK' : 'MANUAL';
+        var requestedQty = clampQty(baseMaterial, baseMaterial.safeStock);
+
+        var payload = {
+            materialCode: baseMaterial.materialCode,
+            materialName: baseMaterial.materialName,
+            categoryName: baseMaterial.categoryName,
+            currentStock: baseMaterial.currentStock,
+            safeStock: baseMaterial.safeStock,
+            minQty: baseMaterial.minQty,
+            maxQty: baseMaterial.maxQty,
+            unit: baseMaterial.unit,
+            sourceType: sourceType,
+            requestedQty: requestedQty
+        };
+
+        persistDraftChange('add', payload)
+            .then(function() {
+                orderItemsByCode[code] = normalizeOrderItem(payload);
+                renderAll();
+            })
+            .catch(function(error) {
+                alert(error.message || '품목 추가에 실패했습니다.');
+            });
+    });
+
+    orderTbody.addEventListener('click', function(event) {
+        var removeButton = event.target.closest('button[data-action="remove"]');
+        if (!removeButton) {
+            return;
+        }
+
+        var code = removeButton.dataset.code;
+        if (!orderItemsByCode[code]) {
+            return;
+        }
+
+        persistDraftChange('remove', { materialCode: code })
+            .then(function() {
+                delete orderItemsByCode[code];
+                renderAll();
+            })
+            .catch(function(error) {
+                alert(error.message || '품목 삭제에 실패했습니다.');
+            });
+    });
+
+    orderTbody.addEventListener('input', function(event) {
+        if (!event.target.classList.contains('qty-input')) {
+            return;
+        }
+
+        var input = event.target;
+        var code = input.dataset.code;
+        var item = orderItemsByCode[code];
+        if (!item) {
+            return;
+        }
+
+        var adjustedQty = clampQty(item, input.value);
+        item.requestedQty = adjustedQty;
+        input.value = adjustedQty;
+    });
+
+    orderTbody.addEventListener('focusout', function(event) {
+        if (!event.target.classList.contains('qty-input')) {
+            return;
+        }
+
+        var input = event.target;
+        var code = input.dataset.code;
+        var item = orderItemsByCode[code];
+        if (!item) {
+            return;
+        }
+
+        var adjustedQty = clampQty(item, input.value);
+        item.requestedQty = adjustedQty;
+        input.value = adjustedQty;
+
+        persistDraftChange('update-qty', {
+            materialCode: code,
+            requestedQty: adjustedQty
+        }).catch(function(error) {
+            alert(error.message || '요청 수량 반영에 실패했습니다.');
         });
-    })();
+    });
+
+    categoryFilter.addEventListener('change', function() {
+        selectedCategoryName = categoryFilter.value || '';
+        selectedItemName = '';
+        updateFilterItemNames();
+        loadItems();
+    });
+
+    itemFilter.addEventListener('change', function() {
+        selectedItemName = itemFilter.value || '';
+        loadItems();
+    });
+
+    searchFilter.addEventListener('input', function() {
+        searchText = String(searchFilter.value || '').trim();
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(loadItems, 250);
+    });
+
+    lowStockOnlyFilter.addEventListener('change', function() {
+        lowStockOnly = !!lowStockOnlyFilter.checked;
+        renderMaterialTable();
+    });
+
+    if (overlay) {
+        overlay.addEventListener('click', function(event) {
+            if (event.target === overlay) {
+                closePopup();
+            }
+        });
+    }
+
+    window.addEventListener('message', function(event) {
+        if (!event.data || !event.data.type) {
+            return;
+        }
+
+        if (event.data.type === 'close-place-popup') {
+            closePopup();
+        }
+    });
+
+    initializeDraft();
+    updateFilterItemNames();
+    loadItems();
+})();
 </script>
 </body>
 </html>

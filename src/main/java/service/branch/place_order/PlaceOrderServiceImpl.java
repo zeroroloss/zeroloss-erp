@@ -17,6 +17,8 @@ import dto.branch.place_order.PlaceOrderDraftDTO;
 import dto.branch.place_order.PlaceOrderDraftDetailDTO;
 import dto.branch.place_order.PlaceOrderHistoryDTO;
 import dto.branch.place_order.PlaceOrderDTO;
+import dto.MaterialDTO;
+import dto.MaterialGroupDTO;
 import util.MyBatisSqlSessionFactory;
 
 public class PlaceOrderServiceImpl implements PlaceOrderService {
@@ -407,6 +409,30 @@ public class PlaceOrderServiceImpl implements PlaceOrderService {
 				return true;
 			}).collect(Collectors.toList());
 
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			sqlSession.close();
+		}
+	}
+
+	@Override
+	public List<MaterialGroupDTO> getSelectableCategories(int branchCode) {
+		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false);
+		try {
+			return draftDAO.findSelectableCategories(sqlSession, branchCode);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			sqlSession.close();
+		}
+	}
+
+	@Override
+	public List<MaterialDTO> getSelectableMaterials(Integer materialGroupId) {
+		SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false);
+		try {
+			return draftDAO.findSelectableMaterials(sqlSession, materialGroupId);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {

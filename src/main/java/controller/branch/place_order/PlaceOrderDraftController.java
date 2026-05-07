@@ -1,6 +1,7 @@
 package controller.branch.place_order;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,9 +15,9 @@ import javax.servlet.http.HttpSession;
 import com.google.gson.Gson;
 
 import dto.AccountDTO;
+import dto.MaterialDTO;
+import dto.MaterialGroupDTO;
 import dto.branch.place_order.PlaceOrderDraftDTO;
-import dto.branch.place_order.PlaceOrderDraftDetailDTO;
-import dto.hq.place_order.PlaceOrderMaterialDTO;
 import service.branch.place_order.PlaceOrderService;
 import service.branch.place_order.PlaceOrderServiceImpl;
 
@@ -51,10 +52,33 @@ public class PlaceOrderDraftController extends HttpServlet {
 			
 			// 전체 미달 품목 개수
 			int lowStockTotalCount = service.getLowStockTotalCount(branchCode);
+
+			List<MaterialGroupDTO> categoryList = service.getSelectableCategories(branchCode);
+			Map<String, List<String>> categoryMaterialMap = new LinkedHashMap<>();
+			if (categoryList != null) {
+				for (MaterialGroupDTO category : categoryList) {
+					if (category == null || category.getMaterialGroupId() == null || category.getGroupName() == null) {
+						continue;
+					}
+
+					List<MaterialDTO> materialList = service.getSelectableMaterials(category.getMaterialGroupId());
+					categoryMaterialMap.put(category.getGroupName(), new java.util.ArrayList<>());
+					if (materialList == null) {
+						continue;
+					}
+
+					for (MaterialDTO material : materialList) {
+						if (material != null && material.getMaterialName() != null) {
+							categoryMaterialMap.get(category.getGroupName()).add(material.getMaterialName());
+						}
+					}
+				}
+			}
 			
 			// 응답 - 페이지 전송
             request.setAttribute("draft", draftDTO);
             request.setAttribute("lowStockTotalCount", lowStockTotalCount);
+			request.setAttribute("categoryMaterialMap", categoryMaterialMap);
 			request.getRequestDispatcher("/branch/place_order/create.jsp").forward(request, response);
 			
 		} catch (Exception e) {
