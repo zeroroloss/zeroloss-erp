@@ -110,6 +110,96 @@
 	        background-color: #f3f4f6;
 	        color: #6b7280;
 	    }
+	    
+	    /* 커스텀 날짜 선택기 */
+		.custom-date-picker {
+		    position: fixed;
+		    width: 300px;
+		    background: #fff;
+		    border: 1px solid #d1d5db;
+		    border-radius: 0.75rem;
+		    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+		    z-index: 9999;
+		    padding: 14px;
+		}
+		
+		.custom-date-picker.hidden {
+		    display: none;
+		}
+		
+		.custom-date-picker-header {
+		    display: flex;
+		    align-items: center;
+		    justify-content: space-between;
+		    margin-bottom: 12px;
+		}
+		
+		.custom-date-picker-title {
+		    font-size: 14px;
+		    font-weight: 700;
+		    color: #111827;
+		}
+		
+		.custom-date-nav-btn {
+		    width: 30px;
+		    height: 30px;
+		    border-radius: 0.5rem;
+		    border: 1px solid #e5e7eb;
+		    color: #4b5563;
+		    background: #fff;
+		    cursor: pointer;
+		}
+		
+		.custom-date-nav-btn:hover {
+		    background: #f3f4f6;
+		}
+		
+		.custom-date-weekdays,
+		.custom-date-days {
+		    display: grid;
+		    grid-template-columns: repeat(7, 1fr);
+		    gap: 4px;
+		}
+		
+		.custom-date-weekdays div {
+		    text-align: center;
+		    font-size: 11px;
+		    font-weight: 700;
+		    color: #6b7280;
+		    padding: 4px 0;
+		}
+		
+		.custom-date-day {
+		    height: 32px;
+		    border-radius: 0.5rem;
+		    border: none;
+		    background: #fff;
+		    font-size: 12px;
+		    cursor: pointer;
+		    color: #111827;
+		}
+		
+		.custom-date-day:hover {
+		    background: #ecfdf3;
+		    color: #00853D;
+		    font-weight: 700;
+		}
+		
+		.custom-date-day.other-month {
+		    color: #c4c4c4;
+		}
+		
+		.custom-date-day.today {
+		    border: 1px solid #00853D;
+		    color: #00853D;
+		    font-weight: 700;
+		}
+		
+		.custom-date-day.selected {
+		    background: #00853D;
+		    color: #fff;
+		    font-weight: 700;
+		}
 	</style>
 </head>
 <body class="bg-gray-50">
@@ -312,14 +402,26 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">기간 <span class="text-red-500">*</span>
                     </label>
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">시작 날짜</label>
-                            <input type="date" id="startDay" value="2026-01-01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">종료 날짜</label>
-                            <input type="date" id="endDay" value="2026-12-31" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                        </div>
+                        <div class="relative">
+						    <input type="text"
+						           id="startDay"
+						           readonly
+						           onclick="openCustomDatePicker('startDay', event)"
+						           placeholder="YYYY-MM-DD"
+						           class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent bg-white cursor-pointer">
+						
+						    <i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+						</div>
+                        <div class="relative">
+						    <input type="text"
+						           id="endDay"
+						           readonly
+						           onclick="openCustomDatePicker('endDay', event)"
+						           placeholder="YYYY-MM-DD"
+						           class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent bg-white cursor-pointer">
+						
+						    <i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+						</div>
                     </div>
                 </div>
 
@@ -380,14 +482,26 @@
 	            <div>
 	                <label class="block text-sm font-medium text-gray-700 mb-2">기간</label>
 	                <div class="grid grid-cols-2 gap-4">
-	                    <div>
-	                        <label class="block text-xs text-gray-500 mb-1">시작 날짜</label>
-	                        <input type="date" id="editStartDay" class="modal-input">
-	                    </div>
-	                    <div>
-	                        <label class="block text-xs text-gray-500 mb-1">종료 날짜</label>
-	                        <input type="date" id="editEndDay" class="modal-input">
-	                    </div>
+	                    <div class="relative">
+						    <input type="text"
+						           id="editStartDay"
+						           readonly
+						           onclick="openCustomDatePicker('editStartDay', event)"
+						           placeholder="YYYY-MM-DD"
+						           class="modal-input pr-10 bg-white cursor-pointer">
+						
+						    <i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+						</div>
+	                    <div class="relative">
+						    <input type="text"
+						           id="editEndDay"
+						           readonly
+						           onclick="openCustomDatePicker('editEndDay', event)"
+						           placeholder="YYYY-MM-DD"
+						           class="modal-input pr-10 bg-white cursor-pointer">
+						
+						    <i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+						</div>
 	                </div>
 	            </div>
 	            
@@ -429,6 +543,43 @@
 	            </div>
 	        </div>
 	    </div>
+	</div>
+	
+	<!-- 커스텀 달력 -->
+	<div id="customDatePicker" class="custom-date-picker hidden" onclick="event.stopPropagation()">
+	    <div class="custom-date-picker-header">
+	        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(-1)">
+	            <i class="fas fa-chevron-left text-xs"></i>
+	        </button>
+	
+	        <div class="flex items-center gap-2">
+			    <select id="customDatePickerYear"
+			            onchange="changeCustomPickerYearMonth()"
+			            class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+			    </select>
+			
+			    <select id="customDatePickerMonth"
+			            onchange="changeCustomPickerYearMonth()"
+			            class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+			    </select>
+			</div>
+	
+	        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(1)">
+	            <i class="fas fa-chevron-right text-xs"></i>
+	        </button>
+	    </div>
+	
+	    <div class="custom-date-weekdays">
+	        <div>일</div>
+	        <div>월</div>
+	        <div>화</div>
+	        <div>수</div>
+	        <div>목</div>
+	        <div>금</div>
+	        <div>토</div>
+	    </div>
+	
+	    <div id="customDatePickerDays" class="custom-date-days"></div>
 	</div>
 
 	<script>
@@ -952,6 +1103,7 @@
 	    }
 	
 	    function closeAddModal() {
+	    	closeCustomDatePicker();
 	        document.getElementById('addModal').classList.add('modal-hidden');
 	    }
 	
@@ -1051,6 +1203,10 @@
 	            editStartTime.classList.add('readonly-gray');
 	            editEndTime.classList.add('readonly-gray');
 	            editNotes.classList.add('readonly-gray');
+	            editStartDay.onclick = null;
+	            editEndDay.onclick = null;
+	            editStartDay.classList.remove('cursor-pointer');
+	            editEndDay.classList.remove('cursor-pointer');
 
 	            if (saveBtn) saveBtn.classList.add('hidden');
 	            if (deleteBtn) deleteBtn.classList.add('hidden');
@@ -1075,6 +1231,16 @@
 	            editStartDay.classList.remove('readonly-gray');
 	            editEndDay.classList.remove('readonly-gray');
 	            editNotes.classList.remove('readonly-gray');
+	            editStartDay.onclick = function(event) {
+	                openCustomDatePicker('editStartDay', event);
+	            };
+
+	            editEndDay.onclick = function(event) {
+	                openCustomDatePicker('editEndDay', event);
+	            };
+
+	            editStartDay.classList.add('cursor-pointer');
+	            editEndDay.classList.add('cursor-pointer');
 
 	            if (saveBtn) saveBtn.classList.remove('hidden');
 	            if (deleteBtn) deleteBtn.classList.remove('hidden');
@@ -1102,6 +1268,7 @@
 	    }
 	
 	    function closeEditModal() {
+	    	closeCustomDatePicker();
 	        document.getElementById('editModal').classList.add('modal-hidden');
 	    }
 	
@@ -1184,7 +1351,231 @@
 				});
 			});
 	    }
-	
+	    
+	    // 커스텀 달력
+	    var customDateTargetId = null;
+		var customPickerDate = new Date();
+		
+		function parseDateLocal(dateStr) {
+		    if (!dateStr) return null;
+		
+		    var parts = String(dateStr).split('-');
+		
+		    if (parts.length !== 3) {
+		        return null;
+		    }
+		
+		    return new Date(
+		        Number(parts[0]),
+		        Number(parts[1]) - 1,
+		        Number(parts[2])
+		    );
+		}
+		
+		function formatDateLocal(date) {
+		    return date.getFullYear() + '-' +
+		        String(date.getMonth() + 1).padStart(2, '0') + '-' +
+		        String(date.getDate()).padStart(2, '0');
+		}
+		
+		function openCustomDatePicker(inputId, event) {
+		    if (event) {
+		        event.stopPropagation();
+		    }
+		
+		    customDateTargetId = inputId;
+		
+		    var input = document.getElementById(inputId);
+		    var selectedDate = parseDateLocal(input.value);
+		
+		    customPickerDate = selectedDate || new Date();
+		
+		    renderCustomDatePicker();
+		    positionCustomDatePicker(input);
+		
+		    document.getElementById('customDatePicker').classList.remove('hidden');
+		}
+		
+		function positionCustomDatePicker(input) {
+		    var picker = document.getElementById('customDatePicker');
+		    var rect = input.getBoundingClientRect();
+		
+		    var top = rect.bottom + 6;
+		    var left = rect.left;
+		
+		    if (left + 280 > window.innerWidth) {
+		        left = window.innerWidth - 292;
+		    }
+		
+		    if (top + 330 > window.innerHeight) {
+		        top = rect.top - 330;
+		    }
+		
+		    picker.style.top = top + 'px';
+		    picker.style.left = left + 'px';
+		}
+		
+		function changeCustomPickerMonth(amount) {
+		    customPickerDate.setMonth(customPickerDate.getMonth() + amount);
+		    renderCustomDatePicker();
+		}
+		
+		function changeCustomPickerYearMonth() {
+		    var yearSelect = document.getElementById('customDatePickerYear');
+		    var monthSelect = document.getElementById('customDatePickerMonth');
+
+		    var selectedYear = Number(yearSelect.value);
+		    var selectedMonth = Number(monthSelect.value);
+
+		    customPickerDate = new Date(selectedYear, selectedMonth, 1);
+
+		    renderCustomDatePicker();
+		}
+		
+		function renderCustomDatePicker() {
+		    var year = customPickerDate.getFullYear();
+		    var month = customPickerDate.getMonth();
+		
+		    renderCustomPickerYearMonthSelect(year, month);
+		
+		    var firstDay = new Date(year, month, 1);
+		    var lastDay = new Date(year, month + 1, 0);
+		    var prevLastDay = new Date(year, month, 0);
+		
+		    var startDay = firstDay.getDay();
+		    var days = [];
+		
+		    for (var i = startDay - 1; i >= 0; i--) {
+		        days.push({
+		            date: new Date(year, month - 1, prevLastDay.getDate() - i),
+		            currentMonth: false
+		        });
+		    }
+		
+		    for (var d = 1; d <= lastDay.getDate(); d++) {
+		        days.push({
+		            date: new Date(year, month, d),
+		            currentMonth: true
+		        });
+		    }
+		
+		    var nextDay = 1;
+		
+		    while (days.length < 42) {
+		        days.push({
+		            date: new Date(year, month + 1, nextDay),
+		            currentMonth: false
+		        });
+		        nextDay++;
+		    }
+		
+		    var targetInput = customDateTargetId ? document.getElementById(customDateTargetId) : null;
+		    var selectedValue = targetInput ? targetInput.value : '';
+		    var todayValue = formatDateLocal(new Date());
+		
+		    var html = '';
+		
+		    for (var j = 0; j < days.length; j++) {
+		        var dateValue = formatDateLocal(days[j].date);
+		
+		        var className = 'custom-date-day';
+		
+		        if (!days[j].currentMonth) {
+		            className += ' other-month';
+		        }
+		
+		        if (dateValue === todayValue) {
+		            className += ' today';
+		        }
+		
+		        if (dateValue === selectedValue) {
+		            className += ' selected';
+		        }
+		
+		        html += '<button type="button" class="' + className + '" onclick="selectCustomDate(\'' + dateValue + '\')">';
+		        html += days[j].date.getDate();
+		        html += '</button>';
+		    }
+		
+		    document.getElementById('customDatePickerDays').innerHTML = html;
+		}
+		
+		function renderCustomPickerYearMonthSelect(year, month) {
+		    var yearSelect = document.getElementById('customDatePickerYear');
+		    var monthSelect = document.getElementById('customDatePickerMonth');
+
+		    var yearHtml = '';
+		    var startYear = year - 10;
+		    var endYear = year + 10;
+
+		    for (var y = startYear; y <= endYear; y++) {
+		        yearHtml += '<option value="' + y + '"';
+
+		        if (y === year) {
+		            yearHtml += ' selected';
+		        }
+
+		        yearHtml += '>' + y + '년</option>';
+		    }
+
+		    var monthHtml = '';
+
+		    for (var m = 0; m < 12; m++) {
+		        monthHtml += '<option value="' + m + '"';
+
+		        if (m === month) {
+		            monthHtml += ' selected';
+		        }
+
+		        monthHtml += '>' + (m + 1) + '월</option>';
+		    }
+
+		    yearSelect.innerHTML = yearHtml;
+		    monthSelect.innerHTML = monthHtml;
+		}
+		
+		function selectCustomDate(dateValue) {
+		    if (!customDateTargetId) {
+		        return;
+		    }
+		
+		    document.getElementById(customDateTargetId).value = dateValue;
+		    var picker = document.getElementById('customDatePicker');
+		    picker.classList.add('hidden');
+
+		    customDateTargetId = null;
+		}
+		
+		function closeCustomDatePicker() {
+		    document.getElementById('customDatePicker').classList.add('hidden');
+		    customDateTargetId = null;
+		}
+		
+		document.addEventListener('mousedown', function(event) {
+		    var picker = document.getElementById('customDatePicker');
+
+		    if (!picker || picker.classList.contains('hidden')) {
+		        return;
+		    }
+
+		    var target = event.target;
+
+		    if (picker.contains(target)) {
+		        return;
+		    }
+
+		    if (
+		        customDateTargetId &&
+		        document.getElementById(customDateTargetId) &&
+		        document.getElementById(customDateTargetId).contains(target)
+		    ) {
+		        return;
+		    }
+
+		    closeCustomDatePicker();
+		});
+
+	    // 사이드바
 	    function toggleMenu(button) {
 	        var submenu = button.nextElementSibling;
 	

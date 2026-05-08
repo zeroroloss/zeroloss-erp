@@ -36,8 +36,8 @@
         <div class="space-y-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">문의사항 관리</h1>
-                    <p class="text-gray-500 mt-2">전체 직영점에서 접수된 문의사항을 확인하고 답변할 수 있습니다.</p>
+                    <h2 class="text-3xl font-bold text-gray-900">문의사항 관리</h2>
+                    <p class="text-gray-500 mt-1">전체 직영점에서 접수된 문의사항을 확인하고 답변할 수 있습니다.</p>
                 </div>
             </div>
 
@@ -119,9 +119,12 @@
                             <option value="답변 완료">답변 완료</option>
                         </select>
                     </div>
-                    <button onclick="submitReply()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        <i class="fas fa-paper-plane mr-2"></i>답변 등록
-                    </button>
+                    <button type="button"
+					        onclick="submitReply()"
+					        class="inline-flex items-center gap-1 px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+					    <i class="fas fa-paper-plane text-xs"></i>
+					    답변 등록
+					</button>
                 </div>
             </div>
         </div>
@@ -199,7 +202,7 @@
                             <div class="mb-2">\${chips}</div>
                             <h3 class="font-bold text-lg text-gray-900 mb-1">\${inquiry.title}</h3>
                             <p class="text-gray-600 line-clamp-1">\${inquiry.content}</p>
-                            <div class="flex gap-4 text-xs text-gray-400 mt-3">
+                            <div class="flex gap-4 text-sm text-gray-500 mt-3">
                                 <span><i class="fas fa-calendar mr-1"></i>\${inquiry.createdAt}</span>
                                 <span><i class="fas fa-building mr-1"></i>\${inquiry.branchName}</span>
                                 <span><i class="fas fa-comment mr-1"></i>답변 \${validReplies.length}개</span>

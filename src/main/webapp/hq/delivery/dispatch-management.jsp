@@ -19,10 +19,13 @@
         <main class="p-6">
             <div class="space-y-6">
 
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-900">배차 관리</h2>
-                    <p class="text-gray-500 mt-2">발주 승인 건을 권역별로 그룹화하고 기사와 차량을 배정하세요</p>
-                </div>
+                <!-- 페이지 헤더 -->
+				<div class="flex items-center justify-between">
+				    <div>
+				        <h2 class="text-3xl font-bold text-gray-900">배차 관리</h2>
+				        <p class="text-gray-500 mt-1">발주 승인 건을 권역별로 그룹화하고 기사와 차량을 배정하세요</p>
+				    </div>
+				</div>
 
                 <div>
                     <div class="flex justify-between items-center mb-4">
@@ -30,9 +33,13 @@
                             <h3 class="text-xl font-bold text-gray-900">배차 대기 발주 건</h3>
                             <select id="regionFilter" onchange="selectRegion(this.value)" class="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-[#00853D] focus:border-transparent transition-shadow"></select>
                         </div>
-                        <button onclick="openDispatchModal()" id="createDispatchBtn" class="px-4 py-2 bg-[#00853D] text-white rounded-lg flex items-center gap-2 text-sm whitespace-nowrap">
-                            <i class="fas fa-plus w-4 h-4"></i> 배차 생성
-                        </button>
+                        <button type="button"
+						        onclick="openDispatchModal()"
+						        id="createDispatchBtn"
+						        class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
+						    <i class="fas fa-truck w-5 h-5"></i>
+						    <span>배차 생성</span>
+						</button>
                     </div>
                     <div class="bg-white rounded-lg border border-gray-200 overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
@@ -57,47 +64,103 @@
     </div>
 
     <!-- 배차 생성 모달 -->
-    <div id="dispatchModal" class="fixed inset-0 z-40 hidden modal-center modal-backdrop">
-        <div class="bg-white rounded-lg shadow-lg max-w-3xl w-full mx-4">
-            <div class="border-b p-6"><h3 class="text-xl font-bold">배차 생성</h3><p class="text-sm text-gray-500 mt-1">배차할 발주 건을 선택하고, 기사와 차량을 배정하세요.</p></div>
-            <div class="p-6 grid grid-cols-2 gap-6 max-h-[70vh]">
-                <div class="space-y-4">
-                    <h4 class="font-bold text-gray-800">1. 발주 건 선택</h4>
-                    <div id="modalOrderList" class="border rounded-lg h-64 overflow-y-auto p-2 space-y-1 bg-gray-50">
-                        <!-- 모달 내 발주 목록 -->
-                    </div>
-                </div>
-                <div class="space-y-4">
-                    <h4 class="font-bold text-gray-800">2. 기사 및 차량 배정</h4>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">선택 권역</label>
-                        <p id="selectedRegionText" class="px-3 py-2 border rounded-lg bg-gray-100 text-gray-600 text-sm">발주 건을 먼저 선택하세요.</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">기사 선택</label>
-                        <select id="driverSelect" class="w-full px-3 py-2 border rounded-lg text-sm" disabled></select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium mb-1">차량 선택</label>
-                        <select id="vehicleSelect" class="w-full px-3 py-2 border rounded-lg text-sm" disabled></select>
-                    </div>
-                </div>
-            </div>
-            <div class="border-t p-6 flex gap-2 justify-end bg-gray-50">
-                <button onclick="closeDispatchModal()" class="px-4 py-2 border rounded-lg text-sm">취소</button>
-                <button onclick="createDispatch()" id="modalCreateDispatchBtn" class="px-4 py-2 bg-gray-300 text-white rounded-lg text-sm" disabled>배차 생성</button>
-            </div>
-        </div>
-    </div>
+<div id="dispatchModal" class="fixed inset-0 z-40 hidden modal-center modal-backdrop p-4">
+    <div class="bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
 
-    <!-- 발주 상세 모달 -->
-    <div id="orderDetailModal" class="fixed inset-0 z-50 hidden modal-center modal-backdrop">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl">
-            <div class="px-6 py-4 border-b flex justify-between items-center"><h3 id="orderDetailModalTitle" class="text-xl font-bold text-gray-900"></h3><button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times fa-lg"></i></button></div>
-            <div id="orderDetailModalBody" class="p-6 max-h-[70vh] overflow-y-auto"></div>
-            <div class="px-6 py-4 bg-gray-50 rounded-b-lg flex justify-end"><button onclick="closeDetailModal()" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 text-sm font-medium">닫기</button></div>
+        <!-- 모달 헤더 -->
+        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
+            <div>
+                <h3 class="text-lg font-bold text-gray-900">배차 생성</h3>
+                <p class="text-sm text-gray-500 mt-1">배차할 발주 건을 선택하고, 기사와 차량을 배정하세요.</p>
+            </div>
+
+            <button type="button"
+                    onclick="closeDispatchModal()"
+                    class="text-gray-400 hover:text-gray-600"
+                    title="닫기">
+                <i class="fas fa-times w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- 모달 본문 -->
+        <div class="p-6 grid grid-cols-2 gap-6 max-h-[70vh]">
+            <div class="space-y-4">
+                <h4 class="font-bold text-gray-800">1. 발주 건 선택</h4>
+                <div id="modalOrderList" class="border rounded-lg h-64 overflow-y-auto p-2 space-y-1 bg-gray-50">
+                    <!-- 모달 내 발주 목록 -->
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h4 class="font-bold text-gray-800">2. 기사 및 차량 배정</h4>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">선택 권역</label>
+                    <p id="selectedRegionText" class="px-3 py-2 border rounded-lg bg-gray-100 text-gray-600 text-sm">
+                        발주 건을 먼저 선택하세요.
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">기사 선택</label>
+                    <select id="driverSelect" class="w-full px-3 py-2 border rounded-lg text-sm" disabled></select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium mb-1">차량 선택</label>
+                    <select id="vehicleSelect" class="w-full px-3 py-2 border rounded-lg text-sm" disabled></select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 모달 푸터 -->
+        <div class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
+            <button type="button"
+                    onclick="closeDispatchModal()"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                취소
+            </button>
+
+            <button type="button"
+                    onclick="createDispatch()"
+                    id="modalCreateDispatchBtn"
+                    class="px-4 py-2 bg-gray-300 text-white rounded-lg text-sm"
+                    disabled>
+                배차 생성
+            </button>
         </div>
     </div>
+</div>
+
+<!-- 발주 상세 모달 -->
+<div id="orderDetailModal" class="fixed inset-0 z-50 hidden modal-center modal-backdrop p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+
+        <!-- 상세 모달 헤더 -->
+        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
+            <h3 id="orderDetailModalTitle" class="text-lg font-bold text-gray-900"></h3>
+
+            <button type="button"
+                    onclick="closeDetailModal()"
+                    class="text-gray-400 hover:text-gray-600"
+                    title="닫기">
+                <i class="fas fa-times w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- 상세 모달 본문 -->
+        <div id="orderDetailModalBody" class="p-6 max-h-[70vh] overflow-y-auto"></div>
+
+        <!-- 상세 모달 푸터 -->
+        <div class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
+            <button type="button"
+                    onclick="closeDetailModal()"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                닫기
+            </button>
+        </div>
+    </div>
+</div>
 
 <script>
 let allPendingOrders = [], allRegions = [], selectedRegion = "전체", currentPage = 1, itemsPerPage = 8;
@@ -234,12 +297,15 @@ async function loadDriverAndVehicleOptions(regionCode) {
 
 function updateModalCreateButton() {
     const btn = document.getElementById('modalCreateDispatchBtn');
+
     if (modalSelectedOrders.size > 0) {
         btn.disabled = false;
-        btn.classList.replace('bg-gray-300', 'bg-[#00853D]');
+        btn.classList.remove('bg-gray-300', 'cursor-not-allowed');
+        btn.classList.add('bg-[#00853D]', 'hover:bg-[#006B2F]');
     } else {
         btn.disabled = true;
-        btn.classList.replace('bg-[#00853D]', 'bg-gray-300');
+        btn.classList.remove('bg-[#00853D]', 'hover:bg-[#006B2F]');
+        btn.classList.add('bg-gray-300', 'cursor-not-allowed');
     }
 }
 

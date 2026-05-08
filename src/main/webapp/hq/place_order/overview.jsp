@@ -20,6 +20,90 @@
     color: #2563eb !important;
     box-shadow: inset 0 -2px 0 #4f7dff;
 }
+
+/* 커스텀 날짜 선택기 */
+.custom-date-picker {
+    position: fixed;
+    width: 300px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 0.75rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    padding: 14px;
+}
+
+.custom-date-picker.hidden {
+    display: none;
+}
+
+.custom-date-picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.custom-date-nav-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    color: #4b5563;
+    background: #fff;
+    cursor: pointer;
+}
+
+.custom-date-nav-btn:hover {
+    background: #f3f4f6;
+}
+
+.custom-date-weekdays,
+.custom-date-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.custom-date-weekdays div {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    padding: 4px 0;
+}
+
+.custom-date-day {
+    height: 32px;
+    border-radius: 0.5rem;
+    border: none;
+    background: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    color: #111827;
+}
+
+.custom-date-day:hover {
+    background: #ecfdf3;
+    color: #00853D;
+    font-weight: 700;
+}
+
+.custom-date-day.other-month {
+    color: #c4c4c4;
+}
+
+.custom-date-day.today {
+    border: 1px solid #00853D;
+    color: #00853D;
+    font-weight: 700;
+}
+
+.custom-date-day.selected {
+    background: #00853D;
+    color: #fff;
+    font-weight: 700;
+}
 </style>
 <!-- 넘어온 데이터를 js로 반들기 -->
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -39,44 +123,80 @@
         </div>
 
         <!-- ===== 검색 필터 영역 ===== -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">지점 선택</label>
-                    <select id="filterBranch"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-
-                        <option value="전체">전체</option>
-
-                        <c:if test="${not empty branchNames}">
-                            <c:forEach var="name" items="${branchNames}">
-                                <option value="${name}"
-                                    <c:if test="${param.branchName == name}">selected</c:if>>
-                                    ${name}
-                                </option>
-                            </c:forEach>
-                        </c:if>
-
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">일자 범위 선택</label>
-                    <div class="flex items-center gap-2">
-                        <input type="date" id="filterStartDate"
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                        <span class="text-gray-500">~</span>
-                        <input type="date" id="filterEndDate"
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                    </div>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <button onclick="applyFilters()"
-                    class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">조회하기</button>
-                <button onclick="resetFilters()"
-                    class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">초기화</button>
-            </div>
-        </div>
+		<div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm mb-6">
+		    <div class="flex flex-col gap-4">
+		
+		        <!-- 검색 / 필터 -->
+		        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+		
+		            <!-- 왼쪽 설명 -->
+		            <div>
+		                <h3 class="text-sm font-semibold text-gray-800">발주 요청 조회</h3>
+		                <p class="text-xs text-gray-500 mt-1">
+		                    지점과 일자 범위를 선택하여 발주 요청 내역을 조회할 수 있습니다.
+		                </p>
+		            </div>
+		
+		            <!-- 오른쪽 필터 -->
+		            <div class="flex flex-wrap items-center gap-2">
+		
+		                <!-- 지점 선택 -->
+		                <select id="filterBranch"
+		                        class="w-44 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+		                    <option value="전체">전체 지점</option>
+		
+		                    <c:if test="${not empty branchNames}">
+		                        <c:forEach var="name" items="${branchNames}">
+		                            <option value="${name}"
+		                                <c:if test="${param.branchName == name}">selected</c:if>>
+		                                ${name}
+		                            </option>
+		                        </c:forEach>
+		                    </c:if>
+		                </select>
+		
+		                <!-- 시작일 -->
+						<div class="relative w-52">
+						    <input type="text"
+						           id="filterStartDate"
+						           readonly
+						           onclick="openCustomDatePicker('filterStartDate', event)"
+						           placeholder="시작일 선택"
+						           class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all bg-white cursor-pointer">
+						
+						    <i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+						</div>
+						
+						<span class="text-gray-500 text-sm">~</span>
+						
+						<!-- 종료일 -->
+						<div class="relative w-52">
+						    <input type="text"
+						           id="filterEndDate"
+						           readonly
+						           onclick="openCustomDatePicker('filterEndDate', event)"
+						           placeholder="종료일 선택"
+						           class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all bg-white cursor-pointer">
+						
+						    <i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+						</div>
+		
+		                <!-- 버튼 -->
+		                <button type="button"
+		                        onclick="applyFilters()"
+		                        class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">
+		                    조회
+		                </button>
+		
+		                <button type="button"
+		                        onclick="resetFilters()"
+		                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+		                    초기화
+		                </button>
+		            </div>
+		        </div>
+		    </div>
+		</div>
 
         <!-- ===== 탭 UI ===== -->
         <div class="bg-white rounded-lg border border-gray-200 mb-6 overflow-hidden">
@@ -142,52 +262,132 @@
 </div>
 
 <!-- ===== 상세정보 모달 ===== -->
-<div id="detailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+<div id="detailModal"
+     class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+     onclick="if(event.target === this) closeDetailModal()">
+
+    <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+         onclick="event.stopPropagation()">
 
         <!-- 모달 헤더 -->
-        <div class="flex items-center justify-between mb-6">
+        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white z-10">
             <div>
-                <h3 class="text-xl font-bold text-gray-900">발주서 상세 정보</h3>
+                <h3 class="text-lg font-bold text-gray-900">발주서 상세 정보</h3>
                 <p class="text-sm text-gray-500 mt-1" id="modalSubtitle"></p>
             </div>
-            <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times w-6 h-6"></i>
+
+            <button type="button"
+                    onclick="closeDetailModal()"
+                    class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times w-5 h-5"></i>
             </button>
         </div>
 
-        <!-- 기본 정보 그리드 -->
-        <div class="grid grid-cols-2 gap-4 mb-6 bg-gray-50 rounded-lg p-4">
-            <div><p class="text-sm text-gray-500">발주 번호</p> <p class="font-semibold text-gray-900 mt-1" id="detailOrderNumber"></p></div>
-            <div><p class="text-sm text-gray-500">요청 지점</p>   <p class="font-semibold text-gray-900 mt-1" id="detailBranch"></p></div>
-            <div><p class="text-sm text-gray-500">요청 시점</p>   <p class="font-semibold text-gray-900 mt-1" id="detailDate"></p></div>
-            <div><p class="text-sm text-gray-500">상태</p>        <div id="detailStatus" class="mt-1"></div></div>
-            <div><p class="text-sm text-gray-500">품목 수</p>     <p class="font-semibold text-gray-900 mt-1" id="detailItemCount"></p></div>
-            <div><p class="text-sm text-gray-500">총 요청 수량</p><p class="font-semibold text-blue-600 mt-1" id="detailTotalQty"></p></div>
-        </div>
+        <!-- 모달 본문 -->
+        <div class="p-6 space-y-5">
 
-        <!-- 발주 품목 테이블 -->
-        <div>
-            <h4 class="font-semibold text-gray-900 mb-3">발주 품목 상세</h4>
-            <!-- 반려 사유 영역 -->
-            <div id="rejectReasonBox"
-		         class="hidden mb-3 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
-		    </div>
-		    <!-- 상세 정보 테이블 -->
-            <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                <table class="w-full">
-                    <!-- 동적으로 발주 상태별 상세조회 테이블 변경됨 -->
-                    <thead id="itemsTableHead" class="bg-gray-50 border-b border-gray-200"></thead>
-                    <tbody id="itemsTableBody"></tbody>
-                </table>
+            <!-- 기본 정보 -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-800 mb-3">기본 정보</h4>
+
+                <div class="grid grid-cols-2 gap-4 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div>
+                        <p class="text-sm text-gray-500">발주 번호</p>
+                        <p class="font-semibold text-gray-900 mt-1" id="detailOrderNumber"></p>
+                    </div>
+
+                    <div>
+                        <p class="text-sm text-gray-500">요청 지점</p>
+                        <p class="font-semibold text-gray-900 mt-1" id="detailBranch"></p>
+                    </div>
+
+                    <div>
+                        <p class="text-sm text-gray-500">요청 시점</p>
+                        <p class="font-semibold text-gray-900 mt-1" id="detailDate"></p>
+                    </div>
+
+                    <div>
+                        <p class="text-sm text-gray-500">상태</p>
+                        <div id="detailStatus" class="mt-1"></div>
+                    </div>
+
+                    <div>
+                        <p class="text-sm text-gray-500">품목 수</p>
+                        <p class="font-semibold text-gray-900 mt-1" id="detailItemCount"></p>
+                    </div>
+
+                    <div>
+                        <p class="text-sm text-gray-500">총 요청 수량</p>
+                        <p class="font-semibold text-[#00853D] mt-1" id="detailTotalQty"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 발주 품목 상세 -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-800 mb-3">발주 품목 상세</h4>
+
+                <!-- 반려 사유 영역 -->
+                <div id="rejectReasonBox"
+                     class="hidden mb-3 p-3 bg-red-50 border border-red-100 text-red-700 rounded-lg text-sm">
+                </div>
+
+                <!-- 상세 정보 테이블 -->
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                    <table class="w-full">
+                        <thead id="itemsTableHead" class="bg-gray-50 border-b border-gray-200"></thead>
+                        <tbody id="itemsTableBody" class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div class="flex justify-end mt-6">
-            <button onclick="closeDetailModal()"
-                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">닫기</button>
+        <!-- 모달 하단 버튼 -->
+        <div class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
+            <button type="button"
+                    onclick="closeDetailModal()"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                닫기
+            </button>
         </div>
     </div>
+</div>
+
+<!-- 커스텀 달력 -->
+<div id="customDatePicker" class="custom-date-picker hidden" onclick="event.stopPropagation()">
+    <div class="custom-date-picker-header">
+        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(-1)">
+            <i class="fas fa-chevron-left text-xs"></i>
+        </button>
+
+        <div class="flex items-center gap-2">
+            <select id="customDatePickerYear"
+                    onchange="changeCustomPickerYearMonth()"
+                    class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+            </select>
+
+            <select id="customDatePickerMonth"
+                    onchange="changeCustomPickerYearMonth()"
+                    class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+            </select>
+        </div>
+
+        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(1)">
+            <i class="fas fa-chevron-right text-xs"></i>
+        </button>
+    </div>
+
+    <div class="custom-date-weekdays">
+        <div>일</div>
+        <div>월</div>
+        <div>화</div>
+        <div>수</div>
+        <div>목</div>
+        <div>금</div>
+        <div>토</div>
+    </div>
+
+    <div id="customDatePickerDays" class="custom-date-days"></div>
 </div>
 
 <script>
@@ -215,6 +415,235 @@
     var itemsPerPage = 10;
     var PAGE_SIZE = 5;
 
+	 // ============================================================
+	 // 커스텀 달력
+	 // ============================================================
+	 var customDateTargetId = null;
+	 var customPickerDate = new Date();
+	
+	 function parseDateLocal(dateStr) {
+	     if (!dateStr) return null;
+	
+	     var parts = String(dateStr).split('-');
+	
+	     if (parts.length !== 3) {
+	         return null;
+	     }
+	
+	     return new Date(
+	         Number(parts[0]),
+	         Number(parts[1]) - 1,
+	         Number(parts[2])
+	     );
+	 }
+	
+	 function formatDateLocal(date) {
+	     return date.getFullYear() + '-' +
+	         String(date.getMonth() + 1).padStart(2, '0') + '-' +
+	         String(date.getDate()).padStart(2, '0');
+	 }
+	
+	 function openCustomDatePicker(inputId, event) {
+	     if (event) {
+	         event.stopPropagation();
+	     }
+	
+	     customDateTargetId = inputId;
+	
+	     var input = document.getElementById(inputId);
+	     var selectedDate = parseDateLocal(input.value);
+	
+	     customPickerDate = selectedDate || new Date();
+	
+	     renderCustomDatePicker();
+	     positionCustomDatePicker(input);
+	
+	     document.getElementById('customDatePicker').classList.remove('hidden');
+	 }
+	
+	 function positionCustomDatePicker(input) {
+	     var picker = document.getElementById('customDatePicker');
+	     var rect = input.getBoundingClientRect();
+	
+	     var top = rect.bottom + 6;
+	     var left = rect.left;
+	
+	     if (left + 300 > window.innerWidth) {
+	         left = window.innerWidth - 312;
+	     }
+	
+	     if (top + 330 > window.innerHeight) {
+	         top = rect.top - 330;
+	     }
+	
+	     picker.style.top = top + 'px';
+	     picker.style.left = left + 'px';
+	 }
+	
+	 function changeCustomPickerMonth(amount) {
+	     customPickerDate.setMonth(customPickerDate.getMonth() + amount);
+	     renderCustomDatePicker();
+	 }
+	
+	 function changeCustomPickerYearMonth() {
+	     var yearSelect = document.getElementById('customDatePickerYear');
+	     var monthSelect = document.getElementById('customDatePickerMonth');
+	
+	     var selectedYear = Number(yearSelect.value);
+	     var selectedMonth = Number(monthSelect.value);
+	
+	     customPickerDate = new Date(selectedYear, selectedMonth, 1);
+	     renderCustomDatePicker();
+	 }
+	
+	 function renderCustomDatePicker() {
+	     var year = customPickerDate.getFullYear();
+	     var month = customPickerDate.getMonth();
+	
+	     renderCustomPickerYearMonthSelect(year, month);
+	
+	     var firstDay = new Date(year, month, 1);
+	     var lastDay = new Date(year, month + 1, 0);
+	     var prevLastDay = new Date(year, month, 0);
+	
+	     var startDay = firstDay.getDay();
+	
+	     var days = [];
+	
+	     for (var i = startDay - 1; i >= 0; i--) {
+	         var prevDate = prevLastDay.getDate() - i;
+	
+	         days.push({
+	             date: new Date(year, month - 1, prevDate),
+	             currentMonth: false
+	         });
+	     }
+	
+	     for (var d = 1; d <= lastDay.getDate(); d++) {
+	         days.push({
+	             date: new Date(year, month, d),
+	             currentMonth: true
+	         });
+	     }
+	
+	     while (days.length < 42) {
+	         var nextDate = days.length - (startDay + lastDay.getDate()) + 1;
+	
+	         days.push({
+	             date: new Date(year, month + 1, nextDate),
+	             currentMonth: false
+	         });
+	     }
+	
+	     var todayValue = formatDateLocal(new Date());
+	     var selectedValue = '';
+	
+	     if (customDateTargetId) {
+	         selectedValue = document.getElementById(customDateTargetId).value;
+	     }
+	
+	     var html = '';
+	
+	     for (var j = 0; j < days.length; j++) {
+	         var dateValue = formatDateLocal(days[j].date);
+	
+	         var className = 'custom-date-day';
+	
+	         if (!days[j].currentMonth) {
+	             className += ' other-month';
+	         }
+	
+	         if (dateValue === todayValue) {
+	             className += ' today';
+	         }
+	
+	         if (dateValue === selectedValue) {
+	             className += ' selected';
+	         }
+	
+	         html += '<button type="button" class="' + className + '" onclick="selectCustomDate(\'' + dateValue + '\')">';
+	         html += days[j].date.getDate();
+	         html += '</button>';
+	     }
+	
+	     document.getElementById('customDatePickerDays').innerHTML = html;
+	 }
+	
+	 function renderCustomPickerYearMonthSelect(year, month) {
+	     var yearSelect = document.getElementById('customDatePickerYear');
+	     var monthSelect = document.getElementById('customDatePickerMonth');
+	
+	     var yearHtml = '';
+	     var startYear = year - 10;
+	     var endYear = year + 10;
+	
+	     for (var y = startYear; y <= endYear; y++) {
+	         yearHtml += '<option value="' + y + '"';
+	
+	         if (y === year) {
+	             yearHtml += ' selected';
+	         }
+	
+	         yearHtml += '>' + y + '년</option>';
+	     }
+	
+	     var monthHtml = '';
+	
+	     for (var m = 0; m < 12; m++) {
+	         monthHtml += '<option value="' + m + '"';
+	
+	         if (m === month) {
+	             monthHtml += ' selected';
+	         }
+	
+	         monthHtml += '>' + (m + 1) + '월</option>';
+	     }
+	
+	     yearSelect.innerHTML = yearHtml;
+	     monthSelect.innerHTML = monthHtml;
+	 }
+	
+	 function selectCustomDate(dateValue) {
+	     if (!customDateTargetId) {
+	         return;
+	     }
+	
+	     document.getElementById(customDateTargetId).value = dateValue;
+	
+	     document.getElementById('customDatePicker').classList.add('hidden');
+	
+	     customDateTargetId = null;
+	 }
+	
+	 function closeCustomDatePicker() {
+	     document.getElementById('customDatePicker').classList.add('hidden');
+	     customDateTargetId = null;
+	 }
+	
+	 document.addEventListener('mousedown', function(event) {
+	     var picker = document.getElementById('customDatePicker');
+	
+	     if (!picker || picker.classList.contains('hidden')) {
+	         return;
+	     }
+	
+	     var target = event.target;
+	
+	     if (picker.contains(target)) {
+	         return;
+	     }
+	
+	     if (
+	         customDateTargetId &&
+	         document.getElementById(customDateTargetId) &&
+	         document.getElementById(customDateTargetId).contains(target)
+	     ) {
+	         return;
+	     }
+	
+	     closeCustomDatePicker();
+	 });
+    
     // ============================================================
     // 사이드바 / 네비게이션
     // ============================================================

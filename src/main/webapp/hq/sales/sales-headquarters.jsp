@@ -8,11 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <%-- flatpickr --%>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
-
     <%-- Chart.js --%>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
@@ -22,30 +17,139 @@
         .sidebar-open .sidebar {
             transform: translateX(0);
         }
-        .date-picker-wrap { position:relative; }
-        .date-picker-wrap input, select {
-            height: 38px;
-            min-width: 180px;
-            border-radius: 12px;
-            border: 1px solid #d1d5db;
-            background: #fff;
-            color: #1f2937;
-            padding: 0 13px;
-            font-size: 13px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .date-picker-wrap input:focus, select:focus {
-            border-color: #00853D;
-        }
-        .date-picker-wrap input {
-            padding-left: 38px !important;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af' class='w-5 h-5'%3E%3Cpath fill-rule='evenodd' d='M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zM4.5 6.75A1.25 1.25 0 015.75 5.5h8.5A1.25 1.25 0 0115.5 6.75v8.5A1.25 1.25 0 0114.25 16.5h-8.5A1.25 1.25 0 014.5 15.25v-8.5zM7 10a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm-6 3a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z' clip-rule='evenodd' /%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: 10px center;
-            background-size: 20px;
-            cursor: pointer;
-        }
+        .date-picker-wrap {
+		    position: relative;
+		}
+		
+		.date-picker-wrap input,
+		#filterInputs > select {
+		    height: 38px;
+		    min-width: 180px;
+		    border-radius: 12px;
+		    border: 1px solid #d1d5db;
+		    background: #fff;
+		    color: #1f2937;
+		    padding: 0 13px;
+		    font-size: 13px;
+		    outline: none;
+		    transition: border-color 0.2s;
+		}
+		
+		.date-picker-wrap input {
+		    padding-left: 13px !important;
+		    padding-right: 38px !important;
+		    cursor: pointer;
+		}
+		
+		.date-picker-wrap input:focus,
+		#filterInputs > select:focus {
+		    border-color: #00853D;
+		}
+				
+		.date-icon {
+		    position: absolute;
+		    right: 13px;
+		    top: 50%;
+		    transform: translateY(-50%);
+		    color: #9ca3af;
+		    pointer-events: none;
+		    font-size: 14px;
+		}
+		
+		/* 커스텀 날짜 선택기 */
+		.custom-date-picker {
+		    position: fixed;
+		    width: 500px;
+		    background: #fff;
+		    border: 1px solid #d1d5db;
+		    border-radius: 0.75rem;
+		    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+		    z-index: 9999;
+		    padding: 14px;
+		}
+		
+		.custom-date-picker.hidden {
+		    display: none;
+		}
+		
+		.custom-date-picker-header {
+		    display: flex;
+		    align-items: center;
+		    justify-content: space-between;
+		    margin-bottom: 12px;
+		}
+		
+		.custom-date-picker select {
+		    height: 30px;
+		    min-width: auto;
+		    width: auto;
+		    border-radius: 0.5rem;
+		    padding: 0 8px;
+		    font-size: 12px;
+		    font-weight: 600;
+		    background: #fff;
+		}
+		
+		.custom-date-nav-btn {
+		    width: 30px;
+		    height: 30px;
+		    border-radius: 0.5rem;
+		    border: 1px solid #e5e7eb;
+		    color: #4b5563;
+		    background: #fff;
+		    cursor: pointer;
+		}
+		
+		.custom-date-nav-btn:hover {
+		    background: #f3f4f6;
+		}
+		
+		.custom-date-weekdays,
+		.custom-date-days {
+		    display: grid;
+		    grid-template-columns: repeat(7, 1fr);
+		    gap: 4px;
+		}
+		
+		.custom-date-weekdays div {
+		    text-align: center;
+		    font-size: 11px;
+		    font-weight: 700;
+		    color: #6b7280;
+		    padding: 4px 0;
+		}
+		
+		.custom-date-day {
+		    height: 32px;
+		    border-radius: 0.5rem;
+		    border: none;
+		    background: #fff;
+		    font-size: 12px;
+		    cursor: pointer;
+		    color: #111827;
+		}
+		
+		.custom-date-day:hover {
+		    background: #ecfdf3;
+		    color: #00853D;
+		    font-weight: 700;
+		}
+		
+		.custom-date-day.other-month {
+		    color: #c4c4c4;
+		}
+		
+		.custom-date-day.today {
+		    border: 1px solid #00853D;
+		    color: #00853D;
+		    font-weight: 700;
+		}
+		
+		.custom-date-day.selected {
+		    background: #00853D;
+		    color: #fff;
+		    font-weight: 700;
+		}
     </style>
 </head>
 <body class="bg-gray-50">
@@ -138,7 +242,7 @@
                         <div class="bg-white rounded-lg border border-gray-200 p-5">
                             <div class="flex items-center gap-3 mb-2">
                                 <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-                                    <i class="fas fa-calendar-alt w-5 h-5 text-orange-600"></i>
+                                    <i class="fas fa-calendar-check w-5 h-5 text-orange-600"></i>
                                 </div>
                                 <p class="text-sm text-gray-500">이번달 누적 매출</p>
                             </div>
@@ -186,6 +290,43 @@
                 </div>
             </main>
         </div>
+        
+		<!-- 커스텀 달력 -->
+		<div id="customDatePicker" class="custom-date-picker hidden" onclick="event.stopPropagation()">
+		    <div class="custom-date-picker-header">
+		        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(-1)">
+		            <i class="fas fa-chevron-left text-xs"></i>
+		        </button>
+		
+		        <div class="flex items-center gap-2">
+		            <select id="customDatePickerYear"
+		                    onchange="changeCustomPickerYearMonth()"
+		                    class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+		            </select>
+		
+		            <select id="customDatePickerMonth"
+		                    onchange="changeCustomPickerYearMonth()"
+		                    class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+		            </select>
+		        </div>
+		
+		        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(1)">
+		            <i class="fas fa-chevron-right text-xs"></i>
+		        </button>
+		    </div>
+		
+		    <div class="custom-date-weekdays">
+		        <div>일</div>
+		        <div>월</div>
+		        <div>화</div>
+		        <div>수</div>
+		        <div>목</div>
+		        <div>금</div>
+		        <div>토</div>
+		    </div>
+		
+		    <div id="customDatePickerDays" class="custom-date-days"></div>
+		</div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -246,37 +387,284 @@
                 const container = document.getElementById("filterInputs");
                 container.innerHTML = "";
 
-                if (datePickerInstance) datePickerInstance.destroy();
-                if (startDatePickerInstance) startDatePickerInstance.destroy();
-                if (endDatePickerInstance) endDatePickerInstance.destroy();
-
                 let html = "";
-                const commonDateConfig = { dateFormat: "Y-m-d", allowInput: true, locale: "ko" };
 
                 if (currentFilterType === 'date') {
-                    html = '<div class="date-picker-wrap"><input type="text" id="dateInput" placeholder="날짜 선택"></div>';
+                    html =
+                        '<div class="date-picker-wrap">' +
+                            '<input type="text" id="dateInput" readonly onclick="openCustomDatePicker(\'dateInput\', event)" placeholder="날짜 선택">' +
+                            '<i class="fas fa-calendar-check date-icon"></i>' +
+                        '</div>';
                 } else if (currentFilterType === 'period') {
-                    html = '<div class="date-picker-wrap"><input type="text" id="startDateInput" placeholder="시작일 선택"></div>' +
-                           '<span class="text-gray-500">~</span>' +
-                           '<div class="date-picker-wrap"><input type="text" id="endDateInput" placeholder="종료일 선택"></div>';
+                    html =
+                        '<div class="date-picker-wrap">' +
+                            '<input type="text" id="startDateInput" readonly onclick="openCustomDatePicker(\'startDateInput\', event)" placeholder="시작일 선택">' +
+                            '<i class="fas fa-calendar-check date-icon"></i>' +
+                        '</div>' +
+                        '<span class="text-gray-500 flex items-center">~</span>' +
+                        '<div class="date-picker-wrap">' +
+                            '<input type="text" id="endDateInput" readonly onclick="openCustomDatePicker(\'endDateInput\', event)" placeholder="종료일 선택">' +
+                            '<i class="fas fa-calendar-check date-icon"></i>' +
+                        '</div>';
                 } else if (currentFilterType === 'menu') {
-                    html = '<div class="date-picker-wrap"><input type="text" id="dateInput" placeholder="날짜 선택"></div>' +
-                           '<select id="mainCategorySelect"></select>' +
-                           '<select id="menuSelect"></select>';
+                    html =
+                        '<div class="date-picker-wrap">' +
+                            '<input type="text" id="dateInput" readonly onclick="openCustomDatePicker(\'dateInput\', event)" placeholder="날짜 선택">' +
+                            '<i class="fas fa-calendar-check date-icon"></i>' +
+                        '</div>' +
+                        '<select id="mainCategorySelect"></select>' +
+                        '<select id="menuSelect"></select>';
                 }
 
                 container.innerHTML = html;
 
                 if (currentFilterType === 'date') {
-                    datePickerInstance = flatpickr("#dateInput", { ...commonDateConfig, defaultDate: selectedDate, onChange: (d, str) => selectedDate = str });
+                    document.getElementById('dateInput').value = selectedDate;
                 } else if (currentFilterType === 'period') {
-                    startDatePickerInstance = flatpickr("#startDateInput", { ...commonDateConfig, defaultDate: startDate, onChange: (d, str) => startDate = str });
-                    endDatePickerInstance = flatpickr("#endDateInput", { ...commonDateConfig, defaultDate: endDate, onChange: (d, str) => endDate = str });
+                    document.getElementById('startDateInput').value = startDate;
+                    document.getElementById('endDateInput').value = endDate;
                 } else if (currentFilterType === 'menu') {
-                    datePickerInstance = flatpickr("#dateInput", { ...commonDateConfig, defaultDate: selectedDate, onChange: (d, str) => selectedDate = str });
+                    document.getElementById('dateInput').value = selectedDate;
                     loadMainCategoriesForMenuFilter();
                 }
             }
+            
+         // 커스텀 달력
+            let customDateTargetId = null;
+            let customPickerDate = new Date();
+
+            function parseDateLocal(dateStr) {
+                if (!dateStr) return null;
+
+                const parts = String(dateStr).split('-');
+
+                if (parts.length !== 3) {
+                    return null;
+                }
+
+                return new Date(
+                    Number(parts[0]),
+                    Number(parts[1]) - 1,
+                    Number(parts[2])
+                );
+            }
+
+            function formatDateLocal(date) {
+                return date.getFullYear() + '-' +
+                    String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(date.getDate()).padStart(2, '0');
+            }
+
+            window.openCustomDatePicker = function(inputId, event) {
+                if (event) {
+                    event.stopPropagation();
+                }
+
+                customDateTargetId = inputId;
+
+                const input = document.getElementById(inputId);
+                const selectedDateObj = parseDateLocal(input.value);
+
+                customPickerDate = selectedDateObj || new Date();
+
+                renderCustomDatePicker();
+                positionCustomDatePicker(input);
+
+                document.getElementById('customDatePicker').classList.remove('hidden');
+            };
+
+            function positionCustomDatePicker(input) {
+                const picker = document.getElementById('customDatePicker');
+                const rect = input.getBoundingClientRect();
+
+                const pickerWidth = 300;
+                const pickerHeight = 330;
+
+                let top = rect.bottom + 6;
+                let left = rect.left;
+
+                picker.style.width = pickerWidth + 'px';
+
+                if (left + pickerWidth > window.innerWidth) {
+                    left = window.innerWidth - pickerWidth - 12;
+                }
+
+                if (top + pickerHeight > window.innerHeight) {
+                    top = rect.top - pickerHeight - 6;
+                }
+
+                picker.style.top = top + 'px';
+                picker.style.left = left + 'px';
+            }
+
+            window.changeCustomPickerMonth = function(amount) {
+                customPickerDate.setMonth(customPickerDate.getMonth() + amount);
+                renderCustomDatePicker();
+            };
+
+            window.changeCustomPickerYearMonth = function() {
+                const yearSelect = document.getElementById('customDatePickerYear');
+                const monthSelect = document.getElementById('customDatePickerMonth');
+
+                const selectedYear = Number(yearSelect.value);
+                const selectedMonth = Number(monthSelect.value);
+
+                customPickerDate = new Date(selectedYear, selectedMonth, 1);
+
+                renderCustomDatePicker();
+            };
+
+            function renderCustomPickerYearMonthSelect(year, month) {
+                const yearSelect = document.getElementById('customDatePickerYear');
+                const monthSelect = document.getElementById('customDatePickerMonth');
+
+                let yearHtml = '';
+                const startYear = year - 10;
+                const endYear = year + 10;
+
+                for (let y = startYear; y <= endYear; y++) {
+                    yearHtml += '<option value="' + y + '"';
+
+                    if (y === year) {
+                        yearHtml += ' selected';
+                    }
+
+                    yearHtml += '>' + y + '년</option>';
+                }
+
+                let monthHtml = '';
+
+                for (let m = 0; m < 12; m++) {
+                    monthHtml += '<option value="' + m + '"';
+
+                    if (m === month) {
+                        monthHtml += ' selected';
+                    }
+
+                    monthHtml += '>' + (m + 1) + '월</option>';
+                }
+
+                yearSelect.innerHTML = yearHtml;
+                monthSelect.innerHTML = monthHtml;
+            }
+
+            function renderCustomDatePicker() {
+                const year = customPickerDate.getFullYear();
+                const month = customPickerDate.getMonth();
+
+                renderCustomPickerYearMonthSelect(year, month);
+
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const prevLastDay = new Date(year, month, 0);
+
+                const startDay = firstDay.getDay();
+                const days = [];
+
+                for (let i = startDay - 1; i >= 0; i--) {
+                    days.push({
+                        date: new Date(year, month - 1, prevLastDay.getDate() - i),
+                        currentMonth: false
+                    });
+                }
+
+                for (let d = 1; d <= lastDay.getDate(); d++) {
+                    days.push({
+                        date: new Date(year, month, d),
+                        currentMonth: true
+                    });
+                }
+
+                let nextDay = 1;
+
+                while (days.length < 42) {
+                    days.push({
+                        date: new Date(year, month + 1, nextDay),
+                        currentMonth: false
+                    });
+                    nextDay++;
+                }
+
+                const targetInput = customDateTargetId ? document.getElementById(customDateTargetId) : null;
+                const selectedValue = targetInput ? targetInput.value : '';
+                const todayValue = formatDateLocal(new Date());
+
+                let html = '';
+
+                for (let j = 0; j < days.length; j++) {
+                    const dateValue = formatDateLocal(days[j].date);
+
+                    let className = 'custom-date-day';
+
+                    if (!days[j].currentMonth) {
+                        className += ' other-month';
+                    }
+
+                    if (dateValue === todayValue) {
+                        className += ' today';
+                    }
+
+                    if (dateValue === selectedValue) {
+                        className += ' selected';
+                    }
+
+                    html += '<button type="button" class="' + className + '" onclick="selectCustomDate(\'' + dateValue + '\')">';
+                    html += days[j].date.getDate();
+                    html += '</button>';
+                }
+
+                document.getElementById('customDatePickerDays').innerHTML = html;
+            }
+
+            window.selectCustomDate = function(dateValue) {
+                if (!customDateTargetId) {
+                    return;
+                }
+
+                document.getElementById(customDateTargetId).value = dateValue;
+
+                if (customDateTargetId === 'dateInput') {
+                    selectedDate = dateValue;
+                } else if (customDateTargetId === 'startDateInput') {
+                    startDate = dateValue;
+                } else if (customDateTargetId === 'endDateInput') {
+                    endDate = dateValue;
+                }
+
+                closeCustomDatePicker();
+            };
+
+            function closeCustomDatePicker() {
+                const picker = document.getElementById('customDatePicker');
+
+                if (picker) {
+                    picker.classList.add('hidden');
+                }
+
+                customDateTargetId = null;
+            }
+
+            document.addEventListener('mousedown', function(event) {
+                const picker = document.getElementById('customDatePicker');
+
+                if (!picker || picker.classList.contains('hidden')) {
+                    return;
+                }
+
+                if (picker.contains(event.target)) {
+                    return;
+                }
+
+                if (
+                    customDateTargetId &&
+                    document.getElementById(customDateTargetId) &&
+                    document.getElementById(customDateTargetId).contains(event.target)
+                ) {
+                    return;
+                }
+
+                closeCustomDatePicker();
+            });
 
             function loadMainCategoriesForMenuFilter() {
                 const mainCategorySelect = document.getElementById('mainCategorySelect');
@@ -604,7 +992,6 @@
             document.getElementById('resetBtn').addEventListener('click', handleReset);
 
             // Initial Load
-            flatpickr.localize(flatpickr.l10ns.ko);
             setFilterType('date', true);
             renderTodaySummary();
         });

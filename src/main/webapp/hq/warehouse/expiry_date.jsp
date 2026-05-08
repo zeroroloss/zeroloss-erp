@@ -38,50 +38,68 @@
                    <p class="text-gray-500 mt-1">창고 내 유통기한 임박 품목을 관리하고 조치하세요</p>
                </div>
 
-               <!-- 필터 -->
-               <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-                   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                       <!-- 카테고리 필터 -->
-                       <div>
-                           <label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
-                           <select id="filterCategory" onchange="updateExpiryItemNames()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                               <option value="전체">전체</option>
-                               <%
-                               if (categoryMaterialMap != null) {
-                                   for (String category : categoryMaterialMap.keySet()) {
-                               %>
-                               <option value="<%=category%>"><%=category%></option>
-                               <%
-                                   }
-                               }
-                               %>
-                           </select>
-                       </div>
-
-                       <!-- 품목명 필터 -->
-                       <div>
-                           <label class="block text-sm font-medium text-gray-700 mb-2">품목명</label>
-                           <select id="filterItemName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                               <option value="전체">전체</option>
-                           </select>
-                       </div>
-
-                       <!-- 검색 -->
-                       <div>
-                           <label class="block text-sm font-medium text-gray-700 mb-2">검색</label>
-                           <input type="text" id="searchQuery" placeholder="재고 코드, 카테고리, 품목 검색" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                       </div>
-                   </div>
-
-                   <div class="flex items-center gap-2">
-                       <button onclick="applyFilters()" class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
-                           조회하기
-                       </button>
-                       <button onclick="resetFilters()" class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
-                           초기화
-                       </button>
-                   </div>
-               </div>
+               <!-- ===== 검색 필터 영역 ===== -->
+				<div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm mb-6">
+				    <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+				
+				        <div class="shrink-0">
+				            <div class="flex items-center gap-2">
+				                <h3 class="text-sm font-semibold text-gray-800">유통기한 검색</h3>
+				            </div>
+				            <p class="text-xs text-gray-500 mt-1">
+				                카테고리, 품목명, 재고 코드 기준으로 유통기한 현황을 조회할 수 있습니다.
+				            </p>
+				        </div>
+				
+				        <div class="flex flex-wrap items-center justify-end gap-2">
+				
+				            <!-- 카테고리 -->
+				            <select id="filterCategory"
+				                    onchange="updateExpiryItemNames()"
+				                    class="w-44 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all bg-white">
+				                <option value="전체">전체 카테고리</option>
+				                <%
+				                if (categoryMaterialMap != null) {
+				                    for (String category : categoryMaterialMap.keySet()) {
+				                %>
+				                <option value="<%=category%>"><%=category%></option>
+				                <%
+				                    }
+				                }
+				                %>
+				            </select>
+				
+				            <!-- 품목명 -->
+				            <select id="filterItemName"
+				                    class="w-44 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all bg-white">
+				                <option value="전체">전체 품목명</option>
+				            </select>
+				
+				            <!-- 검색 -->
+				            <div class="relative w-72">
+				                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+				                <input type="text"
+				                       id="searchQuery"
+				                       placeholder="재고 코드, 카테고리, 품목 검색"
+				                       onkeydown="if(event.key === 'Enter') applyFilters();"
+				                       class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+				            </div>
+				
+				            <button type="button"
+				                    onclick="applyFilters()"
+				                    class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">
+				                조회
+				            </button>
+				
+				            <button type="button"
+				                    onclick="resetFilters()"
+				                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+				                초기화
+				            </button>
+				
+				        </div>
+				    </div>
+				</div>
 
                <!-- 선택 액션 바 -->
                <div id="actionBar" class="hidden bg-blue-50 rounded-lg p-4 border border-blue-200 mb-6">
@@ -253,7 +271,7 @@
                 return;
             }
 
-            itemNameSelect.innerHTML = '<option value="전체">전체</option>';
+            itemNameSelect.innerHTML = '<option value="전체">전체 품목명</option>';
             
             if (categoryMaterialMap && categoryMaterialMap[selectedCategory]) {
                 categoryMaterialMap[selectedCategory].forEach(itemName => {
@@ -489,7 +507,7 @@
                     throw new Error((result && result.message) || '데이터 오류');
                 }
 
-                // API 응답 데이터 정규화
+             	// API 응답 데이터 정규화
                 expiryItems = (result.data || []).map(item => ({
                     id: item.id || item.warehouseStockId,
                     stockNo: item.stockNo,
@@ -505,13 +523,11 @@
                     status: item.status
                 }));
 
-                updateExpiryItemNames();
                 renderTable();
 
             } catch (err) {
                 console.error('데이터 로드 실패:', err);
                 expiryItems = [];
-                updateExpiryItemNames();
                 renderTable();
                 commonShowAlert('알림', '데이터를 불러오는 중 오류가 발생했습니다: ' + err.message);
             }

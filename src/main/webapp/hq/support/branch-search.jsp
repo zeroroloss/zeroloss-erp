@@ -19,15 +19,19 @@
 <div class="lg:pl-72">
     <main class="p-6">
         <div class="space-y-6">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-900">직영점 관리</h2>
-                    <p class="text-gray-500 mt-2">전국 직영점을 지역별로 검색하고 상세 정보를 확인할 수 있습니다.</p>
-                </div>
-                <button onclick="openCreateModal()" class="px-6 py-3 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors flex items-center gap-2 font-medium whitespace-nowrap">
-                    <i class="fas fa-plus w-4 h-4"></i> 직영점 등록
-                </button>
-            </div>
+            <!-- 페이지 헤더 -->
+			<div class="flex items-center justify-between">
+			    <div>
+			        <h2 class="text-3xl font-bold text-gray-900">직영점 관리</h2>
+			        <p class="text-gray-500 mt-1">전국 직영점을 지역별로 검색하고 상세 정보를 확인할 수 있습니다.</p>
+			    </div>
+			
+			    <button onclick="openCreateModal()"
+			            class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
+			        <i class="fas fa-store w-5 h-5"></i>
+			        <span>직영점 등록</span>
+			    </button>
+			</div>
 
             <div class="bg-white rounded-lg border border-gray-200 p-6">
                 <div class="space-y-4">
@@ -66,47 +70,73 @@
     </main>
 </div>
 
-<div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 modal-hidden">
-    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h3 id="detailModalTitle" class="text-xl font-bold text-gray-900">직영점 상세 정보</h3>
-            <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600 text-2xl"><i class="fas fa-times"></i></button>
+<div id="detailModal" class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onclick="if(event.target === this) closeDetailModal()">
+    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
+            <h3 id="detailModalTitle" class="text-lg font-bold text-gray-900">직영점 상세 정보</h3>
+            <button type="button" onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times w-5 h-5"></i>
+            </button>
         </div>
-        <div id="detailModalContent" class="p-6 space-y-6"></div>
-        <div class="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex gap-3 justify-end" id="detailModalFooter">
+
+        <div id="detailModalContent" class="p-6 space-y-4"></div>
+
+        <div class="border-t border-gray-200 px-6 py-3 flex justify-between items-center sticky bottom-0 bg-white" id="detailModalFooter">
         </div>
     </div>
 </div>
 
-<div id="formModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 modal-hidden">
-    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <h3 id="formModalTitle" class="text-xl font-bold text-gray-900">직영점 등록</h3>
-            <button onclick="closeFormModal()" class="text-gray-400 hover:text-gray-600 text-2xl"><i class="fas fa-times"></i></button>
+<div id="formModal" class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onclick="if(event.target === this) closeFormModal()">
+    <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+
+        <!-- 모달 헤더 -->
+        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
+            <h3 id="formModalTitle" class="text-lg font-bold text-gray-900">직영점 등록</h3>
+            <button type="button" onclick="closeFormModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times w-5 h-5"></i>
+            </button>
         </div>
+
+        <!-- 모달 본문 -->
         <div class="p-6 space-y-4">
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">지점명</label>
-                    <input type="text" id="formBranchName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] outline-none">
+                    <input type="text"
+                           id="formBranchName"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent outline-none text-sm"
+                           placeholder="강남점">
                 </div>
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">지역</label>
-                    <select id="formBranchRegion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] outline-none"></select>
+                    <select id="formBranchRegion"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent outline-none text-sm text-gray-900 bg-white">
+                    </select>
                 </div>
             </div>
+
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">주소</label>
-                <input type="text" id="formBranchAddress" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] outline-none">
+                <input type="text"
+                       id="formBranchAddress"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent outline-none text-sm"
+                       placeholder="서울특별시 강남구 ...">
             </div>
+
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">지점 연락처</label>
-                    <input type="text" id="formBranchPhone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] outline-none">
+                    <input type="text"
+                           id="formBranchPhone"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent outline-none text-sm"
+                           placeholder="02-0000-0000">
                 </div>
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">상태</label>
-                    <select id="formBranchStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] outline-none">
+                    <select id="formBranchStatus"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent outline-none text-sm text-gray-900 bg-white">
                         <option value="ACTIVE">ACTIVE</option>
                         <option value="INACTIVE">INACTIVE</option>
                         <option value="CLOSED">CLOSED</option>
@@ -114,9 +144,20 @@
                 </div>
             </div>
         </div>
-        <div class="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-            <button onclick="closeFormModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">취소</button>
-            <button onclick="saveBranch()" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F]">저장</button>
+
+        <!-- 모달 푸터 -->
+        <div class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
+            <button type="button"
+                    onclick="closeFormModal()"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                취소
+            </button>
+
+            <button type="button"
+                    onclick="saveBranch()"
+                    class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+                저장
+            </button>
         </div>
     </div>
 </div>
@@ -305,11 +346,27 @@
 
         // 동적 푸터 구성 (닫기, 수정, 삭제)
         document.getElementById('detailModalFooter').innerHTML = `
-                <button onclick="closeDetailModal()" class="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-50">닫기</button>
-                <button onclick="openEditModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><i class="fas fa-edit mr-1"></i>수정</button>
-                <button onclick="deleteBranch('\${b.id}')" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"><i class="fas fa-trash mr-1"></i>삭제</button>
-            `;
-
+		    <button type="button"
+		            onclick="deleteBranch('\${b.id}')"
+		            class="inline-flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">
+		        <i class="fas fa-trash-alt text-xs"></i>
+		        삭제
+		    </button>
+		
+		    <div class="flex items-center gap-3">
+		        <button type="button"
+		                onclick="closeDetailModal()"
+		                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+		            닫기
+		        </button>
+		
+		        <button type="button"
+		                onclick="openEditModal()"
+		                class="inline-flex items-center gap-1 px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+		            수정
+		        </button>
+		    </div>
+		`;
         document.getElementById('detailModal').classList.remove('modal-hidden');
     }
 

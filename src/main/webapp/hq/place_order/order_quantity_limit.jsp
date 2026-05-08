@@ -247,17 +247,30 @@
 					rowHtml += '<td class="py-4 px-6"><span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full">' + escapeHtml(categoryName) + '</span></td>';
 					rowHtml += '<td class="py-4 px-6 font-medium text-gray-900">' + escapeHtml(materialName) + '</td>';
 					if (isEditing) {
-						rowHtml += '<td class="py-4 px-6"><div class="flex items-center justify-center gap-2"><input type="number" id="minQty_' + escapeHtml(materialCode) + '" value="' + escapeHtml(minQty) + '" min="0" class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center font-semibold focus:ring-2 focus:ring-blue-500 focus:border-transparent"><span class="text-gray-600">' + escapeHtml(unit) + '</span></div></td>';
-						rowHtml += '<td class="py-4 px-6"><div class="flex items-center justify-center gap-2"><input type="number" id="maxQty_' + escapeHtml(materialCode) + '" value="' + escapeHtml(maxQty) + '" min="0" class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center font-semibold focus:ring-2 focus:ring-blue-500 focus:border-transparent"><span class="text-gray-600">' + escapeHtml(unit) + '</span></div></td>';
+						rowHtml += '<td class="py-4 px-6">' +
+						    '<div class="flex items-center justify-center gap-1 min-h-[24px]">' +
+						        '<input type="number" id="minQty_' + escapeHtml(materialCode) + '" value="' + escapeHtml(minQty) + '" min="0" ' +
+						        'class="w-16 h-8 px-2 border border-gray-300 rounded-md text-center text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">' +
+						        '<span class="text-sm text-gray-600">' + escapeHtml(unit) + '</span>' +
+						    '</div>' +
+						'</td>';
+	
+						rowHtml += '<td class="py-4 px-6">' +
+						    '<div class="flex items-center justify-center gap-1 min-h-[24px]">' +
+						        '<input type="number" id="maxQty_' + escapeHtml(materialCode) + '" value="' + escapeHtml(maxQty) + '" min="0" ' +
+						        'class="w-16 h-8 px-2 border border-gray-300 rounded-md text-center text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">' +
+						        '<span class="text-sm text-gray-600">' + escapeHtml(unit) + '</span>' +
+						    '</div>' +
+						'</td>';
 					} else {
 						rowHtml += '<td class="py-4 px-6"><div class="text-center font-semibold text-gray-900">' + escapeHtml(minQty) + escapeHtml(unit) + '</div></td>';
 						rowHtml += '<td class="py-4 px-6"><div class="text-center font-semibold text-gray-900">' + escapeHtml(maxQty) + escapeHtml(unit) + '</div></td>';
 					}
 					rowHtml += '<td class="py-4 px-6 text-center"><span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700"><i class="fas fa-check-circle w-3 h-3"></i>정상</span></td>';
 					if (isEditing) {
-						rowHtml += '<td class="py-4 px-6 text-center"><button onclick="handleSave(\'' + escapeHtml(materialCode) + '\')" class="inline-flex items-center gap-1 px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"><i class="fas fa-save w-4 h-4"></i>저장</button></td>';
+						rowHtml += '<td class="py-4 px-6 text-center"><button onclick="handleSave(\'' + escapeHtml(materialCode) + '\')" class="inline-flex items-center gap-1 px-3 py-1.5 bg-[#00853D] text-white hover:bg-[#006B2F] rounded-lg text-sm font-medium transition-colors"><i class="fas fa-save w-4 h-4"></i> 저장</button></td>';
 					} else {
-						rowHtml += '<td class="py-4 px-6 text-center"><button onclick="handleEdit(\'' + escapeHtml(materialCode) + '\')" class="inline-flex items-center gap-1 px-3 py-1 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"><i class="fas fa-edit w-4 h-4"></i>수정</button></td>';
+						rowHtml += '<td class="py-4 px-6 text-center"><button onclick="handleEdit(\'' + escapeHtml(materialCode) + '\')" class="px-3 py-1.5 text-blue-600 hover:text-blue-700 text-sm"><i class="fas fa-edit w-4 h-4"></i> 수정</button></td>';
 					}
 					rowHtml += '</tr>';
 					tableBody.insertAdjacentHTML('beforeend', rowHtml);

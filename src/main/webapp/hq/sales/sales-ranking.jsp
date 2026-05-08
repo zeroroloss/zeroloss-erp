@@ -5,93 +5,224 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>매출 순위 - ZERO LOSS 본사 관리 시스템</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
-
-    <%-- flatpickr --%>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style>
-        :root {
-            --green: #00853D;
-            --line: #e5e7eb;
-            --muted: #6b7280;
-        }
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-        }
+<style>
+    .sidebar-open .sidebar {
+        transform: translateX(0);
+    }
 
-        .sidebar-open .sidebar {
-            transform: translateX(0);
-        }
+    .date-picker-wrap {
+        position: relative;
+        display: inline-block;
+    }
 
-        .head h1 { font-size: 1.875rem; line-height: 2.25rem; font-weight: 700; }
-        .head p { color: #6b7280; }
+    .date-picker-wrap input,
+    #mainCategorySelect,
+    #menuSelect {
+        height: 38px;
+        min-width: 180px;
+        border-radius: 12px;
+        border: 1px solid #d1d5db;
+        background: #fff;
+        color: #1f2937;
+        padding: 0 13px;
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
 
-        .search-panel { margin-top:24px; border:1px solid var(--line); border-radius:18px; background:#fff; box-shadow:0 1px 2px rgba(15,23,42,0.05); padding:14px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-        .filters { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
-        .filter-group { display:flex; align-items:center; gap: 6px; }
-        .filter-group .label { font-size:13px; color:#374151; font-weight:700; flex-shrink: 0; }
+    .date-picker-wrap input {
+        padding: 0 38px 0 13px !important;
+        cursor: pointer;
+    }
 
-        .date-picker-wrap input, select.sort-btn, select#mainCategorySelect, select#menuSelect {
-            height:38px;
-            width:115px;
-            border-radius:12px;
-            border:1px solid #d1d5db;
-            background:#fff;
-            color:#1f2937;
-            padding:0 8px;
-            font-size:13px;
-            outline:none;
-        }
+    .date-picker-wrap input:focus,
+    #mainCategorySelect:focus,
+    #menuSelect:focus {
+        border-color: #00853D;
+    }
 
-        .date-picker-wrap input {
-            padding-left: 30px !important;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af' class='w-5 h-5'%3E%3Cpath fill-rule='evenodd' d='M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zM4.5 6.75A1.25 1.25 0 015.75 5.5h8.5A1.25 1.25 0 0115.5 6.75v8.5A1.25 1.25 0 0114.25 16.5h-8.5A1.25 1.25 0 014.5 15.25v-8.5zM7 10a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm-6 3a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z' clip-rule='evenodd' /%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: 8px center;
-            background-size: 16px;
-        }
+    .date-icon {
+        position: absolute;
+        right: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        pointer-events: none;
+        font-size: 14px;
+        z-index: 10;
+    }
 
-        .sort-btn { height:38px; border:1px solid #d1d5db; border-radius:12px; padding:0 10px; background:#f9fafb; color:#374151; font-size:13px; font-weight:700; cursor:pointer; }
-        .sort-btn.active { border-color:var(--green); color:var(--green); background:#ecf8f1; }
+    .sort-btn.active {
+        border-color: #00853D;
+        background: rgba(0, 133, 61, 0.05);
+        color: #00853D;
+    }
 
-        .rank-tabs { margin-top:24px; display:flex; gap:10px; border-bottom: 1px solid var(--line); }
-        .rank-tab { padding:0 4px 12px; text-decoration:none; display:inline-flex; align-items:center; font-weight:700; font-size:16px; color:var(--muted); border-bottom: 3px solid transparent; cursor: pointer; }
-        .rank-tab.active { color:var(--green); border-bottom-color: var(--green); }
+    .rank-tab.active {
+        border-color: #00853D;
+        background: rgba(0, 133, 61, 0.05);
+        color: #00853D;
+    }
 
-        .grid { margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+    .hidden-group {
+        display: none !important;
+    }
 
-        .panel { background:#fff; border:1px solid #009223; border-radius:16px; }
-        .panel-head { display:flex; align-items:center; gap:8px; padding: 18px 20px; border-bottom: 1px solid #009223; }
-        .panel-title { font-size:20px; font-weight:700; }
-        .badge { margin-left:auto; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; }
-        .badge.green { background:#e6f4ea; color:#009223; }
-        .rank-no { min-width:45px; white-space:nowrap; font-size:18px; font-weight:800; color:#009223; text-align:center; flex-shrink: 0; }
+    .rank-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
-        .panel.orange { border-color: #FFA940; background-color: #FFF7E6; }
-        .panel.orange .panel-head { border-bottom-color: #FFA940; }
-        .badge.orange { background:#fff1de; color:#d97706; }
-        .panel.orange .rank-no { color: #d97706; }
+    .rank-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 10px;
+        background: #f9fafb;
+        border: 1px solid #f3f4f6;
+    }
 
-        .rank-list { display:flex; flex-direction:column; gap:6px; padding: 12px; }
-        .rank-item { display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px; background: #fff; }
-        .item-main { flex:1; min-width:0; }
-        .item-name { font-size:16px; font-weight:700; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .item-value { font-size:18px; font-weight:700; white-space:nowrap; color:#111827; flex-shrink: 0; }
+    .rank-no {
+        min-width: 48px;
+        white-space: nowrap;
+        font-size: 15px;
+        font-weight: 800;
+        color: #00853D;
+        text-align: center;
+        flex-shrink: 0;
+    }
 
-        .no-data { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .item-main {
+        flex: 1;
+        min-width: 0;
+    }
 
-        .hidden-group { display: none !important; }
+    .item-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-        @media (max-width:960px){ .grid{grid-template-columns:1fr;} }
-    </style>
+    .item-value {
+        font-size: 15px;
+        font-weight: 700;
+        white-space: nowrap;
+        color: #111827;
+        flex-shrink: 0;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 56px 20px;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    /* 커스텀 날짜 선택기 */
+    .custom-date-picker {
+        position: fixed;
+        width: 300px;
+        background: #fff;
+        border: 1px solid #d1d5db;
+        border-radius: 0.75rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        padding: 14px;
+    }
+
+    .custom-date-picker.hidden {
+        display: none;
+    }
+
+    .custom-date-picker-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .custom-date-picker select {
+        height: 30px;
+        min-width: auto;
+        width: auto;
+        border-radius: 0.5rem;
+        padding: 0 8px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #fff;
+    }
+
+    .custom-date-nav-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 0.5rem;
+        border: 1px solid #e5e7eb;
+        color: #4b5563;
+        background: #fff;
+        cursor: pointer;
+    }
+
+    .custom-date-nav-btn:hover {
+        background: #f3f4f6;
+    }
+
+    .custom-date-weekdays,
+    .custom-date-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+    }
+
+    .custom-date-weekdays div {
+        text-align: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: #6b7280;
+        padding: 4px 0;
+    }
+
+    .custom-date-day {
+        height: 32px;
+        border-radius: 0.5rem;
+        border: none;
+        background: #fff;
+        font-size: 12px;
+        cursor: pointer;
+        color: #111827;
+    }
+
+    .custom-date-day:hover {
+        background: #ecfdf3;
+        color: #00853D;
+        font-weight: 700;
+    }
+
+    .custom-date-day.other-month {
+        color: #c4c4c4;
+    }
+
+    .custom-date-day.today {
+        border: 1px solid #00853D;
+        color: #00853D;
+        font-weight: 700;
+    }
+
+    .custom-date-day.selected {
+        background: #00853D;
+        color: #fff;
+        font-weight: 700;
+    }
+</style>
 </head>
 <body class="bg-gray-50">
 
@@ -99,116 +230,455 @@
 
 <div class="lg:pl-72">
     <main class="p-6">
-        <header class="head">
-            <h1>전사 매출 랭킹</h1>
-            <p>전국 직영점의 실적과 메뉴 트렌드를 분석합니다.</p>
-        </header>
+        <div class="space-y-6">
 
-        <section class="search-panel">
-            <div class="filters">
-                <div class="filter-group">
-                    <span class="label">조회기간:</span>
-                    <div class="date-picker-wrap">
-                        <input type="text" id="period-start" placeholder="시작일">
+            <!-- 페이지 헤더 -->
+            <div>
+                <h2 class="text-3xl font-bold text-gray-900">전사 매출 랭킹</h2>
+                <p class="text-gray-500 mt-1">전국 직영점의 실적과 메뉴 트렌드를 분석합니다.</p>
+            </div>
+
+            <!-- 검색 영역 -->
+            <div class="bg-white rounded-lg border border-gray-200 p-4">
+                <div class="flex flex-wrap items-center gap-3">
+
+                    <!-- 조회 기간 -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm font-semibold text-gray-700">조회기간</span>
+
+                        <div class="date-picker-wrap">
+                            <input type="text"
+                                   id="period-start"
+                                   readonly
+                                   onclick="openCustomDatePicker('period-start', event)"
+                                   placeholder="시작일">
+                            <i class="fas fa-calendar-check date-icon"></i>
+                        </div>
+
+                        <span class="text-gray-500 flex items-center">~</span>
+
+                        <div class="date-picker-wrap">
+                            <input type="text"
+                                   id="period-end"
+                                   readonly
+                                   onclick="openCustomDatePicker('period-end', event)"
+                                   placeholder="종료일">
+                            <i class="fas fa-calendar-check date-icon"></i>
+                        </div>
                     </div>
-                    <span class="text-gray-500">~</span>
-                    <div class="date-picker-wrap">
-                        <input type="text" id="period-end" placeholder="종료일">
+
+                    <!-- 특정 메뉴 필터 -->
+                    <div class="flex items-center gap-2 flex-wrap hidden-group" id="specific-menu-filter">
+                        <span class="text-sm font-semibold text-gray-700">타겟 메뉴</span>
+
+                        <select id="mainCategorySelect">
+                            <option value="">카테고리 로딩...</option>
+                        </select>
+
+                        <select id="menuSelect">
+                            <option value="">메뉴 로딩...</option>
+                        </select>
                     </div>
-                </div>
 
-                <div class="filter-group hidden-group" id="specific-menu-filter">
-                    <span class="label ml-4">타겟 메뉴:</span>
-                    <select id="mainCategorySelect" class="sort-btn bg-white">
-                        <option value="">카테고리 로딩...</option>
-                    </select>
-                    <select id="menuSelect" class="sort-btn bg-white">
-                        <option value="">메뉴 로딩...</option>
-                    </select>
-                </div>
+                    <!-- 정렬 기준 -->
+                    <div class="flex items-center gap-2 ml-auto flex-wrap">
+                        <span class="text-sm font-semibold text-gray-700">정렬기준</span>
 
-                <div class="filter-group ml-auto">
-                    <span class="label">정렬기준:</span>
-                    <button class="sort-btn active" data-sort="sales">매출액 순</button>
-                    <button class="sort-btn" data-sort="quantity">주문/판매량 순</button>
+                        <button type="button"
+                                class="px-3 py-2 rounded-lg border text-sm font-medium transition-all sort-btn active"
+                                data-sort="sales">
+                            매출액 순
+                        </button>
+
+                        <button type="button"
+                                class="px-3 py-2 rounded-lg border text-sm font-medium transition-all sort-btn"
+                                data-sort="quantity">
+                            주문/판매량 순
+                        </button>
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <nav class="rank-tabs" aria-label="랭킹 종류">
-            <a class="rank-tab active" data-rank-type="branch">지점 종합 랭킹</a>
-            <a class="rank-tab" data-rank-type="menu">전사 메뉴별 랭킹</a>
-            <a class="rank-tab" data-rank-type="specific_menu">특정 메뉴 집중 분석</a>
-            <a class="rank-tab" data-rank-type="trend">전사 트렌드 (시간/요일)</a>
-        </nav>
+            <!-- 랭킹 탭 -->
+            <div class="bg-white rounded-lg border border-gray-200 p-4">
+                <div class="flex flex-wrap gap-2" aria-label="랭킹 종류">
+                    <button type="button"
+                            class="px-3 py-2 rounded-lg border text-sm font-medium transition-all rank-tab active"
+                            data-rank-type="branch">
+                        지점 종합 랭킹
+                    </button>
 
-        <section class="grid" id="ranking-grid">
-            <article class="panel">
-                <div class="panel-head">
-                    <div class="panel-title" id="best-title"></div>
-                    <span class="badge green">TOP 10</span>
-                </div>
-                <div class="rank-list" id="best-list">
-                    <div class="no-data">조회된 데이터가 없습니다.</div>
-                </div>
-            </article>
+                    <button type="button"
+                            class="px-3 py-2 rounded-lg border text-sm font-medium transition-all rank-tab"
+                            data-rank-type="menu">
+                        전사 메뉴별 랭킹
+                    </button>
 
-            <article class="panel orange">
-                <div class="panel-head">
-                    <div class="panel-title" id="worst-title"></div>
-                    <span class="badge orange">WORST 10</span>
-                </div>
-                <div class="rank-list" id="worst-list">
-                    <div class="no-data">조회된 데이터가 없습니다.</div>
-                </div>
-            </article>
-        </section>
+                    <button type="button"
+                            class="px-3 py-2 rounded-lg border text-sm font-medium transition-all rank-tab"
+                            data-rank-type="specific_menu">
+                        특정 메뉴 집중 분석
+                    </button>
 
-        <!-- 🟢 추가: 전사 트렌드 (시간/요일) 데이터를 표시할 영역 -->
-        <section class="hidden-group" id="trend-data-section">
-            <div class="grid mt-6">
-                <article class="panel">
-                    <div class="panel-head">
-                        <div class="panel-title">시간대별 매출/판매량 트렌드</div>
-                        <span class="badge green">24시간</span>
+                    <button type="button"
+                            class="px-3 py-2 rounded-lg border text-sm font-medium transition-all rank-tab"
+                            data-rank-type="trend">
+                        전사 트렌드
+                    </button>
+                </div>
+            </div>
+
+            <!-- 랭킹 영역 -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="ranking-grid">
+
+                <article class="bg-white rounded-lg border border-gray-200 p-6">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
+                        <h3 class="text-lg font-semibold text-gray-900" id="best-title"></h3>
+                        <span class="ml-auto px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-[#00853D]">
+                            TOP 10
+                        </span>
                     </div>
-                    <div class="rank-list" id="hourly-trend-list">
-                        <div class="no-data">데이터를 분석 중입니다...</div>
+
+                    <div class="rank-list" id="best-list">
+                        <div class="no-data">조회된 데이터가 없습니다.</div>
                     </div>
                 </article>
 
-                <article class="panel orange">
-                    <div class="panel-head">
-                        <div class="panel-title">요일별 매출/판매량 트렌드</div>
-                        <span class="badge orange">주 7일</span>
+                <article class="bg-white rounded-lg border border-gray-200 p-6">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-1 h-5 bg-orange-500 rounded-full"></div>
+                        <h3 class="text-lg font-semibold text-gray-900" id="worst-title"></h3>
+                        <span class="ml-auto px-3 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-600">
+                            WORST 10
+                        </span>
                     </div>
-                    <div class="rank-list" id="daily-trend-list">
-                        <div class="no-data">데이터를 분석 중입니다...</div>
+
+                    <div class="rank-list" id="worst-list">
+                        <div class="no-data">조회된 데이터가 없습니다.</div>
                     </div>
                 </article>
-            </div>
-        </section>
+
+            </section>
+
+            <!-- 전사 트렌드 영역 -->
+            <section class="hidden-group" id="trend-data-section">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                    <article class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
+                            <h3 class="text-lg font-semibold text-gray-900">시간대별 매출/판매량 트렌드</h3>
+                            <span class="ml-auto px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-[#00853D]">
+                                24시간
+                            </span>
+                        </div>
+
+                        <div class="rank-list" id="hourly-trend-list">
+                            <div class="no-data">데이터를 분석 중입니다...</div>
+                        </div>
+                    </article>
+
+                    <article class="bg-white rounded-lg border border-gray-200 p-6">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-1 h-5 bg-orange-500 rounded-full"></div>
+                            <h3 class="text-lg font-semibold text-gray-900">요일별 매출/판매량 트렌드</h3>
+                            <span class="ml-auto px-3 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-600">
+                                주 7일
+                            </span>
+                        </div>
+
+                        <div class="rank-list" id="daily-trend-list">
+                            <div class="no-data">데이터를 분석 중입니다...</div>
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+        </div>
     </main>
+</div>
+
+<!-- 커스텀 달력 -->
+<div id="customDatePicker" class="custom-date-picker hidden" onclick="event.stopPropagation()">
+    <div class="custom-date-picker-header">
+        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(-1)">
+            <i class="fas fa-chevron-left text-xs"></i>
+        </button>
+
+        <div class="flex items-center gap-2">
+            <select id="customDatePickerYear"
+                    onchange="changeCustomPickerYearMonth()"
+                    class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+            </select>
+
+            <select id="customDatePickerMonth"
+                    onchange="changeCustomPickerYearMonth()"
+                    class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+            </select>
+        </div>
+
+        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(1)">
+            <i class="fas fa-chevron-right text-xs"></i>
+        </button>
+    </div>
+
+    <div class="custom-date-weekdays">
+        <div>일</div>
+        <div>월</div>
+        <div>화</div>
+        <div>수</div>
+        <div>목</div>
+        <div>금</div>
+        <div>토</div>
+    </div>
+
+    <div id="customDatePickerDays" class="custom-date-days"></div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        flatpickr.localize(flatpickr.l10ns.ko);
-
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-        const periodStartPicker = flatpickr("#period-start", {
-            defaultDate: thirtyDaysAgo,
-            dateFormat: "Y-m-d",
-            onChange: () => fetchData()
-        });
-
-        const periodEndPicker = flatpickr("#period-end", {
-            defaultDate: "today",
-            dateFormat: "Y-m-d",
-            onChange: () => fetchData()
-        });
+    	
+    	// 커스텀 달력
+		let customDateTargetId = null;
+		let customPickerDate = new Date();
+		
+		function formatDateLocal(date) {
+		    return date.getFullYear() + '-' +
+		        String(date.getMonth() + 1).padStart(2, '0') + '-' +
+		        String(date.getDate()).padStart(2, '0');
+		}
+		
+		function parseDateLocal(dateStr) {
+		    if (!dateStr) return null;
+		
+		    const parts = String(dateStr).split('-');
+		
+		    if (parts.length !== 3) {
+		        return null;
+		    }
+		
+		    return new Date(
+		        Number(parts[0]),
+		        Number(parts[1]) - 1,
+		        Number(parts[2])
+		    );
+		}
+		
+		function setDefaultDateValues() {
+		    const today = formatDateLocal(new Date());
+		
+		    const thirtyDaysAgo = new Date();
+		    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+		
+		    document.getElementById('period-start').value = formatDateLocal(thirtyDaysAgo);
+		    document.getElementById('period-end').value = today;
+		}
+		
+		window.openCustomDatePicker = function(inputId, event) {
+		    if (event) {
+		        event.stopPropagation();
+		    }
+		
+		    customDateTargetId = inputId;
+		
+		    const input = document.getElementById(inputId);
+		    const selectedDateObj = parseDateLocal(input.value);
+		
+		    customPickerDate = selectedDateObj || new Date();
+		
+		    renderCustomDatePicker();
+		    positionCustomDatePicker(input);
+		
+		    document.getElementById('customDatePicker').classList.remove('hidden');
+		};
+		
+		function positionCustomDatePicker(input) {
+		    const picker = document.getElementById('customDatePicker');
+		    const rect = input.getBoundingClientRect();
+		
+		    const pickerWidth = 300;
+		    const pickerHeight = 330;
+		
+		    let top = rect.bottom + 6;
+		    let left = rect.left;
+		
+		    picker.style.width = pickerWidth + 'px';
+		
+		    if (left + pickerWidth > window.innerWidth) {
+		        left = window.innerWidth - pickerWidth - 12;
+		    }
+		
+		    if (top + pickerHeight > window.innerHeight) {
+		        top = rect.top - pickerHeight - 6;
+		    }
+		
+		    picker.style.top = top + 'px';
+		    picker.style.left = left + 'px';
+		}
+		
+		window.changeCustomPickerMonth = function(amount) {
+		    customPickerDate.setMonth(customPickerDate.getMonth() + amount);
+		    renderCustomDatePicker();
+		};
+		
+		window.changeCustomPickerYearMonth = function() {
+		    const yearSelect = document.getElementById('customDatePickerYear');
+		    const monthSelect = document.getElementById('customDatePickerMonth');
+		
+		    const selectedYear = Number(yearSelect.value);
+		    const selectedMonth = Number(monthSelect.value);
+		
+		    customPickerDate = new Date(selectedYear, selectedMonth, 1);
+		
+		    renderCustomDatePicker();
+		};
+		
+		function renderCustomPickerYearMonthSelect(year, month) {
+		    const yearSelect = document.getElementById('customDatePickerYear');
+		    const monthSelect = document.getElementById('customDatePickerMonth');
+		
+		    let yearHtml = '';
+		    const startYear = year - 10;
+		    const endYear = year + 10;
+		
+		    for (let y = startYear; y <= endYear; y++) {
+		        yearHtml += '<option value="' + y + '"';
+		
+		        if (y === year) {
+		            yearHtml += ' selected';
+		        }
+		
+		        yearHtml += '>' + y + '년</option>';
+		    }
+		
+		    let monthHtml = '';
+		
+		    for (let m = 0; m < 12; m++) {
+		        monthHtml += '<option value="' + m + '"';
+		
+		        if (m === month) {
+		            monthHtml += ' selected';
+		        }
+		
+		        monthHtml += '>' + (m + 1) + '월</option>';
+		    }
+		
+		    yearSelect.innerHTML = yearHtml;
+		    monthSelect.innerHTML = monthHtml;
+		}
+		
+		function renderCustomDatePicker() {
+		    const year = customPickerDate.getFullYear();
+		    const month = customPickerDate.getMonth();
+		
+		    renderCustomPickerYearMonthSelect(year, month);
+		
+		    const firstDay = new Date(year, month, 1);
+		    const lastDay = new Date(year, month + 1, 0);
+		    const prevLastDay = new Date(year, month, 0);
+		
+		    const startDay = firstDay.getDay();
+		    const days = [];
+		
+		    for (let i = startDay - 1; i >= 0; i--) {
+		        days.push({
+		            date: new Date(year, month - 1, prevLastDay.getDate() - i),
+		            currentMonth: false
+		        });
+		    }
+		
+		    for (let d = 1; d <= lastDay.getDate(); d++) {
+		        days.push({
+		            date: new Date(year, month, d),
+		            currentMonth: true
+		        });
+		    }
+		
+		    let nextDay = 1;
+		
+		    while (days.length < 42) {
+		        days.push({
+		            date: new Date(year, month + 1, nextDay),
+		            currentMonth: false
+		        });
+		        nextDay++;
+		    }
+		
+		    const targetInput = customDateTargetId ? document.getElementById(customDateTargetId) : null;
+		    const selectedValue = targetInput ? targetInput.value : '';
+		    const todayValue = formatDateLocal(new Date());
+		
+		    let html = '';
+		
+		    for (let j = 0; j < days.length; j++) {
+		        const dateValue = formatDateLocal(days[j].date);
+		
+		        let className = 'custom-date-day';
+		
+		        if (!days[j].currentMonth) {
+		            className += ' other-month';
+		        }
+		
+		        if (dateValue === todayValue) {
+		            className += ' today';
+		        }
+		
+		        if (dateValue === selectedValue) {
+		            className += ' selected';
+		        }
+		
+		        html += '<button type="button" class="' + className + '" onclick="selectCustomDate(\'' + dateValue + '\')">';
+		        html += days[j].date.getDate();
+		        html += '</button>';
+		    }
+		
+		    document.getElementById('customDatePickerDays').innerHTML = html;
+		}
+		
+		window.selectCustomDate = function(dateValue) {
+		    if (!customDateTargetId) {
+		        return;
+		    }
+		
+		    document.getElementById(customDateTargetId).value = dateValue;
+		
+		    closeCustomDatePicker();
+		    fetchData();
+		};
+		
+		function closeCustomDatePicker() {
+		    const picker = document.getElementById('customDatePicker');
+		
+		    if (picker) {
+		        picker.classList.add('hidden');
+		    }
+		
+		    customDateTargetId = null;
+		}
+		
+		document.addEventListener('mousedown', function(event) {
+		    const picker = document.getElementById('customDatePicker');
+		
+		    if (!picker || picker.classList.contains('hidden')) {
+		        return;
+		    }
+		
+		    if (picker.contains(event.target)) {
+		        return;
+		    }
+		
+		    if (
+		        customDateTargetId &&
+		        document.getElementById(customDateTargetId) &&
+		        document.getElementById(customDateTargetId).contains(event.target)
+		    ) {
+		        return;
+		    }
+		
+		    closeCustomDatePicker();
+		});
 
         const sortButtons = document.querySelectorAll('.sort-btn[data-sort]');
         const rankTabs = document.querySelectorAll('.rank-tab');
@@ -387,8 +857,8 @@
 
         function fetchTrendData() {
             updateTitles();
-            const startDate = periodStartPicker.input.value;
-            const endDate = periodEndPicker.input.value;
+            const startDate = document.getElementById('period-start').value;
+            const endDate = document.getElementById('period-end').value;
 
             // 🟢 수정완료: 문자열 덧셈으로 변경
             const url = contextPath + '/hq/sales/ranking?action=getTrendData&startDate=' + startDate + '&endDate=' + endDate;
@@ -426,8 +896,8 @@
                 bestList.innerHTML = '<div class="no-data">데이터를 분석 중입니다...</div>';
                 worstList.innerHTML = '<div class="no-data">데이터를 분석 중입니다...</div>';
 
-                const startDate = periodStartPicker.input.value;
-                const endDate = periodEndPicker.input.value;
+                const startDate = document.getElementById('period-start').value;
+                const endDate = document.getElementById('period-end').value;
                 const recipeCode = menuSelect.value || '';
 
                 const supportedTabs = ['branch', 'menu', 'specific_menu'];
@@ -502,6 +972,7 @@
         mainCategorySelect.addEventListener('change', loadMenus);
         menuSelect.addEventListener('change', fetchData);
 
+        setDefaultDateValues();
         loadCategories();
     });
 </script>

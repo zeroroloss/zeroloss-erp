@@ -514,7 +514,7 @@
 
                     '<td class="px-4 py-3 whitespace-nowrap">' +
                         '<div class="flex items-center gap-2">' +
-                            '<button onclick="editAccountModal(\'' + account.id + '\')" class="text-blue-600 hover:text-blue-700" title="권한 변경">' +
+                            '<button onclick="editAccountModal(\'' + account.id + '\')" class="px-3 py-1.5 text-blue-600 hover:text-blue-700 text-sm" title="권한 변경">' +
                                 '<i class="fas fa-edit w-4 h-4"></i> 수정' +
                             '</button>' +
                         '</div>' +

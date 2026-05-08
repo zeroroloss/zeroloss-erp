@@ -23,13 +23,14 @@
         <div class="space-y-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">공지사항</h1>
-                    <p class="text-gray-500 mt-2">전체 지점에 공지사항을 작성하고 관리할 수 있습니다.</p>
+                    <h2 class="text-3xl font-bold text-gray-900">공지사항</h2>
+                    <p class="text-gray-500 mt-1">전체 지점에 공지사항을 작성하고 관리할 수 있습니다.</p>
                 </div>
-                <button onclick="openCreateModal()" class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2 rounded-lg hover:bg-[#006B2F] transition-colors">
-                    <i class="fas fa-plus w-4 h-4"></i>
-                    <span>공지사항 작성</span>
-                </button>
+                <button onclick="openCreateModal()"
+				        class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
+				    <i class="fas fa-pen-to-square w-5 h-5"></i>
+				    <span>공지사항 작성</span>
+				</button>
             </div>
 
             <div class="bg-white rounded-lg border border-gray-200 p-6">
@@ -71,34 +72,54 @@
 
 <div id="viewModal" class="fixed inset-0 bg-black bg-opacity-50 z-40 modal-hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-            <div class="flex-1">
-                <div class="flex items-center gap-2 mb-3">
-                    <span id="viewNoticePin" class="hidden text-purple-600"><i class="fas fa-thumbtack"></i></span>
-                    <span id="viewNoticeType" class="inline-block px-3 py-1 rounded text-sm font-medium"></span>
-                </div>
-                <h2 id="viewNoticeTitle" class="text-2xl font-bold text-gray-900"></h2>
-                <div class="flex items-center gap-4 text-sm text-gray-500 mt-4">
-                    <span><i class="fas fa-user w-4 h-4 inline mr-1"></i><span id="viewNoticeAuthor"></span></span>
-                    <span><i class="fas fa-calendar w-4 h-4 inline mr-1"></i><span id="viewNoticeDate"></span></span>
-                    <span><i class="fas fa-eye w-4 h-4 inline mr-1"></i>조회 <span id="viewNoticeViews"></span>회</span>
-                </div>
-            </div>
-            <button onclick="closeViewModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times w-6 h-6"></i></button>
-        </div>
-        <div class="p-6">
+        <div class="border-b border-gray-200 px-6 py-4 sticky top-0 bg-white">
+		    <div class="flex items-start justify-between gap-4">
+		        <div class="flex-1 min-w-0">
+		            <div class="flex items-center gap-2 mb-3">
+		                <span id="viewNoticePin" class="hidden text-purple-600">
+		                    <i class="fas fa-thumbtack"></i>
+		                </span>
+		                <span id="viewNoticeType" class="inline-block px-3 py-1 rounded text-sm font-medium"></span>
+		            </div>
+		
+		            <h2 id="viewNoticeTitle" class="text-2xl font-bold text-gray-900 leading-snug"></h2>
+		
+		            <div class="flex items-center gap-4 text-sm text-gray-500 mt-4 flex-wrap">
+		                <span>
+		                    <i class="fas fa-user w-4 h-4 inline mr-1"></i>
+		                    <span id="viewNoticeAuthor"></span>
+		                </span>
+		                <span>
+		                    <i class="fas fa-calendar w-4 h-4 inline mr-1"></i>
+		                    <span id="viewNoticeDate"></span>
+		                </span>
+		                <span>
+		                    <i class="fas fa-eye w-4 h-4 inline mr-1"></i>
+		                    조회 <span id="viewNoticeViews"></span>회
+		                </span>
+		            </div>
+		        </div>
+		
+		        <button type="button" onclick="closeViewModal()" class="shrink-0 text-gray-400 hover:text-gray-600">
+		            <i class="fas fa-times w-5 h-5"></i>
+		        </button>
+		    </div>
+		</div>
+        <div class="p-6 py-10">
             <p id="viewNoticeContent" class="whitespace-pre-wrap text-gray-700"></p>
         </div>
-        <div id="viewModalFooter" class="border-t border-gray-200 p-6 flex justify-end gap-3"></div>
+        <div id="viewModalFooter" class="border-t border-gray-200 px-6 py-3 flex justify-between items-center sticky bottom-0 bg-white"></div>
     </div>
 </div>
 
 <div id="createModal" class="fixed inset-0 bg-black bg-opacity-50 z-40 modal-hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
-            <h2 id="modalTitle" class="text-xl font-bold text-gray-900">공지사항 작성</h2>
-            <button onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times w-6 h-6"></i></button>
-        </div>
+        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
+		    <h2 id="modalTitle" class="text-lg font-bold text-gray-900">공지사항 작성</h2>
+		    <button type="button" onclick="closeCreateModal()" class="text-gray-400 hover:text-gray-600">
+		        <i class="fas fa-times w-5 h-5"></i>
+		    </button>
+		</div>
         <div class="p-6 space-y-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">제목</label>
@@ -122,10 +143,19 @@
                 <label for="isPinned" class="text-sm font-medium text-gray-700">상단 고정</label>
             </div>
         </div>
-        <div class="border-t border-gray-200 p-6 flex justify-end gap-3">
-            <button onclick="closeCreateModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">취소</button>
-            <button onclick="saveNotice()" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F]">저장</button>
-        </div>
+        <div class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
+		    <button type="button"
+		            onclick="closeCreateModal()"
+		            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+		        취소
+		    </button>
+		
+		    <button type="button"
+		            onclick="saveNotice()"
+		            class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+		        저장
+		    </button>
+		</div>
     </div>
 </div>
 
@@ -328,13 +358,30 @@
         // 본인(author_id) 여부에 따른 동적 버튼 생성
         const footer = document.getElementById('viewModalFooter');
         if (notice.authorId === CURRENT_USER_ID) {
-            footer.innerHTML = `
-                    <button onclick="closeViewModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">닫기</button>
-                    <button onclick="openEditModal(\${noticeId})" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">수정</button>
-                    <button onclick="deleteNotice(\${noticeId})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">삭제</button>
-                `;
+        	footer.innerHTML = `
+        	    <button type="button"
+        	            onclick="deleteNotice(\${noticeId})"
+        	            class="inline-flex items-center gap-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">
+        	        <i class="fas fa-trash-alt text-xs"></i>
+        	        삭제
+        	    </button>
+
+        	    <div class="flex items-center gap-3">
+        	        <button type="button"
+        	                onclick="closeViewModal()"
+        	                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+        	            닫기
+        	        </button>
+
+        	        <button type="button"
+        	                onclick="openEditModal(\${noticeId})"
+        	                class="inline-flex items-center gap-1 px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+        	            수정
+        	        </button>
+        	    </div>
+        	`;
         } else {
-            footer.innerHTML = `<button onclick="closeViewModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">닫기</button>`;
+        	footer.innerHTML = `<div></div><button type="button" onclick="closeViewModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">닫기</button>`;
         }
 
         document.getElementById('viewModal').classList.remove('modal-hidden');

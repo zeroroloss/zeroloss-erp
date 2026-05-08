@@ -22,10 +22,12 @@
             <div class="space-y-6">
 
                 <!-- 페이지 헤더 -->
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-900">배송 조회</h2>
-                    <p class="text-gray-500 mt-2">배차된 발주 건의 배송 상태를 추적하고 관리합니다.</p>
-                </div>
+				<div class="flex items-center justify-between">
+				    <div>
+				        <h2 class="text-3xl font-bold text-gray-900">배송 조회</h2>
+				        <p class="text-gray-500 mt-1">배차된 발주 건의 배송 상태를 추적하고 관리합니다.</p>
+				    </div>
+				</div>
 
                 <!-- 필터 영역 -->
                 <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
@@ -78,20 +80,35 @@
     </div>
 
     <!-- 배송 상세 모달 -->
-    <div id="detailModal" class="fixed inset-0 z-50 hidden modal-center modal-backdrop">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl">
-            <div class="px-6 py-4 border-b flex justify-between items-center">
-                <h3 id="modalTitle" class="text-xl font-bold text-gray-900">배송 상세 정보</h3>
-                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times fa-lg"></i></button>
-            </div>
-            <div id="modalBody" class="p-6 max-h-[70vh] overflow-y-auto">
-                <!-- 모달 내용이 여기에 동적으로 채워집니다. -->
-            </div>
-            <div class="px-6 py-4 bg-gray-50 rounded-b-lg flex justify-end">
-                <button onclick="closeDetailModal()" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 text-sm font-medium">닫기</button>
-            </div>
-        </div>
-    </div>
+	<div id="detailModal" class="fixed inset-0 z-50 hidden modal-center modal-backdrop p-4">
+	    <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+	
+	        <!-- 상세 모달 헤더 -->
+	        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
+	            <h3 id="modalTitle" class="text-lg font-bold text-gray-900">배송 상세 정보</h3>
+	            <button type="button"
+	                    onclick="closeDetailModal()"
+	                    class="text-gray-400 hover:text-gray-600"
+	                    title="닫기">
+	                <i class="fas fa-times w-5 h-5"></i>
+	            </button>
+	        </div>
+	
+	        <!-- 상세 모달 본문 -->
+	        <div id="modalBody" class="p-6 max-h-[70vh] overflow-y-auto">
+	            <!-- 모달 내용이 여기에 동적으로 채워집니다. -->
+	        </div>
+	
+	        <!-- 상세 모달 푸터 -->
+	        <div class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
+	            <button type="button"
+	                    onclick="closeDetailModal()"
+	                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+	                닫기
+	            </button>
+	        </div>
+	    </div>
+	</div>
 
     <script>
         const contextPath = '<%=request.getContextPath()%>';

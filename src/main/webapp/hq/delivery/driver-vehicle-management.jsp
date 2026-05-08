@@ -19,10 +19,13 @@
     <main class="p-6">
         <div class="space-y-6">
             <!-- Header, Search, Tabs -->
-            <div>
-                <h2 class="text-3xl font-bold text-gray-900">기사/차량 관리</h2>
-                <p class="text-gray-500 mt-2">배송 업무를 수행하는 기사와 차량 정보를 관리하세요</p>
-            </div>
+            <!-- 페이지 헤더 -->
+			<div class="flex items-center justify-between">
+			    <div>
+			        <h2 class="text-3xl font-bold text-gray-900">기사/차량 관리</h2>
+			        <p class="text-gray-500 mt-1">배송 업무를 수행하는 기사와 차량 정보를 관리하세요</p>
+			    </div>
+			</div>
             <div class="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
                 <input type="text" id="searchInput" placeholder="기사명, 전화번호, 차량번호로 검색..." onkeyup="applySearch()" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm transition-shadow">
             </div>
@@ -32,8 +35,21 @@
                     <button onclick="switchTab('vehicles')" id="vehiclesTabBtn" class="px-5 py-3.5 border-b-2 font-bold text-sm flex items-center gap-2 transition-colors -mb-px"><i class="fas fa-truck w-4 h-4"></i> 차량</button>
                 </div>
                 <div class="pb-2">
-                    <button id="addDriverBtn" onclick="openAddDriverModal()" class="px-5 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] shadow-sm flex items-center gap-2 text-sm font-medium"> <i class="fas fa-plus w-4 h-4"></i> 기사 추가</button>
-                    <button id="addVehicleBtn" onclick="openAddVehicleModal()" class="hidden px-5 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] shadow-sm flex items-center gap-2 text-sm font-medium"><i class="fas fa-plus w-4 h-4"></i> 차량 추가</button>
+                    <button id="addDriverBtn"
+					        type="button"
+					        onclick="openAddDriverModal()"
+					        class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
+					    <i class="fas fa-user-plus w-5 h-5"></i>
+					    <span>기사 추가</span>
+					</button>
+					
+					<button id="addVehicleBtn"
+					        type="button"
+					        onclick="openAddVehicleModal()"
+					        class="hidden flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
+					    <i class="fas fa-truck w-5 h-5"></i>
+					    <span>차량 추가</span>
+					</button>
                 </div>
             </div>
 
@@ -59,13 +75,189 @@
 </div>
 
 <!-- 기사 모달 -->
-<div id="driverModal" class="fixed inset-0 z-50 hidden modal-center modal-backdrop">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg"><div class="px-6 py-4 border-b"><h3 id="driverModalTitle" class="text-xl font-bold"></h3></div><div class="p-6 space-y-4"><input type="hidden" id="driverId"><div><label for="driverCandidate" class="block text-sm font-medium text-gray-700 mb-1">기사 선택</label><select id="driverCandidate" class="w-full px-3 py-2 border rounded-md"></select><p id="driverNameDisplay" class="hidden mt-2 text-lg font-semibold"></p></div><div><label for="driverRegion" class="block text-sm font-medium text-gray-700 mb-1">담당 권역</label><select id="driverRegion" class="w-full px-3 py-2 border rounded-md"></select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">상태</label><div class="flex gap-4"><label class="inline-flex items-center"><input type="radio" name="driverStatus" value="true" class="form-radio"><span class="ml-2">활동중</span></label><label class="inline-flex items-center"><input type="radio" name="driverStatus" value="false" class="form-radio"><span class="ml-2">비활동</span></label></div></div></div><div class="px-6 py-4 bg-gray-50 flex justify-between"><button id="deleteDriverBtn" onclick="handleDeleteDriver()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">삭제</button><div class="flex gap-2"><button onclick="closeDriverModal()" class="px-4 py-2 bg-white border rounded-md">취소</button><button onclick="handleSaveDriver()" class="px-4 py-2 bg-[#00853D] text-white rounded-md">저장</button></div></div></div>
+<div id="driverModal" class="fixed inset-0 z-50 hidden modal-center modal-backdrop p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+
+        <!-- 모달 헤더 -->
+        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
+            <h3 id="driverModalTitle" class="text-lg font-bold text-gray-900"></h3>
+
+            <button type="button"
+                    onclick="closeDriverModal()"
+                    class="text-gray-400 hover:text-gray-600"
+                    title="닫기">
+                <i class="fas fa-times w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- 모달 본문 -->
+        <div class="p-6 space-y-4">
+            <input type="hidden" id="driverId">
+
+            <div>
+                <label for="driverCandidate" class="block text-sm font-medium text-gray-700 mb-1">기사 선택</label>
+                <select id="driverCandidate"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent outline-none text-sm">
+                </select>
+                <p id="driverNameDisplay" class="hidden mt-2 text-lg font-semibold"></p>
+            </div>
+
+            <div>
+                <label for="driverRegion" class="block text-sm font-medium text-gray-700 mb-1">담당 권역</label>
+                <select id="driverRegion"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent outline-none text-sm">
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">상태</label>
+                <div class="flex gap-4 text-sm">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="driverStatus" value="true" class="form-radio">
+                        <span class="ml-2">활동중</span>
+                    </label>
+
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="driverStatus" value="false" class="form-radio">
+                        <span class="ml-2">비활동</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 모달 푸터 -->
+        <div class="border-t border-gray-200 px-6 py-3 flex justify-between items-center sticky bottom-0 bg-white">
+            <button id="deleteDriverBtn"
+                    type="button"
+                    onclick="handleDeleteDriver()"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">
+                <i class="fas fa-trash-alt text-xs"></i>
+                삭제
+            </button>
+
+            <div class="flex gap-3 ml-auto">
+			    <button type="button"
+			            onclick="closeDriverModal()"
+			            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+			        취소
+			    </button>
+			
+			    <button type="button"
+			            onclick="handleSaveDriver()"
+			            class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+			        저장
+			    </button>
+			</div>
+        </div>
+    </div>
 </div>
 
 <!-- 차량 모달 -->
-<div id="vehicleModal" class="fixed inset-0 z-50 hidden modal-center modal-backdrop">
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg"><div class="px-6 py-4 border-b"><h3 id="vehicleModalTitle" class="text-xl font-bold"></h3></div><div class="p-6 space-y-4"><input type="hidden" id="vehicleId"><div><label for="plateNumber" class="block text-sm font-medium text-gray-700 mb-1">차량번호</label><input type="text" id="plateNumber" class="w-full px-3 py-2 border rounded-md"></div><div class="grid grid-cols-2 gap-4"><div><label for="vehicleCapacity" class="block text-sm font-medium text-gray-700 mb-1">용량(kg)</label><input type="number" id="vehicleCapacity" class="w-full px-3 py-2 border rounded-md"></div><div><label for="vehicleTempType" class="block text-sm font-medium text-gray-700 mb-1">온도 유형</label><select id="vehicleTempType" class="w-full px-3 py-2 border rounded-md"><option>일반</option><option>냉장</option><option>냉동</option><option>냉장/냉동</option></select></div></div><div><label for="vehicleRegion" class="block text-sm font-medium text-gray-700 mb-1">소속 권역</label><select id="vehicleRegion" class="w-full px-3 py-2 border rounded-md"></select></div><div class="grid grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-gray-700 mb-2">차량 상태</label><select id="vehicleStatus" class="w-full px-3 py-2 border rounded-md"><option value="AVAILABLE">가용</option><option value="IN_TRANSIT">배송 중</option><option value="MAINTENANCE">점검 중</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">활성화 상태</label><div class="flex gap-4 pt-2"><label class="inline-flex items-center"><input type="radio" name="vehicleActive" value="true" class="form-radio"><span class="ml-2">활성</span></label><label class="inline-flex items-center"><input type="radio" name="vehicleActive" value="false" class="form-radio"><span class="ml-2">비활성</span></label></div></div></div></div><div class="px-6 py-4 bg-gray-50 flex justify-between"><button id="deleteVehicleBtn" onclick="handleDeleteVehicle()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">삭제</button><div class="flex gap-2"><button onclick="closeVehicleModal()" class="px-4 py-2 bg-white border rounded-md">취소</button><button onclick="handleSaveVehicle()" class="px-4 py-2 bg-[#00853D] text-white rounded-md">저장</button></div></div></div>
+<div id="vehicleModal" class="fixed inset-0 z-50 hidden modal-center modal-backdrop p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+
+        <!-- 모달 헤더 -->
+        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
+            <h3 id="vehicleModalTitle" class="text-lg font-bold text-gray-900"></h3>
+
+            <button type="button"
+                    onclick="closeVehicleModal()"
+                    class="text-gray-400 hover:text-gray-600"
+                    title="닫기">
+                <i class="fas fa-times w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- 모달 본문 -->
+        <div class="p-6 space-y-4">
+            <input type="hidden" id="vehicleId">
+
+            <div>
+                <label for="plateNumber" class="block text-sm font-medium text-gray-700 mb-1">차량번호</label>
+                <input type="text"
+                       id="plateNumber"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent outline-none text-sm">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="vehicleCapacity" class="block text-sm font-medium text-gray-700 mb-1">용량(kg)</label>
+                    <input type="number"
+                           id="vehicleCapacity"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent outline-none text-sm">
+                </div>
+
+                <div>
+                    <label for="vehicleTempType" class="block text-sm font-medium text-gray-700 mb-1">온도 유형</label>
+                    <select id="vehicleTempType"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent outline-none text-sm bg-white">
+                        <option>일반</option>
+                        <option>냉장</option>
+                        <option>냉동</option>
+                        <option>냉장/냉동</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label for="vehicleRegion" class="block text-sm font-medium text-gray-700 mb-1">소속 권역</label>
+                <select id="vehicleRegion"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent outline-none text-sm bg-white">
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">차량 상태</label>
+                    <select id="vehicleStatus"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent outline-none text-sm bg-white">
+                        <option value="AVAILABLE">가용</option>
+                        <option value="IN_TRANSIT">배송 중</option>
+                        <option value="MAINTENANCE">점검 중</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">활성화 상태</label>
+                    <div class="flex gap-4 pt-2 text-sm">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="vehicleActive" value="true" class="form-radio">
+                            <span class="ml-2">활성</span>
+                        </label>
+
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="vehicleActive" value="false" class="form-radio">
+                            <span class="ml-2">비활성</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 모달 푸터 -->
+        <div class="border-t border-gray-200 px-6 py-3 flex justify-between items-center sticky bottom-0 bg-white">
+            <button id="deleteVehicleBtn"
+                    type="button"
+                    onclick="handleDeleteVehicle()"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">
+                삭제
+            </button>
+
+            <div class="flex gap-3 ml-auto">
+                <button type="button"
+                        onclick="closeVehicleModal()"
+                        class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                    취소
+                </button>
+
+                <button type="button"
+                        onclick="handleSaveVehicle()"
+                        class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+                    저장
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>

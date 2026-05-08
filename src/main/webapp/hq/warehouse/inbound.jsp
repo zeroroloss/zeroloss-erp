@@ -16,6 +16,89 @@
 .sidebar-open .sidebar {
 	transform: translateX(0);
 }
+/* 커스텀 날짜 선택기 */
+.custom-date-picker {
+    position: fixed;
+    width: 300px;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 0.75rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    padding: 14px;
+}
+
+.custom-date-picker.hidden {
+    display: none;
+}
+
+.custom-date-picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.custom-date-nav-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 0.5rem;
+    border: 1px solid #e5e7eb;
+    color: #4b5563;
+    background: #fff;
+    cursor: pointer;
+}
+
+.custom-date-nav-btn:hover {
+    background: #f3f4f6;
+}
+
+.custom-date-weekdays,
+.custom-date-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.custom-date-weekdays div {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    padding: 4px 0;
+}
+
+.custom-date-day {
+    height: 32px;
+    border-radius: 0.5rem;
+    border: none;
+    background: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    color: #111827;
+}
+
+.custom-date-day:hover {
+    background: #ecfdf3;
+    color: #00853D;
+    font-weight: 700;
+}
+
+.custom-date-day.other-month {
+    color: #c4c4c4;
+}
+
+.custom-date-day.today {
+    border: 1px solid #00853D;
+    color: #00853D;
+    font-weight: 700;
+}
+
+.custom-date-day.selected {
+    background: #00853D;
+    color: #fff;
+    font-weight: 700;
+}
 </style>
 <%
 @SuppressWarnings("unchecked")
@@ -47,77 +130,118 @@ String priceJson = gson.toJson(materialPriceMap);
 		<main class="p-6">
 
 			<!-- ===== 페이지 헤더 ===== -->
-			<div class="mb-6 flex items-center justify-between">
-				<div>
-					<h2 class="text-3xl font-bold text-gray-900">본사 물류창고 입고</h2>
-					<p class="text-gray-500 mt-1">신규 입고를 등록하고 입고 이력을 관리하세요</p>
-				</div>
-				<button onclick="openReceiveModal()"
-					class="flex items-center gap-2 px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] transition-colors">
-					<i class="fas fa-plus w-5 h-5"></i>신규 입고 등록
-				</button>
+			<div class="flex items-center justify-between mb-6">
+			    <div>
+			        <h2 class="text-3xl font-bold text-gray-900">본사 물류창고 입고</h2>
+			        <p class="text-gray-500 mt-1">신규 입고를 등록하고 입고 이력을 관리하세요</p>
+			    </div>
+			
+			    <button type="button"
+			            onclick="openReceiveModal()"
+			            class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
+			        <i class="fas fa-plus w-5 h-5"></i>
+			        <span>신규 입고 등록</span>
+			    </button>
 			</div>
-
+			
 			<!-- ===== 검색 필터 영역 ===== -->
-			<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-				<div
-					class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">공급사</label>
-						<select id="filterSupplier"
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-							<option value="전체">전체</option>
-							<%
-							if (supplierNameList != null) {
-								for (String supplier : supplierNameList) {
-							%>
-							<option value="<%=supplier%>"><%=supplier%></option>
-							<%
-							}
-							}
-							%>
-						</select>
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">카테고리</label>
-						<select id="filterCategory" onchange="updateFilterItemNames()"
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-							<option value="전체">전체</option>
-							<%
-							if (categoryMaterialMap != null) {
-								for (String category : categoryMaterialMap.keySet()) {
-							%>
-							<option value="<%=category%>"><%=category%></option>
-							<%
-							}
-							}
-							%>
-						</select>
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">품목명</label>
-						<select id="filterItemName"
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-							<option value="전체">전체</option>
-						</select>
-					</div>
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">일자 범위</label>
-						<div class="flex flex-col sm:flex-row sm:items-center gap-2">
-							<input type="date" id="filterStartDate"
-								class="w-full min-w-0 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-							<span class="text-gray-500 hidden sm:inline">~</span> <input
-								type="date" id="filterEndDate"
-								class="w-full min-w-0 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-						</div>
-					</div>
-				</div>
-				<div class="flex items-center gap-2">
-					<button onclick="applyFilters()"
-						class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">조회하기</button>
-					<button onclick="resetFilters()"
-						class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">초기화</button>
-				</div>
+			<div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-6">
+			    <div class="flex flex-col gap-4">
+			
+			        <!-- 상단: 설명 -->
+			        <div>
+			            <h3 class="text-sm font-semibold text-gray-800">입고 이력 검색</h3>
+			            <p class="text-xs text-gray-500 mt-1">
+			                공급사, 카테고리, 품목명, 일자 범위 기준으로 입고 이력을 조회할 수 있습니다.
+			            </p>
+			        </div>
+			
+			        <!-- 하단: 필터 + 버튼 -->
+			        <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 pt-4 border-t border-gray-100">
+			
+			            <!-- 필터 영역 -->
+			            <div class="flex flex-wrap items-center gap-3">
+			
+			                <!-- 공급사 -->
+			                <select id="filterSupplier"
+			                        class="w-52 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+			                    <option value="전체">전체 공급사</option>
+			                    <%
+			                    if (supplierNameList != null) {
+			                        for (String supplier : supplierNameList) {
+			                    %>
+			                    <option value="<%=supplier%>"><%=supplier%></option>
+			                    <%
+			                        }
+			                    }
+			                    %>
+			                </select>
+			
+			                <!-- 카테고리 -->
+			                <select id="filterCategory"
+			                        onchange="updateFilterItemNames()"
+			                        class="w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+			                    <option value="전체">전체 카테고리</option>
+			                    <%
+			                    if (categoryMaterialMap != null) {
+			                        for (String category : categoryMaterialMap.keySet()) {
+			                    %>
+			                    <option value="<%=category%>"><%=category%></option>
+			                    <%
+			                        }
+			                    }
+			                    %>
+			                </select>
+			
+			                <!-- 품목명 -->
+			                <select id="filterItemName"
+			                        class="w-52 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+			                    <option value="전체">전체 품목</option>
+			                </select>
+			
+			                <!-- 시작일 -->
+							<div class="relative w-52">
+							    <input type="text"
+							           id="filterStartDate"
+							           readonly
+							           onclick="openCustomDatePicker('filterStartDate', event)"
+							           placeholder="시작일 선택"
+							           class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all bg-white cursor-pointer">
+							
+							    <i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+							</div>
+							
+							<span class="text-gray-500 text-sm">~</span>
+							
+							<!-- 종료일 -->
+							<div class="relative w-52">
+							    <input type="text"
+							           id="filterEndDate"
+							           readonly
+							           onclick="openCustomDatePicker('filterEndDate', event)"
+							           placeholder="종료일 선택"
+							           class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all bg-white cursor-pointer">
+							
+							    <i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+							</div>
+			            </div>
+			
+			            <!-- 버튼 영역 -->
+			            <div class="flex items-center gap-2 xl:ml-4 xl:shrink-0">
+			                <button type="button"
+			                        onclick="applyFilters()"
+			                        class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">
+			                    조회
+			                </button>
+			
+			                <button type="button"
+			                        onclick="resetFilters()"
+			                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+			                    초기화
+			                </button>
+			            </div>
+			        </div>
+			    </div>
 			</div>
 
 			<!-- ===== 입고 이력 테이블 ===== -->
@@ -263,12 +387,20 @@ String priceJson = gson.toJson(materialPriceMap);
 	                </div>
 	
 	                <!-- 유통기한 -->
-	                <div>
-	                    <label class="block text-sm font-medium text-gray-700 mb-1">유통기한 <span class="text-red-500">*</span></label>
-	                    <input type="date"
-	                           id="formExpiryDate"
-	                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
-	                </div>
+					<div>
+					    <label class="block text-sm font-medium text-gray-700 mb-1">유통기한 <span class="text-red-500">*</span></label>
+					
+					    <div class="relative">
+					        <input type="text"
+					               id="formExpiryDate"
+					               readonly
+					               onclick="openCustomDatePicker('formExpiryDate', event)"
+					               placeholder="YYYY-MM-DD"
+					               class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm bg-white cursor-pointer">
+					
+					        <i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+					    </div>
+					</div>
 	
 	            </div>
 	        </div>
@@ -295,6 +427,43 @@ String priceJson = gson.toJson(materialPriceMap);
 			</div>
 	    </div>
 	</div>
+
+<!-- 커스텀 달력 -->
+<div id="customDatePicker" class="custom-date-picker hidden" onclick="event.stopPropagation()">
+    <div class="custom-date-picker-header">
+        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(-1)">
+            <i class="fas fa-chevron-left text-xs"></i>
+        </button>
+
+        <div class="flex items-center gap-2">
+            <select id="customDatePickerYear"
+                    onchange="changeCustomPickerYearMonth()"
+                    class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+            </select>
+
+            <select id="customDatePickerMonth"
+                    onchange="changeCustomPickerYearMonth()"
+                    class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+            </select>
+        </div>
+
+        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(1)">
+            <i class="fas fa-chevron-right text-xs"></i>
+        </button>
+    </div>
+
+    <div class="custom-date-weekdays">
+        <div>일</div>
+        <div>월</div>
+        <div>화</div>
+        <div>수</div>
+        <div>목</div>
+        <div>금</div>
+        <div>토</div>
+    </div>
+
+    <div id="customDatePickerDays" class="custom-date-days"></div>
+</div>
 
 		<script>
     // ============================================================
@@ -330,6 +499,232 @@ String priceJson = gson.toJson(materialPriceMap);
             document.getElementById('userMenu').classList.add('hidden');
         }
     });
+    
+	 // ============================================================
+	 // 커스텀 달력
+	 // ============================================================
+	 var customDateTargetId = null;
+	 var customPickerDate = new Date();
+	
+	 function parseDateLocal(dateStr) {
+	     if (!dateStr) return null;
+	
+	     var parts = String(dateStr).split('-');
+	
+	     if (parts.length !== 3) {
+	         return null;
+	     }
+	
+	     return new Date(
+	         Number(parts[0]),
+	         Number(parts[1]) - 1,
+	         Number(parts[2])
+	     );
+	 }
+	
+	 function formatDateLocal(date) {
+	     return date.getFullYear() + '-' +
+	         String(date.getMonth() + 1).padStart(2, '0') + '-' +
+	         String(date.getDate()).padStart(2, '0');
+	 }
+	
+	 function openCustomDatePicker(inputId, event) {
+	     if (event) {
+	         event.stopPropagation();
+	     }
+	
+	     customDateTargetId = inputId;
+	
+	     var input = document.getElementById(inputId);
+	     var selectedDate = parseDateLocal(input.value);
+	
+	     customPickerDate = selectedDate || new Date();
+	
+	     renderCustomDatePicker();
+	     positionCustomDatePicker(input);
+	
+	     document.getElementById('customDatePicker').classList.remove('hidden');
+	 }
+	
+	 function positionCustomDatePicker(input) {
+	     var picker = document.getElementById('customDatePicker');
+	     var rect = input.getBoundingClientRect();
+	
+	     var top = rect.bottom + 6;
+	     var left = rect.left;
+	
+	     if (left + 300 > window.innerWidth) {
+	         left = window.innerWidth - 312;
+	     }
+	
+	     if (top + 330 > window.innerHeight) {
+	         top = rect.top - 330;
+	     }
+	
+	     picker.style.top = top + 'px';
+	     picker.style.left = left + 'px';
+	 }
+	
+	 function changeCustomPickerMonth(amount) {
+	     customPickerDate.setMonth(customPickerDate.getMonth() + amount);
+	     renderCustomDatePicker();
+	 }
+	
+	 function changeCustomPickerYearMonth() {
+	     var yearSelect = document.getElementById('customDatePickerYear');
+	     var monthSelect = document.getElementById('customDatePickerMonth');
+	
+	     var selectedYear = Number(yearSelect.value);
+	     var selectedMonth = Number(monthSelect.value);
+	
+	     customPickerDate = new Date(selectedYear, selectedMonth, 1);
+	     renderCustomDatePicker();
+	 }
+	
+	 function renderCustomDatePicker() {
+	     var year = customPickerDate.getFullYear();
+	     var month = customPickerDate.getMonth();
+	
+	     renderCustomPickerYearMonthSelect(year, month);
+	
+	     var firstDay = new Date(year, month, 1);
+	     var lastDay = new Date(year, month + 1, 0);
+	     var prevLastDay = new Date(year, month, 0);
+	
+	     var startDay = firstDay.getDay();
+	     var days = [];
+	
+	     for (var i = startDay - 1; i >= 0; i--) {
+	         var prevDate = prevLastDay.getDate() - i;
+	
+	         days.push({
+	             date: new Date(year, month - 1, prevDate),
+	             currentMonth: false
+	         });
+	     }
+	
+	     for (var d = 1; d <= lastDay.getDate(); d++) {
+	         days.push({
+	             date: new Date(year, month, d),
+	             currentMonth: true
+	         });
+	     }
+	
+	     while (days.length < 42) {
+	         var nextDate = days.length - (startDay + lastDay.getDate()) + 1;
+	
+	         days.push({
+	             date: new Date(year, month + 1, nextDate),
+	             currentMonth: false
+	         });
+	     }
+	
+	     var todayValue = formatDateLocal(new Date());
+	     var selectedValue = '';
+	
+	     if (customDateTargetId) {
+	         selectedValue = document.getElementById(customDateTargetId).value;
+	     }
+	
+	     var html = '';
+	
+	     for (var j = 0; j < days.length; j++) {
+	         var dateValue = formatDateLocal(days[j].date);
+	         var className = 'custom-date-day';
+	
+	         if (!days[j].currentMonth) {
+	             className += ' other-month';
+	         }
+	
+	         if (dateValue === todayValue) {
+	             className += ' today';
+	         }
+	
+	         if (dateValue === selectedValue) {
+	             className += ' selected';
+	         }
+	
+	         html += '<button type="button" class="' + className + '" onclick="selectCustomDate(\'' + dateValue + '\')">';
+	         html += days[j].date.getDate();
+	         html += '</button>';
+	     }
+	
+	     document.getElementById('customDatePickerDays').innerHTML = html;
+	 }
+	
+	 function renderCustomPickerYearMonthSelect(year, month) {
+	     var yearSelect = document.getElementById('customDatePickerYear');
+	     var monthSelect = document.getElementById('customDatePickerMonth');
+	
+	     var yearHtml = '';
+	     var startYear = year - 10;
+	     var endYear = year + 10;
+	
+	     for (var y = startYear; y <= endYear; y++) {
+	         yearHtml += '<option value="' + y + '"';
+	
+	         if (y === year) {
+	             yearHtml += ' selected';
+	         }
+	
+	         yearHtml += '>' + y + '년</option>';
+	     }
+	
+	     var monthHtml = '';
+	
+	     for (var m = 0; m < 12; m++) {
+	         monthHtml += '<option value="' + m + '"';
+	
+	         if (m === month) {
+	             monthHtml += ' selected';
+	         }
+	
+	         monthHtml += '>' + (m + 1) + '월</option>';
+	     }
+	
+	     yearSelect.innerHTML = yearHtml;
+	     monthSelect.innerHTML = monthHtml;
+	 }
+	
+	 function selectCustomDate(dateValue) {
+	     if (!customDateTargetId) {
+	         return;
+	     }
+	
+	     document.getElementById(customDateTargetId).value = dateValue;
+	     document.getElementById('customDatePicker').classList.add('hidden');
+	
+	     customDateTargetId = null;
+	 }
+	
+	 function closeCustomDatePicker() {
+	     document.getElementById('customDatePicker').classList.add('hidden');
+	     customDateTargetId = null;
+	 }
+	
+	 document.addEventListener('mousedown', function(event) {
+	     var picker = document.getElementById('customDatePicker');
+	
+	     if (!picker || picker.classList.contains('hidden')) {
+	         return;
+	     }
+	
+	     var target = event.target;
+	
+	     if (picker.contains(target)) {
+	         return;
+	     }
+	
+	     if (
+	         customDateTargetId &&
+	         document.getElementById(customDateTargetId) &&
+	         document.getElementById(customDateTargetId).contains(target)
+	     ) {
+	         return;
+	     }
+	
+	     closeCustomDatePicker();
+	 });
 
     // ============================================================
     // 필터 품목명 연동
@@ -659,9 +1054,6 @@ String priceJson = gson.toJson(materialPriceMap);
 			    html += '</button>';
 			
 			    pageButtons.innerHTML = html;
-			
-			    document.getElementById('prevBtn').disabled = (currentPage == 1);
-			    document.getElementById('nextBtn').disabled = (currentPage == totalPages);
 			}
 			
 			function goToPage(page) {
