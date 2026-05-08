@@ -157,26 +157,19 @@
             <!-- 알림 리스트 -->
             <div id="notificationList" class="space-y-4"></div>
 
-            <!-- 페이징 -->
-            <div class="flex items-center justify-between">
-                <button onclick="previousPage()"
-                        class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        id="prevBtn">
-                    <i class="fas fa-chevron-left"></i>
-                    <span>이전</span>
-                </button>
-
-                <div class="text-gray-600">
-                    <span id="pageInfo"></span>
-                </div>
-
-                <button onclick="nextPage()"
-                        class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        id="nextBtn">
-                    <span>다음</span>
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            </div>
+            <!-- 페이지네이션 -->
+			<div id="paginationContainer"
+			     class="px-6 py-4 border-t border-gray-200 flex flex-col items-center justify-center gap-3 hidden">
+			    <div id="paginationInfo" class="text-sm text-gray-600">
+			        <!-- 동적으로 생성됨 -->
+			    </div>
+			
+			    <div class="flex items-center justify-center gap-2">
+			        <div id="pageButtons" class="flex items-center gap-1">
+			            <!-- 동적으로 생성됨 -->
+			        </div>
+			    </div>
+			</div>
 
         </div>
     </main>
@@ -282,7 +275,8 @@
 	%>
     ];
     let currentPage = 1;
-    const itemsPerPage = 8;
+    const itemsPerPage = 5;
+    const PAGE_SIZE = 5;
 
     let currentStatusFilter = 'all';
     let currentTypeFilter = 'all';
@@ -429,9 +423,7 @@
             }).join('');
         }
 
-        document.getElementById('prevBtn').disabled = currentPage === 1;
-        document.getElementById('nextBtn').disabled = currentPage === totalPages || totalPages === 0;
-        document.getElementById('pageInfo').innerText = `${totalPages === 0 ? 0 : currentPage} / ${totalPages}`;
+        renderPagination(totalPages, filtered.length);
     }
 
     function formatDate(dateValue) {
@@ -475,23 +467,77 @@
 
         renderNotifications();
     }
+    
+    function renderPagination(totalPages, totalItems) {
+        const paginationContainer = document.getElementById('paginationContainer');
+        const paginationInfo = document.getElementById('paginationInfo');
+        const pageButtons = document.getElementById('pageButtons');
 
-    function previousPage() {
-        if (currentPage > 1) {
-            currentPage--;
-            renderNotifications();
-            window.scrollTo(0, 0);
+        if (totalPages <= 1) {
+            paginationContainer.classList.add('hidden');
+            paginationInfo.textContent = '';
+            pageButtons.innerHTML = '';
+            return;
         }
+
+        paginationContainer.classList.remove('hidden');
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+        paginationInfo.textContent =
+            (startIndex + 1) + '-' + endIndex + ' / ' + totalItems + '개';
+
+        const base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+        const active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+        const arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+
+        const blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+        const blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+
+        let html = '';
+
+        html += '<button class="' + arrow + '" onclick="changePage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-angles-left text-xs"></i>';
+        html += '</button>';
+
+        const prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+        html += '<button class="' + arrow + '" onclick="changePage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-chevron-left text-xs"></i>';
+        html += '</button>';
+
+        for (let i = blockStart; i <= blockEnd; i++) {
+            html += '<button class="' + (i === currentPage ? active : base) + '" onclick="changePage(' + i + ')">';
+            html += i;
+            html += '</button>';
+        }
+
+        const nextBlockPage = Math.min(totalPages, blockEnd + 1);
+        html += '<button class="' + arrow + '" onclick="changePage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-chevron-right text-xs"></i>';
+        html += '</button>';
+
+        html += '<button class="' + arrow + '" onclick="changePage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+        html += '<i class="fas fa-angles-right text-xs"></i>';
+        html += '</button>';
+
+        pageButtons.innerHTML = html;
     }
 
-    function nextPage() {
+    function changePage(page) {
         const totalPages = Math.ceil(filterAndSortNotifications().length / itemsPerPage);
 
-        if (currentPage < totalPages) {
-            currentPage++;
-            renderNotifications();
-            window.scrollTo(0, 0);
+        if (page < 1 || page > totalPages) {
+            return;
         }
+
+        currentPage = page;
+        renderNotifications();
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
     }
 
     async function viewNotification(notificationId) {

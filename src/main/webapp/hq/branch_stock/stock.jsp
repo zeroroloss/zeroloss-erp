@@ -29,74 +29,88 @@
 
 		<!-- 페이지 콘텐츠 -->
 		<main class="p-6">
-			<!-- 헤더 -->
+			<!-- ===== 페이지 헤더 ===== -->
 			<div class="mb-6">
-				<h2 class="text-3xl font-bold text-gray-900">지점 재고 현황</h2>
-				<p class="text-gray-500 mt-1">모든 지점의 재고 현황을 조회하세요</p>
+			    <h2 class="text-3xl font-bold text-gray-900">지점 재고 현황</h2>
+			    <p class="text-gray-500 mt-1">모든 지점의 재고 현황을 조회하세요</p>
 			</div>
-
-			<!-- 필터 -->
-			<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-				<div
-					class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-					<!-- 지점 선택 -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">지점
-							선택</label> <select id="branchSelect"
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-							<option value="">전체</option>
-
-							<c:forEach var="branch" items="${branchList}">
-								<c:if test="${branch.branchCode != 1}">
-									<option value="${branch.branchCode}">
-										${branch.branchName}</option>
-								</c:if>
-							</c:forEach>
-						</select>
-					</div>
-
-					<!-- 카테고리 선택 -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">카테고리
-							선택</label> <select id="categorySelect"
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-							<option value="">전체</option>
-
-							<c:forEach var="group" items="${materialGroupList}">
-								<option value="${group.materialGroupId}">${group.groupName}</option>
-							</c:forEach>
-						</select>
-					</div>
-
-					<!-- 품목명 선택 -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">품목명
-							선택</label> <select id="itemNameSelect"
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-							<option value="">전체</option>
-						</select>
-					</div>
-
-					<!-- 검색 -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">검색어</label>
-						<div class="relative">
-							<i
-								class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-							<input type="text" id="searchInput" placeholder="품목명, 코드..."
-								class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-						</div>
-					</div>
-				</div>
-
-				<div class="flex items-center gap-2">
-					<button onclick="handleSearch()"
-						class="px-6 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] font-medium transition-colors">
-						조회하기</button>
-					<button onclick="handleReset()"
-						class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors">
-						초기화</button>
-				</div>
+			
+			<!-- ===== 검색 필터 영역 ===== -->
+			<div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-6">
+			    <div class="flex flex-col gap-4">
+			
+			        <!-- 상단: 설명 -->
+			        <div>
+			            <h3 class="text-sm font-semibold text-gray-800">지점 재고 검색</h3>
+			            <p class="text-xs text-gray-500 mt-1">
+			                지점, 카테고리, 품목명, 검색어 기준으로 지점 재고 현황을 조회할 수 있습니다.
+			            </p>
+			        </div>
+			
+			        <!-- 하단: 필터 + 버튼 -->
+			        <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 pt-4 border-t border-gray-100">
+			
+			            <!-- 필터 영역 -->
+			            <div class="flex flex-wrap items-center gap-3 flex-1">
+			
+			                <!-- 지점 선택 -->
+			                <select id="branchSelect"
+			                        class="w-52 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all bg-white">
+			                    <option value="">전체 지점</option>
+			
+			                    <c:forEach var="branch" items="${branchList}">
+			                        <c:if test="${branch.branchCode != 1}">
+			                            <option value="${branch.branchCode}">
+			                                ${branch.branchName}
+			                            </option>
+			                        </c:if>
+			                    </c:forEach>
+			                </select>
+			
+			                <!-- 카테고리 선택 -->
+			                <select id="categorySelect"
+			                        class="w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all bg-white">
+			                    <option value="">전체 카테고리</option>
+			
+			                    <c:forEach var="group" items="${materialGroupList}">
+			                        <option value="${group.materialGroupId}">
+			                            ${group.groupName}
+			                        </option>
+			                    </c:forEach>
+			                </select>
+			
+			                <!-- 품목명 선택 -->
+			                <select id="itemNameSelect"
+			                        class="w-52 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all bg-white">
+			                    <option value="">전체 품목</option>
+			                </select>
+			
+			                <!-- 검색어 -->
+							<div class="relative w-96">
+							    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+							    <input type="text"
+							           id="searchInput"
+							           placeholder="품목명, 코드, 지점명 검색"
+							           class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+							</div>
+			            </div>
+			
+			            <!-- 버튼 영역 -->
+			            <div class="flex items-center gap-2 xl:ml-4 xl:shrink-0">
+			                <button type="button"
+			                        onclick="handleSearch()"
+			                        class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">
+			                    조회
+			                </button>
+			
+			                <button type="button"
+			                        onclick="handleReset()"
+			                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+			                    초기화
+			                </button>
+			            </div>
+			        </div>
+			    </div>
 			</div>
 
 			<!-- 탭 -->
@@ -526,13 +540,6 @@
                 return '<span class="text-gray-400">-</span>';
             }
         }
-
-        // 엔터 키 처리
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                handleSearch();
-            }
-        });
 
         // 사용자 메뉴 외부 클릭 시 닫기
         document.addEventListener('click', function(e) {

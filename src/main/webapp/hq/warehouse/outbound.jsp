@@ -268,45 +268,100 @@
 </div>
 
 <!-- ===== 상세보기 모달 ===== -->
-<div id="detailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-lg max-w-4xl w-full p-6 max-h-[90vh] overflow-y-auto">
+<div id="detailModal"
+     class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+     onclick="if(event.target === this) closeDetailModal()">
+
+    <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+         onclick="event.stopPropagation()">
 
         <!-- 모달 헤더 -->
-        <div class="flex items-center justify-between mb-6">
+        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white z-10">
             <div>
-                <h3 class="text-xl font-bold text-gray-900">발주/출고 상세보기</h3>
-                <p class="text-sm text-gray-500 mt-1" id="modalSubtitle"></p>
+                <h3 class="text-lg font-bold text-gray-900">발주/출고 상세보기</h3>
+                <p class="text-xs text-gray-500 mt-1" id="modalSubtitle"></p>
             </div>
-            <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times w-6 h-6"></i>
+
+            <button type="button"
+                    onclick="closeDetailModal()"
+                    class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times w-5 h-5"></i>
             </button>
         </div>
 
-        <!-- 기본 정보 그리드 -->
-        <div class="grid grid-cols-2 gap-4 mb-6 bg-gray-50 rounded-lg p-4">
-            <div><p class="text-sm text-gray-500">발주서 번호</p>  <p class="font-mono text-blue-600 mt-1"     id="detailOrderId"></p></div>
-            <div><p class="text-sm text-gray-500">지점명</p>         <p class="font-semibold text-gray-900 mt-1" id="detailBranch"></p></div>
-            <div><p class="text-sm text-gray-500">출고 시점</p>         <p class="text-gray-900 mt-1"               id="detailDate"></p></div>
-            <div><p class="text-sm text-gray-500">처리자</p>       <p class="text-gray-900 mt-1"               id="detailHandler"></p></div>
-            <div><p class="text-sm text-gray-500">출고 상태</p>         <div id="detailStatus" class="mt-1"></div></div>
-        </div>
+        <!-- 모달 본문 -->
+        <div class="p-6 space-y-5">
 
-        <!-- 품목 테이블 -->
-        <div>
-            <h4 class="font-semibold text-gray-900 mb-3" id="itemsTitle">품목 상세</h4>
-            <div class="overflow-x-auto border border-gray-200 rounded-lg">
-                <table class="w-full">
-                    <thead class="bg-gray-50 border-b border-gray-200">
-                        <tr id="itemsTableHeader"></tr>
-                    </thead>
-                    <tbody id="itemsTableBody"></tbody>
-                </table>
+            <!-- 기본 정보 -->
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
+                    <h4 class="text-sm font-semibold text-gray-800">기본 정보</h4>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 bg-gray-50 rounded-lg border border-gray-200 p-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">발주서 번호</label>
+                        <div id="detailOrderId"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white font-mono text-blue-600">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">지점명</label>
+                        <div id="detailBranch"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 font-medium">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">출고 시점</label>
+                        <div id="detailDate"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">처리자</label>
+                        <div id="detailHandler"
+                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">출고 상태</label>
+                        <div class="w-full min-h-[38px] px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white flex items-center">
+                            <div id="detailStatus"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 품목 상세 -->
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-1 h-5 bg-[#00853D] rounded-full"></div>
+                    <h4 class="text-sm font-semibold text-gray-800" id="itemsTitle">품목 상세</h4>
+                </div>
+
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr id="itemsTableHeader"></tr>
+                        </thead>
+                        <tbody id="itemsTableBody" class="bg-white divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div class="flex justify-end mt-6">
-            <button onclick="closeDetailModal()"
-                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">닫기</button>
+        <!-- 모달 하단 -->
+        <div class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
+            <button type="button"
+                    onclick="closeDetailModal()"
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                닫기
+            </button>
         </div>
     </div>
 </div>
@@ -981,10 +1036,6 @@
     function closeDetailModal() {
         document.getElementById('detailModal').classList.add('hidden');
     }
-
-    document.getElementById('detailModal').addEventListener('click', function(e) {
-        if (e.target == this) closeDetailModal();
-    });
 
     // ============================================================
     // 초기화
