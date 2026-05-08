@@ -330,606 +330,750 @@
     </div>
 
     <script>
-        var selectedAccount = null;
-        var currentPage = 1;
-        var pageSize = 10;
-        var PAGE_SIZE = 5;
-        
-        var accounts = [
-            <c:forEach var="account" items="${accountList}" varStatus="status">
-            {
-            	id: "${account.accountId}",
-                name: "${account.userName}",
-                username: "${account.loginId}",
-                branchCode: "${account.branchCode}",
-                branch: "${account.branchName}",
-                roleId: "${account.roleId}",
-                role: "${account.roleName}",
-                status: "${account.status}",
-                isActive: "${account.status}" === "ACTIVE",
-                createdDate: "${account.createdAt}",
-                lastLogin: "${account.lastLoginAt}"
-            }<c:if test="${!status.last}">,</c:if>
-            </c:forEach>
-        ];
-
-        var searchTerm = document.getElementById("searchInput").value.toLowerCase();
-        
-        var filtered = accounts.filter(function(account) {
-            var matchesSearch =
-                account.name.toLowerCase().includes(searchTerm) ||
-                account.username.toLowerCase().includes(searchTerm) ||
-                account.branch.toLowerCase().includes(searchTerm);
-
-            return matchesSearch;
-        });
-
-        // 초기화
-        window.addEventListener('DOMContentLoaded', function() {
-            clearAccountTable();
-            updateStats();
-            setupSidebarToggle();
-        });
-
-        function setupSidebarToggle() {
-            var sidebarToggle = document.getElementById('mobileMenuBtn');
-            var sidebar = document.getElementById('sidebar');
-            var backdrop = document.getElementById('sidebarBackdrop');
-
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    toggleSidebar();
-                });
-            }
-
-            if (backdrop) {
-                backdrop.addEventListener('click', function() {
-                    sidebar.classList.add('-translate-x-full');
-                    backdrop.classList.add('hidden');
-                });
-            }
-        }
-
-        function toggleSidebar() {
-            var sidebar = document.getElementById('sidebar');
-            var backdrop = document.getElementById('sidebarBackdrop');
-            sidebar.classList.toggle('-translate-x-full');
-            backdrop.classList.toggle('hidden');
-        }
-
-        function toggleUserMenu() {
-            var userMenu = document.getElementById('userMenu');
-            userMenu.classList.toggle('hidden');
-        }
-
-        function logout() {
-            commonShowAlert('알림','로그아웃되었습니다.');
-        }
-
-        function toggleMenu(button) {
-            var submenu = button.nextElementSibling;
-            if (submenu && submenu.classList.contains('submenu')) {
-                submenu.classList.toggle('hidden');
-                var arrow = button.querySelector('i:last-child');
-                arrow.classList.toggle('fa-chevron-right');
-                arrow.classList.toggle('fa-chevron-down');
-            }
-        }
-
-        function applyFilters() {
-            renderAccounts();
-        }
-        
-        function resetFilters() {
-            document.getElementById("searchInput").value = "";
-            document.getElementById('branchNameSelect').value = '';
-            currentPage = 1;
-            clearAccountTable();
-
-            document.getElementById('paginationContainer').classList.add('hidden');
-            document.getElementById('paginationInfo').textContent = '';
-            document.getElementById('pageButtons').innerHTML = '';
-        }
-
-        function renderAccounts() {
-            var searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
-            var selectedBranchName = document.getElementById("branchNameSelect").value.trim();
-
-            var filtered = accounts.filter(function(account) {
-                var name = String(account.name || "").toLowerCase();
-                var username = String(account.username || "").toLowerCase();
-                var branch = String(account.branch || "").toLowerCase();
-                var role = String(account.role || "").toLowerCase();
-
-                // 검색어가 없으면 검색 조건은 전체 통과
-                var matchesSearch = searchTerm === "" ||
-                    name.includes(searchTerm) ||
-                    username.includes(searchTerm) ||
-                    branch.includes(searchTerm) ||
-                    role.includes(searchTerm);
-
-                // 소속 선택 안 했으면 소속 조건은 전체 통과
-                var matchesBranch = selectedBranchName === "" ||
-                    account.branch === selectedBranchName;
-
-                return matchesSearch && matchesBranch;
-            });
-
-            var tbody = document.getElementById('accountTableBody');
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">검색 결과가 없습니다.</td></tr>';
-                renderPagination(0, 0);
-                return;
-            }
-
-            var totalPages = Math.ceil(filtered.length / pageSize);
-
-            if (currentPage > totalPages) {
-                currentPage = totalPages;
-            }
-
-            var start = (currentPage - 1) * pageSize;
-            var end = start + pageSize;
-            var pageList = filtered.slice(start, end);
-
-            tbody.innerHTML = pageList.map(function(account) {
-                var isActive = account.status === "ACTIVE";
-                var roleColor = account.role === '본사 관리자' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
-                var statusColor = isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
-                var statusText = isActive ? '활성' : '비활성';
-
-                return '<tr class="hover:bg-gray-50">' +
-                    '<td class="px-4 py-3 whitespace-nowrap">' +
-                        '<div class="flex items-center gap-3">' +
-                            '<div class="w-8 h-8 rounded-full bg-[#00853D] flex items-center justify-center text-white font-semibold text-xs">' +
-                                (account.name ? account.name.charAt(0) : '-') +
-                            '</div>' +
-                            '<div>' +
-                                '<div class="font-medium text-gray-900 text-sm">' + (account.name || '-') + '</div>' +
-                                '<div class="text-xs text-gray-500">가입: ' + (account.createdDate || '-') + '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</td>' +
-
-                    '<td class="px-4 py-3 whitespace-nowrap">' +
-                        '<div class="text-sm text-gray-900">' + (account.username || '-') + '</div>' +
-                        (account.lastLogin ? '<div class="text-xs text-gray-500">' + account.lastLogin + '</div>' : '') +
-                    '</td>' +
-
-                    '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (account.branch || '-') + '</td>' +
-
-                    '<td class="px-4 py-3 whitespace-nowrap">' +
-                        '<span class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full ' + roleColor + '">' +
-                            (account.role || '-') +
-                        '</span>' +
-                    '</td>' +
-
-                    '<td class="px-4 py-3 whitespace-nowrap">' +
-                        '<button onclick="toggleActive(\'' + account.id + '\')" class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-lg transition-colors ' + statusColor + '">' +
-                            '<i class="fas fa-circle ' + (isActive ? 'text-green-600' : 'text-red-600') + '"></i>' +
-                            statusText +
-                        '</button>' +
-                    '</td>' +
-
-                    '<td class="px-4 py-3 whitespace-nowrap">' +
-                        '<div class="flex items-center gap-2">' +
-                            '<button onclick="editAccountModal(\'' + account.id + '\')" class="px-3 py-1.5 text-blue-600 hover:text-blue-700 text-sm" title="권한 변경">' +
-                                '<i class="fas fa-edit w-4 h-4"></i> 수정' +
-                            '</button>' +
-                        '</div>' +
-                    '</td>' +
-                '</tr>';
-            }).join('');
-
-            renderPagination(totalPages, filtered.length);
-        }
-        
-        function clearAccountTable() {
-            var tbody = document.getElementById('accountTableBody');
-            tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">조회 버튼을 눌러 계정을 검색하세요.</td></tr>';
-        }
-
-        function toggleActive(accountId) {
-            commonShowConfirm('확인', "계정 상태를 변경하시겠습니까?", function() {
-                const params = new URLSearchParams();
-                params.append("action", "statusToggle");
-                params.append("accountId", accountId);
-
-                fetch("<%= request.getContextPath() %>/hq/hr/main", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-                    },
-                    body: params.toString()
-                })
-                .then(function(response) {
-                    if (!response.ok) {
-                        throw new Error();
-                    }
-
-                    return response.json();
-                })
-                .then(function(data) {
-                    if (data.success) {
-                        const account = accounts.find(function(a) {
-                            return String(a.id) === String(accountId);
-                        });
-
-                        if (account) {
-                            account.status = account.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-                            account.isActive = account.status === "ACTIVE";
-                        }
-
-                        renderAccounts();
-
-                        if (typeof updateStats === "function") {
-                            updateStats();
-                        }
-
-                        commonShowAlert('알림',"계정 상태가 변경되었습니다.");
-                    } else {
-                        commonShowAlert('알림',data.message || "계정 상태를 변경하지 못했습니다.");
-                    }
-                })
-                .catch(function() {
-                    commonShowAlert('알림',"계정 상태 변경 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.");
-                });
-            });
-        }
-        
-        function updateStats() {
-            var total = accounts.length;
-            var active = accounts.filter(function(account) {
-                return account.status === "ACTIVE";
-            }).length;
-            var inactive = total - active;
-
-            document.getElementById("totalCount").textContent = total;
-            document.getElementById("activeCount").textContent = active;
-            document.getElementById("inactiveCount").textContent = inactive;
-        }
-
-        function showAddModal() {
-            document.getElementById("empNo").value = "";
-            document.getElementById("loginId").value = "";
-            document.getElementById("password").value = "";
-            document.getElementById("isActiveAdd").checked = true;
-            document.getElementById("empCheckMessage").textContent = "";
-            document.getElementById("empCheckMessage").className = "mt-1 text-xs text-gray-500";
-
-            resetAddEmployeeInfo();
-
-            var modal = document.getElementById('addModal');
-            modal.classList.remove('modal-hidden');
-        }
-
-        function closeAddModal() {
-            var modal = document.getElementById('addModal');
-            modal.classList.add('modal-hidden');
-        }
-        
-        // 직원 조회
-        function resetAddEmployeeInfo() {
-		    document.getElementById("empName").value = "";
-		    document.getElementById("branchName").value = "";
-		    document.getElementById("branchCode").value = "";
-		    document.getElementById("roleName").value = "";
-		    document.getElementById("roleId").value = "";
-		
-		    var addBtn = document.getElementById("addAccountBtn");
-		    addBtn.disabled = true;
-		    addBtn.classList.add("opacity-50", "cursor-not-allowed");
-		}
-		
-		function enableAddButton() {
-		    var addBtn = document.getElementById("addAccountBtn");
-		    addBtn.disabled = false;
-		    addBtn.classList.remove("opacity-50", "cursor-not-allowed");
-		}
-		
-		function checkAvailableEmployee() {
-		    var empNo = document.getElementById("empNo").value.trim();
-		    var message = document.getElementById("empCheckMessage");
-		
-		    resetAddEmployeeInfo();
-		
-		    if (!empNo) {
-		        message.textContent = "사번을 입력해주세요.";
-		        message.className = "mt-1 text-xs text-gray-500";
-		        return;
-		    }
-		
-		    fetch("<%= request.getContextPath() %>/hq/hr/main?action=checkAvailableEmployee&empNo=" + encodeURIComponent(empNo))
-		        .then(function(response) {
-		            if (!response.ok) {
-		                throw new Error();
-		            }
-		            return response.json();
-		        })
-		        .then(function(data) {
-		            if (!data.success) {
-		                message.textContent = data.message || "계정 추가 가능한 직원이 아닙니다.";
-		                message.className = "mt-1 text-xs text-red-500";
-		                return;
-		            }
-		
-		            document.getElementById("empName").value = data.name || "";
-		            document.getElementById("branchName").value = data.branchName || "본사";
-		            document.getElementById("branchCode").value = data.branchCode || "";
-		            document.getElementById("roleName").value = data.roleName || "";
-		            document.getElementById("roleId").value = data.roleId || "";
-		
-		            message.textContent = "계정 추가 가능한 직원입니다.";
-		            message.className = "mt-1 text-xs text-[#00853D]";
-		
-		            enableAddButton();
-		        })
-		        .catch(function(error) {
-		            console.error(error);
-		            message.textContent = "직원 조회 중 오류가 발생했습니다.";
-		            message.className = "mt-1 text-xs text-red-500";
-		        });
-		}
-
-		function saveAccount() {
-		    const empNo = document.getElementById("empNo");
-		    const branchCode = document.getElementById("branchCode");
-		    const roleId = document.getElementById("roleId");
-		    const loginId = document.getElementById("loginId");
-		    const password = document.getElementById("password");
-		    const status = document.getElementById("isActiveAdd");
-
-		    if (!empNo.value.trim()) {
-		        commonShowAlert('알림',"사번을 입력해주세요.");
-		        empNo.focus();
-		        return;
-		    }
-
-		    if (!roleId.value) {
-		        commonShowAlert('알림',"계정 추가 가능한 직원을 먼저 조회해주세요.");
-		        empNo.focus();
-		        return;
-		    }
-
-		    if (!loginId.value.trim()) {
-		        commonShowAlert('알림',"아이디를 입력해주세요.");
-		        loginId.focus();
-		        return;
-		    }
-
-		    if (!password.value.trim()) {
-		        commonShowAlert('알림',"비밀번호를 입력해주세요.");
-		        password.focus();
-		        return;
-		    }
-
-		    const params = new URLSearchParams();
-		    params.append("action", "add");
-		    params.append("empNo", empNo.value.trim());
-		    params.append("branchCode", branchCode.value);
-		    params.append("roleId", roleId.value);
-		    params.append("loginId", loginId.value.trim());
-		    params.append("password", password.value);
-		    params.append("status", status.checked ? "ACTIVE" : "INACTIVE");
-
-		    fetch("<%= request.getContextPath() %>/hq/hr/main", {
-		        method: "POST",
-		        headers: {
-		            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-		        },
-		        body: params.toString()
-		    })
-		    .then(function(response) {
-		        return response.json();
-		    })
-		    .then(function(data) {
-		        if (data.success) {
-		            commonShowAlert('알림',"계정이 추가되었습니다.");
-		            closeAddModal();
-		            location.reload();
-		        } else {
-		            commonShowAlert('알림',data.message || "계정 추가에 실패했습니다.");
-		        }
-		    })
-		    .catch(function(error) {
-		        console.error(error);
-		        commonShowAlert('알림',"계정 추가 중 오류가 발생했습니다.");
-		    });
-		}
-
-        function editAccountModal(accountId) {
-            selectedAccount = accounts.find(function(a) { return a.id === accountId; });
-            if (selectedAccount) {
-                var info = '<div class="flex items-center gap-2 mb-2">' +
-                    '<div class="w-8 h-8 rounded-full bg-[#00853D] flex items-center justify-center text-white font-semibold text-xs">' + selectedAccount.name.charAt(0) + '</div>' +
-                    '<div>' +
-                        '<div class="font-medium text-gray-900 text-sm">' + selectedAccount.name + '</div>' +
-                        '<div class="text-xs text-gray-500">' + selectedAccount.username + '</div>' +
-                    '</div>' +
-                    '</div>' +
-                    '<div class="text-xs text-gray-600">' +
-                        '<p>소속: ' + selectedAccount.branch + '</p>' +
-                    '</div>';
-                document.getElementById('editAccountInfo').innerHTML = info;
-                document.getElementById('editRoleId').value = selectedAccount.roleId;
-                document.getElementById('editStatus').value = selectedAccount.status;
-                document.getElementById('editBranchCode').value = selectedAccount.branchCode;
-                var modal = document.getElementById('editModal');
-                modal.classList.remove('modal-hidden');
-            }
-        }
-
-        function closeEditModal() {
-            var modal = document.getElementById('editModal');
-            modal.classList.add('modal-hidden');
-        }
-
-        function updateAccount() {
-            if (selectedAccount) {
-            	const roleId = document.getElementById("editRoleId").value;
-                const branchCode = document.getElementById("editBranchCode").value;
-                const status = document.getElementById("editStatus").value;
-
-                if (!roleId) {
-                    commonShowAlert('알림',"역할을 선택해주세요.");
-                    return;
-                }
-
-                if (!branchCode) {
-                    commonShowAlert('알림',"소속 매장을 선택해주세요.");
-                    return;
-                }
-                
-                if (!status) {
-                    commonShowAlert('알림',"상태를 선택해주세요.");
-                    return;
-                }
-
-                const params = new URLSearchParams();
-                params.append("action", "update");
-                params.append("accountId", selectedAccount.id);
-                params.append("roleId", roleId);
-                params.append("branchCode", branchCode);
-                params.append("status", status);
-
-                fetch("<%= request.getContextPath() %>/hq/hr/main", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-                    },
-                    body: params.toString()
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        selectedAccount.roleId = roleId;
-                        selectedAccount.branchCode = branchCode;
-                        selectedAccount.status = status;
-                        selectedAccount.isActive = status === "ACTIVE";
-                        selectedAccount.role = document.getElementById("editRoleId").selectedOptions[0].text;
-                        selectedAccount.branch = document.getElementById("editBranchCode").selectedOptions[0].text;
-
-                        closeEditModal();
-                        renderAccounts();
-                        updateStats();
-                        
-                        commonShowAlert('알림',"계정 정보가 수정되었습니다.");
-                    } else {
-                        commonShowAlert('알림',data.message || "계정 수정에 실패했습니다.");
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    location.href = "<%= request.getContextPath() %>/common/500.jsp";
-                });
-            }
-        }
-        
-        // 페이징 처리
-		function renderPagination(totalPages, totalItems) {
-		    var paginationContainer = document.getElementById('paginationContainer');
-		    var paginationInfo = document.getElementById('paginationInfo');
-		    var pageButtons = document.getElementById('pageButtons');
-		
-		    if (!paginationContainer || !paginationInfo || !pageButtons) {
-		        console.error('페이지네이션 HTML 요소를 찾을 수 없습니다.');
-		        return;
-		    }
-		
-		    if (totalPages <= 1 || totalItems <= pageSize) {
-		        paginationContainer.classList.add('hidden');
-		        paginationInfo.textContent = '';
-		        pageButtons.innerHTML = '';
-		        return;
-		    }
-		
-		    paginationContainer.classList.remove('hidden');
-		
-		    var startIndex = (currentPage - 1) * pageSize;
-		    var endIndex = Math.min(startIndex + pageSize, totalItems);
-		
-		    paginationInfo.textContent =
-		        (startIndex + 1) + '-' + endIndex + ' / ' + totalItems + '개';
-		
-		    var base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
-		    var active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
-		    var arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
-		
-		    var blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
-		    var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
-		
-		    var html = '';
-		
-		    html += '<button type="button" class="' + arrow + '" onclick="changePage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
-		    html += '<i class="fas fa-angles-left text-xs"></i>';
-		    html += '</button>';
-		
-		    var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
-		    html += '<button type="button" class="' + arrow + '" onclick="changePage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
-		    html += '<i class="fas fa-chevron-left text-xs"></i>';
-		    html += '</button>';
-		
-		    for (var i = blockStart; i <= blockEnd; i++) {
-		        html += '<button type="button" class="' + (i === currentPage ? active : base) + '" onclick="changePage(' + i + ')">';
-		        html += i;
-		        html += '</button>';
-		    }
-		
-		    var nextBlockPage = Math.min(totalPages, blockEnd + 1);
-		    html += '<button type="button" class="' + arrow + '" onclick="changePage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
-		    html += '<i class="fas fa-chevron-right text-xs"></i>';
-		    html += '</button>';
-		
-		    html += '<button type="button" class="' + arrow + '" onclick="changePage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
-		    html += '<i class="fas fa-angles-right text-xs"></i>';
-		    html += '</button>';
-		
-		    pageButtons.innerHTML = html;
-		}
-        
-		function changePage(page) {
-		    var searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
-		    var selectedBranchName = document.getElementById("branchNameSelect").value.trim();
-
-		    var filtered = accounts.filter(function(account) {
-		        var name = String(account.name || "").toLowerCase();
-		        var username = String(account.username || "").toLowerCase();
-		        var branch = String(account.branch || "").toLowerCase();
-		        var role = String(account.role || "").toLowerCase();
-
-		        var matchesSearch = searchTerm === "" ||
-		            name.includes(searchTerm) ||
-		            username.includes(searchTerm) ||
-		            branch.includes(searchTerm) ||
-		            role.includes(searchTerm);
-
-		        var matchesBranch = selectedBranchName === "" ||
-		            account.branch === selectedBranchName;
-
-		        return matchesSearch && matchesBranch;
-		    });
-
-		    var totalPages = Math.ceil(filtered.length / pageSize);
-
-		    if (page < 1 || page > totalPages) {
-		        return;
-		    }
-
-		    currentPage = page;
-		    renderAccounts();
-
-		    window.scrollTo({
-		        top: 0,
-		        behavior: 'smooth'
-		    });
-		}
-
-        function applyFilters() {
-            currentPage = 1;
-            renderAccounts();
-        }
-    </script>
+	    /************************************************************
+	     * 1. 전역 변수
+	     ************************************************************/
+	
+	    // 현재 수정 중인 계정 정보
+	    var selectedAccount = null;
+	
+	    // 현재 페이지 번호
+	    var currentPage = 1;
+	
+	    // 한 페이지에 보여줄 계정 수
+	    var pageSize = 10;
+	
+	    // 페이지네이션에서 한 번에 보여줄 페이지 버튼 개수
+	    var PAGE_SIZE = 5;
+	
+	
+	    /************************************************************
+	     * 2. 서버에서 전달받은 계정 데이터
+	     ************************************************************/
+	
+	    var accounts = [
+	        <c:forEach var="account" items="${accountList}" varStatus="status">
+	        {
+	            id: "${account.accountId}",
+	            name: "${account.userName}",
+	            username: "${account.loginId}",
+	            branchCode: "${account.branchCode}",
+	            branch: "${account.branchName}",
+	            roleId: "${account.roleId}",
+	            role: "${account.roleName}",
+	            status: "${account.status}",
+	            isActive: "${account.status}" === "ACTIVE",
+	            createdDate: "${account.createdAt}",
+	            lastLogin: "${account.lastLoginAt}"
+	        }<c:if test="${!status.last}">,</c:if>
+	        </c:forEach>
+	    ];
+	
+	
+	    /************************************************************
+	     * 3. 초기 실행
+	     ************************************************************/
+	
+	    window.addEventListener('DOMContentLoaded', function () {
+	        // 처음 화면에서는 바로 목록을 보여주지 않고 안내 문구만 표시
+	        clearAccountTable();
+	
+	        // 통계 카드 숫자 갱신
+	        updateStats();
+	
+	        // 모바일 사이드바 이벤트 연결
+	        setupSidebarToggle();
+	    });
+	
+	
+	    /************************************************************
+	     * 4. 사이드바 / 사용자 메뉴
+	     ************************************************************/
+	
+	    // 모바일 사이드바 토글 이벤트 연결
+	    function setupSidebarToggle() {
+	        var sidebarToggle = document.getElementById('mobileMenuBtn');
+	        var sidebar = document.getElementById('sidebar');
+	        var backdrop = document.getElementById('sidebarBackdrop');
+	
+	        if (sidebarToggle) {
+	            sidebarToggle.addEventListener('click', function () {
+	                toggleSidebar();
+	            });
+	        }
+	
+	        if (backdrop) {
+	            backdrop.addEventListener('click', function () {
+	                if (sidebar) {
+	                    sidebar.classList.add('-translate-x-full');
+	                }
+	
+	                backdrop.classList.add('hidden');
+	            });
+	        }
+	    }
+	
+	    // 모바일 사이드바 열기 / 닫기
+	    function toggleSidebar() {
+	        var sidebar = document.getElementById('sidebar');
+	        var backdrop = document.getElementById('sidebarBackdrop');
+	
+	        if (sidebar) {
+	            sidebar.classList.toggle('-translate-x-full');
+	        }
+	
+	        if (backdrop) {
+	            backdrop.classList.toggle('hidden');
+	        }
+	    }
+	
+	    // 사용자 메뉴 열기 / 닫기
+	    function toggleUserMenu() {
+	        var userMenu = document.getElementById('userMenu');
+	
+	        if (userMenu) {
+	            userMenu.classList.toggle('hidden');
+	        }
+	    }
+	
+	    // 로그아웃 처리
+	    function logout() {
+	        commonShowAlert('알림', '로그아웃되었습니다.');
+	    }
+	
+	    // 사이드바 하위 메뉴 열기 / 닫기
+	    function toggleMenu(button) {
+	        var submenu = button.nextElementSibling;
+	
+	        if (submenu && submenu.classList.contains('submenu')) {
+	            submenu.classList.toggle('hidden');
+	
+	            var arrow = button.querySelector('i:last-child');
+	
+	            if (arrow) {
+	                arrow.classList.toggle('fa-chevron-right');
+	                arrow.classList.toggle('fa-chevron-down');
+	            }
+	        }
+	    }
+	
+	
+	    /************************************************************
+	     * 5. 검색 / 계정 목록 렌더링
+	     ************************************************************/
+	
+	    // 조회 버튼 클릭 또는 Enter 입력 시 실행
+	    function applyFilters() {
+	        currentPage = 1;
+	        renderAccounts();
+	    }
+	
+	    // 검색 조건 초기화
+	    function resetFilters() {
+	        document.getElementById("searchInput").value = "";
+	        document.getElementById('branchNameSelect').value = '';
+	
+	        currentPage = 1;
+	
+	        clearAccountTable();
+	        clearPagination();
+	    }
+	
+	    // 현재 검색 조건에 맞는 계정 목록 반환
+	    function getFilteredAccounts() {
+	        var searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+	        var selectedBranchName = document.getElementById("branchNameSelect").value.trim();
+	
+	        return accounts.filter(function (account) {
+	            var name = String(account.name || "").toLowerCase();
+	            var username = String(account.username || "").toLowerCase();
+	            var branch = String(account.branch || "").toLowerCase();
+	            var role = String(account.role || "").toLowerCase();
+	
+	            // 검색어가 없으면 검색 조건은 전체 통과
+	            var matchesSearch = searchTerm === "" ||
+	                name.includes(searchTerm) ||
+	                username.includes(searchTerm) ||
+	                branch.includes(searchTerm) ||
+	                role.includes(searchTerm);
+	
+	            // 소속을 선택하지 않았으면 소속 조건은 전체 통과
+	            var matchesBranch = selectedBranchName === "" ||
+	                account.branch === selectedBranchName;
+	
+	            return matchesSearch && matchesBranch;
+	        });
+	    }
+	
+	    // 계정 테이블 렌더링
+	    function renderAccounts() {
+	        var filtered = getFilteredAccounts();
+	        var tbody = document.getElementById('accountTableBody');
+	
+	        if (filtered.length === 0) {
+	            tbody.innerHTML =
+	                '<tr>' +
+	                    '<td colspan="6" class="px-6 py-8 text-center text-gray-500">' +
+	                        '검색 결과가 없습니다.' +
+	                    '</td>' +
+	                '</tr>';
+	
+	            renderPagination(0, 0);
+	            return;
+	        }
+	
+	        var totalPages = Math.ceil(filtered.length / pageSize);
+	
+	        if (currentPage > totalPages) {
+	            currentPage = totalPages;
+	        }
+	
+	        var start = (currentPage - 1) * pageSize;
+	        var end = start + pageSize;
+	        var pageList = filtered.slice(start, end);
+	
+	        tbody.innerHTML = pageList.map(function (account) {
+	            return makeAccountRow(account);
+	        }).join('');
+	
+	        renderPagination(totalPages, filtered.length);
+	    }
+	
+	    // 계정 테이블 한 줄 HTML 생성
+	    function makeAccountRow(account) {
+	        var isActive = account.status === "ACTIVE";
+	
+	        var roleColor = account.role === '본사 관리자'
+	            ? 'bg-purple-100 text-purple-700'
+	            : 'bg-blue-100 text-blue-700';
+	
+	        var statusColor = isActive
+	            ? 'bg-green-100 text-green-700'
+	            : 'bg-red-100 text-red-700';
+	
+	        var statusText = isActive ? '활성' : '비활성';
+	
+	        return '<tr class="hover:bg-gray-50">' +
+	            '<td class="px-4 py-3 whitespace-nowrap">' +
+	                '<div class="flex items-center gap-3">' +
+	                    '<div class="w-8 h-8 rounded-full bg-[#00853D] flex items-center justify-center text-white font-semibold text-xs">' +
+	                        (account.name ? account.name.charAt(0) : '-') +
+	                    '</div>' +
+	                    '<div>' +
+	                        '<div class="font-medium text-gray-900 text-sm">' + (account.name || '-') + '</div>' +
+	                        '<div class="text-xs text-gray-500">가입: ' + (account.createdDate || '-') + '</div>' +
+	                    '</div>' +
+	                '</div>' +
+	            '</td>' +
+	
+	            '<td class="px-4 py-3 whitespace-nowrap">' +
+	                '<div class="text-sm text-gray-900">' + (account.username || '-') + '</div>' +
+	                (account.lastLogin ? '<div class="text-xs text-gray-500">' + account.lastLogin + '</div>' : '') +
+	            '</td>' +
+	
+	            '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (account.branch || '-') + '</td>' +
+	
+	            '<td class="px-4 py-3 whitespace-nowrap">' +
+	                '<span class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full ' + roleColor + '">' +
+	                    (account.role || '-') +
+	                '</span>' +
+	            '</td>' +
+	
+	            '<td class="px-4 py-3 whitespace-nowrap">' +
+	                '<button onclick="toggleActive(\'' + account.id + '\')" class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-lg transition-colors ' + statusColor + '">' +
+	                    '<i class="fas fa-circle ' + (isActive ? 'text-green-600' : 'text-red-600') + '"></i>' +
+	                    statusText +
+	                '</button>' +
+	            '</td>' +
+	
+	            '<td class="px-4 py-3 whitespace-nowrap">' +
+	                '<div class="flex items-center gap-2">' +
+	                    '<button onclick="editAccountModal(\'' + account.id + '\')" class="px-3 py-1.5 text-blue-600 hover:text-blue-700 text-sm" title="권한 변경">' +
+	                        '<i class="fas fa-edit w-4 h-4"></i> 수정' +
+	                    '</button>' +
+	                '</div>' +
+	            '</td>' +
+	        '</tr>';
+	    }
+	
+	    // 최초 진입 또는 초기화 시 안내 문구 표시
+	    function clearAccountTable() {
+	        var tbody = document.getElementById('accountTableBody');
+	
+	        tbody.innerHTML =
+	            '<tr>' +
+	                '<td colspan="6" class="px-6 py-8 text-center text-gray-500">' +
+	                    '조회 버튼을 눌러 계정을 검색하세요.' +
+	                '</td>' +
+	            '</tr>';
+	    }
+	
+	
+	    /************************************************************
+	     * 6. 계정 상태 변경 / 통계
+	     ************************************************************/
+	
+	    // 활성 / 비활성 상태 토글
+	    function toggleActive(accountId) {
+	        commonShowConfirm('확인', "계정 상태를 변경하시겠습니까?", function () {
+	            var params = new URLSearchParams();
+	
+	            params.append("action", "statusToggle");
+	            params.append("accountId", accountId);
+	
+	            fetch("<%= request.getContextPath() %>/hq/hr/main", {
+	                method: "POST",
+	                headers: {
+	                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+	                },
+	                body: params.toString()
+	            })
+	            .then(function (response) {
+	                if (!response.ok) {
+	                    throw new Error();
+	                }
+	
+	                return response.json();
+	            })
+	            .then(function (data) {
+	                if (data.success) {
+	                    updateAccountStatusLocally(accountId);
+	                    renderAccounts();
+	                    updateStats();
+	
+	                    commonShowAlert('알림', "계정 상태가 변경되었습니다.");
+	                } else {
+	                    commonShowAlert('알림', data.message || "계정 상태를 변경하지 못했습니다.");
+	                }
+	            })
+	            .catch(function () {
+	                commonShowAlert('알림', "계정 상태 변경 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+	            });
+	        });
+	    }
+	
+	    // 서버 반영 성공 후 화면 데이터의 계정 상태도 변경
+	    function updateAccountStatusLocally(accountId) {
+	        var account = accounts.find(function (a) {
+	            return String(a.id) === String(accountId);
+	        });
+	
+	        if (!account) {
+	            return;
+	        }
+	
+	        account.status = account.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+	        account.isActive = account.status === "ACTIVE";
+	    }
+	
+	    // 상단 통계 카드 숫자 갱신
+	    function updateStats() {
+	        var total = accounts.length;
+	
+	        var active = accounts.filter(function (account) {
+	            return account.status === "ACTIVE";
+	        }).length;
+	
+	        var inactive = total - active;
+	
+	        document.getElementById("totalCount").textContent = total;
+	        document.getElementById("activeCount").textContent = active;
+	        document.getElementById("inactiveCount").textContent = inactive;
+	    }
+	
+	
+	    /************************************************************
+	     * 7. 계정 추가
+	     ************************************************************/
+	
+	    // 계정 추가 모달 열기
+	    function showAddModal() {
+	        document.getElementById("empNo").value = "";
+	        document.getElementById("loginId").value = "";
+	        document.getElementById("password").value = "";
+	        document.getElementById("isActiveAdd").checked = true;
+	
+	        var message = document.getElementById("empCheckMessage");
+	        message.textContent = "";
+	        message.className = "mt-1 text-xs text-gray-500";
+	
+	        resetAddEmployeeInfo();
+	
+	        document.getElementById('addModal').classList.remove('modal-hidden');
+	    }
+	
+	    // 계정 추가 모달 닫기
+	    function closeAddModal() {
+	        document.getElementById('addModal').classList.add('modal-hidden');
+	    }
+	
+	    // 계정 추가 모달의 직원 정보 영역 초기화
+	    function resetAddEmployeeInfo() {
+	        document.getElementById("empName").value = "";
+	        document.getElementById("branchName").value = "";
+	        document.getElementById("branchCode").value = "";
+	        document.getElementById("roleName").value = "";
+	        document.getElementById("roleId").value = "";
+	
+	        disableAddButton();
+	    }
+	
+	    // 추가 버튼 활성화
+	    function enableAddButton() {
+	        var addBtn = document.getElementById("addAccountBtn");
+	
+	        addBtn.disabled = false;
+	        addBtn.classList.remove("opacity-50", "cursor-not-allowed");
+	    }
+	
+	    // 추가 버튼 비활성화
+	    function disableAddButton() {
+	        var addBtn = document.getElementById("addAccountBtn");
+	
+	        addBtn.disabled = true;
+	        addBtn.classList.add("opacity-50", "cursor-not-allowed");
+	    }
+	
+	    // 사번 입력 후 계정 추가 가능한 직원인지 조회
+	    function checkAvailableEmployee() {
+	        var empNo = document.getElementById("empNo").value.trim();
+	        var message = document.getElementById("empCheckMessage");
+	
+	        resetAddEmployeeInfo();
+	
+	        if (!empNo) {
+	            message.textContent = "사번을 입력해주세요.";
+	            message.className = "mt-1 text-xs text-gray-500";
+	            return;
+	        }
+	
+	        fetch("<%= request.getContextPath() %>/hq/hr/main?action=checkAvailableEmployee&empNo=" + encodeURIComponent(empNo))
+	            .then(function (response) {
+	                if (!response.ok) {
+	                    throw new Error();
+	                }
+	
+	                return response.json();
+	            })
+	            .then(function (data) {
+	                if (!data.success) {
+	                    message.textContent = data.message || "계정 추가 가능한 직원이 아닙니다.";
+	                    message.className = "mt-1 text-xs text-red-500";
+	                    return;
+	                }
+	
+	                document.getElementById("empName").value = data.name || "";
+	                document.getElementById("branchName").value = data.branchName || "본사";
+	                document.getElementById("branchCode").value = data.branchCode || "";
+	                document.getElementById("roleName").value = data.roleName || "";
+	                document.getElementById("roleId").value = data.roleId || "";
+	
+	                message.textContent = "계정 추가 가능한 직원입니다.";
+	                message.className = "mt-1 text-xs text-[#00853D]";
+	
+	                enableAddButton();
+	            })
+	            .catch(function (error) {
+	                console.error(error);
+	
+	                message.textContent = "직원 조회 중 오류가 발생했습니다.";
+	                message.className = "mt-1 text-xs text-red-500";
+	            });
+	    }
+	
+	    // 계정 추가 저장
+	    function saveAccount() {
+	        var empNo = document.getElementById("empNo");
+	        var branchCode = document.getElementById("branchCode");
+	        var roleId = document.getElementById("roleId");
+	        var loginId = document.getElementById("loginId");
+	        var password = document.getElementById("password");
+	        var status = document.getElementById("isActiveAdd");
+	
+	        if (!empNo.value.trim()) {
+	            commonShowAlert('알림', "사번을 입력해주세요.");
+	            empNo.focus();
+	            return;
+	        }
+	
+	        if (!roleId.value) {
+	            commonShowAlert('알림', "계정 추가 가능한 직원을 먼저 조회해주세요.");
+	            empNo.focus();
+	            return;
+	        }
+	
+	        if (!loginId.value.trim()) {
+	            commonShowAlert('알림', "아이디를 입력해주세요.");
+	            loginId.focus();
+	            return;
+	        }
+	
+	        if (!password.value.trim()) {
+	            commonShowAlert('알림', "비밀번호를 입력해주세요.");
+	            password.focus();
+	            return;
+	        }
+	
+	        var params = new URLSearchParams();
+	
+	        params.append("action", "add");
+	        params.append("empNo", empNo.value.trim());
+	        params.append("branchCode", branchCode.value);
+	        params.append("roleId", roleId.value);
+	        params.append("loginId", loginId.value.trim());
+	        params.append("password", password.value);
+	        params.append("status", status.checked ? "ACTIVE" : "INACTIVE");
+	
+	        fetch("<%= request.getContextPath() %>/hq/hr/main", {
+	            method: "POST",
+	            headers: {
+	                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+	            },
+	            body: params.toString()
+	        })
+	        .then(function (response) {
+	            return response.json();
+	        })
+	        .then(function (data) {
+	            if (data.success) {
+	                commonShowAlert('알림', "계정이 추가되었습니다.");
+	                closeAddModal();
+	                location.reload();
+	            } else {
+	                commonShowAlert('알림', data.message || "계정 추가에 실패했습니다.");
+	            }
+	        })
+	        .catch(function (error) {
+	            console.error(error);
+	            commonShowAlert('알림', "계정 추가 중 오류가 발생했습니다.");
+	        });
+	    }
+	
+	
+	    /************************************************************
+	     * 8. 계정 권한 변경 / 정보 수정
+	     ************************************************************/
+	
+	    // 권한 변경 모달 열기
+	    function editAccountModal(accountId) {
+	        selectedAccount = accounts.find(function (account) {
+	            return String(account.id) === String(accountId);
+	        });
+	
+	        if (!selectedAccount) {
+	            commonShowAlert('알림', "계정 정보를 찾을 수 없습니다.");
+	            return;
+	        }
+	
+	        setEditAccountInfo(selectedAccount);
+	        setEditAccountValues(selectedAccount);
+	
+	        document.getElementById('editModal').classList.remove('modal-hidden');
+	    }
+	
+	    // 권한 변경 모달 상단 계정 정보 표시
+	    function setEditAccountInfo(account) {
+	        var info =
+	            '<div class="flex items-center gap-2 mb-2">' +
+	                '<div class="w-8 h-8 rounded-full bg-[#00853D] flex items-center justify-center text-white font-semibold text-xs">' +
+	                    (account.name ? account.name.charAt(0) : '-') +
+	                '</div>' +
+	                '<div>' +
+	                    '<div class="font-medium text-gray-900 text-sm">' + (account.name || '-') + '</div>' +
+	                    '<div class="text-xs text-gray-500">' + (account.username || '-') + '</div>' +
+	                '</div>' +
+	            '</div>' +
+	            '<div class="text-xs text-gray-600">' +
+	                '<p>소속: ' + (account.branch || '-') + '</p>' +
+	            '</div>';
+	
+	        document.getElementById('editAccountInfo').innerHTML = info;
+	    }
+	
+	    // 권한 변경 모달 input/select 값 세팅
+	    function setEditAccountValues(account) {
+	        document.getElementById('editRoleId').value = account.roleId;
+	        document.getElementById('editStatus').value = account.status;
+	        document.getElementById('editBranchCode').value = account.branchCode;
+	    }
+	
+	    // 권한 변경 모달 닫기
+	    function closeEditModal() {
+	        document.getElementById('editModal').classList.add('modal-hidden');
+	    }
+	
+	    // 계정 정보 수정 저장
+	    function updateAccount() {
+	        if (!selectedAccount) {
+	            return;
+	        }
+	
+	        var roleId = document.getElementById("editRoleId").value;
+	        var branchCode = document.getElementById("editBranchCode").value;
+	        var status = document.getElementById("editStatus").value;
+	
+	        if (!roleId) {
+	            commonShowAlert('알림', "역할을 선택해주세요.");
+	            return;
+	        }
+	
+	        if (!branchCode) {
+	            commonShowAlert('알림', "소속 매장을 선택해주세요.");
+	            return;
+	        }
+	
+	        if (!status) {
+	            commonShowAlert('알림', "상태를 선택해주세요.");
+	            return;
+	        }
+	
+	        var params = new URLSearchParams();
+	
+	        params.append("action", "update");
+	        params.append("accountId", selectedAccount.id);
+	        params.append("roleId", roleId);
+	        params.append("branchCode", branchCode);
+	        params.append("status", status);
+	
+	        fetch("<%= request.getContextPath() %>/hq/hr/main", {
+	            method: "POST",
+	            headers: {
+	                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+	            },
+	            body: params.toString()
+	        })
+	        .then(function (response) {
+	            return response.json();
+	        })
+	        .then(function (data) {
+	            if (data.success) {
+	                updateSelectedAccountLocally(roleId, branchCode, status);
+	
+	                closeEditModal();
+	                renderAccounts();
+	                updateStats();
+	
+	                commonShowAlert('알림', "계정 정보가 수정되었습니다.");
+	            } else {
+	                commonShowAlert('알림', data.message || "계정 수정에 실패했습니다.");
+	            }
+	        })
+	        .catch(function (error) {
+	            console.error(error);
+	            location.href = "<%= request.getContextPath() %>/common/500.jsp";
+	        });
+	    }
+	
+	    // 수정 성공 후 화면 데이터도 바로 갱신
+	    function updateSelectedAccountLocally(roleId, branchCode, status) {
+	        selectedAccount.roleId = roleId;
+	        selectedAccount.branchCode = branchCode;
+	        selectedAccount.status = status;
+	        selectedAccount.isActive = status === "ACTIVE";
+	        selectedAccount.role = document.getElementById("editRoleId").selectedOptions[0].text;
+	        selectedAccount.branch = document.getElementById("editBranchCode").selectedOptions[0].text;
+	    }
+	
+	
+	    /************************************************************
+	     * 9. 페이지네이션
+	     ************************************************************/
+	
+	    // 페이지네이션 렌더링
+	    function renderPagination(totalPages, totalItems) {
+	        var paginationContainer = document.getElementById('paginationContainer');
+	        var paginationInfo = document.getElementById('paginationInfo');
+	        var pageButtons = document.getElementById('pageButtons');
+	
+	        if (!paginationContainer || !paginationInfo || !pageButtons) {
+	            console.error('페이지네이션 HTML 요소를 찾을 수 없습니다.');
+	            return;
+	        }
+	
+	        // 1페이지 이하면 페이지네이션 숨김
+	        if (totalPages <= 1 || totalItems <= pageSize) {
+	            paginationContainer.classList.add('hidden');
+	            paginationInfo.textContent = '';
+	            pageButtons.innerHTML = '';
+	            return;
+	        }
+	
+	        paginationContainer.classList.remove('hidden');
+	
+	        var startIndex = (currentPage - 1) * pageSize;
+	        var endIndex = Math.min(startIndex + pageSize, totalItems);
+	
+	        paginationInfo.textContent =
+	            (startIndex + 1) + '-' + endIndex + ' / ' + totalItems + '개';
+	
+	        var baseClass = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+	        var activeClass = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+	        var arrowClass = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+	
+	        var blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+	        var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+	
+	        var html = '';
+	
+	        // 첫 페이지 버튼
+	        html += '<button type="button" class="' + arrowClass + '" onclick="changePage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-angles-left text-xs"></i>';
+	        html += '</button>';
+	
+	        // 이전 페이지 블록 버튼
+	        var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+	
+	        html += '<button type="button" class="' + arrowClass + '" onclick="changePage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-chevron-left text-xs"></i>';
+	        html += '</button>';
+	
+	        // 숫자 페이지 버튼
+	        for (var i = blockStart; i <= blockEnd; i++) {
+	            html += '<button type="button" class="' + (i === currentPage ? activeClass : baseClass) + '" onclick="changePage(' + i + ')">';
+	            html += i;
+	            html += '</button>';
+	        }
+	
+	        // 다음 페이지 블록 버튼
+	        var nextBlockPage = Math.min(totalPages, blockEnd + 1);
+	
+	        html += '<button type="button" class="' + arrowClass + '" onclick="changePage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-chevron-right text-xs"></i>';
+	        html += '</button>';
+	
+	        // 마지막 페이지 버튼
+	        html += '<button type="button" class="' + arrowClass + '" onclick="changePage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-angles-right text-xs"></i>';
+	        html += '</button>';
+	
+	        pageButtons.innerHTML = html;
+	    }
+	
+	    // 페이지 이동
+	    function changePage(page) {
+	        var filtered = getFilteredAccounts();
+	        var totalPages = Math.ceil(filtered.length / pageSize);
+	
+	        if (page < 1 || page > totalPages) {
+	            return;
+	        }
+	
+	        currentPage = page;
+	        renderAccounts();
+	
+	        window.scrollTo({
+	            top: 0,
+	            behavior: 'smooth'
+	        });
+	    }
+	
+	    // 페이지네이션 영역 초기화
+	    function clearPagination() {
+	        document.getElementById('paginationContainer').classList.add('hidden');
+	        document.getElementById('paginationInfo').textContent = '';
+	        document.getElementById('pageButtons').innerHTML = '';
+	    }
+	</script>
 </body>
 </html>
 

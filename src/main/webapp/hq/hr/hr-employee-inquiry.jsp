@@ -369,10 +369,26 @@
 	</div>
 
     <script>
+	    /************************************************************
+	     * 1. 전역 변수
+	     ************************************************************/
+	
+	    // 상세 조회 또는 수정 중인 직원 정보
 	    var selectedEmployee = null;
+	
+	    // 현재 페이지 번호
 	    var currentPage = 1;
+	
+	    // 한 페이지에 보여줄 직원 수
 	    var pageSize = 10;
+	
+	    // 페이지네이션에서 한 번에 보여줄 페이지 버튼 개수
 	    var PAGE_SIZE = 5;
+	
+	
+	    /************************************************************
+	     * 2. 서버에서 전달받은 직원 데이터
+	     ************************************************************/
 	
 	    var employees = [
 	        <c:forEach var="emp" items="${employeeList}" varStatus="st">
@@ -393,63 +409,103 @@
 	        }<c:if test="${!st.last}">,</c:if>
 	        </c:forEach>
 	    ];
-	    console.log("employees:", employees);
 	
-	    window.addEventListener("DOMContentLoaded", function() {
+	
+	    /************************************************************
+	     * 3. 초기 실행
+	     ************************************************************/
+	
+	    window.addEventListener("DOMContentLoaded", function () {
+	        // 처음 화면에서는 바로 목록을 보여주지 않고 안내 문구만 표시
 	        clearEmployeeTable();
+	
+	        // 모바일 사이드바 버튼 이벤트 연결
 	        setupSidebarToggle();
 	    });
 	
+	
+	    /************************************************************
+	     * 4. 사이드바 / 사용자 메뉴
+	     ************************************************************/
+	
+	    // 모바일 사이드바 토글 이벤트 연결
 	    function setupSidebarToggle() {
 	        var sidebarToggle = document.getElementById('mobileMenuBtn');
 	        var sidebar = document.getElementById('sidebar');
 	        var backdrop = document.getElementById('sidebarBackdrop');
 	
 	        if (sidebarToggle) {
-	            sidebarToggle.addEventListener('click', function() {
+	            sidebarToggle.addEventListener('click', function () {
 	                toggleSidebar();
 	            });
 	        }
 	
 	        if (backdrop) {
-	            backdrop.addEventListener('click', function() {
-	                sidebar.classList.add('-translate-x-full');
+	            backdrop.addEventListener('click', function () {
+	                if (sidebar) {
+	                    sidebar.classList.add('-translate-x-full');
+	                }
+	
 	                backdrop.classList.add('hidden');
 	            });
 	        }
 	    }
 	
+	    // 모바일 사이드바 열기 / 닫기
 	    function toggleSidebar() {
 	        var sidebar = document.getElementById('sidebar');
 	        var backdrop = document.getElementById('sidebarBackdrop');
-	        sidebar.classList.toggle('-translate-x-full');
-	        backdrop.classList.toggle('hidden');
-	    }
 	
-	    function toggleUserMenu() {
-	        var userMenu = document.getElementById('userMenu');
-	        userMenu.classList.toggle('hidden');
-	    }
+	        if (sidebar) {
+	            sidebar.classList.toggle('-translate-x-full');
+	        }
 	
-	    function logout() {
-	        commonShowAlert('알림','로그아웃되었습니다.');
-	    }
-	
-	    function toggleMenu(button) {
-	        var submenu = button.nextElementSibling;
-	        if (submenu && submenu.classList.contains('submenu')) {
-	            submenu.classList.toggle('hidden');
-	            var arrow = button.querySelector('i:last-child');
-	            arrow.classList.toggle('fa-chevron-right');
-	            arrow.classList.toggle('fa-chevron-down');
+	        if (backdrop) {
+	            backdrop.classList.toggle('hidden');
 	        }
 	    }
 	
-	    function renderEmployees() {
-	    	var searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
+	    // 우측 상단 사용자 메뉴 열기 / 닫기
+	    function toggleUserMenu() {
+	        var userMenu = document.getElementById('userMenu');
+	
+	        if (userMenu) {
+	            userMenu.classList.toggle('hidden');
+	        }
+	    }
+	
+	    // 로그아웃 처리
+	    function logout() {
+	        commonShowAlert('알림', '로그아웃되었습니다.');
+	    }
+	
+	    // 사이드바 하위 메뉴 열기 / 닫기
+	    function toggleMenu(button) {
+	        var submenu = button.nextElementSibling;
+	
+	        if (submenu && submenu.classList.contains('submenu')) {
+	            submenu.classList.toggle('hidden');
+	
+	            var arrow = button.querySelector('i:last-child');
+	
+	            if (arrow) {
+	                arrow.classList.toggle('fa-chevron-right');
+	                arrow.classList.toggle('fa-chevron-down');
+	            }
+	        }
+	    }
+	
+	
+	    /************************************************************
+	     * 5. 직원 목록 조회 / 렌더링
+	     ************************************************************/
+	
+	    // 검색 조건에 맞는 직원 목록 반환
+	    function getFilteredEmployees() {
+	        var searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
 	        var selectedBranchName = document.getElementById("branchNameSelect").value.trim();
-
-	        var filtered = employees.filter(function(employee) {
+	
+	        return employees.filter(function (employee) {
 	            var empNo = String(employee.empNo || "").toLowerCase();
 	            var name = String(employee.name || "").toLowerCase();
 	            var branchName = String(employee.branchName || "").toLowerCase();
@@ -458,8 +514,8 @@
 	            var gradeCode = String(employee.gradeCode || "").toLowerCase();
 	            var positionName = String(employee.positionName || "").toLowerCase();
 	            var positionCode = String(employee.positionCode || "").toLowerCase();
-
-	            // 검색어가 비어 있으면 검색 조건은 통과
+	
+	            // 검색어가 없으면 검색 조건은 통과
 	            var matchesSearch = searchTerm === "" ||
 	                empNo.includes(searchTerm) ||
 	                name.includes(searchTerm) ||
@@ -469,99 +525,255 @@
 	                gradeCode.includes(searchTerm) ||
 	                positionName.includes(searchTerm) ||
 	                positionCode.includes(searchTerm);
-
-	            // 소속을 선택 안 했으면 소속 조건은 통과
+	
+	            // 소속을 선택하지 않았으면 소속 조건은 통과
 	            var matchesBranch = selectedBranchName === "" ||
 	                employee.branchName === selectedBranchName;
-
-	            // 검색 조건과 소속 조건을 둘 다 만족해야 함
+	
 	            return matchesSearch && matchesBranch;
 	        });
-
+	    }
+	
+	    // 직원 테이블 렌더링
+	    function renderEmployees() {
+	        var filtered = getFilteredEmployees();
 	        var tbody = document.getElementById('employeeTableBody');
-
+	
 	        if (filtered.length === 0) {
-	            tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-gray-500">검색 결과가 없습니다.</td></tr>';
+	            tbody.innerHTML =
+	                '<tr>' +
+	                    '<td colspan="8" class="px-6 py-8 text-center text-gray-500">' +
+	                        '검색 결과가 없습니다.' +
+	                    '</td>' +
+	                '</tr>';
+	
 	            renderPagination(0, 0);
 	            return;
 	        }
-
+	
 	        var totalPages = Math.ceil(filtered.length / pageSize);
-
+	
 	        if (currentPage > totalPages) {
 	            currentPage = totalPages;
 	        }
-
+	
 	        var start = (currentPage - 1) * pageSize;
 	        var end = start + pageSize;
 	        var pageList = filtered.slice(start, end);
-
-	        tbody.innerHTML = pageList.map(function(emp) {
-	            var statusText = '';
-	            var statusClass = '';
-
-	            if (emp.status === 'ACTIVE') {
-	                statusText = '재직';
-	                statusClass = 'bg-green-100 text-green-700';
-	            } else if (emp.status === 'LEAVE') {
-	                statusText = '휴직';
-	                statusClass = 'bg-yellow-100 text-yellow-700';
-	            } else if (emp.status === 'RESIGNED') {
-	                statusText = '퇴사';
-	                statusClass = 'bg-red-100 text-red-700';
-	            } else {
-	                statusText = emp.status || '-';
-	                statusClass = 'bg-gray-100 text-gray-700';
-	            }
-
-	            return '<tr class="hover:bg-gray-50">' +
-	                '<td class="px-4 py-3 whitespace-nowrap">' +
-	                    '<div class="flex items-center gap-3">' +
-	                        '<div class="w-8 h-8 rounded-full bg-[#00853D] flex items-center justify-center text-white font-semibold text-xs">' +
-	                            (emp.name ? emp.name.charAt(0) : '-') +
-	                        '</div>' +
-	                        '<div>' +
-	                            '<div class="font-medium text-gray-900 text-sm">' + (emp.name || '-') + '</div>' +
-	                            '<div class="text-xs text-gray-500">사번: ' + (emp.empNo || '-') + '</div>' +
-	                        '</div>' +
-	                    '</div>' +
-	                '</td>' +
-
-	                '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.branchName || '-') + '</td>' +
-	                '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.dept || '-') + '</td>' +
-	                '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.gradeName || '-') + '</td>' +
-	                '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.positionName || '-') + '</td>' +
-
-	                '<td class="px-4 py-3 whitespace-nowrap">' +
-	                    '<div class="text-sm text-gray-900">' + (emp.phone || '-') + '</div>' +
-	                    '<div class="text-xs text-gray-500">' + (emp.email || '-') + '</div>' +
-	                '</td>' +
-
-	                '<td class="px-4 py-3 whitespace-nowrap">' +
-	                    '<span class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full ' + statusClass + '">' +
-	                        statusText +
-	                    '</span>' +
-	                '</td>' +
-
-	                '<td class="px-4 py-3 whitespace-nowrap">' +
-	                    '<button onclick="openEmployeeModal(\'' + emp.empNo + '\')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">' +
-	                        '상세보기' +
-	                    '</button>' +
-	                '</td>' +
-	            '</tr>';
+	
+	        tbody.innerHTML = pageList.map(function (emp) {
+	            return makeEmployeeRow(emp);
 	        }).join('');
-
+	
 	        renderPagination(totalPages, filtered.length);
 	    }
 	
-	    function clearEmployeeTable() {
-	        var tbody = document.getElementById('employeeTableBody');
-	        tbody.innerHTML = '<tr><td colspan="8" class="px-6 py-8 text-center text-gray-500">조회 버튼을 눌러 직원을 검색하세요.</td></tr>';
+	    // 직원 테이블 한 줄 HTML 생성
+	    function makeEmployeeRow(emp) {
+	        var statusInfo = getStatusInfo(emp.status);
+	
+	        return '<tr class="hover:bg-gray-50">' +
+	            '<td class="px-4 py-3 whitespace-nowrap">' +
+	                '<div class="flex items-center gap-3">' +
+	                    '<div class="w-8 h-8 rounded-full bg-[#00853D] flex items-center justify-center text-white font-semibold text-xs">' +
+	                        (emp.name ? emp.name.charAt(0) : '-') +
+	                    '</div>' +
+	                    '<div>' +
+	                        '<div class="font-medium text-gray-900 text-sm">' + (emp.name || '-') + '</div>' +
+	                        '<div class="text-xs text-gray-500">사번: ' + (emp.empNo || '-') + '</div>' +
+	                    '</div>' +
+	                '</div>' +
+	            '</td>' +
+	
+	            '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.branchName || '-') + '</td>' +
+	            '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.dept || '-') + '</td>' +
+	            '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.gradeName || '-') + '</td>' +
+	            '<td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">' + (emp.positionName || '-') + '</td>' +
+	
+	            '<td class="px-4 py-3 whitespace-nowrap">' +
+	                '<div class="text-sm text-gray-900">' + (emp.phone || '-') + '</div>' +
+	                '<div class="text-xs text-gray-500">' + (emp.email || '-') + '</div>' +
+	            '</td>' +
+	
+	            '<td class="px-4 py-3 whitespace-nowrap">' +
+	                '<span class="inline-flex px-2 py-0.5 text-xs font-medium rounded-full ' + statusInfo.className + '">' +
+	                    statusInfo.text +
+	                '</span>' +
+	            '</td>' +
+	
+	            '<td class="px-4 py-3 whitespace-nowrap">' +
+	                '<button onclick="openEmployeeModal(\'' + emp.empNo + '\')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">' +
+	                    '상세보기' +
+	                '</button>' +
+	            '</td>' +
+	        '</tr>';
 	    }
 	
+	    // 직원 상태값에 따른 표시명과 색상 반환
+	    function getStatusInfo(status) {
+	        if (status === 'ACTIVE') {
+	            return {
+	                text: '재직',
+	                className: 'bg-green-100 text-green-700'
+	            };
+	        }
+	
+	        if (status === 'LEAVE') {
+	            return {
+	                text: '휴직',
+	                className: 'bg-yellow-100 text-yellow-700'
+	            };
+	        }
+	
+	        if (status === 'RESIGNED') {
+	            return {
+	                text: '퇴사',
+	                className: 'bg-red-100 text-red-700'
+	            };
+	        }
+	
+	        return {
+	            text: status || '-',
+	            className: 'bg-gray-100 text-gray-700'
+	        };
+	    }
+	
+	    // 최초 진입 또는 초기화 시 안내 문구 표시
+	    function clearEmployeeTable() {
+	        var tbody = document.getElementById('employeeTableBody');
+	
+	        tbody.innerHTML =
+	            '<tr>' +
+	                '<td colspan="8" class="px-6 py-8 text-center text-gray-500">' +
+	                    '조회 버튼을 눌러 직원을 검색하세요.' +
+	                '</td>' +
+	            '</tr>';
+	    }
+	
+	
+	    /************************************************************
+	     * 6. 페이지네이션
+	     ************************************************************/
+	
+	    // 페이지네이션 렌더링
+	    function renderPagination(totalPages, totalItems) {
+	        var paginationContainer = document.getElementById('paginationContainer');
+	        var paginationInfo = document.getElementById('paginationInfo');
+	        var pageButtons = document.getElementById('pageButtons');
+	
+	        if (!paginationContainer || !paginationInfo || !pageButtons) {
+	            console.error('페이지네이션 HTML 요소를 찾을 수 없습니다.');
+	            return;
+	        }
+	
+	        // 1페이지 이하면 페이지네이션 숨김
+	        if (totalPages <= 1 || totalItems <= pageSize) {
+	            paginationContainer.classList.add('hidden');
+	            paginationInfo.textContent = '';
+	            pageButtons.innerHTML = '';
+	            return;
+	        }
+	
+	        paginationContainer.classList.remove('hidden');
+	
+	        var startIndex = (currentPage - 1) * pageSize;
+	        var endIndex = Math.min(startIndex + pageSize, totalItems);
+	
+	        paginationInfo.textContent =
+	            (startIndex + 1) + '-' + endIndex + ' / ' + totalItems + '개';
+	
+	        var baseClass = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
+	        var activeClass = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
+	        var arrowClass = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
+	
+	        var blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
+	        var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
+	
+	        var html = '';
+	
+	        // 첫 페이지 버튼
+	        html += '<button class="' + arrowClass + '" onclick="changePage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-angles-left text-xs"></i>';
+	        html += '</button>';
+	
+	        // 이전 페이지 블록 버튼
+	        var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
+	
+	        html += '<button class="' + arrowClass + '" onclick="changePage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-chevron-left text-xs"></i>';
+	        html += '</button>';
+	
+	        // 숫자 페이지 버튼
+	        for (var i = blockStart; i <= blockEnd; i++) {
+	            html += '<button class="' + (i === currentPage ? activeClass : baseClass) + '" onclick="changePage(' + i + ')">';
+	            html += i;
+	            html += '</button>';
+	        }
+	
+	        // 다음 페이지 블록 버튼
+	        var nextBlockPage = Math.min(totalPages, blockEnd + 1);
+	
+	        html += '<button class="' + arrowClass + '" onclick="changePage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-chevron-right text-xs"></i>';
+	        html += '</button>';
+	
+	        // 마지막 페이지 버튼
+	        html += '<button class="' + arrowClass + '" onclick="changePage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
+	        html += '<i class="fas fa-angles-right text-xs"></i>';
+	        html += '</button>';
+	
+	        pageButtons.innerHTML = html;
+	    }
+	
+	    // 페이지 변경
+	    function changePage(page) {
+	        var filtered = getFilteredEmployees();
+	        var totalPages = Math.ceil(filtered.length / pageSize);
+	
+	        if (page < 1 || page > totalPages) {
+	            return;
+	        }
+	
+	        currentPage = page;
+	        renderEmployees();
+	
+	        window.scrollTo({
+	            top: 0,
+	            behavior: 'smooth'
+	        });
+	    }
+	
+	
+	    /************************************************************
+	     * 7. 신규 직원 등록
+	     ************************************************************/
+	
+	    // 신규 직원 등록 모달 열기
+	    function showAddModal() {
+	        document.getElementById("addModal").classList.remove("modal-hidden");
+	    }
+	
+	    // 신규 직원 등록 모달 닫기 및 입력값 초기화
+	    function closeAddModal() {
+	        var modal = document.getElementById("addModal");
+	
+	        modal.classList.add("modal-hidden");
+	
+	        modal.querySelectorAll("input").forEach(function (input) {
+	            input.value = "";
+	        });
+	
+	        modal.querySelectorAll("select").forEach(function (select) {
+	            select.selectedIndex = 0;
+	        });
+	
+	        document.getElementById("status").value = "ACTIVE";
+	    }
+	
+	    // 신규 직원 저장
 	    function saveEmployee() {
-	        const params = new URLSearchParams();
-	        
+	        var params = new URLSearchParams();
+	
 	        var branchSelect = document.getElementById("branchCode");
 	        var branchName = branchSelect.options[branchSelect.selectedIndex]
 	            ? branchSelect.options[branchSelect.selectedIndex].text.trim()
@@ -587,61 +799,151 @@
 	            },
 	            body: params.toString()
 	        })
-	        .then(response => response.text())
-	        .then(text => {
-	            const data = JSON.parse(text);
+	        .then(function (response) {
+	            return response.text();
+	        })
+	        .then(function (text) {
+	            var data = JSON.parse(text);
 	
 	            if (data.success) {
-	                commonShowAlert('알림',"직원이 등록되었습니다.");
+	                commonShowAlert('알림', "직원이 등록되었습니다.");
 	                closeAddModal();
 	                location.reload();
 	            } else {
-	                commonShowAlert('알림',data.message || "직원 등록에 실패했습니다.");
+	                commonShowAlert('알림', data.message || "직원 등록에 실패했습니다.");
 	            }
 	        })
-	        .catch(function(error) {
+	        .catch(function (error) {
 	            console.error(error);
-	            commonShowAlert('알림',"직원 등록 중 오류가 발생했습니다.");
+	            commonShowAlert('알림', "직원 등록 중 오류가 발생했습니다.");
 	        });
 	    }
 	
+	
+	    /************************************************************
+	     * 8. 직원 상세 조회 / 수정
+	     ************************************************************/
+	
+	    // 직원 상세 모달 열기
 	    function openEmployeeModal(empNo) {
-	        selectedEmployee = employees.find(function(emp) {
+	        selectedEmployee = employees.find(function (emp) {
 	            return String(emp.empNo) === String(empNo);
 	        });
 	
 	        if (!selectedEmployee) {
-	            commonShowAlert('알림',"직원 정보를 찾을 수 없습니다.");
+	            commonShowAlert('알림', "직원 정보를 찾을 수 없습니다.");
 	            return;
 	        }
 	
 	        resetEditMode();
-	
-	        document.getElementById("editEmpNo").value = selectedEmployee.empNo;
-	        document.getElementById("editEmpNoView").value = selectedEmployee.empNo;
-	        document.getElementById("editName").value = selectedEmployee.name || "";
-	        document.getElementById("editBranchCode").value = selectedEmployee.branchCode || "";
-	        document.getElementById("editDept").value = selectedEmployee.dept || "";
-	        document.getElementById("editGradeCode").value = selectedEmployee.gradeCode || "";
-	        document.getElementById("editPositionCode").value = selectedEmployee.positionCode || "";
-	        document.getElementById("editPhone").value = selectedEmployee.phone || "";
-	        document.getElementById("editEmail").value = selectedEmployee.email || "";
-	        document.getElementById("editHireDate").value = selectedEmployee.hireDate || "";
-	        document.getElementById("editStatus").value = selectedEmployee.status || "ACTIVE";
+	        setEmployeeDetailValues(selectedEmployee);
 	
 	        document.getElementById("editModal").classList.remove("modal-hidden");
 	    }
 	
+	    // 상세 모달에 직원 데이터 세팅
+	    function setEmployeeDetailValues(employee) {
+	        document.getElementById("editEmpNo").value = employee.empNo;
+	        document.getElementById("editEmpNoView").value = employee.empNo;
+	        document.getElementById("editName").value = employee.name || "";
+	        document.getElementById("editBranchCode").value = employee.branchCode || "";
+	        document.getElementById("editDept").value = employee.dept || "";
+	        document.getElementById("editGradeCode").value = employee.gradeCode || "";
+	        document.getElementById("editPositionCode").value = employee.positionCode || "";
+	        document.getElementById("editPhone").value = employee.phone || "";
+	        document.getElementById("editEmail").value = employee.email || "";
+	        document.getElementById("editHireDate").value = employee.hireDate || "";
+	        document.getElementById("editStatus").value = employee.status || "ACTIVE";
+	    }
+	
+	    // 상세 모달 닫기
 	    function closeEditModal() {
 	        document.getElementById('editModal').classList.add('modal-hidden');
 	    }
 	
+	    // 상세 조회 모드에서 수정 모드로 변경
+	    function changeToEditMode() {
+	        document.querySelector("#editModal h3").innerText = "직원 정보 수정";
+	        document.getElementById("editModeBtn").classList.add("hidden");
+	        document.getElementById("saveBtn").classList.remove("hidden");
+	
+	        document.querySelectorAll(".editable-field").forEach(function (field) {
+	            if (field.tagName === "SELECT") {
+	                field.disabled = false;
+	            } else {
+	                field.readOnly = false;
+	            }
+	
+	            field.classList.remove("bg-gray-100", "text-gray-500", "cursor-not-allowed");
+	            field.classList.add("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
+	        });
+	
+	        applyEditRestrictions();
+	    }
+	
+	    // 직원 소속에 따른 수정 제한 적용
+	    function applyEditRestrictions() {
+	        if (!selectedEmployee) {
+	            return;
+	        }
+	
+	        var branchName = String(selectedEmployee.branchName || "").trim();
+	
+	        var positionField = document.getElementById("editPositionCode");
+	        var gradeField = document.getElementById("editGradeCode");
+	
+	        // 본사 소속이면 역할 수정 불가
+	        if (branchName === "본사") {
+	            disableEditField(positionField);
+	        }
+	
+	        // 본사 소속이 아니면 직급 수정 불가
+	        if (branchName !== "본사") {
+	            disableEditField(gradeField);
+	        }
+	    }
+	
+	    // 특정 필드를 비활성화 상태로 변경
+	    function disableEditField(field) {
+	        if (!field) {
+	            return;
+	        }
+	
+	        if (field.tagName === "SELECT") {
+	            field.disabled = true;
+	        } else {
+	            field.readOnly = true;
+	        }
+	
+	        field.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed");
+	        field.classList.remove("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
+	    }
+	
+	    // 수정 모드를 다시 상세 조회 모드로 초기화
+	    function resetEditMode() {
+	        document.querySelector("#editModal h3").innerText = "직원 상세 조회";
+	        document.getElementById("editModeBtn").classList.remove("hidden");
+	        document.getElementById("saveBtn").classList.add("hidden");
+	
+	        document.querySelectorAll(".editable-field").forEach(function (field) {
+	            if (field.tagName === "SELECT") {
+	                field.disabled = true;
+	            } else {
+	                field.readOnly = true;
+	            }
+	
+	            field.classList.remove("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
+	            field.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed");
+	        });
+	    }
+	
+	    // 직원 수정 저장
 	    function updateEmployee() {
 	        if (!selectedEmployee) {
 	            return;
 	        }
 	
-	        const params = new URLSearchParams();
+	        var params = new URLSearchParams();
 	
 	        params.append("action", "update");
 	        params.append("empNo", selectedEmployee.empNo);
@@ -660,228 +962,51 @@
 	            },
 	            body: params.toString()
 	        })
-	        .then(response => response.json())
-	        .then(data => {
+	        .then(function (response) {
+	            return response.json();
+	        })
+	        .then(function (data) {
 	            if (data.success) {
-	                commonShowAlert('알림',"직원 정보가 수정되었습니다.");
+	                commonShowAlert('알림', "직원 정보가 수정되었습니다.");
 	                closeEditModal();
 	                location.reload();
 	            } else {
-	                commonShowAlert('알림',data.message || "직원 수정에 실패했습니다.");
+	                commonShowAlert('알림', data.message || "직원 수정에 실패했습니다.");
 	            }
 	        })
-	        .catch(error => {
+	        .catch(function (error) {
 	            console.error(error);
 	            location.href = "<%= request.getContextPath() %>/common/500.jsp";
 	        });
 	    }
 	
-	    function renderPagination(totalPages, totalItems) {
-	        var paginationContainer = document.getElementById('paginationContainer');
-	        var paginationInfo = document.getElementById('paginationInfo');
-	        var pageButtons = document.getElementById('pageButtons');
-
-	        if (!paginationContainer || !paginationInfo || !pageButtons) {
-	            console.error('페이지네이션 HTML 요소를 찾을 수 없습니다.');
-	            return;
-	        }
-
-	        if (totalPages <= 1 || totalItems <= pageSize) {
-	            paginationContainer.classList.add('hidden');
-	            paginationInfo.textContent = '';
-	            pageButtons.innerHTML = '';
-	            return;
-	        }
-
-	        paginationContainer.classList.remove('hidden');
-
-	        var startIndex = (currentPage - 1) * pageSize;
-	        var endIndex = Math.min(startIndex + pageSize, totalItems);
-
-	        paginationInfo.textContent =
-	            (startIndex + 1) + '-' + endIndex + ' / ' + totalItems + '개';
-
-	        var base = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700';
-	        var active = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium bg-[#00853D] text-white';
-	        var arrow = 'min-w-[40px] px-3 py-2 rounded-lg text-sm font-medium border border-gray-300 hover:bg-gray-50 text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white';
-
-	        var blockStart = Math.floor((currentPage - 1) / PAGE_SIZE) * PAGE_SIZE + 1;
-	        var blockEnd = Math.min(blockStart + PAGE_SIZE - 1, totalPages);
-
-	        var html = '';
-
-	        html += '<button class="' + arrow + '" onclick="changePage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>';
-	        html += '<i class="fas fa-angles-left text-xs"></i>';
-	        html += '</button>';
-
-	        var prevBlockPage = Math.max(1, blockStart - PAGE_SIZE);
-	        html += '<button class="' + arrow + '" onclick="changePage(' + prevBlockPage + ')" ' + (blockStart === 1 ? 'disabled' : '') + '>';
-	        html += '<i class="fas fa-chevron-left text-xs"></i>';
-	        html += '</button>';
-
-	        for (var i = blockStart; i <= blockEnd; i++) {
-	            html += '<button class="' + (i === currentPage ? active : base) + '" onclick="changePage(' + i + ')">';
-	            html += i;
-	            html += '</button>';
-	        }
-
-	        var nextBlockPage = Math.min(totalPages, blockEnd + 1);
-	        html += '<button class="' + arrow + '" onclick="changePage(' + nextBlockPage + ')" ' + (blockEnd === totalPages ? 'disabled' : '') + '>';
-	        html += '<i class="fas fa-chevron-right text-xs"></i>';
-	        html += '</button>';
-
-	        html += '<button class="' + arrow + '" onclick="changePage(' + totalPages + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>';
-	        html += '<i class="fas fa-angles-right text-xs"></i>';
-	        html += '</button>';
-
-	        pageButtons.innerHTML = html;
-	    }
-	    
-	    function changePage(page) {
-	        var searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
-	        var selectedBranchName = document.getElementById("branchNameSelect").value.trim();
-
-	        var filtered = employees.filter(function(employee) {
-	            var empNo = String(employee.empNo || "").toLowerCase();
-	            var name = String(employee.name || "").toLowerCase();
-	            var branchName = String(employee.branchName || "").toLowerCase();
-	            var dept = String(employee.dept || "").toLowerCase();
-	            var gradeName = String(employee.gradeName || "").toLowerCase();
-	            var gradeCode = String(employee.gradeCode || "").toLowerCase();
-	            var positionName = String(employee.positionName || "").toLowerCase();
-	            var positionCode = String(employee.positionCode || "").toLowerCase();
-
-	            var matchesSearch = searchTerm === "" ||
-	                empNo.includes(searchTerm) ||
-	                name.includes(searchTerm) ||
-	                branchName.includes(searchTerm) ||
-	                dept.includes(searchTerm) ||
-	                gradeName.includes(searchTerm) ||
-	                gradeCode.includes(searchTerm) ||
-	                positionName.includes(searchTerm) ||
-	                positionCode.includes(searchTerm);
-
-	            var matchesBranch = selectedBranchName === "" ||
-	                employee.branchName === selectedBranchName;
-
-	            return matchesSearch && matchesBranch;
-	        });
-
-	        var totalPages = Math.ceil(filtered.length / pageSize);
-
-	        if (page < 1 || page > totalPages) {
-	            return;
-	        }
-
-	        currentPage = page;
-	        renderEmployees();
-
-	        window.scrollTo({
-	            top: 0,
-	            behavior: 'smooth'
-	        });
-	    }
 	
-	    function changeToEditMode() {
-	        document.querySelector("#editModal h3").innerText = "직원 정보 수정";
-	        document.getElementById("editModeBtn").classList.add("hidden");
-	        document.getElementById("saveBtn").classList.remove("hidden");
+	    /************************************************************
+	     * 9. 검색 / 초기화
+	     ************************************************************/
 	
-	        document.querySelectorAll(".editable-field").forEach(function(field) {
-	            if (field.tagName === "SELECT") {
-	                field.disabled = false;
-	            } else {
-	                field.readOnly = false;
-	            }
-	
-	            field.classList.remove("bg-gray-100", "text-gray-500", "cursor-not-allowed");
-	            field.classList.add("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
-	        });
-	        applyEditRestrictions();
-	    }
-	    
-	    function applyEditRestrictions() {
-	        if (!selectedEmployee) {
-	            return;
-	        }
-
-	        var branchName = String(selectedEmployee.branchName || "").trim();
-
-	        // 역할/직책 select
-	        var positionField = document.getElementById("editPositionCode");
-
-	        // 직급 select
-	        var gradeField = document.getElementById("editGradeCode");
-
-	        // 본사 소속이면 역할 수정 불가
-	        if (branchName === "본사") {
-	            if (positionField) {
-	                positionField.disabled = true;
-	                positionField.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed");
-	                positionField.classList.remove("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
-	            }
-	        }
-
-	        // 본사 소속이 아니면 직급 수정 불가
-	        if (branchName !== "본사") {
-	            if (gradeField) {
-	                gradeField.disabled = true;
-	                gradeField.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed");
-	                gradeField.classList.remove("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
-	            }
-	        }
-	    }
-	
-	    function resetEditMode() {
-	        document.querySelector("#editModal h3").innerText = "직원 상세 조회";
-	        document.getElementById("editModeBtn").classList.remove("hidden");
-	        document.getElementById("saveBtn").classList.add("hidden");
-	
-	        document.querySelectorAll(".editable-field").forEach(function(field) {
-	            if (field.tagName === "SELECT") {
-	                field.disabled = true;
-	            } else {
-	                field.readOnly = true;
-	            }
-	
-	            field.classList.remove("bg-white", "text-gray-900", "focus:ring-2", "focus:ring-[#00853D]", "focus:border-transparent");
-	            field.classList.add("bg-gray-100", "text-gray-500", "cursor-not-allowed");
-	        });
-	    }
-	    
+	    // 조회 버튼 클릭 또는 Enter 입력 시 실행
 	    function applyFilters() {
 	        currentPage = 1;
 	        renderEmployees();
 	    }
-
+	
+	    // 검색 조건 초기화
 	    function resetFilters() {
 	        document.getElementById("searchInput").value = "";
 	        document.getElementById('branchNameSelect').value = '';
+	
 	        currentPage = 1;
+	
 	        clearEmployeeTable();
-
+	        clearPagination();
+	    }
+	
+	    // 페이지네이션 영역 초기화
+	    function clearPagination() {
 	        document.getElementById('paginationContainer').classList.add('hidden');
 	        document.getElementById('paginationInfo').textContent = '';
 	        document.getElementById('pageButtons').innerHTML = '';
-	    }
-
-	    function showAddModal() {
-	        document.getElementById("addModal").classList.remove("modal-hidden");
-	    }
-
-	    function closeAddModal() {
-	        var modal = document.getElementById("addModal");
-	        modal.classList.add("modal-hidden");
-
-	        modal.querySelectorAll("input").forEach(function(input) {
-	            input.value = "";
-	        });
-
-	        modal.querySelectorAll("select").forEach(function(select) {
-	            select.selectedIndex = 0;
-	        });
-
-	        document.getElementById("status").value = "ACTIVE";
 	    }
 	</script>
 </body>
