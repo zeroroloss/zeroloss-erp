@@ -5,18 +5,20 @@ public class DisposalRiskDTO {
     private String branchName;
     private String materialName;
     private Integer qty;
+    private String unit;
     private Integer lossAmount;
     private String reason;
-	 
-	public DisposalRiskDTO() { }
+
+	public DisposalRiskDTO() {}
 
 	public DisposalRiskDTO(String disposalDate, String branchName, String materialName, Integer qty, Integer lossAmount,
-			String reason) {
+			String reason, String unit) {
 		super();
 		this.disposalDate = disposalDate;
 		this.branchName = branchName;
 		this.materialName = materialName;
 		this.qty = qty;
+		this.unit = unit;
 		this.lossAmount = lossAmount;
 		this.reason = reason;
 	}
@@ -53,6 +55,14 @@ public class DisposalRiskDTO {
 		this.qty = qty;
 	}
 
+	public String getUnit() {
+		return unit;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+
 	public Integer getLossAmount() {
 		return lossAmount;
 	}
@@ -68,5 +78,5 @@ public class DisposalRiskDTO {
 	public void setReason(String reason) {
 		this.reason = reason;
 	}
-	
+
 }

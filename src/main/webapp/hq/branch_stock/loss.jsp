@@ -41,12 +41,9 @@
 }
 
 /* flatpickr 커스텀 컬러 */
-.flatpickr-day.selected,
-.flatpickr-day.startRange,
-.flatpickr-day.endRange,
-.flatpickr-day.selected:hover,
-.flatpickr-day.startRange:hover,
-.flatpickr-day.endRange:hover {
+.flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange,
+	.flatpickr-day.selected:hover, .flatpickr-day.startRange:hover,
+	.flatpickr-day.endRange:hover {
 	background: #00853d !important;
 	border-color: #00853d !important;
 }
@@ -59,8 +56,8 @@
 	background: #e7f4ec !important;
 }
 
-.flatpickr-months .flatpickr-month,
-.flatpickr-current-month .flatpickr-monthDropdown-months {
+.flatpickr-months .flatpickr-month, .flatpickr-current-month .flatpickr-monthDropdown-months
+	{
 	color: #111 !important;
 }
 
@@ -68,8 +65,8 @@
 	color: #fff !important;
 }
 
-.flatpickr-calendar.arrowTop:before,
-.flatpickr-calendar.arrowTop:after {
+.flatpickr-calendar.arrowTop:before, .flatpickr-calendar.arrowTop:after
+	{
 	border-bottom-color: #fff !important;
 }
 </style>
@@ -98,14 +95,18 @@
 							<option value="">전체</option>
 
 							<c:forEach var="branch" items="${branchList}">
-								<option value="${branch.branchCode}">${branch.branchName}</option>
+								<c:if test="${branch.branchCode != 1}">
+									<option value="${branch.branchCode}">
+										${branch.branchName}</option>
+								</c:if>
 							</c:forEach>
 						</select>
 					</div>
 
 					<!-- 시작 날짜 -->
 					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">시작 날짜</label>
+						<label class="block text-sm font-medium text-gray-700 mb-2">시작
+							날짜</label>
 						<div class="date-picker-wrap">
 							<input type="text" id="startDate" value="${startDate}"
 								placeholder="시작일 선택"
@@ -193,7 +194,7 @@
 					</div>
 					<div
 						class="bg-white rounded-lg border border-gray-200 overflow-hidden max-h-[430px]">
-						<div class="overflow-auto h-full">
+						<div class="max-h-[430px] overflow-y-auto">
 							<table class="w-full">
 								<thead class="bg-gray-50 border-b border-gray-200">
 									<tr>
@@ -313,6 +314,7 @@
         	renderExpirySection();
         	renderDisposalSection();
         	console.log(data.summary);
+        	renderSummaryCards();
         }
         
         // 필터링
@@ -360,8 +362,8 @@
             const urgentCount = filteredExpiryData.filter(i => i.dDay <= 1).length;
             const warningCount = filteredExpiryData.filter(i => i.dDay > 1 && i.dDay <= 3).length;
 
-            const expiryReasonCount = filteredDisposalData.filter(r => r.reason === '유통기한 만료').length;
-            const qualityReasonCount = filteredDisposalData.filter(r => r.reason === '품질 불량').length;
+            const expiryReasonCount = filteredDisposalData.filter(r => r.reason && r.reason.includes('유통기한')).length;
+            const qualityReasonCount = filteredDisposalData.filter(r => r.reason && (r.reason.includes('품질') || r.reason.includes('파손') || r.reason.includes('냉장'))).length;
             const disposalCount = filteredDisposalData.length;
             const otherReasonCount = disposalCount - expiryReasonCount - qualityReasonCount;
 
@@ -431,7 +433,7 @@
                 tr.className = 'border-b border-gray-100 hover:bg-gray-50';
                 
                 const amount = record.lossAmount.toLocaleString('ko-KR');
-                tr.innerHTML = '<td class="py-4 px-6 text-sm text-gray-900">' +  record.disposalDate + '</td><td class="py-4 px-6 text-sm"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">' + record.branchName + '</span></td><td class="py-4 px-6 text-sm font-medium text-gray-900">' + record.materialName + '</td><td class="py-4 px-6 text-right text-sm text-gray-600">' + record.qty + record.unit + '</td><td class="py-4 px-6 text-right text-sm font-semibold text-red-600">' + amount + '원</td><td class="py-4 px-6 text-sm"><span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium ' + reasonColorClass + '">' + record.reason + '</span></td>';
+                tr.innerHTML = '<td class="py-4 px-6 text-sm text-gray-900">' +  record.disposalDate + '</td><td class="py-4 px-6 text-sm"><span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-700">' + record.branchName + '</span></td><td class="py-4 px-6 text-sm font-medium text-gray-900">' + record.materialName + '</td><td class="py-4 px-6 text-right text-sm text-gray-600">' + record.qty + (record.unit || '') + '</td><td class="py-4 px-6 text-right text-sm font-semibold text-red-600">' + amount + '원</td><td class="py-4 px-6 text-sm"><span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium ' + reasonColorClass + '">' + record.reason + '</span></td>';
                 
                 tbody.appendChild(tr);
             });

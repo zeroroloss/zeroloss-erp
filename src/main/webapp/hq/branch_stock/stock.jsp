@@ -46,7 +46,10 @@
 							<option value="">전체</option>
 
 							<c:forEach var="branch" items="${branchList}">
-								<option value="${branch.branchCode}">${branch.branchName}</option>
+								<c:if test="${branch.branchCode != 1}">
+									<option value="${branch.branchCode}">
+										${branch.branchName}</option>
+								</c:if>
 							</c:forEach>
 						</select>
 					</div>
