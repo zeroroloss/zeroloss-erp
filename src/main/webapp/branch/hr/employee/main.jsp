@@ -5,6 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
   <title>직원 정보 조회</title>
   <style>
     body { margin: 0; font-family: "Malgun Gothic", sans-serif; background: #f3f4f6; color: #111827; }
@@ -610,12 +611,12 @@
                 closeEditModal();
                 location.reload();
             } else {
-                alert(data.message || "직원 수정에 실패했습니다.");
+                commonShowAlert('알림', data.message || "직원 수정에 실패했습니다.");
             }
         })
         .catch(function(error) {
             console.error(error);
-            alert("서버 오류가 발생했습니다.");
+            commonShowAlert('알림', "서버 오류가 발생했습니다.");
         });
     }
 

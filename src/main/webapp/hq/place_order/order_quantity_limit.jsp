@@ -10,6 +10,7 @@
     <style>
         .sidebar-open .sidebar { transform: translateX(0); }
     </style>
+	<script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
 </head>
 <body class="bg-gray-50">
 	<%@ include file="/hq/common/sidebar.jsp" %>
@@ -341,7 +342,7 @@
 			var minQty = toNumber(document.getElementById('minQty_' + code).value);
 			var maxQty = toNumber(document.getElementById('maxQty_' + code).value);
 			if (minQty < 0 || maxQty < 0 || minQty >= maxQty) {
-				alert('최소 수량은 최대 수량보다 작아야 합니다.');
+				commonShowAlert('알림','최소 수량은 최대 수량보다 작아야 합니다.');
 				return;
 			}
 
@@ -353,16 +354,16 @@
 				.then(function (response) { return response.json().then(function (payload) { return { ok: response.ok, payload: payload }; }); })
 				.then(function (result) {
 					if (!result.ok || !result.payload || result.payload.status !== 'success') {
-						alert((result.payload && result.payload.message) || '저장에 실패했습니다.');
+						commonShowAlert('알림',(result.payload && result.payload.message) || '저장에 실패했습니다.');
 						return;
 					}
 					editingCode = null;
 					loadItems();
-					alert('발주 제한 설정이 저장되었습니다.');
+					commonShowAlert('알림','발주 제한 설정이 저장되었습니다.');
 				})
 				.catch(function (error) {
 					console.error(error);
-					alert('저장 중 오류가 발생했습니다.');
+					commonShowAlert('알림','저장 중 오류가 발생했습니다.');
 				});
 		}
 
@@ -410,7 +411,7 @@
 		document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
 
 		function logout() {
-			alert('로그아웃 되었습니다.');
+			commonShowAlert('알림','로그아웃 되었습니다.');
 			window.location.href = '<%= request.getContextPath() %>/common/login.jsp';
 		}
 

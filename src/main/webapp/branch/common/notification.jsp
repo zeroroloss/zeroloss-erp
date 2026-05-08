@@ -10,7 +10,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <style>
         .modal-hidden {
             display: none !important;
@@ -586,6 +586,7 @@
             commonShowAlert('알림', '전체 읽음 처리 중 오류가 발생했습니다.');
         }
         });
+    }
 
     function deleteNotificationFromModal() {
         if (!selectedNotificationId) return;

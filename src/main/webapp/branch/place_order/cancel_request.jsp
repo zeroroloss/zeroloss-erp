@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <title>발주 취소</title>
     <style>
         body { margin: 0; font-family: "Malgun Gothic", sans-serif; background: transparent; }
@@ -104,7 +105,7 @@
         const reason = textarea.value.trim();
         // 1. 유효성 검사
         if (!reason) {
-            alert('취소 사유를 입력해주세요.');
+            commonShowAlert('알림','취소 사유를 입력해주세요.');
             textarea.focus();
             return;
         }
@@ -133,15 +134,15 @@
             const result = await res.json();
 
             if (result.status === 'success') {
-                alert('취소 요청이 완료되었습니다.');
+                commonShowAlert('알림','취소 요청이 완료되었습니다.');
                 closePopup();
                 window.parent.applyFilters();
             } else {
                 console.log(result);
-                alert(result.message || '취소 요청 실패');
+                commonShowAlert('알림',result.message || '취소 요청 실패');
             }
         } catch (err) {
-            alert('취소 요청 중 오류가 발생했습니다.');
+            commonShowAlert('알림','취소 요청 중 오류가 발생했습니다.');
             console.error(err);
         } finally {
             submitBtn.disabled = false;

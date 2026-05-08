@@ -12,6 +12,8 @@
         .modal-hidden { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
         .drag-over { border-color: #00853D; background-color: #F0FAF5; }
     </style>
+
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
 </head>
 <body class="bg-gray-50">
 <%@ include file="/hq/common/sidebar.jsp" %>

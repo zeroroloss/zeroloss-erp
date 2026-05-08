@@ -13,6 +13,7 @@
     <title>문의사항 - ZERO LOSS 지점 관리 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <style>
         .sidebar-open .sidebar { transform: translateX(0); }
         .modal-hidden { display: none !important; }

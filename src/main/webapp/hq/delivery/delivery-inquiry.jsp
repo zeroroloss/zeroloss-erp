@@ -11,6 +11,7 @@
         .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
         .modal-center { display: flex; align-items: center; justify-content: center; }
     </style>
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
 </head>
 <body class="bg-gray-50">
     <%@ include file="/hq/common/sidebar.jsp" %>

@@ -8,6 +8,7 @@
     <title>직원 일정 관리 - ZERO LOSS 본사 관리 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
 	<style>
 	    .sidebar-open .sidebar {
 	        transform: translateX(0);
@@ -827,7 +828,7 @@
 	        });
 
 	        if (filtered.length === 0) {
-	            alert('검색된 직원이 없습니다.');
+	            commonShowAlert('알림','검색된 직원이 없습니다.');
 	            return;
 	        }
 
@@ -890,7 +891,7 @@
 	            var branchCode = String(document.getElementById('branchSelect').value).trim();
 
 	            if (!branchCode) {
-	                alert('조회할 직영점을 선택하세요.');
+	                commonShowAlert('알림','조회할 직영점을 선택하세요.');
 	                return;
 	            }
 
@@ -962,12 +963,12 @@
 	        var notes = document.getElementById('notes').value;
 
 	        if (!empNo || !startDay || !endDay || !type) {
-	            alert('필수 항목을 모두 입력하세요.');
+	            commonShowAlert('알림','필수 항목을 모두 입력하세요.');
 	            return;
 	        }
 
 	        if (endDay < startDay) {
-	            alert('종료 날짜는 시작 날짜보다 빠를 수 없습니다.');
+	            commonShowAlert('알림','종료 날짜는 시작 날짜보다 빠를 수 없습니다.');
 	            return;
 	        }
 
@@ -990,10 +991,10 @@
 	        })
 	        .then(function(data) {
 	            if (data.success) {
-	                alert(data.message || '일정이 등록되었습니다.');
+	                commonShowAlert('알림',data.message || '일정이 등록되었습니다.');
 	                location.reload();
 	            } else {
-	                alert(data.message || '일정 등록 실패');
+	                commonShowAlert('알림',data.message || '일정 등록 실패');
 	            }
 	        });
 	    }
@@ -1005,7 +1006,7 @@
 	        });
 	
 	        if (!schedule) {
-	            alert('일정을 찾을 수 없습니다.');
+	            commonShowAlert('알림','일정을 찾을 수 없습니다.');
 	            return;
 	        }
 	
@@ -1106,7 +1107,7 @@
 	
 	    function updateSchedule() {
 	    	if (scheduleViewMode === 'branch') {
-	    	    alert('직영점 일정은 조회만 가능합니다.');
+	    	    commonShowAlert('알림','직영점 일정은 조회만 가능합니다.');
 	    	    return;
 	    	}
 	    	
@@ -1117,12 +1118,12 @@
 	        var endDay = document.getElementById('editEndDay').value;
 
 	        if (!scheduleId || !startDay || !endDay || !type) {
-	            alert('필수 항목을 모두 입력하세요.');
+	            commonShowAlert('알림','필수 항목을 모두 입력하세요.');
 	            return;
 	        }
 
 	        if (endDay < startDay) {
-	            alert('종료 날짜는 시작 날짜보다 빠를 수 없습니다.');
+	            commonShowAlert('알림','종료 날짜는 시작 날짜보다 빠를 수 없습니다.');
 	            return;
 	        }
 
@@ -1144,46 +1145,44 @@
 	        })
 	        .then(function(data) {
 	            if (data.success) {
-	                alert(data.message || '일정이 수정되었습니다.');
+	                commonShowAlert('알림',data.message || '일정이 수정되었습니다.');
 	                location.reload(); // DB에서 다시 조회해서 캘린더 반영
 	            } else {
-	                alert(data.message || '일정 수정 실패');
+	                commonShowAlert('알림',data.message || '일정 수정 실패');
 	            }
 	        });
 	    }
 	
 	    function deleteSchedule() {
 	    	if (scheduleViewMode === 'branch') {
-	    	    alert('직영점 일정은 조회만 가능합니다.');
+	    	    commonShowAlert('알림','직영점 일정은 조회만 가능합니다.');
 	    	    return;
 	    	}
 	    	
 	        var scheduleId = document.getElementById('editScheduleId').value;
 	
-	        if (!confirm('이 일정을 삭제하시겠습니까?')) {
-	            return;
-	        }
-	
-	        fetch('<%= request.getContextPath() %>/hq/hr/hqschedule', {
-	            method: 'POST',
-	            headers: {
-	                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-	            },
-	            body:
-	                'action=delete' +
-	                '&scheduleId=' + encodeURIComponent(scheduleId)
-	        })
-	        .then(function(res) {
-	            return res.json();
-	        })
-	        .then(function(data) {
-	            if (data.success) {
-	                alert(data.message || '일정이 삭제되었습니다.');
-	                location.reload();
-	            } else {
-	                alert(data.message || '일정 삭제 실패');
-	            }
-	        });
+			commonShowConfirm('확인', '이 일정을 삭제하시겠습니까?', function() {
+				fetch('<%= request.getContextPath() %>/hq/hr/hqschedule', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+					},
+					body:
+						'action=delete' +
+						'&scheduleId=' + encodeURIComponent(scheduleId)
+				})
+				.then(function(res) {
+					return res.json();
+				})
+				.then(function(data) {
+					if (data.success) {
+						commonShowAlert('알림',data.message || '일정이 삭제되었습니다.');
+						location.reload();
+					} else {
+						commonShowAlert('알림',data.message || '일정 삭제 실패');
+					}
+				});
+			});
 	    }
 	
 	    function toggleMenu(button) {
@@ -1214,7 +1213,7 @@
 	    }
 	
 	    function logout() {
-	        alert('로그아웃 되었습니다.');
+	        commonShowAlert('알림','로그아웃 되었습니다.');
 	    }
 	</script>
 </body>

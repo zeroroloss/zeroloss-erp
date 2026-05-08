@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=b3f3ddf0ffba921a86ad77da212f65bb&libraries=services"></script>
-
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <style>
         :root { --line: #d1d5db; --bg: #f3f4f6; --text: #111827; --muted: #6b7280; --blue: #2563eb; --green: #16a34a; --purple: #9333ea; --orange: #f97316; }
         * { box-sizing: border-box; }

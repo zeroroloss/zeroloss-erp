@@ -13,6 +13,7 @@
             transform: translateX(0);
         }
     </style>
+	<script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
 </head>
 <body class="bg-gray-50">
 <%@ include file="/hq/common/sidebar.jsp" %>
@@ -398,7 +399,7 @@
 
         // 로그아웃 함수
         function logout() {
-            alert('로그아웃 되었습니다');
+            commonShowAlert('알림','로그아웃 되었습니다');
             window.location.href = '<%= request.getContextPath() %>/common/login.jsp';
         }
     </script>

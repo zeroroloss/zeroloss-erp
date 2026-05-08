@@ -8,6 +8,7 @@
     <title>본사 및 지점별 직원 정보 통합 조회 - ZERO LOSS 본사 관리 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <style>
         .sidebar-open .sidebar {
             transform: translateX(0);
@@ -431,7 +432,7 @@
 	    }
 	
 	    function logout() {
-	        alert('로그아웃되었습니다.');
+	        commonShowAlert('알림','로그아웃되었습니다.');
 	    }
 	
 	    function toggleMenu(button) {
@@ -591,16 +592,16 @@
 	            const data = JSON.parse(text);
 	
 	            if (data.success) {
-	                alert("직원이 등록되었습니다.");
+	                commonShowAlert('알림',"직원이 등록되었습니다.");
 	                closeAddModal();
 	                location.reload();
 	            } else {
-	                alert(data.message || "직원 등록에 실패했습니다.");
+	                commonShowAlert('알림',data.message || "직원 등록에 실패했습니다.");
 	            }
 	        })
 	        .catch(function(error) {
 	            console.error(error);
-	            alert("직원 등록 중 오류가 발생했습니다.");
+	            commonShowAlert('알림',"직원 등록 중 오류가 발생했습니다.");
 	        });
 	    }
 	
@@ -610,7 +611,7 @@
 	        });
 	
 	        if (!selectedEmployee) {
-	            alert("직원 정보를 찾을 수 없습니다.");
+	            commonShowAlert('알림',"직원 정보를 찾을 수 없습니다.");
 	            return;
 	        }
 	
@@ -662,11 +663,11 @@
 	        .then(response => response.json())
 	        .then(data => {
 	            if (data.success) {
-	                alert("직원 정보가 수정되었습니다.");
+	                commonShowAlert('알림',"직원 정보가 수정되었습니다.");
 	                closeEditModal();
 	                location.reload();
 	            } else {
-	                alert(data.message || "직원 수정에 실패했습니다.");
+	                commonShowAlert('알림',data.message || "직원 수정에 실패했습니다.");
 	            }
 	        })
 	        .catch(error => {

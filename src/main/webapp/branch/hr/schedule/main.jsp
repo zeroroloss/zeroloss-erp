@@ -6,6 +6,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
   <title>직원 일정 관리 - 월간</title>
   <style>
     body { margin: 0; font-family: "Malgun Gothic", sans-serif; background: #f3f4f6; color: #111827; }
@@ -932,7 +933,8 @@
             console.error(error);
             commonShowAlert('알림', '일정 삭제 중 오류가 발생했습니다.');
         });
-    }
+    })
+}
     
     function closeEditModal() {
         document.getElementById('editModal').classList.add('modal-hidden');

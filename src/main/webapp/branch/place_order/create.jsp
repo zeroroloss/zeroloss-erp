@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <title>발주서 작성</title>
     <style>
         :root {
@@ -989,7 +990,7 @@
         event.preventDefault();
 
         if (!getOrderList().length) {
-            alert('발주 품목이 없습니다. 품목을 추가한 뒤 전송하세요.');
+            commonShowAlert('알림','발주 품목이 없습니다. 품목을 추가한 뒤 전송하세요.');
             return;
         }
 
@@ -1030,7 +1031,7 @@
                 renderAll();
             })
             .catch(function(error) {
-                alert(error.message || '품목 추가에 실패했습니다.');
+                commonShowAlert('알림',error.message || '품목 추가에 실패했습니다.');
             });
     });
 
@@ -1051,7 +1052,7 @@
                 renderAll();
             })
             .catch(function(error) {
-                alert(error.message || '품목 삭제에 실패했습니다.');
+                commonShowAlert('알림',error.message || '품목 삭제에 실패했습니다.');
             });
     });
 
@@ -1092,7 +1093,7 @@
             materialCode: code,
             requestedQty: adjustedQty
         }).catch(function(error) {
-            alert(error.message || '요청 수량 반영에 실패했습니다.');
+            commonShowAlert('알림',error.message || '요청 수량 반영에 실패했습니다.');
         });
     });
 

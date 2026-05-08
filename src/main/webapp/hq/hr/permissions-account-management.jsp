@@ -19,6 +19,7 @@
             pointer-events: none !important;
         }
     </style>
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
 </head>
 <body class="bg-gray-50">
     <%@ include file="/hq/common/sidebar.jsp" %>
@@ -402,7 +403,7 @@
         }
 
         function logout() {
-            alert('로그아웃되었습니다.');
+            commonShowAlert('알림','로그아웃되었습니다.');
         }
 
         function toggleMenu(button) {
@@ -530,52 +531,50 @@
         }
 
         function toggleActive(accountId) {
-            if (!confirm("계정 상태를 변경하시겠습니까?")) {
-                return;
-            }
+            commonShowConfirm('확인', "계정 상태를 변경하시겠습니까?", function() {
+                const params = new URLSearchParams();
+                params.append("action", "statusToggle");
+                params.append("accountId", accountId);
 
-            const params = new URLSearchParams();
-            params.append("action", "statusToggle");
-            params.append("accountId", accountId);
-
-            fetch("<%= request.getContextPath() %>/hq/hr/main", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
-                },
-                body: params.toString()
-            })
-            .then(function(response) {
-                if (!response.ok) {
-                    throw new Error();
-                }
-
-                return response.json();
-            })
-            .then(function(data) {
-                if (data.success) {
-                    const account = accounts.find(function(a) {
-                        return String(a.id) === String(accountId);
-                    });
-
-                    if (account) {
-                        account.status = account.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-                        account.isActive = account.status === "ACTIVE";
+                fetch("<%= request.getContextPath() %>/hq/hr/main", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+                    },
+                    body: params.toString()
+                })
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error();
                     }
 
-                    renderAccounts();
+                    return response.json();
+                })
+                .then(function(data) {
+                    if (data.success) {
+                        const account = accounts.find(function(a) {
+                            return String(a.id) === String(accountId);
+                        });
 
-                    if (typeof updateStats === "function") {
-                        updateStats();
+                        if (account) {
+                            account.status = account.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+                            account.isActive = account.status === "ACTIVE";
+                        }
+
+                        renderAccounts();
+
+                        if (typeof updateStats === "function") {
+                            updateStats();
+                        }
+
+                        commonShowAlert('알림',"계정 상태가 변경되었습니다.");
+                    } else {
+                        commonShowAlert('알림',data.message || "계정 상태를 변경하지 못했습니다.");
                     }
-
-                    alert("계정 상태가 변경되었습니다.");
-                } else {
-                    alert(data.message || "계정 상태를 변경하지 못했습니다.");
-                }
-            })
-            .catch(function() {
-                alert("계정 상태 변경 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+                })
+                .catch(function() {
+                    commonShowAlert('알림',"계정 상태 변경 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+                });
             });
         }
         
@@ -682,25 +681,25 @@
 		    const status = document.getElementById("isActiveAdd");
 
 		    if (!empNo.value.trim()) {
-		        alert("사번을 입력해주세요.");
+		        commonShowAlert('알림',"사번을 입력해주세요.");
 		        empNo.focus();
 		        return;
 		    }
 
 		    if (!roleId.value) {
-		        alert("계정 추가 가능한 직원을 먼저 조회해주세요.");
+		        commonShowAlert('알림',"계정 추가 가능한 직원을 먼저 조회해주세요.");
 		        empNo.focus();
 		        return;
 		    }
 
 		    if (!loginId.value.trim()) {
-		        alert("아이디를 입력해주세요.");
+		        commonShowAlert('알림',"아이디를 입력해주세요.");
 		        loginId.focus();
 		        return;
 		    }
 
 		    if (!password.value.trim()) {
-		        alert("비밀번호를 입력해주세요.");
+		        commonShowAlert('알림',"비밀번호를 입력해주세요.");
 		        password.focus();
 		        return;
 		    }
@@ -726,16 +725,16 @@
 		    })
 		    .then(function(data) {
 		        if (data.success) {
-		            alert("계정이 추가되었습니다.");
+		            commonShowAlert('알림',"계정이 추가되었습니다.");
 		            closeAddModal();
 		            location.reload();
 		        } else {
-		            alert(data.message || "계정 추가에 실패했습니다.");
+		            commonShowAlert('알림',data.message || "계정 추가에 실패했습니다.");
 		        }
 		    })
 		    .catch(function(error) {
 		        console.error(error);
-		        alert("계정 추가 중 오류가 발생했습니다.");
+		        commonShowAlert('알림',"계정 추가 중 오류가 발생했습니다.");
 		    });
 		}
 
@@ -773,17 +772,17 @@
                 const status = document.getElementById("editStatus").value;
 
                 if (!roleId) {
-                    alert("역할을 선택해주세요.");
+                    commonShowAlert('알림',"역할을 선택해주세요.");
                     return;
                 }
 
                 if (!branchCode) {
-                    alert("소속 매장을 선택해주세요.");
+                    commonShowAlert('알림',"소속 매장을 선택해주세요.");
                     return;
                 }
                 
                 if (!status) {
-                    alert("상태를 선택해주세요.");
+                    commonShowAlert('알림',"상태를 선택해주세요.");
                     return;
                 }
 
@@ -815,9 +814,9 @@
                         renderAccounts();
                         updateStats();
                         
-                        alert("계정 정보가 수정되었습니다.");
+                        commonShowAlert('알림',"계정 정보가 수정되었습니다.");
                     } else {
-                        alert(data.message || "계정 수정에 실패했습니다.");
+                        commonShowAlert('알림',data.message || "계정 수정에 실패했습니다.");
                     }
                 })
                 .catch(error => {

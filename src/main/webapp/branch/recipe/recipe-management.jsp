@@ -8,6 +8,7 @@
     <title>레시피 조회 - ZERO LOSS 직영점 관리 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <style>
         .sidebar-open .sidebar { transform: translateX(0); }
         .modal-hidden { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; }
@@ -267,7 +268,7 @@
 
             document.getElementById('viewModalContent').innerHTML = html;
             document.getElementById('viewModal').classList.remove('modal-hidden');
-        } catch (e) { alert('상세조회 실패'); }
+        } catch (e) { commonShowAlert('알림','상세조회 실패'); }
     }
 
     function closeModals() {

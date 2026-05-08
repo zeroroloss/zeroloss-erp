@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>발주서 전송 확인</title>
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <style>
         body { margin: 0; font-family: "Malgun Gothic", sans-serif; background: transparent; }
         .overlay { min-height: 100vh; background: transparent; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
@@ -140,12 +141,12 @@ function sendAndClose() {
         }
         return res.json().catch(function(){return{}});
     }).then(function() { // 성공 처리
-        alert('전송되었습니다.');
+        commonShowAlert('알림','전송되었습니다.');
         window.parent.postMessage({ type: 'close-place-popup' }, '*');
         // location.href 는 window.parent(create.jsp) 브라우저창 URL을 변경 (클라이언트 사이드 redirect)
         window.parent.location.href = '<%= request.getContextPath() %>/branch/place_order/draft';
     }).catch(function(err) {
-        alert(err.message || '전송에 실패했습니다.');
+        commonShowAlert('알림',err.message || '전송에 실패했습니다.');
     });
 }
 </script>

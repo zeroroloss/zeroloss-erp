@@ -11,6 +11,7 @@
         .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
         .modal-center { display: flex; align-items: center; justify-content: center; }
     </style>
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
 </head>
 <body class="bg-gray-50">
     <%@ include file="/hq/common/sidebar.jsp" %>
@@ -181,7 +182,7 @@ function handleModalOrderSelectionChange() {
                 modalSelectedOrders.add(cb.value);
             } else {
                 cb.checked = false;
-                alert("동일한 권역의 발주 건만 함께 배차할 수 있습니다.");
+                commonShowAlert('알림',"동일한 권역의 발주 건만 함께 배차할 수 있습니다.");
             }
         });
 
@@ -246,7 +247,7 @@ async function createDispatch() {
     const driverId = document.getElementById('driverSelect').value;
     const vehicleId = document.getElementById('vehicleSelect').value;
 
-    if (!driverId || !vehicleId) { alert("기사와 차량을 모두 선택해주세요."); return; }
+    if (!driverId || !vehicleId) { commonShowAlert('알림',"기사와 차량을 모두 선택해주세요."); return; }
 
     try {
         for (const poNo of modalSelectedOrders) {
@@ -258,11 +259,11 @@ async function createDispatch() {
             const result = await res.json();
             if (!result.success) throw new Error(result.message || (poNo + ' 배차 생성 실패'));
         }
-        alert("배차가 생성되었습니다.");
+        commonShowAlert('알림',"배차가 생성되었습니다.");
         closeDispatchModal();
         fetchData();
     } catch (error) {
-        alert(error.message || "배차 생성 중 오류가 발생했습니다.");
+        commonShowAlert('알림',error.message || "배차 생성 중 오류가 발생했습니다.");
     }
 }
 

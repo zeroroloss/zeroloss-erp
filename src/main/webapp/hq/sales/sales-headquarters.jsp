@@ -17,6 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
 
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <style>
         .sidebar-open .sidebar {
             transform: translateX(0);

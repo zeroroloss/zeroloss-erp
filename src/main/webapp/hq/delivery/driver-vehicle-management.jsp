@@ -11,6 +11,7 @@
         .modal-backdrop { background-color: rgba(0, 0, 0, 0.5); }
         .modal-center { display: flex; align-items: center; justify-content: center; }
     </style>
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
 </head>
 <body class="bg-gray-50">
 <%@ include file="/hq/common/sidebar.jsp" %>
@@ -241,19 +242,20 @@ async function handleSaveDriver() {
         regionCode: document.getElementById('driverRegion').value,
         active: document.querySelector('input[name="driverStatus"]:checked').value === 'true'
     };
-    if (!id && !data.empNo) { alert('기사를 선택하세요.'); return; }
+    if (!id && !data.empNo) { commonShowAlert('알림','기사를 선택하세요.'); return; }
     const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=' + (id ? 'updateDriver' : 'addDriver'), { method: 'POST', body: JSON.stringify(data) });
     const result = await res.json();
-    if (result.success) { alert('저장되었습니다.'); closeDriverModal(); fetchData(); }
-    else { alert(result.message || '저장 실패'); }
+    if (result.success) { commonShowAlert('알림','저장되었습니다.'); closeDriverModal(); fetchData(); }
+    else { commonShowAlert('알림',result.message || '저장 실패'); }
 }
 async function handleDeleteDriver() {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
-    const id = document.getElementById('driverId').value;
-    const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=deleteDriver&driverId=' + id, { method: 'POST' });
-    const result = await res.json();
-    if (result.success) { alert('삭제되었습니다.'); closeDriverModal(); fetchData(); }
-    else { alert(result.message || '삭제 실패'); }
+    commonShowConfirm('확인', '정말 삭제하시겠습니까?', async function() {
+        const id = document.getElementById('driverId').value;
+        const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=deleteDriver&driverId=' + id, { method: 'POST' });
+        const result = await res.json();
+        if (result.success) { commonShowAlert('알림','삭제되었습니다.'); closeDriverModal(); fetchData(); }
+        else { commonShowAlert('알림',result.message || '삭제 실패'); }
+    });
 }
 
 // Vehicle Modal (수정됨)
@@ -295,19 +297,20 @@ async function handleSaveVehicle() {
         status: document.getElementById('vehicleStatus').value,
         active: document.querySelector('input[name="vehicleActive"]:checked').value === 'true'
     };
-    if (!data.plateNumber) { alert('차량번호를 입력하세요.'); return; }
+    if (!data.plateNumber) { commonShowAlert('알림','차량번호를 입력하세요.'); return; }
     const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=' + (id ? 'updateVehicle' : 'addVehicle'), { method: 'POST', body: JSON.stringify(data) });
     const result = await res.json();
-    if (result.success) { alert('저장되었습니다.'); closeVehicleModal(); fetchData(); }
-    else { alert(result.message || '저장 실패'); }
+    if (result.success) { commonShowAlert('알림','저장되었습니다.'); closeVehicleModal(); fetchData(); }
+    else { commonShowAlert('알림',result.message || '저장 실패'); }
 }
 async function handleDeleteVehicle() {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
-    const id = document.getElementById('vehicleId').value;
-    const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=deleteVehicle&vehicleId=' + id, { method: 'POST' });
-    const result = await res.json();
-    if (result.success) { alert('삭제되었습니다.'); closeVehicleModal(); fetchData(); }
-    else { alert(result.message || '삭제 실패'); }
+    commonShowConfirm('확인', '정말 삭제하시겠습니까?', async function() {
+        const id = document.getElementById('vehicleId').value;
+        const res = await fetch(contextPath + '/hq/delivery/driver-vehicle?action=deleteVehicle&vehicleId=' + id, { method: 'POST' });
+        const result = await res.json();
+        if (result.success) { commonShowAlert('알림','삭제되었습니다.'); closeVehicleModal(); fetchData(); }
+        else { commonShowAlert('알림',result.message || '삭제 실패'); }
+    });
 }
 
 // Common utility functions
