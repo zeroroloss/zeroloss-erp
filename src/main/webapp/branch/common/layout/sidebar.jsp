@@ -415,7 +415,7 @@ function getNotificationTargetUrl(targetType, targetId) {
     } else if (targetType === 'BRANCH_INVENTORY') {
     	return ctx + '/branch/stock';
     } else if (targetType === 'BRANCH_SAFETY') {
-    	return ctx + '/branch/stock/safety_stock';
+    	return ctx + '/branch/stock';
     } else if (targetType === 'ORDER') {
     	return ctx + '/branch/place_order/history';
     } else if (targetType === 'INBOUND') {

@@ -27,7 +27,7 @@ public class WarehouseStockAlertDaoImpl implements WarehouseStockAlertDao {
 		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
 			urgentList = sqlSession.selectList("mapper.hq.warehouse.alert.selectUrgentStock");
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw e;
 		}
 		return urgentList;
 	}
@@ -38,20 +38,19 @@ public class WarehouseStockAlertDaoImpl implements WarehouseStockAlertDao {
 		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
 			warningList = sqlSession.selectList("mapper.hq.warehouse.alert.selectWarningStock");
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw e;
 		}
 		return warningList;
 	}
 
 	@Override
-	public void insertNotification(NotificationDTO notification) throws Exception {
+	public int insertNotification(NotificationDTO notification) throws Exception {
+		int result = 0;
 		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
-			sqlSession.insert("mapper.hq.warehouse.alert.insertNotification", notification);
+			result = sqlSession.insert("mapper.hq.warehouse.alert.insertNotification", notification);
 			sqlSession.commit();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-
+		return result;
 	}
 
 	@Override
@@ -60,7 +59,7 @@ public class WarehouseStockAlertDaoImpl implements WarehouseStockAlertDao {
 			sqlSession.insert("mapper.hq.warehouse.alert.insertNotificationReceiver", notification);
 			sqlSession.commit();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw e;
 		}
 
 	}
@@ -72,6 +71,15 @@ public class WarehouseStockAlertDaoImpl implements WarehouseStockAlertDao {
 			cnt = sqlSession.selectOne("mapper.hq.warehouse.alert.existsTodayNotification", notification);
 		}
 		return cnt != null && cnt > 0;
+	}
+
+	@Override
+	public List<Integer> selectHqAccountIds(int accountId) throws Exception {
+		List<Integer> list = null;
+		try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+			list = sqlSession.selectList("mapper.hq.warehouse.alert.selectHqAccountIds", accountId);
+		}
+		return list;
 	}
 
 }

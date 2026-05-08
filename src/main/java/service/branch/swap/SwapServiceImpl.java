@@ -54,10 +54,17 @@ public class SwapServiceImpl implements SwapService {
 
     @Override
     public boolean createSwapRequest(int reqBranchCode, int resBranchCode, String materialCode, double qty) {
-        boolean success = swapDao.createSwapRequest(reqBranchCode, resBranchCode, materialCode, qty) > 0;
+
+        int swapId = swapDao.createSwapRequest(reqBranchCode, resBranchCode, materialCode, qty);
+        boolean success = swapId > 0;
         if (success) {
             // 요청을 받는 지점(resBranchCode)에 알림 전송
-            insertSwapNotification("스왑 요청 도착", "지점 스왑 요청이 도착했습니다. - " + materialCode + " 수량: " + qty, resBranchCode);
+        	String materialName = swapDao.findMaterialName(materialCode);
+        	insertSwapNotification("[재고 교환 요청]",
+        			materialName +"(재료번호:" + materialCode + ") "+ qty + "개 재고 교환 요청이 접수되었습니다.",
+        	        resBranchCode,
+        	        swapId
+        	    );
         }
         return success;
     }
@@ -115,7 +122,11 @@ public class SwapServiceImpl implements SwapService {
 
             // 승인되면 요청 지점(reqBranchCode)에 알림 전송
             if (updateSuccess) {
-                insertSwapNotification("스왑 요청 승인", "지점 스왑 요청이 승인되었습니다. - " + swap.getMaterialCode() + " 수량: " + swap.getQty(), swap.getReqBranchCode());
+            	insertSwapNotification("[재고 교환 승인]", 
+            			swap.getMaterialName() +"(재료번호:" + swap.getMaterialCode() + ") " + swap.getQty() + "개 재고 교환 요청이 승인되었습니다.", 
+            	        swap.getReqBranchCode(),
+            	        swapId
+            	    );
             }
 
             return updateSuccess;
@@ -130,10 +141,14 @@ public class SwapServiceImpl implements SwapService {
         // 거절 전에 요청 정보 조회
         SwapRequestDto swap = swapDao.getSwapRequestDetail(swapId);
         boolean success = swapDao.rejectSwapRequest(swapId) > 0;
-
+        
         // 거절되면 요청 지점(reqBranchCode)에 알림 전송
         if (success && swap != null) {
-            insertSwapNotification("스왑 요청 거절", "지점 스왑 요청이 거절되었습니다. - " + swap.getMaterialCode() + " 수량: " + swap.getQty(), swap.getReqBranchCode());
+        	insertSwapNotification("[재고 교환 거절]",
+        	        swap.getMaterialName() +"(재료번호:" + swap.getMaterialCode() + ") " + swap.getQty() + "개 재고 교환 요청이 거절되었습니다.",
+        	        swap.getReqBranchCode(),
+        	        swapId
+        	    );
         }
 
         return success;
@@ -142,7 +157,7 @@ public class SwapServiceImpl implements SwapService {
     /**
      * 스왑 관련 알림을 특정 지점의 모든 계정에 전송
      */
-    private void insertSwapNotification(String title, String message, int targetBranchCode) {
+    private void insertSwapNotification(String title, String message, int targetBranchCode, int targetId) {
         try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession(false)) {
             Connection conn = sqlSession.getConnection();
 
@@ -153,7 +168,7 @@ public class SwapServiceImpl implements SwapService {
                 ps.setString(2, title);
                 ps.setString(3, message);
                 ps.setString(4, "SWAP");
-                ps.setNull(5, java.sql.Types.INTEGER);
+                ps.setInt(5, targetId);
                 ps.executeUpdate();
 
                 // 2. 생성된 notification_id로 notification_receiver에 수신자 추가

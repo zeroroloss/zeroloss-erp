@@ -178,10 +178,9 @@ public class InboundServiceImpl implements InboundService {
 		
 		NotificationDTO dto = new NotificationDTO();
 		dto.setCategory("ORDER");
-		dto.setTitle("입고 완료");
-		dto.setMessage("[" + poHeader.getBranchName() + "] (지점 코드: " + branchCode + ") - 발주번호 "
-			    + poNo + " - 입고가 완료되었습니다.");
-		dto.setTargetType("ORDER");
+		dto.setTitle("[입고 완료 - " + poHeader.getBranchName() + "]");
+		dto.setMessage("발주번호(" + poNo + ") - " + poHeader.getTotalMaterialCnt() + "개 품목의 입고가 정상적으로 완료되었습니다." );
+		dto.setTargetType("DELIVERY");
 		dto.setTargetId(poHeader.getPoId());
 
 		int inserted = notifiDao.insertNotification(sqlSession, dto);

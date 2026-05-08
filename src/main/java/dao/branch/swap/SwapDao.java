@@ -30,6 +30,8 @@ public interface SwapDao {
                          @Param("resBranchCode") int resBranchCode,
                          @Param("materialCode") String materialCode,
                          @Param("qty") double qty);
+    
+    String findMaterialName(@Param("materialCode") String materialCode);
 
     List<SwapRequestDto> getSentRequests(@Param("branchCode") int branchCode);
 

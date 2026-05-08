@@ -42,7 +42,7 @@ public class BranchMainController extends HttpServlet {
 			e.printStackTrace();
 			
 			if(!response.isCommitted()) {
-				request.setAttribute("errorMsg", e.getMessage());
+				request.setAttribute("errorMsg", e.getMessage());	
 				request.setAttribute("errorUrl", request.getRequestURI());
 				request.getRequestDispatcher("/common/500.jsp").forward(request, response);
 			}

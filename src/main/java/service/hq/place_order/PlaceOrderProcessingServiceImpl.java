@@ -231,11 +231,10 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
 			sendOrderNotification(
 				    sqlSession,
 				    poHeader,
-				    "발주 승인 완료",
-				    "[" + poHeader.getBranchName() + "] (지점 코드: " + poHeader.getBranchCode() + ") - 발주번호 "
-				    	    + poNo + " - 승인되었습니다."
-			);
-
+				    "[발주 승인 - " + poHeader.getBranchName() + "]",
+				    "발주번호 [" + poNo + "] / 발주가 승인되었습니다."
+				);
+			
 			sqlSession.commit();
 
 			System.out.println("================= [APPROVE SUCCESS] =================\n");
@@ -243,7 +242,7 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
 
 		} catch (Exception e) {
 
-			System.out.println("\n!!!!!!!!!! [APPROVE FAIL] !!!!!!!!!!");
+			System.out.println("\n[APPROVE FAIL]");
 			System.out.println("[PO] " + poNo);
 			System.out.println("[ERROR] " + e.getMessage());
 			e.printStackTrace();
@@ -273,10 +272,12 @@ public class PlaceOrderProcessingServiceImpl implements PlaceOrderProcessingServ
 			// 알림 보내기 =====================
 			// poId 가져오기 위해 poNo 발주서 번호로 발주 정보 가져오기
 			PlaceOrderProcessingDTO poHeader = dao.selectOrderHeaderByPoNo(sqlSession, poNo);
-			sendOrderNotification(sqlSession, poHeader, "발주 요청 반려됨", 
-					"[" + poHeader.getBranchName() + "] (지점 코드: " + poHeader.getBranchCode() + ") - 발주번호 "
-						    + poNo + " - 반려되었습니다. 사유: " + rejectReason
-            );
+			sendOrderNotification(
+				    sqlSession,
+				    poHeader,
+				    "[발주 반려 - " + poHeader.getBranchName() + "]",
+				    "발주번호 [" + poNo + "] / 발주가 반려되었습니다. [사유: " + rejectReason + "]"
+				);
 
 			sqlSession.commit();
 			return true;

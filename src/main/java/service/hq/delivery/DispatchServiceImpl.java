@@ -99,8 +99,11 @@ public class DispatchServiceImpl implements DispatchService {
         // 2. notification insert
         NotificationDTO notifiDTO = new NotificationDTO();
         notifiDTO.setCategory("ORDER");
-        notifiDTO.setTitle("배송 완료");
-        notifiDTO.setMessage("[" + poHeader.getBranchName() + "] (지점 코드: " + poHeader.getBranchCode() + ") - 발주번호 "+ poNo + " - 승인되었습니다.");        
+        notifiDTO.setTitle("[배송 완료]");
+
+        notifiDTO.setMessage(poHeader.getBranchName()
+            + "(지점코드: " + poHeader.getBranchCode() + ")의 " + "발주번호 [" + poNo + "] 건이 승인 및 배송 완료되었습니다."
+        );        
         notifiDTO.setTargetType("ORDER");
         notifiDTO.setTargetId(poHeader.getPoId());
 

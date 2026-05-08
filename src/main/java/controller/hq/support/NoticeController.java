@@ -120,11 +120,15 @@ public class NoticeController extends HttpServlet {
                     Connection conn = sqlSession.getConnection();
                     String notifSql = "INSERT INTO notification (category, title, message, target_type, target_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
                     try (PreparedStatement ps = conn.prepareStatement(notifSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+                    	
+                        String title = "[공지사항] " + noticeDTO.getTitle();
+                        String message = "["+ noticeDTO.getType() +"] " + noticeDTO.getContent();
+
                         ps.setString(1, "BOARD");
-                        ps.setString(2, "공지사항 등록: " + noticeDTO.getTitle());
-                        ps.setString(3, noticeDTO.getTitle() + " - " + (noticeDTO.getCreatedAt() != null ? noticeDTO.getCreatedAt() : now));
+                        ps.setString(2, title);
+                        ps.setString(3, message);
                         ps.setString(4, "NOTICE");
-                        ps.setNull(5, java.sql.Types.INTEGER);
+                        ps.setInt(5, noticeDTO.getNoticeId());
                         ps.executeUpdate();
                         try (ResultSet keys = ps.getGeneratedKeys()) {
                             if (keys.next()) {

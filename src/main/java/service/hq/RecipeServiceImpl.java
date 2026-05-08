@@ -136,7 +136,7 @@ public class RecipeServiceImpl implements RecipeService {
                 String notifSql = "INSERT INTO notification (category, title, message, target_type, target_id, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
                 try (PreparedStatement ps = conn.prepareStatement(notifSql, PreparedStatement.RETURN_GENERATED_KEYS)) {
                     String actionTitle = isNew ? "레시피 등록" : "레시피 수정";
-                    String title = actionTitle + ": " + dto.getName();
+                    String title = "["+actionTitle + ": " + dto.getName()+"]";
                     String message = dto.getName() + "(코드: " + dto.getId() + ") 레시피가 " + (isNew ? "등록" : "수정") + "되었습니다.";
                     ps.setString(1, "SYSTEM"); // category
                     ps.setString(2, title);

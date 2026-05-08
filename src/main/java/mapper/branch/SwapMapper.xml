@@ -54,10 +54,17 @@
     </select>
 
     <!-- 재고 교환 요청 생성 -->
-    <insert id="createSwapRequest" parameterType="map">
+    <insert id="createSwapRequest" parameterType="map" 
+    		useGeneratedKeys="true" keyProperty="swapId">
         INSERT INTO material_swap (req_branch_code, res_branch_code, material_code, qty, status)
         VALUES (#{reqBranchCode}, #{resBranchCode}, #{materialCode}, #{qty}, 'PENDING')
     </insert>
+    
+    <select id="findMaterialName" parameterType="string" resultType="string">
+	    SELECT material_name
+	    FROM material
+	    WHERE material_code = #{value}
+	</select>
 
     <!-- 보낸 요청 조회 -->
     <select id="getSentRequests" parameterType="int" resultType="dto.branch.swap.SwapRequestDto">
@@ -176,16 +183,19 @@
 
     <!-- 스왑 요청 상세 조회 -->
     <select id="getSwapRequestDetail" parameterType="int" resultType="dto.branch.swap.SwapRequestDto">
-        SELECT
-            swap_id AS swapId,
-            req_branch_code AS reqBranchCode,
-            res_branch_code AS resBranchCode,
-            material_code AS materialCode,
-            qty,
-            status
-        FROM material_swap
-        WHERE swap_id = #{value}
-    </select>
+	    SELECT
+	        ms.swap_id AS swapId,
+	        ms.req_branch_code AS reqBranchCode,
+	        ms.res_branch_code AS resBranchCode,
+	        ms.material_code AS materialCode,
+	        m.material_name AS materialName,
+	        ms.qty,
+	        ms.status
+	    FROM material_swap ms
+	    JOIN material m
+	        ON ms.material_code = m.material_code
+	    WHERE ms.swap_id = #{value}
+	</select>
 
     <!-- 재고 교환 요청 거절 -->
     <update id="rejectSwapRequest" parameterType="int">

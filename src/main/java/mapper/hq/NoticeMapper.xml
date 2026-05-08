@@ -24,7 +24,8 @@
             n.is_pinned DESC, n.created_at DESC
     </select>
 
-    <insert id="createNotice" parameterType="dto.NoticeDTO">
+    <insert id="createNotice" parameterType="dto.NoticeDTO" 
+    			useGeneratedKeys="true" keyProperty="noticeId">
         INSERT INTO notice (author_id, title, content, type, is_pinned, created_at, last_date, view_count)
         VALUES (#{authorId}, #{title}, #{content}, #{type}, #{isPinned}, #{createdAt}, #{lastDate}, 0)
     </insert>

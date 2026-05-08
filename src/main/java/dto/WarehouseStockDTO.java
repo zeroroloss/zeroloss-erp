@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class WarehouseStockDTO {
+	private Integer id;
 	private String stockNo;
 	private String materialCode;
 	private Integer hqInboundId;
@@ -18,8 +19,9 @@ public class WarehouseStockDTO {
 
 	public WarehouseStockDTO() {}
 
-	public WarehouseStockDTO(String stockNo, String materialCode, Integer hqInboundId, BigDecimal qty, LocalDateTime receivedAt, LocalDate expiryDate, String status) {
+	public WarehouseStockDTO(Integer id, String stockNo, String materialCode, Integer hqInboundId, BigDecimal qty, LocalDateTime receivedAt, LocalDate expiryDate, String status) {
 		super();
+		this.id = id;
 		this.stockNo = stockNo;
 		this.materialCode = materialCode;
 		this.hqInboundId = hqInboundId;
@@ -29,9 +31,10 @@ public class WarehouseStockDTO {
 		this.status = status;
 	}
 	
-	public WarehouseStockDTO(String stockNo, String materialCode, Integer hqInboundId, BigDecimal qty,
+	public WarehouseStockDTO(Integer id, String stockNo, String materialCode, Integer hqInboundId, BigDecimal qty,
 			LocalDateTime receivedAt, LocalDate expiryDate, String status, String materialName) {
 		super();
+		this.id = id;
 		this.stockNo = stockNo;
 		this.materialCode = materialCode;
 		this.hqInboundId = hqInboundId;
@@ -40,6 +43,14 @@ public class WarehouseStockDTO {
 		this.expiryDate = expiryDate;
 		this.status = status;
 		this.materialName = materialName;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	public String getStockNo() {

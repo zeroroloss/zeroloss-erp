@@ -58,13 +58,24 @@ public class SwapDaoImpl implements SwapDao {
 
     @Override
     public int createSwapRequest(int reqBranchCode, int resBranchCode, String materialCode, double qty) {
-        try (SqlSession session = sqlSessionFactory.openSession(true)) {
+    	try (SqlSession session = sqlSessionFactory.openSession(true)) {
             Map<String, Object> params = new HashMap<>();
             params.put("reqBranchCode", reqBranchCode);
             params.put("resBranchCode", resBranchCode);
             params.put("materialCode", materialCode);
             params.put("qty", qty);
-            return session.insert("mapper.branch.SwapMapper.createSwapRequest", params);
+            int inserted = session.insert("mapper.branch.SwapMapper.createSwapRequest", params);
+            if (inserted > 0) {
+                return ((Number) params.get("swapId")).intValue();
+            }
+            return 0;
+        }
+    }
+    
+    @Override
+    public String findMaterialName(String materialCode) {
+        try (SqlSession sqlSession = MyBatisSqlSessionFactory.getSqlSessionFactory().openSession()) {
+            return sqlSession.selectOne("mapper.branch.SwapMapper.findMaterialName", materialCode);
         }
     }
 

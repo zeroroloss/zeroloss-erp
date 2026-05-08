@@ -163,11 +163,11 @@ public class PlaceOrderSendServiceImpl implements PlaceOrderSendService {
 		// 2. 알림 생성
 		NotificationDTO dto = new NotificationDTO();
 		dto.setCategory("ORDER");
-		dto.setTitle("발주 요청");
+		dto.setTitle("[발주 요청 - " + branchName + "]");
 
-		dto.setMessage("[" + branchName + "] (지점 코드: " + placeOrderDTO.getBranchCode() + ") - 발주번호 " + poNo
-				+ " - 발주 요청되었습니다.");
+		String message = "발주번호 [" + poNo + "] " + placeOrderDTO.getTotalMaterialCnt() + "개 품목의 발주가 요청되었습니다.";
 
+		dto.setMessage(message);
 		dto.setTargetType("ORDER");
 		dto.setTargetId(placeOrderDTO.getPoId());
 

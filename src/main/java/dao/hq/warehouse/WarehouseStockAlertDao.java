@@ -13,9 +13,11 @@ public interface WarehouseStockAlertDao {
 
     List<WarehouseStockDTO> selectWarningStock() throws Exception;
 
-    void insertNotification(NotificationDTO notification) throws Exception;
+    int insertNotification(NotificationDTO notification) throws Exception;
 
     void insertNotificationReceiver(NotificationDTO notification) throws Exception;
 
     boolean existsTodayNotification(NotificationDTO notification) throws Exception;
+
+	List<Integer> selectHqAccountIds(int accountId) throws Exception;
 }

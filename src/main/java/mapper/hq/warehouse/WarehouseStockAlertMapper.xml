@@ -6,6 +6,7 @@
 	<!-- 유통기한 만료 -->
     <select id="selectExpiredStock" resultType="dto.WarehouseStockDTO">
         SELECT
+        	ws.id			 AS id,
             ws.stock_no      AS stockNo,
             m.material_name  AS materialName,
             ws.expiry_date   AS expiryDate,
@@ -20,6 +21,7 @@
     <!-- 유통기한 긴급 (1일 이내) -->
     <select id="selectUrgentStock" resultType="dto.WarehouseStockDTO">
         SELECT
+        	ws.id			 AS id,
             ws.stock_no      AS stockNo,
             m.material_name  AS materialName,
             ws.expiry_date   AS expiryDate,
@@ -34,6 +36,7 @@
     <!-- 유통기한 경고 (3일 이내) -->
     <select id="selectWarningStock" resultType="dto.WarehouseStockDTO">
         SELECT
+        	ws.id			 AS id,
             ws.stock_no      AS stockNo,
             m.material_name  AS materialName,
             ws.expiry_date   AS expiryDate,
@@ -49,7 +52,7 @@
     <!-- 알림 insert -->
     <insert id="insertNotification" parameterType="dto.NotificationDTO" useGeneratedKeys="true" keyProperty="notificationId">
         INSERT INTO notification (category, title, message, target_type, target_id, created_at)
-        VALUES ('INVENTORY', #{title}, #{message}, 'HQ', #{targetId}, NOW())
+        VALUES (#{category}, #{title}, #{message}, #{targetType}, #{targetId}, NOW())
     </insert>
 
     <!-- 알림 수신자 insert -->
@@ -60,12 +63,19 @@
 
     <!-- 오늘 동일 알림 중복 체크 -->
     <select id="existsTodayNotification" parameterType="dto.NotificationDTO" resultType="Integer">
-        SELECT COUNT(*)
-        FROM notification n
-        JOIN notification_receiver nr ON n.notification_id = nr.notification_id
-        WHERE nr.account_id = #{accountId}
-        AND n.title = #{title}
-        AND n.message = #{message}
-        AND DATE(n.created_at) = CURDATE()
-    </select>
+	    SELECT COUNT(*)
+	    FROM notification
+	    WHERE category = #{category}
+	    AND target_type = #{targetType}
+	    AND target_id = #{targetId}
+	    AND DATE(created_at) = CURDATE()
+	</select>
+    
+    <!-- 본사 소속 모든 계정 목록 -->
+    <select id="selectHqAccountIds" parameterType="int" resultType="int">
+	    SELECT account_id
+	    FROM account
+	    WHERE branch_code = 1
+	      AND hq_id IS NOT NULL
+	</select>
 </mapper>

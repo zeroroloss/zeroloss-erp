@@ -106,8 +106,12 @@ public class BranchInquiryController extends HttpServlet {
                     inquiryService.createInquiry(newInquiry);
 
                     if (newInquiry.getInquiryId() > 0) {
-                        String title = "새로운 문의 등록";
-                        String message = loginUser.getBranchName() + "에서 새로운 문의를 등록했습니다.";
+                        String title = "[문의 등록] " + newInquiry.getTitle();
+                        String message =
+                                loginUser.getBranchName()
+                                + " 지점에서 새로운 문의가 등록되었습니다.\n"
+                                + "[문의유형:" + newInquiry.getCategory() + ", "
+                                + "긴급도:" + newInquiry.getUrgency()+"]";
                         try {
                             insertInquiryNotification(title, message, newInquiry.getInquiryId());
                         } catch (SQLException e) {

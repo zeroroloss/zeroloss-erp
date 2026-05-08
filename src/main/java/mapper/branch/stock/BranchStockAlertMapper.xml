@@ -6,10 +6,12 @@
 	<select id="selectExpiredStock" parameterType="int"
 		resultType="dto.BranchStockDTO">
 		SELECT
+		bs.branch_stock_id AS branchStockId,
 		bs.branch_stock_code AS branchStockCode,
 		m.material_name AS materialName,
 		bs.expire_date AS expireDate,
-		bs.current_qty AS currentQty
+		bs.current_qty AS currentQty,
+		m.unit AS unit
 		FROM branch_stock bs
 		JOIN material m ON
 		bs.material_code = m.material_code
@@ -22,10 +24,12 @@
 	<select id="selectUrgentStock" parameterType="int"
 		resultType="dto.BranchStockDTO">
 		SELECT
+		bs.branch_stock_id AS branchStockId,
 		bs.branch_stock_code AS branchStockCode,
 		m.material_name AS materialName,
 		bs.expire_date AS expireDate,
-		bs.current_qty AS currentQty
+		bs.current_qty AS currentQty,
+		m.unit AS unit
 		FROM branch_stock bs
 		JOIN material m ON
 		bs.material_code = m.material_code
@@ -38,10 +42,12 @@
 	<select id="selectWarningStock" parameterType="int"
 		resultType="dto.BranchStockDTO">
 		SELECT
+		bs.branch_stock_id AS branchStockId,
 		bs.branch_stock_code AS branchStockCode,
 		m.material_name AS materialName,
 		bs.expire_date AS expireDate,
-		bs.current_qty AS currentQty
+		bs.current_qty AS currentQty,
+		m.unit AS unit
 		FROM branch_stock bs
 		JOIN material m ON
 		bs.material_code = m.material_code
@@ -56,10 +62,12 @@
 	<select id="selectEmptyStock" parameterType="int"
 		resultType="dto.BranchStockDTO">
 		SELECT
+		bs.branch_stock_id AS branchStockId,
 		bs.branch_stock_code AS branchStockCode,
 		m.material_name AS materialName,
 		bs.expire_date AS expireDate,
-		bs.current_qty AS currentQty
+		bs.current_qty AS currentQty,
+		m.unit AS unit
 		FROM branch_stock bs
 		JOIN material m ON bs.material_code = m.material_code
 		WHERE bs.branch_code = #{branchCode}
@@ -70,11 +78,13 @@
 	<select id="selectLackStock" parameterType="int"
 		resultType="dto.BranchStockDTO">
 		SELECT
+		bs.branch_stock_id AS branchStockId,
 		bs.branch_stock_code AS branchStockCode,
 		m.material_name AS materialName,
 		bs.expire_date AS expireDate,
 		bs.current_qty AS currentQty,
-		ss.safe_stock_qty AS safeStockQty
+		ss.safe_stock_qty AS safeStockQty,
+		m.unit AS unit
 		FROM branch_stock bs
 		JOIN material m ON bs.material_code = m.material_code
 		JOIN branch_material_safety_stock ss
@@ -90,11 +100,8 @@
 	<insert id="insertNotification"
 		parameterType="dto.NotificationDTO" useGeneratedKeys="true"
 		keyProperty="notificationId">
-		INSERT INTO notification (category, title, message,
-		target_type, target_id,
-		created_at)
-		VALUES ('INVENTORY', #{title},
-		#{message}, 'BRANCH', #{targetId}, NOW())
+		INSERT INTO notification (category, title, message, target_type, target_id, created_at)
+		VALUES (#{category}, #{title}, #{message}, #{targetType}, #{targetId}, NOW())
 	</insert>
 
 	<!-- 알림 수신자 insert -->
@@ -106,19 +113,19 @@
 	</insert>
 
 	<!-- 오늘 동일 알림 중복 체크 -->
-	<select id="existsTodayNotification"
-		parameterType="dto.NotificationDTO" resultType="Integer">
-		SELECT COUNT(*)
-		FROM
-		notification n
-		JOIN notification_receiver nr ON n.notification_id =
-		nr.notification_id
-		WHERE nr.account_id = #{accountId}
-		AND n.title =
-		#{title}
-		AND n.message = #{message}
-		AND DATE(n.created_at) = CURDATE()
+	<select id="existsTodayNotification" parameterType="dto.NotificationDTO" resultType="Integer">
+	    SELECT COUNT(*)
+	    FROM notification
+	    WHERE category = #{category}
+	    AND target_type = #{targetType}
+	    AND target_id = #{targetId}
+	    AND title = #{title}
+	    AND DATE(created_at) = CURDATE()
 	</select>
 
-
+	<select id="selectBranchAccountIds" parameterType="int" resultType="int">
+	    SELECT account_id
+	    FROM account
+	    WHERE branch_code = #{branchCode}
+	</select>
 </mapper>

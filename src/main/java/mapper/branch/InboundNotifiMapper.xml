@@ -35,13 +35,16 @@
 	
     <!-- 발주서 정보(헤더) 조회 -->
     <select id="findPlaceOrderHeaderByPoNo" resultType="dto.hq.place_order.PlaceOrderProcessingDTO">
-	    SELECT po.po_id AS poId,
-	           po.po_no AS poNo,
-	           po.branch_code AS branchCode,
-	           b.name AS branchName
-	    FROM place_order po
-	    JOIN branch b ON po.branch_code = b.branch_code
-	    WHERE po.po_no = #{poNo}
+		SELECT 
+			po.po_id AS poId,
+			po.po_no AS poNo,
+			po.branch_code AS branchCode,
+			b.name AS branchName,
+			po.total_material_cnt AS totalMaterialCnt
+		FROM place_order po
+		JOIN branch b 
+			ON po.branch_code = b.branch_code
+		WHERE po.po_no = #{poNo}
 	</select>
 
 </mapper>
