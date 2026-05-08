@@ -55,7 +55,7 @@ boolean inboundProcessingActive = uri.contains("/branch/inbound/processing.jsp")
 
 boolean orderGroup = uri.contains("/branch/place_order/");
 boolean orderHistoryActive = uri.contains("/branch/place_order/history");
-boolean orderDraftCreateActive = uri.contains("/branch/place_order/draft");
+boolean orderDraftCreateActive = uri.contains("/branch/place_order/draft") || uri.contains("/branch/place_order/create.jsp");
 
 boolean salesGroup = uri.contains("/branch/sales/");
 boolean salesDetailActive = uri.contains("/branch/sales/detail") || uri.contains("/branch/sales/branch_sales/sales-detail.jsp");
