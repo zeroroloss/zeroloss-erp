@@ -106,6 +106,14 @@
     color: #fff;
     font-weight: 700;
 }
+
+.status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+.status-pending { background: #fff7e6; color: #d97706; }
+.status-approved { background: #e8f5e9; color: #16a34a; }
+.status-rejected { background: #ffe4e6; color: #dc2626; }
+.status-canceled { background: #f3f4f6; color: #6b7280; }
+.status-delivered { background: #e0f2fe; color: #0284c7; }
+.status-completed { background: #ede9fe; color: #7c3aed; }
 </style>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 </head>
@@ -201,14 +209,14 @@
                 <a href="#" class="tab-link active text-center py-3 font-semibold text-gray-500" data-status="전체">
                     전체 <span id="countAll">0건</span>
                 </a>
-                <a href="#" class="tab-link text-center py-3 font-semibold text-blue-500" data-status="출고대기">
-                    출고대기 <span id="countWaiting" class="text-xs text-blue-400">0건</span>
+                <a href="#" class="tab-link text-center py-3 font-semibold text-amber-500" data-status="PENDING">
+                    승인 대기 <span id="countWaiting" class="text-xs text-amber-400">0건</span>
                 </a>
-                <a href="#" class="tab-link text-center py-3 font-semibold text-yellow-500" data-status="준비중">
-                    준비중 <span id="countPreparing" class="text-xs text-yellow-400">0건</span>
+                <a href="#" class="tab-link text-center py-3 font-semibold text-green-600" data-status="APPROVED">
+                    승인됨 <span id="countPreparing" class="text-xs text-green-400">0건</span>
                 </a>
-                <a href="#" class="tab-link text-center py-3 font-semibold text-green-600" data-status="출고완료">
-                    출고완료 <span id="countCompleted" class="text-xs text-green-400">0건</span>
+                <a href="#" class="tab-link text-center py-3 font-semibold text-blue-600" data-status="DELIVERED">
+                    지점 배송 완료 <span id="countCompleted" class="text-xs text-blue-400">0건</span>
                 </a>
             </div>
         </div>
@@ -345,11 +353,33 @@
     // 상수 / 설정
     // ============================================================
     var STATUS_CONFIG = {
-        '출고대기': { label: '출고대기', badgeClass: 'bg-blue-100 text-blue-700',    icon: 'fa-box' },
-        '준비중':   { label: '준비중',   badgeClass: 'bg-yellow-100 text-yellow-700', icon: 'fa-hourglass-half' },
-        '출고완료': { label: '출고완료', badgeClass: 'bg-green-100 text-green-700',   icon: 'fa-check-circle' },
-        'default':  { label: '-',       badgeClass: 'bg-gray-100 text-gray-700',     icon: 'fa-circle' }
+        'PENDING':   { label: '승인 대기', badgeClass: 'status-pending' },
+        'APPROVED':  { label: '승인됨', badgeClass: 'status-approved' },
+        'REJECTED':  { label: '반려됨', badgeClass: 'status-rejected' },
+        'CANCELED':  { label: '취소됨', badgeClass: 'status-canceled' },
+        'DELIVERED': { label: '지점 배송 완료', badgeClass: 'status-delivered' },
+        'COMPLETED': { label: '지점 입고 완료', badgeClass: 'status-completed' },
+        'default':   { label: '-', badgeClass: 'status-canceled' }
     };
+
+    function normalizeStatus(status) {
+        var value = String(status || '').toUpperCase();
+
+        if (value === '출고대기') return 'PENDING';
+        if (value === '준비중') return 'APPROVED';
+        if (value === '출고완료') return 'DELIVERED';
+
+        return value;
+    }
+
+    function getStatusMeta(status) {
+        return STATUS_CONFIG[normalizeStatus(status)] || STATUS_CONFIG['default'];
+    }
+
+    function renderStatusBadge(status) {
+        var meta = getStatusMeta(status);
+        return '<span class="' + meta.badgeClass + '">' + meta.label + '</span>';
+    }
 
     // ============================================================
     // 전역 상태
@@ -695,18 +725,21 @@
     function applyStatusFilter() {
         filteredRecords = (currentStatusFilter === '전체')
             ? allRecords
-            : allRecords.filter(function(r) { return r.status === currentStatusFilter; });
+            : allRecords.filter(function(r) { return normalizeStatus(r.status) === currentStatusFilter; });
         currentPage = 1;
         renderTable();
     }
 
     function updateStatusCounts() {
-        var counts = { '출고대기': 0, '준비중': 0, '출고완료': 0 };
-        allRecords.forEach(function(r) { if (r.status in counts) counts[r.status]++; });
+        var counts = { PENDING: 0, APPROVED: 0, DELIVERED: 0 };
+        allRecords.forEach(function(r) {
+            var key = normalizeStatus(r.status);
+            if (key in counts) counts[key]++;
+        });
         document.getElementById('countAll').textContent       = allRecords.length + '건';
-        document.getElementById('countWaiting').textContent   = counts['출고대기'] + '건';
-        document.getElementById('countPreparing').textContent = counts['준비중']   + '건';
-        document.getElementById('countCompleted').textContent = counts['출고완료'] + '건';
+        document.getElementById('countWaiting').textContent   = counts.PENDING + '건';
+        document.getElementById('countPreparing').textContent = counts.APPROVED + '건';
+        document.getElementById('countCompleted').textContent = counts.DELIVERED + '건';
     }
 
     // ============================================================
@@ -797,11 +830,8 @@
 	                 '<i class="fas fa-calendar text-gray-400 mr-2"></i>' + record.outboundAt +
 	             '</td>' +
 	             '<td class="py-4 px-6 text-gray-700 text-sm">' + (record.handler || '-') + '</td>' +
-	             '<td class="py-4 px-6 text-center">' +
-	                 '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '">' +
-	                     '<i class="fas ' + meta.icon + '"></i>' + meta.label +
-	                 '</span>' +
-	             '</td>' +
+	             '<td class="py-4 px-6 text-center">' + renderStatusBadge(record.status) + '</td>' +
+
 	             '<td class="py-4 px-6 text-center">' +
 	                 '<button onclick="openDetail(\'' + record.hqOutboundNo + '\')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">상세조회</button>' +
 	             '</td>';
@@ -897,8 +927,7 @@
 
             var json        = await res.json();
             var data        = json.data;
-            var meta        = STATUS_CONFIG[data.status] || STATUS_CONFIG['default'];
-            var isCompleted = (data.status === '출고완료');
+            var isCompleted = (normalizeStatus(data.status) === 'DELIVERED');
 
             // 기본 정보
             document.getElementById('modalSubtitle').textContent  = data.branchName + ' · ' + data.poNo;
@@ -906,8 +935,7 @@
             document.getElementById('detailBranch').textContent   = data.branchName;
             document.getElementById('detailDate').textContent     = data.outboundAt;
             document.getElementById('detailHandler').textContent  = data.handler || '-';
-            document.getElementById('detailStatus').innerHTML =
-                '<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '"><i class="fas ' + meta.icon + '"></i>' + meta.label + '</span>';
+            document.getElementById('detailStatus').innerHTML = renderStatusBadge(data.status);
 
             // 품목 테이블 헤더
             document.getElementById('itemsTitle').textContent = isCompleted ? '출고 품목' : '발주 품목';

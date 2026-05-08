@@ -230,7 +230,6 @@
                             <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">요청 지점</th>
                             <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">요청 시점</th>
                             <th class="text-right  py-3 px-6 text-sm font-semibold text-gray-900">품목 수</th>
-                            <th class="text-right  py-3 px-6 text-sm font-semibold text-gray-900">총 수량</th>
                             <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">상태</th>
                             <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">상세조회</th>
                         </tr>
@@ -404,6 +403,11 @@
         
         'default': { label: '미확인', badgeClass: 'bg-gray-100 text-gray-500', rowClass: '' }
     };
+
+    function renderStatusBadge(status) {
+        var meta = STATUS_CONFIG[status] || STATUS_CONFIG['default'];
+        return '<span class="inline-flex px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '">' + meta.label + '</span>';
+    }
 
     // ============================================================
     // 전역 상태
@@ -830,7 +834,6 @@
                 '<td class="py-4 px-6 font-medium text-gray-900"><i class="fas fa-map-pin text-gray-400 mr-2"></i>' + order.branchName + '</td>' +
                 '<td class="py-4 px-6 text-gray-700 text-sm"><i class="fas fa-calendar text-gray-400 mr-2"></i>' + order.requestedAt + '</td>' +
                 '<td class="py-4 px-6 text-right font-semibold text-gray-900">' + order.totalItemCnt + '개</td>' +
-                '<td class="py-4 px-6 text-right font-semibold text-blue-600">' + order.totalAmounts + '</td>' +
                 '<td class="py-4 px-6 text-center"><span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '">' + meta.label + '</span></td>' +
                 '<td class="py-4 px-6 text-center"><button onclick="openDetail(\'' + order.poId + '\')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">상세조회</button></td>';
             tbody.appendChild(tr);
@@ -1023,10 +1026,7 @@
             document.getElementById('detailDate').textContent        = data.requestedAt;
             document.getElementById('detailItemCount').textContent   = data.totalItemCnt + '개';
             document.getElementById('detailTotalQty').textContent    = data.totalAmounts;
-            document.getElementById('detailStatus').innerHTML =
-                `<span class="inline-flex px-3 py-1 rounded-full text-xs font-medium ${meta.badgeClass}">
-                    ${meta.label}
-                </span>`;
+            document.getElementById('detailStatus').innerHTML = renderStatusBadge(status);
             /* 반려 사유 */
             var rejectReasonBox = document.getElementById('rejectReasonBox');
 
