@@ -11,7 +11,6 @@ public class AccountEmployeeDTO {
     private String roleName;
 	
 	public AccountEmployeeDTO() {
-		// TODO Auto-generated constructor stub
 	}
 
 	public Integer getEmpNo() {

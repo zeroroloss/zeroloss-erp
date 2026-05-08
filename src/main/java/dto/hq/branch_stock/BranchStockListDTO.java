@@ -16,7 +16,6 @@ public class BranchStockListDTO {
 	
 	public BranchStockListDTO() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	public BranchStockListDTO(String branchCode, String branchName, String materialCode, String materialName,

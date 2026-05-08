@@ -27,7 +27,6 @@ public class BranchServiceImpl implements BranchService {
 
 	@Override
 	public List<BranchDTO> searchBranchList() throws Exception {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }
