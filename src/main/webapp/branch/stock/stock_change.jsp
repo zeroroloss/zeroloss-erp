@@ -7,10 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>재고 변동</title>
 
-	<!-- flatpickr -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-	<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+	<!-- custom date picker (copied design from sales-headquarters.jsp) -->
 
 	<style>
 		body { margin: 0; font-family: "Malgun Gothic", sans-serif; background: #f4f7fb; color: #111827; }
@@ -42,33 +39,86 @@
 			background-size: 20px;
 		}
 
-		/* flatpickr 커스텀 컬러 */
-.flatpickr-day.selected,
-.flatpickr-day.startRange,
-.flatpickr-day.endRange,
-.flatpickr-day.selected:hover,
-.flatpickr-day.startRange:hover,
-.flatpickr-day.endRange:hover {
-    background: #00853d !important;
-    border-color: #00853d !important;
-}
-.flatpickr-day.today {
-    border-color: #00853d !important;
-}
-.flatpickr-day:hover {
-    background: #e7f4ec !important;
-}
-.flatpickr-months .flatpickr-month,
-.flatpickr-current-month .flatpickr-monthDropdown-months {
-    color: #111 !important;
-}
-.flatpickr-day.selected {
-    color: #fff !important;
-}
-.flatpickr-calendar.arrowTop:before,
-.flatpickr-calendar.arrowTop:after {
-    border-bottom-color: #fff !important;
-}
+		/* Custom date picker (sales style) */
+		.custom-date-picker {
+		    position: fixed;
+		    width: 500px;
+		    background: #fff;
+		    border: 1px solid #d1d5db;
+		    border-radius: 0.75rem;
+		    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+		    z-index: 9999;
+		    padding: 14px;
+		}
+
+		.custom-date-picker.hidden {
+		    display: none;
+		}
+
+		.custom-date-picker-header {
+		    display: flex;
+		    align-items: center;
+		    justify-content: space-between;
+		    margin-bottom: 12px;
+		}
+
+		.custom-date-picker select {
+		    height: 30px;
+		    min-width: auto;
+		    width: auto;
+		    border-radius: 0.5rem;
+		    padding: 0 8px;
+		    font-size: 12px;
+		    font-weight: 600;
+		    background: #fff;
+		}
+
+		.custom-date-nav-btn {
+		    width: 30px;
+		    height: 30px;
+		    border-radius: 0.5rem;
+		    border: 1px solid #e5e7eb;
+		    color: #4b5563;
+		    background: #fff;
+		    cursor: pointer;
+		}
+
+		.custom-date-nav-btn:hover { background: #f3f4f6; }
+
+		.custom-date-weekdays,
+		.custom-date-days {
+		    display: grid;
+		    grid-template-columns: repeat(7, 1fr);
+		    gap: 4px;
+		}
+
+		.custom-date-weekdays div {
+		    text-align: center;
+		    font-size: 11px;
+		    font-weight: 700;
+		    color: #6b7280;
+		    padding: 4px 0;
+		}
+
+		.custom-date-day {
+		    height: 32px;
+		    border-radius: 0.5rem;
+		    border: none;
+		    background: #fff;
+		    font-size: 12px;
+		    cursor: pointer;
+		    color: #111827;
+		}
+
+		.custom-date-day:hover {
+		    background: #ecfdf3;
+		    color: #00853D;
+		    font-weight: 700;
+		}
+
+		.custom-date-day.other-month { color: #c4c4c4; }
+		.custom-date-day.today { border: 1px solid #00853D; color: #00853D; font-weight: 700; }
+		.custom-date-day.selected { background: #00853D; color: #fff; font-weight: 700; }
 
 		.filter-btn { height: 40px; padding: 0 18px; border: 0; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
 		.filter-btn.primary { background: #00853d; color: #fff; }
@@ -167,12 +217,12 @@
 								<div class="date-range">
 									<div class="date-picker-wrap">
 										<input type="text" id="filterStartDate" placeholder="시작일"
-											readonly>
+											readonly onclick="openCustomDatePicker('filterStartDate', event)">
 									</div>
 									<span>~</span>
 									<div class="date-picker-wrap">
 										<input type="text" id="filterEndDate" placeholder="종료일"
-											readonly>
+											readonly onclick="openCustomDatePicker('filterEndDate', event)">
 									</div>
 								</div>
 							</div>
@@ -525,33 +575,157 @@
 		document.getElementById('historyStockSearch').value  = '';
 		document.getElementById('disposalStockSearch').value = '';
 		document.getElementById('tableCard').style.display = 'none';
-		document.getElementById('filterStartDate')._flatpickr.setDate(defaultStartDate);
-		document.getElementById('filterEndDate')._flatpickr.setDate(defaultEndDate);
-		document.getElementById('filterEndDate')._flatpickr.set('minDate', null);
-		document.getElementById('filterStartDate')._flatpickr.set('maxDate', null);
+		document.getElementById('filterStartDate').value = defaultStartDate;
+		document.getElementById('filterEndDate').value = defaultEndDate;
+		closeCustomDatePicker();
 	};
 
 	/* ── 초기 실행 ── */
 	loadCategoryList();
 
-	flatpickr('#filterStartDate', {
-		locale: 'ko',
-		dateFormat: 'Y-m-d',
-		defaultDate: defaultStartDate,
-		onChange: function(selectedDates, dateStr) {
-			document.getElementById('filterEndDate')._flatpickr.set('minDate', dateStr);
-		}
-	});
+	// initialize inputs with default dates
+	document.getElementById('filterStartDate').value = defaultStartDate;
+	document.getElementById('filterEndDate').value = defaultEndDate;
 
-	flatpickr('#filterEndDate', {
-		locale: 'ko',
-		dateFormat: 'Y-m-d',
-		defaultDate: defaultEndDate,
-		onChange: function(selectedDates, dateStr) {
-			document.getElementById('filterStartDate')._flatpickr.set('maxDate', dateStr);
+	// Custom date picker state
+	var customDateTargetId = null;
+	var customPickerDate = new Date();
+
+	function parseDateLocal(dateStr) {
+		if (!dateStr) return null;
+		var parts = String(dateStr).split('-');
+		if (parts.length !== 3) return null;
+		return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+	}
+
+	function formatDateLocal(date) {
+		return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+	}
+
+	window.openCustomDatePicker = function(inputId, event) {
+		if (event) event.stopPropagation();
+		customDateTargetId = inputId;
+		var input = document.getElementById(inputId);
+		var selected = parseDateLocal(input.value);
+		customPickerDate = selected || new Date();
+		renderCustomDatePicker();
+		positionCustomDatePicker(input);
+		document.getElementById('customDatePicker').classList.remove('hidden');
+	};
+
+	function positionCustomDatePicker(input) {
+		var picker = document.getElementById('customDatePicker');
+		var rect = input.getBoundingClientRect();
+		var pickerWidth = 300; var pickerHeight = 330;
+		var top = rect.bottom + 6; var left = rect.left;
+		picker.style.width = pickerWidth + 'px';
+		if (left + pickerWidth > window.innerWidth) left = window.innerWidth - pickerWidth - 12;
+		if (top + pickerHeight > window.innerHeight) top = rect.top - pickerHeight - 6;
+		picker.style.top = top + 'px'; picker.style.left = left + 'px';
+	}
+
+	window.changeCustomPickerMonth = function(amount) { customPickerDate.setMonth(customPickerDate.getMonth() + amount); renderCustomDatePicker(); };
+
+	window.changeCustomPickerYearMonth = function() {
+		var ys = document.getElementById('customDatePickerYear');
+		var ms = document.getElementById('customDatePickerMonth');
+		customPickerDate = new Date(Number(ys.value), Number(ms.value), 1);
+		renderCustomDatePicker();
+	};
+
+	function renderCustomPickerYearMonthSelect(year, month) {
+		var yearSelect = document.getElementById('customDatePickerYear');
+		var monthSelect = document.getElementById('customDatePickerMonth');
+		var htmlY = '';
+		for (var y = year - 10; y <= year + 10; y++) htmlY += '<option value="'+y+'"' + (y===year? ' selected': '') + '>' + y + '년</option>';
+		var htmlM = '';
+		for (var m = 0; m < 12; m++) htmlM += '<option value="'+m+'"' + (m===month? ' selected': '') + '>' + (m+1) + '월</option>';
+		yearSelect.innerHTML = htmlY; monthSelect.innerHTML = htmlM;
+	}
+
+	function renderCustomDatePicker() {
+		var year = customPickerDate.getFullYear(); var month = customPickerDate.getMonth();
+		renderCustomPickerYearMonthSelect(year, month);
+		var firstDay = new Date(year, month, 1); var lastDay = new Date(year, month + 1, 0); var prevLast = new Date(year, month, 0);
+		var startDay = firstDay.getDay(); var days = [];
+		for (var i = startDay - 1; i >= 0; i--) days.push({ date: new Date(year, month - 1, prevLast.getDate() - i), currentMonth: false });
+		for (var d = 1; d <= lastDay.getDate(); d++) days.push({ date: new Date(year, month, d), currentMonth: true });
+		var nextDay = 1; while (days.length < 42) { days.push({ date: new Date(year, month + 1, nextDay), currentMonth: false }); nextDay++; }
+		var targetInput = customDateTargetId ? document.getElementById(customDateTargetId) : null;
+		var selectedValue = targetInput ? targetInput.value : '';
+		var todayValue = formatDateLocal(new Date());
+		var html = '';
+		for (var j = 0; j < days.length; j++) {
+			var dateValue = formatDateLocal(days[j].date);
+			var className = 'custom-date-day';
+			if (!days[j].currentMonth) className += ' other-month';
+			if (dateValue === todayValue) className += ' today';
+			if (dateValue === selectedValue) className += ' selected';
+			html += '<button type="button" class="' + className + '" onclick="selectCustomDate(\'' + dateValue + '\')">';
+			html += days[j].date.getDate(); html += '</button>';
 		}
+		document.getElementById('customDatePickerDays').innerHTML = html;
+	}
+
+	window.selectCustomDate = function(dateValue) {
+		if (!customDateTargetId) return;
+		document.getElementById(customDateTargetId).value = dateValue;
+		if (customDateTargetId === 'filterStartDate') {
+			// enforce endDate >= startDate
+			var sd = parseDateLocal(dateValue);
+			var edVal = document.getElementById('filterEndDate').value;
+			var ed = parseDateLocal(edVal);
+			if (ed && ed < sd) { document.getElementById('filterEndDate').value = dateValue; }
+		} else if (customDateTargetId === 'filterEndDate') {
+			var ed = parseDateLocal(dateValue);
+			var sdVal = document.getElementById('filterStartDate').value;
+			var sd = parseDateLocal(sdVal);
+			if (sd && sd > ed) { document.getElementById('filterStartDate').value = dateValue; }
+		}
+		closeCustomDatePicker();
+	};
+
+	function closeCustomDatePicker() { var p = document.getElementById('customDatePicker'); if (p) p.classList.add('hidden'); customDateTargetId = null; }
+
+	document.addEventListener('mousedown', function(event) {
+		var picker = document.getElementById('customDatePicker');
+		if (!picker || picker.classList.contains('hidden')) return;
+		if (picker.contains(event.target)) return;
+		if (customDateTargetId && document.getElementById(customDateTargetId) && document.getElementById(customDateTargetId).contains(event.target)) return;
+		closeCustomDatePicker();
 	});
 })();
 </script>
+
+	<!-- custom date picker element -->
+	<div id="customDatePicker" class="custom-date-picker hidden" onclick="event.stopPropagation()">
+		<div class="custom-date-picker-header">
+			<button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(-1)">
+				<i class="fas fa-chevron-left text-xs"></i>
+			</button>
+
+			<div class="flex items-center gap-2">
+				<select id="customDatePickerYear" onchange="changeCustomPickerYearMonth()" class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold outline-none"></select>
+
+				<select id="customDatePickerMonth" onchange="changeCustomPickerYearMonth()" class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold outline-none"></select>
+			</div>
+
+			<button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(1)">
+				<i class="fas fa-chevron-right text-xs"></i>
+			</button>
+		</div>
+
+		<div class="custom-date-weekdays">
+			<div>일</div>
+			<div>월</div>
+			<div>화</div>
+			<div>수</div>
+			<div>목</div>
+			<div>금</div>
+			<div>토</div>
+		</div>
+
+		<div id="customDatePickerDays" class="custom-date-days"></div>
+	</div>
 </body>
 </html>

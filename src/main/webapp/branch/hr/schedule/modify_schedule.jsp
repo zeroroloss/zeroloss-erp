@@ -50,9 +50,11 @@
                 <label class="block text-sm font-medium text-gray-700 mb-2">
                     근무 날짜 <span class="text-red-500">*</span>
                 </label>
-                <input type="date"
+                <input type="text"
                        id="editWorkDate"
                        name="workDate"
+                       readonly
+                       onclick="openCustomDatePicker('editWorkDate', event)"
                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
             </div>
 

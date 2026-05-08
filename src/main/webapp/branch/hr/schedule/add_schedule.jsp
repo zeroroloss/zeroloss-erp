@@ -64,13 +64,13 @@
 	                <div class="grid grid-cols-2 gap-4">
 	                    <div>
 	                        <label class="block text-xs text-gray-500 mb-1">시작 날짜</label>
-	                        <input type="date" id="startDate" name="startDate" onchange="changeStartDate()"
-	                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+							   <input type="text" id="startDate" name="startDate" readonly onclick="openCustomDatePicker('startDate', event)"
+								   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
 	                    </div>
 	                    <div>
 	                        <label class="block text-xs text-gray-500 mb-1">종료 날짜</label>
-	                        <input type="date" id="endDate" name="endDate"
-	                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+							   <input type="text" id="endDate" name="endDate" readonly onclick="openCustomDatePicker('endDate', event)"
+								   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
 	                    </div>
 	                </div>
 	            </div>

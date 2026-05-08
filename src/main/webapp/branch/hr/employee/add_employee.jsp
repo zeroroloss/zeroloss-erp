@@ -59,7 +59,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">입사일</label>
-                    <input type="date" id="hireDate" name="hireDate"
+                    <input type="text" id="hireDate" name="hireDate" readonly data-open-when-readonly="true" onclick="openCustomDatePicker('hireDate', event)"
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
                 </div>
 

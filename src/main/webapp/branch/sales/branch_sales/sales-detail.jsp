@@ -11,10 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0/dist/chartjs-plugin-annotation.min.js"></script>
     <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
-    <%-- flatpickr --%>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+    <%-- custom date picker (sales style) --%>
 
     <%-- 공통 레이아웃 헤더 포함 --%>
     <%@ include file="/branch/common/layout/layout_head.jsp" %>
@@ -34,6 +31,30 @@
 
         .date-picker-wrap { position:relative; }
         .date-picker-wrap input { padding-left: 38px !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%239ca3af' class='w-5 h-5'%3E%3Cpath fill-rule='evenodd' d='M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zM4.5 6.75A1.25 1.25 0 015.75 5.5h8.5A1.25 1.25 0 0115.5 6.75v8.5A1.25 1.25 0 0114.25 16.5h-8.5A1.25 1.25 0 014.5 15.25v-8.5zM7 10a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm-6 3a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2zm3 0a1 1 0 100-2 1 1 0 000 2z' clip-rule='evenodd' /%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 10px center; background-size: 20px; }
+
+        /* Custom date picker (sales style) */
+        .custom-date-picker {
+            position: fixed;
+            width: 500px;
+            background: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            padding: 14px;
+        }
+        .custom-date-picker.hidden { display: none; }
+        .custom-date-picker-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .custom-date-picker select { height: 30px; min-width: auto; width: auto; border-radius: 0.5rem; padding: 0 8px; font-size: 12px; font-weight: 600; background: #fff; }
+        .custom-date-nav-btn { width: 30px; height: 30px; border-radius: 0.5rem; border: 1px solid #e5e7eb; color: #4b5563; background: #fff; cursor: pointer; }
+        .custom-date-nav-btn:hover { background: #f3f4f6; }
+        .custom-date-weekdays, .custom-date-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .custom-date-weekdays div { text-align: center; font-size: 11px; font-weight: 700; color: #6b7280; padding: 4px 0; }
+        .custom-date-day { height: 32px; border-radius: 0.5rem; border: none; background: #fff; font-size: 12px; cursor: pointer; color: #111827; }
+        .custom-date-day:hover { background: #ecfdf3; color: #00853D; font-weight: 700; }
+        .custom-date-day.other-month { color: #c4c4c4; }
+        .custom-date-day.today { border: 1px solid #00853D; color: #00853D; font-weight: 700; }
+        .custom-date-day.selected { background: #00853D; color: #fff; font-weight: 700; }
 
         .btn-group { display:flex; gap:8px; }
         .btn { height:38px; border-radius:12px; padding:0 18px; font-size:14px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; border:1px solid transparent; }
@@ -86,26 +107,26 @@
                     </div>
                     <div class="filter-inputs" data-input="daily">
                         <div class="date-picker-wrap">
-                            <input type="text" id="daily-date" placeholder="날짜 선택">
-                        </div>
+                                <input type="text" id="daily-date" placeholder="날짜 선택" readonly onclick="openCustomDatePicker('daily-date', event)">
+                            </div>
                     </div>
                     <div class="filter-inputs is-hidden" data-input="period">
                         <div class="date-picker-wrap">
-                            <input type="text" id="period-start" placeholder="시작일 선택">
+                            <input type="text" id="period-start" placeholder="시작일 선택" readonly onclick="openCustomDatePicker('period-start', event)">
                         </div>
                         <span class="text-gray-500">~</span>
                         <div class="date-picker-wrap">
-                            <input type="text" id="period-end" placeholder="종료일 선택">
+                            <input type="text" id="period-end" placeholder="종료일 선택" readonly onclick="openCustomDatePicker('period-end', event)">
                         </div>
                     </div>
                     <div class="filter-inputs is-hidden" data-input="hourly">
                         <div class="date-picker-wrap">
-                            <input type="text" id="hourly-date" placeholder="날짜 선택">
+                            <input type="text" id="hourly-date" placeholder="날짜 선택" readonly onclick="openCustomDatePicker('hourly-date', event)">
                         </div>
                     </div>
                     <div class="filter-inputs is-hidden" data-input="menu">
                         <div class="date-picker-wrap">
-                            <input type="text" id="menu-date" placeholder="날짜 선택">
+                            <input type="text" id="menu-date" placeholder="날짜 선택" readonly onclick="openCustomDatePicker('menu-date', event)">
                         </div>
                     </div>
                 </div>
@@ -185,22 +206,85 @@
         const searchButton = document.getElementById('searchButton');
         const resetButton = document.getElementById('resetButton');
 
-        flatpickr.localize(flatpickr.l10ns.ko);
+        // Initialize default values for inputs
+        function pad(n){ return String(n).padStart(2,'0'); }
+        const today = new Date();
+        const todayStr = today.getFullYear() + '-' + pad(today.getMonth()+1) + '-' + pad(today.getDate());
+        const oneMonthAgo = new Date(); oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        const oneMonthAgoStr = oneMonthAgo.getFullYear() + '-' + pad(oneMonthAgo.getMonth()+1) + '-' + pad(oneMonthAgo.getDate());
 
-        const commonDateConfig = {
-            dateFormat: "Y-m-d",
-            allowInput: true,
+        if (!document.getElementById('daily-date').value) document.getElementById('daily-date').value = todayStr;
+        if (!document.getElementById('hourly-date').value) document.getElementById('hourly-date').value = todayStr;
+        if (!document.getElementById('menu-date').value) document.getElementById('menu-date').value = todayStr;
+        if (!document.getElementById('period-start').value) document.getElementById('period-start').value = oneMonthAgoStr;
+        if (!document.getElementById('period-end').value) document.getElementById('period-end').value = todayStr;
+
+        // Custom date picker implementation (sales style)
+        var customDateTargetId = null;
+        var customPickerDate = new Date();
+
+        function parseDateLocal(dateStr) {
+            if (!dateStr) return null;
+            var parts = String(dateStr).split('-'); if (parts.length !== 3) return null;
+            return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        }
+        function formatDateLocal(date) { return date.getFullYear() + '-' + pad(date.getMonth()+1) + '-' + pad(date.getDate()); }
+
+        window.openCustomDatePicker = function(inputId, event) {
+            if (event) event.stopPropagation();
+            customDateTargetId = inputId;
+            var input = document.getElementById(inputId);
+            var selected = parseDateLocal(input.value);
+            customPickerDate = selected || new Date();
+            renderCustomDatePicker(); positionCustomDatePicker(input);
+            document.getElementById('customDatePicker').classList.remove('hidden');
         };
 
-        flatpickr("#daily-date", {...commonDateConfig, defaultDate: "today"});
-        flatpickr("#hourly-date", {...commonDateConfig, defaultDate: "today"});
-        flatpickr("#menu-date", {...commonDateConfig, defaultDate: "today"});
+        function positionCustomDatePicker(input) {
+            var picker = document.getElementById('customDatePicker');
+            var rect = input.getBoundingClientRect(); var pickerWidth = 300; var pickerHeight = 330;
+            var top = rect.bottom + 6; var left = rect.left; picker.style.width = pickerWidth + 'px';
+            if (left + pickerWidth > window.innerWidth) left = window.innerWidth - pickerWidth - 12;
+            if (top + pickerHeight > window.innerHeight) top = rect.top - pickerHeight - 6;
+            picker.style.top = top + 'px'; picker.style.left = left + 'px';
+        }
 
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        window.changeCustomPickerMonth = function(amount) { customPickerDate.setMonth(customPickerDate.getMonth() + amount); renderCustomDatePicker(); };
+        window.changeCustomPickerYearMonth = function() { var ys = document.getElementById('customDatePickerYear'); var ms = document.getElementById('customDatePickerMonth'); customPickerDate = new Date(Number(ys.value), Number(ms.value), 1); renderCustomDatePicker(); };
 
-        flatpickr("#period-start", {...commonDateConfig, defaultDate: oneMonthAgo});
-        flatpickr("#period-end", {...commonDateConfig, defaultDate: "today"});
+        function renderCustomPickerYearMonthSelect(year, month) {
+            var yearSelect = document.getElementById('customDatePickerYear'); var monthSelect = document.getElementById('customDatePickerMonth'); var htmlY='';
+            for (var y = year - 10; y <= year + 10; y++) htmlY += '<option value="'+y+'"' + (y===year? ' selected': '') + '>' + y + '년</option>';
+            var htmlM=''; for (var m=0;m<12;m++) htmlM += '<option value="'+m+'"' + (m===month? ' selected': '') + '>' + (m+1) + '월</option>';
+            yearSelect.innerHTML = htmlY; monthSelect.innerHTML = htmlM;
+        }
+
+        function renderCustomDatePicker() {
+            var year = customPickerDate.getFullYear(); var month = customPickerDate.getMonth(); renderCustomPickerYearMonthSelect(year, month);
+            var firstDay = new Date(year, month, 1); var lastDay = new Date(year, month+1, 0); var prevLast = new Date(year, month, 0);
+            var startDay = firstDay.getDay(); var days = [];
+            for (var i = startDay - 1; i >= 0; i--) days.push({ date: new Date(year, month - 1, prevLast.getDate() - i), currentMonth: false });
+            for (var d = 1; d <= lastDay.getDate(); d++) days.push({ date: new Date(year, month, d), currentMonth: true });
+            var nextDay = 1; while (days.length < 42) { days.push({ date: new Date(year, month+1, nextDay), currentMonth: false }); nextDay++; }
+            var targetInput = customDateTargetId ? document.getElementById(customDateTargetId) : null; var selectedValue = targetInput ? targetInput.value : ''; var todayValue = formatDateLocal(new Date());
+            var html=''; for (var j=0;j<days.length;j++){ var dateValue = formatDateLocal(days[j].date); var className='custom-date-day'; if (!days[j].currentMonth) className += ' other-month'; if (dateValue === todayValue) className += ' today'; if (dateValue === selectedValue) className += ' selected'; html += '<button type="button" class="' + className + '" onclick="selectCustomDate(\'' + dateValue + '\')">' + days[j].date.getDate() + '</button>'; }
+            document.getElementById('customDatePickerDays').innerHTML = html;
+        }
+
+        window.selectCustomDate = function(dateValue) {
+            if (!customDateTargetId) return; document.getElementById(customDateTargetId).value = dateValue;
+            if (customDateTargetId === 'period-start') {
+                var sd = parseDateLocal(dateValue); var edVal = document.getElementById('period-end').value; var ed = parseDateLocal(edVal);
+                if (ed && ed < sd) document.getElementById('period-end').value = dateValue;
+            } else if (customDateTargetId === 'period-end') {
+                var ed = parseDateLocal(dateValue); var sdVal = document.getElementById('period-start').value; var sd = parseDateLocal(sdVal);
+                if (sd && sd > ed) document.getElementById('period-start').value = dateValue;
+            }
+            closeCustomDatePicker(); if (typeof fetchData === 'function') fetchData();
+        };
+
+        function closeCustomDatePicker() { var p = document.getElementById('customDatePicker'); if (p) p.classList.add('hidden'); customDateTargetId = null; }
+        document.addEventListener('mousedown', function(event){ var picker = document.getElementById('customDatePicker'); if (!picker || picker.classList.contains('hidden')) return; if (picker.contains(event.target)) return; if (customDateTargetId && document.getElementById(customDateTargetId) && document.getElementById(customDateTargetId).contains(event.target)) return; closeCustomDatePicker(); });
 
         const charts = {};
 
@@ -610,5 +694,34 @@
         initializePage();
     });
 </script>
+    <!-- custom date picker element -->
+    <div id="customDatePicker" class="custom-date-picker hidden" onclick="event.stopPropagation()">
+        <div class="custom-date-picker-header">
+            <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(-1)">
+                <i class="fas fa-chevron-left text-xs"></i>
+            </button>
+
+            <div style="display:flex;align-items:center;gap:8px;">
+                <select id="customDatePickerYear" onchange="changeCustomPickerYearMonth()" class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold outline-none"></select>
+                <select id="customDatePickerMonth" onchange="changeCustomPickerYearMonth()" class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold outline-none"></select>
+            </div>
+
+            <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(1)">
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+
+        <div class="custom-date-weekdays">
+            <div>일</div>
+            <div>월</div>
+            <div>화</div>
+            <div>수</div>
+            <div>목</div>
+            <div>금</div>
+            <div>토</div>
+        </div>
+
+        <div id="customDatePickerDays" class="custom-date-days"></div>
+    </div>
 </body>
 </html>
