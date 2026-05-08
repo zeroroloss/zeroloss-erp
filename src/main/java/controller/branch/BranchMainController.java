@@ -27,6 +27,11 @@ public class BranchMainController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			HttpSession session = request.getSession();
+			if (session == null || session.getAttribute("accountId") == null) {
+	            response.sendRedirect(request.getContextPath() + "/login");
+	            return;
+	        }
+			
 			Integer branchCode = (Integer)session.getAttribute("branchCode");
 			Integer accountId  = (Integer) session.getAttribute("accountId");
 			Integer todayEmp = employeeService.selectTodayEmpCnt(branchCode);

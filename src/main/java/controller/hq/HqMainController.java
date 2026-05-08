@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import dto.hq.sales.HqTodaySalesSummaryDTO;
 import service.hq.EmployeeService;
@@ -33,6 +34,12 @@ public class HqMainController extends HttpServlet {
     @Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
+			HttpSession session = request.getSession(false);
+			if (session == null || session.getAttribute("accountId") == null) {
+				response.sendRedirect(request.getContextPath() + "/login");
+			    return;
+			}
+			
 			// 물류창고 알림 체크
 			int accountId = (int) request.getSession().getAttribute("accountId");
 	        WarehouseStockAlertService warehouseStockAlertService = new WarehouseStockAlertServiceImpl();
