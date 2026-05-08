@@ -466,7 +466,7 @@ body {
 				showToast();
 				await loadReceivingList();
 			} catch (err) {
-				alert(err.message || '입고 확정 중 오류가 발생했습니다.');
+				commonShowAlert('알림', err.message || '입고 확정 중 오류가 발생했습니다.');
 			} finally {
 				confirmBtn.disabled = false;
 			}

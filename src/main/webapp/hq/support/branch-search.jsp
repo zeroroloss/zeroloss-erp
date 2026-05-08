@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>직영점 관리 - ZERO LOSS 본사 관리 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .sidebar-open .sidebar { transform: translateX(0); }
@@ -279,7 +280,7 @@
     // 상세 모달 열기 (수정/삭제 버튼 추가)
     function viewBranchDetail(branchId) {
         selectedBranchForDetail = allBranches.find(b => String(b.id) === String(branchId));
-        if (!selectedBranchForDetail) return alert('지점 정보를 찾을 수 없습니다.');
+        if (!selectedBranchForDetail) return commonShowAlert('알림', '지점 정보를 찾을 수 없습니다.');
 
         const b = selectedBranchForDetail;
         const statusClass = b.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : (b.status === 'INACTIVE' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700');
@@ -372,33 +373,33 @@
             });
 
             if (response.ok) {
-                alert(editingBranchId ? '수정되었습니다.' : '등록되었습니다.');
+                commonShowAlert('알림', editingBranchId ? '수정되었습니다.' : '등록되었습니다.');
                 closeFormModal();
                 applyFilters();
             } else {
-                alert('저장에 실패했습니다.');
+                commonShowAlert('알림', '저장에 실패했습니다.');
             }
         } catch (error) {
-            alert('통신 중 오류가 발생했습니다.');
+            commonShowAlert('알림', '통신 중 오류가 발생했습니다.');
         }
     }
 
     // 삭제
     async function deleteBranch(branchId) {
-        if(!confirm('정말로 이 지점을 삭제하시겠습니까? 삭제 시 관련된 데이터가 손실될 수 있습니다.')) return;
-
-        try {
-            const response = await fetch(ctx + `/hq/support/branch-search-data?action=delete&id=\${branchId}`, { method: 'POST' });
-            if(response.ok) {
-                alert('지점이 삭제되었습니다.');
-                closeDetailModal();
-                applyFilters();
-            } else {
-                alert('삭제에 실패했습니다.');
+        commonShowConfirm('확인', '정말로 이 지점을 삭제하시겠습니까? 삭제 시 관련된 데이터가 손실될 수 있습니다.', async function() {
+            try {
+                const response = await fetch(ctx + `/hq/support/branch-search-data?action=delete&id=${branchId}`, { method: 'POST' });
+                if(response.ok) {
+                    commonShowAlert('알림', '지점이 삭제되었습니다.');
+                    closeDetailModal();
+                    applyFilters();
+                } else {
+                    commonShowAlert('알림', '삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                commonShowAlert('알림', '통신 중 오류가 발생했습니다.');
             }
-        } catch (error) {
-            alert('통신 중 오류가 발생했습니다.');
-        }
+        });
     }
 
     // 셀렉트 박스 채우기

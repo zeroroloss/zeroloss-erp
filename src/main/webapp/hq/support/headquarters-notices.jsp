@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>공지사항 - ZERO LOSS 본사 관리 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .sidebar-open .sidebar { transform: translateX(0); }
@@ -377,7 +378,7 @@
             isPinned: document.getElementById('isPinned').checked
         };
 
-        if (!noticeData.title || !noticeData.content) return alert('제목과 내용을 입력해주세요.');
+        if (!noticeData.title || !noticeData.content) return commonShowAlert('알림', '제목과 내용을 입력해주세요.');
 
         const action = editingNoticeId ? 'update' : 'create';
 
@@ -388,28 +389,28 @@
                 body: JSON.stringify(noticeData)
             });
             if (response.ok) {
-                alert(editingNoticeId ? '공지사항이 수정되었습니다.' : '공지사항이 저장되었습니다.');
+                commonShowAlert('알림', editingNoticeId ? '공지사항이 수정되었습니다.' : '공지사항이 저장되었습니다.');
                 closeCreateModal();
                 initializeNotices();
             } else {
-                alert('저장에 실패했습니다.');
+                commonShowAlert('알림', '저장에 실패했습니다.');
             }
-        } catch (error) { alert('오류가 발생했습니다.'); }
+        } catch (error) { commonShowAlert('알림', '오류가 발생했습니다.'); }
     }
 
     async function deleteNotice(noticeId) {
-        if (!confirm('정말 이 공지사항을 삭제하시겠습니까?')) return;
-
-        try {
-            const response = await fetch(ctx + '/hq/support/headquarters-notices-data?action=delete&id=' + noticeId, { method: 'POST' });
-            if(response.ok) {
-                alert('삭제되었습니다.');
-                closeViewModal();
-                initializeNotices();
-            } else {
-                alert('삭제에 실패했습니다.');
-            }
-        } catch (error) { alert('오류가 발생했습니다.'); }
+        commonShowConfirm('확인', '정말 이 공지사항을 삭제하시겠습니까?', async function() {
+            try {
+                const response = await fetch(ctx + '/hq/support/headquarters-notices-data?action=delete&id=' + noticeId, { method: 'POST' });
+                if(response.ok) {
+                    commonShowAlert('알림', '삭제되었습니다.');
+                    closeViewModal();
+                    initializeNotices();
+                } else {
+                    commonShowAlert('알림', '삭제에 실패했습니다.');
+                }
+            } catch (error) { commonShowAlert('알림', '오류가 발생했습니다.'); }
+        })
     }
 
     function toggleMenu(button) {

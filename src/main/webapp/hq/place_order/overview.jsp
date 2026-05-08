@@ -7,6 +7,7 @@
 <title>발주 요청 취합 및 조회 - ZERO LOSS 본사 관리 시스템</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
 <style>
 .sidebar-open .sidebar { transform: translateX(0); }
 
@@ -243,8 +244,9 @@
     function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
 
     function logout() {
-        alert('로그아웃되었습니다.');
-        window.location.href = '<%=request.getContextPath()%>/common/login.jsp';
+        commonShowAlert('로그아웃', '로그아웃되었습니다.', function() {
+            window.location.href = '<%=request.getContextPath()%>/common/login.jsp';
+        });
     }
 
     var backdrop = document.getElementById('sidebarBackdrop');

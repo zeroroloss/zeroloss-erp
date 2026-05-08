@@ -555,19 +555,18 @@
 
         } catch (error) {
             console.error(error);
-            alert('읽음 처리 중 오류가 발생했습니다.');
+            commonShowAlert('알림', '읽음 처리 중 오류가 발생했습니다.');
         }
     }
 
     async function markAllAsRead() {
-        if (!confirm('모든 알림을 읽음 처리하시겠습니까?')) return;
+        commonShowConfirm('확인', '모든 알림을 읽음 처리하시겠습니까?', async function() {
+            try {
+                const response = await fetch(ctx + '/branch/common/notification?action=readAll', {
+                    method: 'POST'
+                });
 
-        try {
-            const response = await fetch(ctx + '/branch/common/notification?action=readAll', {
-                method: 'POST'
-            });
-
-            if (!response.ok) {
+                if (!response.ok) {
                 throw new Error('전체 읽음 처리 실패');
             }
 
@@ -584,9 +583,9 @@
 
         } catch (error) {
             console.error(error);
-            alert('전체 읽음 처리 중 오류가 발생했습니다.');
+            commonShowAlert('알림', '전체 읽음 처리 중 오류가 발생했습니다.');
         }
-    }
+        });
 
     function deleteNotificationFromModal() {
         if (!selectedNotificationId) return;
@@ -594,10 +593,9 @@
     }
 
     async function deleteNotification(notificationId) {
-        if (!confirm('이 알림을 삭제하시겠습니까?')) return;
-
-        try {
-            const response = await fetch(ctx + '/branch/common/notification?action=delete&id=' + notificationId, {
+        commonShowConfirm('확인', '이 알림을 삭제하시겠습니까?', async function() {
+            try {
+                const response = await fetch(ctx + '/branch/common/notification?action=delete&id=' + notificationId, {
                 method: 'POST'
             });
 
@@ -615,8 +613,9 @@
 
         } catch (error) {
             console.error(error);
-            alert('알림 삭제 중 오류가 발생했습니다.');
+            commonShowAlert('알림', '알림 삭제 중 오류가 발생했습니다.');
         }
+        });
     }
 
     function toggleMenu(button) {

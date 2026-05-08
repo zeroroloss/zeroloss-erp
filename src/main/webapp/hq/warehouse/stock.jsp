@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>본사 물류창고 재고 조회 - ZERO LOSS 본사 관리 시스템</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 .sidebar-open .sidebar { transform: translateX(0); }
@@ -238,7 +239,7 @@
     function toggleUserMenu() { document.getElementById('userMenu').classList.toggle('hidden'); }
 
     function logout() {
-        alert('로그아웃되었습니다.');
+        commonShowAlert('알림', '로그아웃되었습니다.');
         window.location.href = '<%=request.getContextPath()%>/common/login.jsp';
     }
 

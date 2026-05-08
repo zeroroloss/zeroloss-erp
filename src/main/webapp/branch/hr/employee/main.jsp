@@ -488,16 +488,16 @@
         })
         .then(function(data) {
             if (data.success) {
-                alert("직원이 등록되었습니다.");
+                commonShowAlert('알림', '직원이 등록되었습니다.');
                 closeAddModal();
                 location.reload();
             } else {
-                alert(data.message || "직원 등록에 실패했습니다.");
+                commonShowAlert('알림', data.message || '직원 등록에 실패했습니다.');
             }
         })
         .catch(function(error) {
             console.error(error);
-            alert("서버 오류가 발생했습니다.");
+            commonShowAlert('알림', '서버 오류가 발생했습니다.');
         });
     }
 
@@ -606,7 +606,7 @@
         })
         .then(function(data) {
             if (data.success) {
-                alert("직원 정보가 수정되었습니다.");
+                commonShowAlert('알림', '직원 정보가 수정되었습니다.');
                 closeEditModal();
                 location.reload();
             } else {

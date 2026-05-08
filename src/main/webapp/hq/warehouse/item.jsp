@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>물류창고 내 품목 - ZERO LOSS 본사 관리 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50">
@@ -294,7 +295,7 @@
 
         // 로그아웃
         function logout() {
-            alert('로그아웃되었습니다.');
+            commonShowAlert('알림', '로그아웃되었습니다.');
             window.location.href = '<%= request.getContextPath() %>/common/login.jsp';
         }
 
@@ -462,7 +463,7 @@
             const itemName = document.getElementById('editItemName').value.trim();
 
             if (!itemCode || !itemName) {
-                alert('필수 항목을 모두 입력해주세요.');
+                commonShowAlert('알림', '필수 항목을 모두 입력해주세요.');
                 return;
             }
 
@@ -478,14 +479,14 @@
                     status: 'active'
                 };
                 items.unshift(newItem);
-                alert('새 품목이 등록되었습니다.');
+                commonShowAlert('알림', '새 품목이 등록되었습니다.');
             } else {
                 selectedItem.itemName = itemName;
                 selectedItem.category = document.getElementById('editCategory').value;
                 selectedItem.unit = document.getElementById('editUnit').value;
                 selectedItem.unitPrice = Number(document.getElementById('editPrice').value);
                 selectedItem.safetyStock = Number(document.getElementById('editSafetyStock').value);
-                alert('품목 정보가 수정되었습니다.');
+                commonShowAlert('알림', '품목 정보가 수정되었습니다.');
             }
 
             closeEditModal();

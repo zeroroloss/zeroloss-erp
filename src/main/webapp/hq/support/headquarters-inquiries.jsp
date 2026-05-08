@@ -12,6 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>문의사항 관리 - ZERO LOSS 본사 관리 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .sidebar-open .sidebar { transform: translateX(0); }
@@ -325,7 +326,7 @@
 
     async function submitReply() {
         const content = document.getElementById('replyContent').value.trim();
-        if (!content) { alert("답변 내용을 입력해주세요."); return; }
+        if (!content) { commonShowAlert('알림', '답변 내용을 입력해주세요.'); return; }
 
         const newStatus = document.getElementById('statusChange').value;
         const res = await fetch(`\${API_URL}?action=createReply`, {
@@ -340,7 +341,7 @@
             await openViewModal(viewingInquiryId);
             await loadInquiries();
         } else {
-            alert("답변 등록에 실패했습니다.");
+            commonShowAlert('알림', '답변 등록에 실패했습니다.');
         }
     }
 </script>

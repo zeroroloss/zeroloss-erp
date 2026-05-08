@@ -329,7 +329,7 @@
             const dist = document.getElementById('dist').value;
 
             if (!item || !qty) {
-                alert('재료, 수량을 모두 입력해주세요.');
+                commonShowAlert('알림', '재료, 수량을 모두 입력해주세요.');
                 return;
             }
 
@@ -343,13 +343,13 @@
                 })
                 .catch(error => {
                     console.error('재고 조회 중 오류 발생:', error);
-                    alert('데이터를 불러오는 데 실패했습니다.');
+                    commonShowAlert('알림', '데이터를 불러오는 데 실패했습니다.');
                 });
         });
 
         function renderResults(data) {
             if (typeof kakao === 'undefined' || !kakao.maps) {
-                alert('카카오맵 API를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
+                commonShowAlert('알림', '카카오맵 API를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요.');
                 return;
             }
 
@@ -366,7 +366,7 @@
             markers = [];
 
             if (data.length === 0) {
-                alert('설정한 거리와 재고 조건에 맞는 지점이 없습니다.');
+                commonShowAlert('알림', '설정한 거리와 재고 조건에 맞는 지점이 없습니다.');
                 resultTableBody.innerHTML = '<tr><td colspan="5" class="no-result">검색 조건에 맞는 지점이 없습니다.</td></tr>';
                 const mapContainer = document.getElementById('map');
                 if (mapContainer) mapContainer.innerHTML = '';
@@ -462,16 +462,16 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('재고 요청이 생성되었습니다!');
+                    commonShowAlert('알림', '재고 요청이 생성되었습니다!');
                     requestModal.style.display = 'none';
                     currentSwapData = null;
                 } else {
-                    alert(data.message || '요청 생성에 실패했습니다.');
+                    commonShowAlert('알림', data.message || '요청 생성에 실패했습니다.');
                 }
             })
             .catch(error => {
                 console.error('요청 생성 오류:', error);
-                alert('요청 생성 중 오류가 발생했습니다.');
+                commonShowAlert('알림', '요청 생성 중 오류가 발생했습니다.');
             });
         });
 
@@ -499,17 +499,17 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('재고 요청을 수락했습니다!');
+                    commonShowAlert('알림', '재고 요청을 수락했습니다!');
                     confirmModal.style.display = 'none';
                     currentConfirmSwapId = null;
                     loadReceivedRequests(); // 목록 새로고침
                 } else {
-                    alert(data.message || '수락에 실패했습니다.');
+                    commonShowAlert('알림', data.message || '수락에 실패했습니다.');
                 }
             })
             .catch(error => {
                 console.error('수락 오류:', error);
-                alert('수락 중 오류가 발생했습니다.');
+                commonShowAlert('알림', '수락 중 오류가 발생했습니다.');
             });
         });
 
@@ -715,55 +715,55 @@
         };
 
         window.rejectSwapRequest = function(swapId) {
-            if (!confirm('이 요청을 거절하시겠습니까?')) return;
+            commonShowConfirm('확인', '이 요청을 거절하시겠습니까?', function() {
+                const params = new URLSearchParams();
+                params.append('action', 'rejectSwapRequest');
+                params.append('swapId', swapId);
 
-            const params = new URLSearchParams();
-            params.append('action', 'rejectSwapRequest');
-            params.append('swapId', swapId);
-
-            fetch(CTX + '/branch/swap', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: params
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('요청이 거절되었습니다.');
-                    loadReceivedRequests();
-                } else {
-                    alert(data.message || '거절에 실패했습니다.');
-                }
-            })
-            .catch(error => console.error('거절 오류:', error));
+                fetch(CTX + '/branch/swap', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: params
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        commonShowAlert('알림', '요청이 거절되었습니다.');
+                        loadReceivedRequests();
+                    } else {
+                        commonShowAlert('알림', data.message || '거절에 실패했습니다.');
+                    }
+                })
+                .catch(error => console.error('거절 오류:', error));
+            });
         };
 
         window.cancelSwapRequest = function(swapId) {
-            if (!confirm('이 요청을 취소하시겠습니까?')) return;
+            commonShowConfirm('확인', '이 요청을 취소하시겠습니까?', function() {
+                const params = new URLSearchParams();
+                params.append('action', 'cancelSwapRequest');
+                params.append('swapId', swapId);
 
-            const params = new URLSearchParams();
-            params.append('action', 'cancelSwapRequest');
-            params.append('swapId', swapId);
-
-            fetch(CTX + '/branch/swap', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: params
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('요청이 취소되었습니다.');
-                    loadSentRequests();
-                } else {
-                    alert(data.message || '취소에 실패했습니다.');
-                }
-            })
-            .catch(error => console.error('취소 오류:', error));
+                fetch(CTX + '/branch/swap', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: params
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        commonShowAlert('알림', '요청이 취소되었습니다.');
+                        loadSentRequests();
+                    } else {
+                        commonShowAlert('알림', data.message || '취소에 실패했습니다.');
+                    }
+                })
+                .catch(error => console.error('취소 오류:', error));
+            });
         };
 
         // 초기 재료 그룹 로딩 실행

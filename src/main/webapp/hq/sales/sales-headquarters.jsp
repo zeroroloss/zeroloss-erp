@@ -346,7 +346,7 @@
                 if (currentFilterType === 'menu') {
                     const categoryId = document.getElementById('mainCategorySelect').value;
                     if (!categoryId || categoryId === "0") {
-                        alert("카테고리를 선택해주세요.");
+                        commonShowAlert('알림', "카테고리를 선택해주세요.");
                         return;
                     }
                 }

@@ -367,7 +367,7 @@
 			var safeQty = toNumber(document.getElementById('safeQty_' + code).value);
 			
 			if (safeQty < 0) {
-				alert('안전재고는 0 이상이어야 합니다.');
+				commonShowAlert('알림', '안전재고는 0 이상이어야 합니다.');
 				return;
 			}
 			
@@ -388,7 +388,7 @@
 				const payload = await response.json();
 				
 				if (!response.ok || !payload || payload.status !== 'success') {
-					alert(payload?.message || '저장에 실패했습니다.');
+					commonShowAlert('알림', payload?.message || '저장에 실패했습니다.');
 					return;
 				}
 				
@@ -396,10 +396,10 @@
 				
 				// 수정 반영된 것을 다시 로딩
 				await loadItems();
-				alert('안전재고 설정이 저장되었습니다.');
+				commonShowAlert('알림', '안전재고 설정이 저장되었습니다.');
 			} catch (error) {
 				console.error(error);
-				alert('저장 중 오류가 발생했습니다.');
+				commonShowAlert('알림', '저장 중 오류가 발생했습니다.');
 			}
 		}
 
@@ -447,7 +447,7 @@
 		document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
 
 		function logout() {
-			alert('로그아웃 되었습니다.');
+			commonShowAlert('알림', '로그아웃 되었습니다.');
 			window.location.href = '<%= request.getContextPath() %>/common/login.jsp';
 		}
 		

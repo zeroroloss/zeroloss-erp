@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>유통기한 조회 - ZERO LOSS 본사 관리 시스템</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .sidebar-open .sidebar {
@@ -225,7 +226,7 @@
         }
 
         function logout() {
-            alert('로그아웃되었습니다.');
+            commonShowAlert('알림', '로그아웃되었습니다.');
             window.location.href = '<%=request.getContextPath()%>/common/login.jsp';
         }
 
@@ -418,7 +419,7 @@
         // ============================================================
         function showDisposalModal() {
             if (selectedItems.length === 0) {
-                alert('폐기할 품목을 선택해주세요.');
+                commonShowAlert('알림', '폐기할 품목을 선택해주세요.');
                 return;
             }
             document.getElementById('disposalCountText').textContent = selectedItems.length + '개 품목';
@@ -448,11 +449,11 @@
                 selectedItems = [];
                 document.getElementById('disposalModal').classList.add('hidden');
                 document.getElementById('selectAllCheckbox').checked = false;
-                alert('폐기 처리가 완료되었습니다.');
+                commonShowAlert('알림', '폐기 처리가 완료되었습니다.');
                 applyFilters();
 
             } catch (err) {
-                alert('폐기 처리 중 오류가 발생했습니다: ' + err.message);
+                commonShowAlert('알림', '폐기 처리 중 오류가 발생했습니다: ' + err.message);
             }
         }
 
@@ -512,7 +513,7 @@
                 expiryItems = [];
                 updateExpiryItemNames();
                 renderTable();
-                alert('데이터를 불러오는 중 오류가 발생했습니다: ' + err.message);
+                commonShowAlert('알림', '데이터를 불러오는 중 오류가 발생했습니다: ' + err.message);
             }
         }
 

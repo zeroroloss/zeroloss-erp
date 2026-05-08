@@ -385,7 +385,7 @@
 				}
 			})
 			.catch(function () {
-				alert('데이터를 불러오지 못했습니다.');
+				commonShowAlert('알림', '데이터를 불러오지 못했습니다.');
 			});
 	}
 

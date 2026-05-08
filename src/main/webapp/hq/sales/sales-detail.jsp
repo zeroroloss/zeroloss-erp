@@ -316,7 +316,7 @@
 
             const branchCode = document.getElementById('branch-selector').value;
             if (!branchCode) {
-                alert('직영점을 먼저 선택해주세요.');
+                commonShowAlert('알림', '직영점을 먼저 선택해주세요.');
                 return;
             }
 
@@ -353,7 +353,7 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    if(data.error) { alert(data.error); return; }
+                    if(data.error) { commonShowAlert('알림', data.error); return; }
                     renderDailyChart(data);
                     renderDailyTable(data);
                 })
@@ -370,7 +370,7 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    if(data.error) { alert(data.error); return; }
+                    if(data.error) { commonShowAlert('알림', data.error); return; }
                     renderPeriodChart(data);
                     renderPeriodTable(data);
                 })
@@ -387,7 +387,7 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    if(data.error) { alert(data.error); return; }
+                    if(data.error) { commonShowAlert('알림', data.error); return; }
                     renderDailyChart(data);
                     renderDailyTable(data);
                 })
@@ -405,7 +405,7 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    if(data.error) { alert(data.error); return; }
+                    if(data.error) { commonShowAlert('알림', data.error); return; }
                     renderPeriodChart(data);
                     renderPeriodTable(data);
                 })
@@ -422,7 +422,7 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    if(data.error) { alert(data.error); return; }
+                    if(data.error) { commonShowAlert('알림', data.error); return; }
                     renderHourlyChart(data);
                     renderHourlyTable(data);
                 })
@@ -439,7 +439,7 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    if(data.error) { alert(data.error); return; }
+                    if(data.error) { commonShowAlert('알림', data.error); return; }
                     renderMenuChart(data);
                     renderMenuTable(data);
                 })

@@ -428,7 +428,7 @@
             var payload = await response.json();
 
             if (!response.ok || !payload || payload.status !== 'success') {
-                alert((payload && payload.message) || '상세 조회에 실패했습니다.');
+                commonShowAlert('알림', (payload && payload.message) || '상세 조회에 실패했습니다.');
                 return;
             }
 
@@ -444,7 +444,7 @@
         window.applyFilters = function () {
             loadHistory().catch(function (error) {
                 console.error(error);
-                alert(error.message || '입고 내역 조회 중 오류가 발생했습니다.');
+                commonShowAlert('알림', error.message || '입고 내역 조회 중 오류가 발생했습니다.');
             });
         };
 

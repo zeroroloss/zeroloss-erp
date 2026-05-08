@@ -526,27 +526,27 @@
         }
 
         if (!empNo) {
-            alert('직원을 선택해주세요.');
+            commonShowAlert('알림', '직원을 선택해주세요.');
             return;
         }
 
         if (!startDate || !endDate) {
-            alert('기간을 선택해주세요.');
+            commonShowAlert('알림', '기간을 선택해주세요.');
             return;
         }
 
         if (startDate > endDate) {
-            alert('종료 날짜는 시작 날짜보다 빠를 수 없습니다.');
+            commonShowAlert('알림', '종료 날짜는 시작 날짜보다 빠를 수 없습니다.');
             return;
         }
 
         if (!startTime || !endTime) {
-            alert('근무 시간을 입력해주세요.');
+            commonShowAlert('알림', '근무 시간을 입력해주세요.');
             return;
         }
 
         if (startTime >= endTime) {
-            alert('종료 시간은 시작 시간보다 늦어야 합니다.');
+            commonShowAlert('알림', '종료 시간은 시작 시간보다 늦어야 합니다.');
             return;
         }
 
@@ -554,7 +554,7 @@
             var checkedDays = document.querySelectorAll('input[name="weekdayRepeat"]:checked');
 
             if (checkedDays.length === 0) {
-                alert('반복 요일을 선택해주세요.');
+                commonShowAlert('알림', '반복 요일을 선택해주세요.');
                 return;
             }
         }
@@ -595,16 +595,16 @@
         })
         .then(function(result) {
             if (!result.success) {
-                alert(result.message || '일정 추가에 실패했습니다.');
+                commonShowAlert('알림', result.message || '일정 추가에 실패했습니다.');
                 return;
             }
 
-            alert(result.message || '일정이 추가되었습니다.');
+            commonShowAlert('알림', result.message || '일정이 추가되었습니다.');
             location.reload();
         })
         .catch(function(error) {
             console.error(error);
-            alert('일정 추가 중 오류가 발생했습니다.');
+            commonShowAlert('알림', '일정 추가 중 오류가 발생했습니다.');
         });
     }
     
@@ -794,17 +794,17 @@
         var memo = document.getElementById('editMemo').value;
 
         if (!workDate) {
-            alert('근무 날짜를 선택해주세요.');
+            commonShowAlert('알림', '근무 날짜를 선택해주세요.');
             return;
         }
 
         if (!startTime || !endTime) {
-            alert('근무 시간을 입력해주세요.');
+            commonShowAlert('알림', '근무 시간을 입력해주세요.');
             return;
         }
 
         if (startTime >= endTime) {
-            alert('종료 시간은 시작 시간보다 늦어야 합니다.');
+            commonShowAlert('알림', '종료 시간은 시작 시간보다 늦어야 합니다.');
             return;
         }
 
@@ -835,7 +835,7 @@
         })
         .then(function(result) {
             if (!result.success) {
-                alert(result.message || '일정 수정에 실패했습니다.');
+                commonShowAlert('알림', result.message || '일정 수정에 실패했습니다.');
                 return;
             }
 
@@ -867,11 +867,11 @@
             renderCalendar();
             closeEditModal();
 
-            alert(result.message || '일정이 수정되었습니다.');
+            commonShowAlert('알림', result.message || '일정이 수정되었습니다.');
         })
         .catch(function(error) {
             console.error(error);
-            alert('일정 수정 중 오류가 발생했습니다.');
+            commonShowAlert('알림', '일정 수정 중 오류가 발생했습니다.');
         });
     }
     
@@ -880,7 +880,7 @@
         var repeatGroupId = document.getElementById('editRepeatGroupId').value;
 
         if (!scheduleId) {
-            alert('삭제할 일정을 찾을 수 없습니다.');
+            commonShowAlert('알림', '삭제할 일정을 찾을 수 없습니다.');
             return;
         }
 
@@ -888,9 +888,7 @@
             ? '반복 일정 전체를 삭제하시겠습니까?'
             : '선택한 일정을 삭제하시겠습니까?';
 
-        if (!confirm(message)) {
-            return;
-        }
+        commonShowConfirm('확인', message, async function() {
 
         var params = new URLSearchParams();
         params.append('action', 'delete');
@@ -911,7 +909,7 @@
         })
         .then(function(result) {
             if (!result.success) {
-                alert(result.message || '일정 삭제에 실패했습니다.');
+                commonShowAlert('알림', result.message || '일정 삭제에 실패했습니다.');
                 return;
             }
 
@@ -928,11 +926,11 @@
             renderCalendar();
             closeEditModal();
 
-            alert(result.message || '일정이 삭제되었습니다.');
+            commonShowAlert('알림', result.message || '일정이 삭제되었습니다.');
         })
         .catch(function(error) {
             console.error(error);
-            alert('일정 삭제 중 오류가 발생했습니다.');
+            commonShowAlert('알림', '일정 삭제 중 오류가 발생했습니다.');
         });
     }
     
@@ -992,7 +990,7 @@
         });
 
         if (filtered.length === 0) {
-            alert('검색된 직원이 없습니다.');
+            commonShowAlert('알림', '검색된 직원이 없습니다.');
             return;
         }
 
@@ -1064,7 +1062,7 @@
         });
 
         if (!schedule) {
-            alert('일정을 찾을 수 없습니다.');
+            commonShowAlert('알림', '일정을 찾을 수 없습니다.');
             return;
         }
 

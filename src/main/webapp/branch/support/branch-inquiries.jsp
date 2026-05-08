@@ -349,9 +349,10 @@
     }
 
     async function deleteInquiry(id) {
-        if (!confirm('삭제하시겠습니까?')) return;
-        const res = await fetch(API_URL + '?action=delete&id=' + id, { method: 'POST' });
-        if (res.ok) loadInquiries();
+        commonShowConfirm('확인', '삭제하시겠습니까?', async function() {
+            const res = await fetch(API_URL + '?action=delete&id=' + id, { method: 'POST' });
+            if (res.ok) loadInquiries();
+        });
     }
 
     async function openViewModal(id) {
@@ -409,7 +410,7 @@
             body: JSON.stringify({ inquiryId: viewingInquiryId, content: content })
         });
         if (res.ok) { openViewModal(viewingInquiryId); loadInquiries(); }
-        else if (res.status === 403) { alert('본인의 문의사항에만 답변할 수 있습니다.'); }
+        else if (res.status === 403) { commonShowAlert('알림', '본인의 문의사항에만 답변할 수 있습니다.'); }
     }
 </script>
 </body>

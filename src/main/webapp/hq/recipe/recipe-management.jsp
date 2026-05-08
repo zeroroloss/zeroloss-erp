@@ -488,7 +488,7 @@
             document.getElementById('viewModalContent').innerHTML = html;
             document.getElementById('viewModal').classList.remove('modal-hidden');
         } catch (e) {
-            alert('상세조회 실패');
+            commonShowAlert('알림', '상세조회 실패');
         }
     }
 
@@ -568,7 +568,7 @@
         }
 
         if (!formData.get('name') || !formData.get('categoryId') || !formData.get('subCategoryCode') || !formData.get('price')) {
-            alert('이름, 메인/서브 카테고리, 판매가는 필수입니다.');
+            commonShowAlert('알림', '이름, 메인/서브 카테고리, 판매가는 필수입니다.');
             return;
         }
 
@@ -579,37 +579,38 @@
             });
             const result = await res.json();
             if (result.success) {
-                alert('저장되었습니다.');
+                commonShowAlert('알림', '저장되었습니다.');
                 closeFormModal();
                 fetchRecipes();
             } else {
-                alert('저장 실패: ' + (result.message || '알 수 없는 오류'));
+                commonShowAlert('알림', '저장 실패: ' + (result.message || '알 수 없는 오류'));
             }
         } catch (e) {
             console.error(e);
-            alert('서버 통신 오류');
+            commonShowAlert('알림', '서버 통신 오류');
         }
     }
 
     async function deleteRecipeFromView() {
-        if (!confirm('정말로 이 레시피를 삭제하시겠습니까?')) return;
-        try {
-            const response = await fetch(ctx + `/RecipeManagementController?action=delete&id=\${selectedRecipeForView.id}`, {
-                method: 'POST'
-            });
-            const result = await response.json();
+        commonShowConfirm('확인', '정말로 이 레시피를 삭제하시겠습니까?', async function() {
+            try {
+                const response = await fetch(ctx + `/RecipeManagementController?action=delete&id=\${selectedRecipeForView.id}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
 
-            if (result.success) {
-                alert('레시피가 성공적으로 삭제되었습니다.');
-                closeModals();
-                fetchRecipes();
-            } else {
-                alert(result.message || '레시피 삭제에 실패했습니다.');
+                if (result.success) {
+                    commonShowAlert('알림', '레시피가 성공적으로 삭제되었습니다.');
+                    closeModals();
+                    fetchRecipes();
+                } else {
+                    commonShowAlert('알림', result.message || '레시피 삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('삭제 중 오류 발생:', error);
+                commonShowAlert('알림', '레시피 삭제 중 오류가 발생했습니다. 네트워크 연결을 확인해주세요.');
             }
-        } catch (error) {
-            console.error('삭제 중 오류 발생:', error);
-            alert('레시피 삭제 중 오류가 발생했습니다. 네트워크 연결을 확인해주세요.');
-        }
+        });
     }
 
     // Image Upload Functions
@@ -657,7 +658,7 @@
                 };
                 reader.readAsDataURL(file);
             } else {
-                alert('이미지 파일(jpg, png)만 업로드 가능합니다.');
+                commonShowAlert('알림', '이미지 파일(jpg, png)만 업로드 가능합니다.');
             }
         }
     }

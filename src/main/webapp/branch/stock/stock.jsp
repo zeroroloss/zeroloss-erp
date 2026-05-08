@@ -347,7 +347,7 @@
 	                        '<option value="' + escapeHtml(item.materialGroupId) + '">' + escapeHtml(item.groupName) + '</option>');
 	                });
 	            })
-	            .catch(function () { alert('카테고리 목록을 불러오지 못했습니다.'); });
+	            .catch(function () { commonShowAlert('알림', '카테고리 목록을 불러오지 못했습니다.'); });
 	    }
 	
 	    window.onCategoryChange = function () {
@@ -364,7 +364,7 @@
 	                });
 	                loadStockList(1);
 	            })
-	            .catch(function () { alert('품목 목록을 불러오지 못했습니다.'); });
+	            .catch(function () { commonShowAlert('알림', '품목 목록을 불러오지 못했습니다.'); });
 	    };
 	
 	    function loadStockList(page) {
@@ -392,7 +392,7 @@
 	            	renderTable();
 	            	renderPaging(data.totalCount, currentPage, totalPages);
 	            })
-	            .catch(function () { alert('재고 목록을 불러오지 못했습니다.'); });
+	            	.catch(function () { commonShowAlert('알림', '재고 목록을 불러오지 못했습니다.'); });
 	    }
 	
 	    window.applyFilters  = function () { loadStockList(1); };
@@ -680,11 +680,8 @@
 	        var reason = document.getElementById('mReason');
 	        var detail = document.getElementById('mDetail');
 	
-	        if (!qty.readOnly && (!qty.value || parseInt(qty.value) <= 0)) { alert('폐기 수량을 입력해주세요.'); return; }
-	        if (!reason.disabled && !reason.value) { alert('폐기 사유를 선택해주세요.'); return; }
-	
-	        var row = stockData.find(function (x) { return x.branchStockCode === currentModalStockNo; });
-	        var disposalQty = qty.readOnly ? row.currentQty : qty.value;
+	        if (!qty.readOnly && (!qty.value || parseInt(qty.value) <= 0)) { commonShowAlert('알림', '폐기 수량을 입력해주세요.'); return; }
+	        if (!reason.disabled && !reason.value) { commonShowAlert('알림', '폐기 사유를 선택해주세요.'); return; }
 	
 	        var formData = new URLSearchParams();
 	        formData.append('branchStockCode', currentModalStockNo);
@@ -700,15 +697,15 @@
 	        .then(function (res) { return res.json(); })
 	        .then(function (data) {
 	            if (data.success) {
-	                alert('폐기 등록이 완료되었습니다.');
+	                commonShowAlert('알림', '폐기 등록이 완료되었습니다.');
 	                closeDisposalModal();
 	                loadStockList(currentPage);
 	            } else {
-	                alert(data.error || '폐기 등록에 실패했습니다.');
+	                commonShowAlert('알림', data.error || '폐기 등록에 실패했습니다.');
 	            }
 	        })
 	        .catch(function () {
-	            alert('폐기 등록 중 오류가 발생했습니다.');
+	            commonShowAlert('알림', '폐기 등록 중 오류가 발생했습니다.');
 	        });
 	    };
 	

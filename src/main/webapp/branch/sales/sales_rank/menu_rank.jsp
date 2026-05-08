@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(url)
             .then(response => {
                 if (response.status === 401) {
-                    alert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
+                    commonShowAlert('알림', '로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
                     window.location.href = contextPath + '/login';
                     return Promise.reject('Unauthorized');
                 }
