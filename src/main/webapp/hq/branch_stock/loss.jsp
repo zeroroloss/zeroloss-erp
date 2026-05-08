@@ -137,7 +137,7 @@
 			</div>
 
 			<!-- 통합 통계 카드 -->
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+			<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
 				<div class="bg-white rounded-lg border border-gray-200 p-6">
 					<div class="flex items-center justify-between">
 						<div>
@@ -170,6 +170,20 @@
 								0건 | 품질 0건 | 기타 0건</p>
 						</div>
 						<i class="fas fa-trash text-blue-600 text-4xl opacity-20"></i>
+					</div>
+				</div>
+
+				<div class="bg-white rounded-lg border border-gray-200 p-6">
+					<div class="flex items-center justify-between">
+						<div>
+							<p class="text-sm text-gray-600">총 손실액</p>
+							<p class="text-3xl font-bold text-red-700" id="totalLossAmount">0원</p>
+
+							<div class="text-xs text-gray-500 mt-2 flex flex-col gap-1"
+								id="lossAmountSummary"></div>
+						</div>
+
+						<i class="fas fa-sack-dollar text-red-700 text-4xl opacity-20"></i>
 					</div>
 				</div>
 			</div>
@@ -371,6 +385,30 @@
             document.getElementById('warningCount').textContent = warningCount;
             document.getElementById('disposalRecordCount').textContent = disposalCount;
             document.getElementById('disposalReasonSummary').textContent = '만료 ' + expiryReasonCount + '건 | 품질 ' + qualityReasonCount + '건 | 기타 ' + otherReasonCount + '건';
+            
+            const totalLossAmount = filteredDisposalData.reduce((sum, item) => sum + (item.lossAmount || 0),0);
+
+            const expiredLossAmount = filteredDisposalData
+            	    .filter(r => r.reason && r.reason.includes('유통기한'))
+            	    .reduce((sum, item) => sum + (item.lossAmount || 0), 0);
+
+            	const qualityLossAmount = filteredDisposalData
+            	    .filter(r => r.reason && (
+            	        r.reason.includes('품질') ||
+            	        r.reason.includes('파손') ||
+            	        r.reason.includes('냉장')
+            	    ))
+            	    .reduce((sum, item) => sum + (item.lossAmount || 0), 0);
+
+            	const otherLossAmount =
+            	    totalLossAmount - expiredLossAmount - qualityLossAmount;
+
+            	document.getElementById('totalLossAmount').textContent = totalLossAmount.toLocaleString('ko-KR') + '원';
+
+            	document.getElementById('lossAmountSummary').innerHTML =
+            	    '<div>만료 ' + expiredLossAmount.toLocaleString('ko-KR') + '원 | 품질 ' +
+            	    qualityLossAmount.toLocaleString('ko-KR') + '원</div>' +
+            	    '<div>기타 ' + otherLossAmount.toLocaleString('ko-KR') + '원</div>';
         }
 
         // 유통기한 임박 섹션 렌더링
