@@ -25,5 +25,7 @@ public interface InboundDao {
 
 	int updatePlaceOrderStatusCompleted(SqlSession sqlSession, String poNo, int branchCode);
 
-	int insertBranchStock(SqlSession sqlSession, String branchStockCode, int branchCode, String materialCode, String expireDate, BigDecimal qty);
+	int insertBranchStock(SqlSession sqlSession, Map<String, Object> params);
+	
+	int updateBranchStockCode(SqlSession sqlSession, Long branchStockId, String branchStockCode);
 }

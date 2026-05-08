@@ -162,26 +162,29 @@
 	</insert>
 
 	<!-- 지점 재고 INSERT -->
-	<insert id="insertBranchStock" parameterType="map">
-		INSERT INTO branch_stock (
-		    branch_stock_code,
-		    branch_code,
-		    material_code,
-		    expire_date,
-		    received_at,
-		    current_qty
-		)
-		VALUES (
-		    #{branchStockCode},
-		    #{branchCode},
-		    #{materialCode},
-		    #{expireDate},
-		    NOW(),
-		    #{qty}
-		)
+	<insert id="insertBranchStock" parameterType="map"
+        useGeneratedKeys="true" keyProperty="branchStockId">
+
+	    INSERT INTO branch_stock
+	    (
+	        branch_code,
+	        material_code,
+	        expire_date,
+	        received_at,
+	        current_qty
+	    )
+	    VALUES
+	    (
+	        #{branchCode},
+	        #{materialCode},
+	        #{expiryDate},
+	        NOW(),
+	        #{receivedQty}
+	    )
+	
 	</insert>
 
-	<!-- record change history entry for inbound -->
+	<!-- 지점 재고 입고 이력 INSERT -->
 	<insert id="insertBranchStockInboundHistory" parameterType="map">
 		INSERT INTO branch_stock_change_history (
 			branch_stock_code,
@@ -200,12 +203,18 @@
 		WHERE bs.branch_stock_code = #{branchStockCode}
 	</insert>
 
-	<!-- set place_order.status = COMPLETED for confirmed inbound -->
+	<!-- 지점 재고 상태 업데이트 -->
 	<update id="updatePlaceOrderStatusCompleted" parameterType="map">
 		UPDATE place_order
 		SET status = 'COMPLETED'
 		WHERE po_no = #{poNo}
 		  AND branch_code = #{branchCode}
 		  AND status = 'DELIVERED'
+	</update>
+	
+	<update id="updateBranchStockCode" parameterType="map">
+	    UPDATE branch_stock
+	    SET branch_stock_code = #{branchStockCode}
+	    WHERE branch_stock_id = #{branchStockId}
 	</update>
 </mapper>

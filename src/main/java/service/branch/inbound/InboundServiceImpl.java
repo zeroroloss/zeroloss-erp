@@ -96,14 +96,23 @@ public class InboundServiceImpl implements InboundService {
 				    throw new IllegalStateException("stock_no 없음");
 				}
 				
-				String branchStockCode = "B-" + stockNo + "-" + System.nanoTime();
+				Map<String, Object> stockParams = new HashMap<>();
+				stockParams.put("branchCode", branchCode);
+				stockParams.put("materialCode", outboundDetailRow.get("materialCode"));
+				stockParams.put("expiryDate", outboundDetailRow.get("expiryDate"));
+				stockParams.put("receivedQty", receivedQty);
 
 				// 지점 재고 INSERT
-				int insertedStock = dao.insertBranchStock(sqlSession, branchStockCode, branchCode, 
-											(String) outboundDetailRow.get("materialCode"), (String)outboundDetailRow.get("expiryDate"), receivedQty);
-				if (insertedStock <= 0) {
-				    throw new RuntimeException("지점 재고 생성 실패");
+				int insertedStock = dao.insertBranchStock(sqlSession, stockParams);
+				if (insertedStock <= 0 || stockParams.get("branchStockId") == null) {
+					throw new RuntimeException("지점 재고 생성 실패");
 				}
+
+				// 생성된 PK
+				Long branchStockId = ((Number) stockParams.get("branchStockId")).longValue();
+				String branchStockCode = "B-" + stockNo + "-" + branchStockId;
+				// branchStockCode 업데이트
+				dao.updateBranchStockCode(sqlSession, branchStockId, branchStockCode);
 
 				// 입고 상세 INSERT
 				int insertedDetail = dao.insertBranchStockInboundDetail(sqlSession, inboundId, item.getHqOutboundDetailId(), receivedQty, branchStockCode);

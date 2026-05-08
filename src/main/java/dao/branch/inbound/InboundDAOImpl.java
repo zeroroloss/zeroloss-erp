@@ -74,17 +74,16 @@ public class InboundDAOImpl implements InboundDao {
 	}
 
 	@Override
-	public int insertBranchStock(SqlSession sqlSession, String branchStockCode, int branchCode, 
-									String materialCode, String expireDate, BigDecimal qty) {
+	public int insertBranchStock(SqlSession sqlSession, Map<String, Object> params) {
+	    return sqlSession.insert(MAPPER_NAMESPACE + "insertBranchStock", params);
+	}
 
+	@Override
+	public int updateBranchStockCode(SqlSession sqlSession, Long branchStockId, String branchStockCode) {
 	    Map<String, Object> params = new HashMap<>();
+	    params.put("branchStockId", branchStockId);
 	    params.put("branchStockCode", branchStockCode);
-	    params.put("branchCode", branchCode);
-	    params.put("materialCode", materialCode);
-	    params.put("expireDate", expireDate);
-	    params.put("qty", qty);
-
-	    return sqlSession.update(MAPPER_NAMESPACE + "insertBranchStock", params);
+	    return sqlSession.update(MAPPER_NAMESPACE + "updateBranchStockCode", params);
 	}
 
 }
