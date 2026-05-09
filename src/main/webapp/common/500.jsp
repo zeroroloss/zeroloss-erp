@@ -52,9 +52,9 @@
             <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8">
             <%
 			    String errorUrl = (String) request.getAttribute("errorUrl");
-			    if (errorUrl == null || errorUrl.trim().isEmpty()) {
-			        errorUrl = request.getContextPath() + "/common/login";
-			    }
+                if (errorUrl == null || errorUrl.trim().isEmpty()) {
+                    errorUrl = request.getContextPath() + "/login";
+                }
 			%>
                 <%
 				    String cp = request.getContextPath();

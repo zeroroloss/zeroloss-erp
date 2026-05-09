@@ -14,11 +14,6 @@ public class BranchNoticePageController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("loginUser") == null) {
-            resp.sendRedirect(req.getContextPath() + "/common/login.jsp");
-            return;
-        }
 
         req.getRequestDispatcher("/branch/support/branch-notices.jsp").forward(req, resp);
     }

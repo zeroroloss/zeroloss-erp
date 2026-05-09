@@ -613,7 +613,7 @@
         // 로그아웃
         function logout() {
             commonShowAlert('알림','로그아웃되었습니다.');
-            window.location.href = '<%=request.getContextPath()%>/common/login.jsp';
+            window.location.href = '<%=request.getContextPath()%>/login';
         }
 
         // 백드롭 클릭 시 사이드바 닫기

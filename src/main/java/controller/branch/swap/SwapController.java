@@ -42,13 +42,7 @@ public class SwapController extends HttpServlet {
         }
 
         // --- 이하 로그인 세션이 필요한 요청 ---
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("loginUser") == null) {
-            response.sendRedirect(request.getContextPath() + "/common/login.jsp");
-            return;
-        }
-
-        AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
+        AccountDTO loginUser = (AccountDTO) request.getSession(false).getAttribute("loginUser");
 
         if ("search".equals(action)) {
             handleSearchRequest(request, response, loginUser.getBranchCode());

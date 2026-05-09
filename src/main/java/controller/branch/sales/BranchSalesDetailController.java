@@ -16,7 +16,7 @@ public class BranchSalesDetailController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
-            response.sendRedirect(request.getContextPath() + "/common/login.jsp");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 

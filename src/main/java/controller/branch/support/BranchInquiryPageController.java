@@ -22,12 +22,6 @@ public class BranchInquiryPageController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("loginUser") == null) {
-            resp.sendRedirect(req.getContextPath() + "/common/login.jsp");
-            return;
-        }
-
         try {
             List<BranchDTO> branches = branchService.getAllBranches();
             req.setAttribute("branches", branches);

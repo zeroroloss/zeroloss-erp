@@ -11,7 +11,7 @@
 
     AccountDTO loginUser = (AccountDTO) session.getAttribute("loginUser");
     if (loginUser == null) {
-        response.sendRedirect(request.getContextPath() + "/common/login");
+        response.sendRedirect(request.getContextPath() + "/login");
         return;
     }
 %>

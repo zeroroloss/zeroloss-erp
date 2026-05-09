@@ -43,10 +43,27 @@ public class PlaceOrderOverviewApiController extends HttpServlet {
         
         // [상세조회]
         if (pathInfo != null && pathInfo.length() > 1) {
-        	int poId = Integer.parseInt(pathInfo.substring(1)); // '/' 이후부터 가져옴
-        	
-        	// 상세 서비스 호출
-        	PlaceOrderOverviewDetailDTO detail = overviewService.findDetailByPoId(poId);
+            int poId;
+            try {
+                poId = Integer.parseInt(pathInfo.substring(1)); // '/' 이후부터 가져옴
+            } catch (NumberFormatException nfe) {
+                sendResponse(response, 400, Map.of(
+                    "status", "error",
+                    "message", "Invalid place order id"
+                ));
+                return;
+            }
+
+            // 상세 서비스 호출
+            PlaceOrderOverviewDetailDTO detail = overviewService.findDetailByPoId(poId);
+
+            if (detail == null) {
+                sendResponse(response, 404, Map.of(
+                    "status", "error",
+                    "message", "Not found"
+                ));
+                return;
+            }
 
             sendResponse(response, 200, Map.of(
                 "status", "success",

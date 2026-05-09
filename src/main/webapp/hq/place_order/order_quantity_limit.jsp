@@ -425,7 +425,7 @@
 
 		function logout() {
 			commonShowAlert('알림','로그아웃 되었습니다.');
-			window.location.href = '<%= request.getContextPath() %>/common/login.jsp';
+			window.location.href = '<%= request.getContextPath() %>/login';
 		}
 
 		loadItems();

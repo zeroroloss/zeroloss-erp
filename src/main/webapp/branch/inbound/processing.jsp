@@ -504,7 +504,7 @@ body {
 	function renderOrders(list) {
 		container.innerHTML = '';
 		if (!list || list.length === 0) {
-			container.innerHTML = '<div class="p-6 text-center text-gray-600">표시할 발주가 없습니다.</div>';
+			container.innerHTML = '<div class="p-6 text-center text-gray-600">본사로부터 받은 품목이 없습니다.</div>';
 			return;
 		}
 

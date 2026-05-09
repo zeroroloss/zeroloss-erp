@@ -14,12 +14,6 @@ public class HqRecipeManagementController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("loginUser") == null) {
-            response.sendRedirect(request.getContextPath() + "/common/login.jsp");
-            return;
-        }
-
         request.getRequestDispatcher("/hq/recipe/recipe-management.jsp").forward(request, response);
     }
 }

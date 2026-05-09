@@ -768,7 +768,7 @@
     }
 
     function logout() {
-        window.location.href = ctx + '/common/login.jsp';
+        window.location.href = ctx + '/login';
     }
 
     init();

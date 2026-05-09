@@ -397,11 +397,11 @@
         // 사이드바 배경 클릭시 닫기
         document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
 
-        // 로그아웃 함수
-        function logout() {
-            commonShowAlert('알림','로그아웃 되었습니다');
-            window.location.href = '<%= request.getContextPath() %>/common/login.jsp';
-        }
+		// 로그아웃 함수
+		function logout() {
+			commonShowAlert('알림','로그아웃 되었습니다');
+			window.location.href = '<%= request.getContextPath() %>/login';
+		}
     </script>
 </body>
 </html>

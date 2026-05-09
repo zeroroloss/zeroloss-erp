@@ -23,21 +23,20 @@ public class NotificationController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			HttpSession session = request.getSession(false);
-			
-			if(session == null || session.getAttribute("accountId")== null) {
-				response.sendRedirect(request.getContextPath() + "/common/login.jsp");
+			if (session == null || session.getAttribute("accountId") == null) {
+				response.sendRedirect(request.getContextPath() + "/login");
 				return;
 			}
-			
 			Integer accountId = (Integer) session.getAttribute("accountId");
-			
-			NotificationDTO notif = new NotificationDTO();
-			notif.setAccountId(accountId);
+
 			List<NotificationDTO> notifList = notifService.searchNotificationList(accountId);
 			Integer totalNotif = notifService.selectNotifCnt(accountId);
 			Integer isReadNotif = notifService.selectIsReadCnt(accountId);
+
+			NotificationDTO notif = new NotificationDTO();
+			notif.setAccountId(accountId);
 			Integer todayNotif = notifService.selectTodayCnt(notif);
-			
+
 			request.setAttribute("notificationList", notifList);
 			request.setAttribute("totalNotif", totalNotif);
 			request.setAttribute("isReadNotif", isReadNotif);
@@ -57,13 +56,11 @@ public class NotificationController extends HttpServlet {
 
 	    try {
 	        HttpSession session = request.getSession(false);
-
 	        if (session == null || session.getAttribute("accountId") == null) {
 	            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 	            response.getWriter().write("{\"success\":false,\"message\":\"로그인이 필요합니다.\"}");
 	            return;
 	        }
-
 	        Integer accountId = (Integer) session.getAttribute("accountId");
 	        String action = request.getParameter("action");
 

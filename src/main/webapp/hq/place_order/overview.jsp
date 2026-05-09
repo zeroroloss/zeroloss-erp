@@ -678,7 +678,7 @@
 
     function logout() {
         commonShowAlert('로그아웃', '로그아웃되었습니다.', function() {
-            window.location.href = '<%=request.getContextPath()%>/common/login.jsp';
+            window.location.href = '<%=request.getContextPath()%>/login';
         });
     }
 
@@ -763,17 +763,20 @@
         try {
             // 요청
             var res = await fetch('<%=request.getContextPath()%>/api/hq/place_order/overview?' + params);
-            if (!res.ok) {
-            	let errData = {};
-            	try {
-	                errData = await res.json();            		
-            	} catch (e) {
-            		throw new Error(errData.message || 'HTTP ' + res.status);
-            	}
+            // parse JSON once
+            var payload = null;
+            try {
+                payload = await res.json();
+            } catch (e) {
+                payload = null;
             }
-            // 응답
-            var result = await res.json();
-            console.log('응답 데이터:', result.data);
+
+            if (!res.ok) {
+                throw new Error((payload && payload.message) || 'HTTP ' + res.status);
+            }
+
+            var result = payload;
+            console.log('응답 데이터:', result && result.data);
             if (!result || result.status != 'success') throw new Error((result && result.message) || '데이터 오류');
 
             allOrders = result.data || [];
