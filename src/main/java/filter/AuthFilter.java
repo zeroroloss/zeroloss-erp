@@ -1,6 +1,7 @@
 package filter;
 
 import java.io.IOException;
+import dto.AccountDTO;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -43,16 +44,27 @@ public class AuthFilter implements Filter {
         boolean loggedIn = session != null && session.getAttribute("accountId") != null;
 
         if (!loggedIn) {
-            // If API request, return 401 JSON
-            if (path.startsWith("/api/")) {
-                resp.setContentType("application/json; charset=UTF-8");
-                resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                resp.getWriter().write("{\"status\":\"error\",\"message\":\"로그인이 필요합니다.\"}");
-                return;
-            }
+            sendLoginRequired(resp, ctx, path);
+            return;
+        }
 
-            // For all other page requests, redirect to login
-            resp.sendRedirect(ctx + "/login");
+        AccountDTO loginUser = null;
+        Object loginUserObject = session.getAttribute("loginUser");
+        if (loginUserObject instanceof AccountDTO) {
+            loginUser = (AccountDTO) loginUserObject;
+        }
+
+        boolean isHqUser = loginUser != null && loginUser.getHqId() != null;
+        boolean isBranchUser = loginUser != null && loginUser.getHqId() == null && loginUser.getBranchCode() != null;
+
+        // 본사 계정으로 지점페이지 X
+        if (isHqPath(path) && !isHqUser) {
+            sendForbidden(resp, ctx, path, isBranchUser ? "/branch/main/home" : "/login");
+            return;
+        }
+        // 지점 계정으로 본사페이지 X
+        if (isBranchPath(path) && !isBranchUser) {
+            sendForbidden(resp, ctx, path, isHqUser ? "/hq/main/home" : "/login");
             return;
         }
 
@@ -82,6 +94,40 @@ public class AuthFilter implements Filter {
             return true;
         }
         return false;
+    }
+
+    private boolean isApiPath(String path) {
+        return path.startsWith("/api/");
+    }
+
+    private boolean isHqPath(String path) {
+        return path.startsWith("/hq/") || path.startsWith("/api/hq/");
+    }
+
+    private boolean isBranchPath(String path) {
+        return path.startsWith("/branch/") || path.startsWith("/api/branch/");
+    }
+
+    private void sendLoginRequired(HttpServletResponse resp, String ctx, String path) throws IOException {
+        if (isApiPath(path)) {
+            resp.setContentType("application/json; charset=UTF-8");
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"로그인이 필요합니다.\"}");
+            return;
+        }
+
+        resp.sendRedirect(ctx + "/login");
+    }
+
+    private void sendForbidden(HttpServletResponse resp, String ctx, String path, String redirectPath) throws IOException {
+        if (isApiPath(path)) {
+            resp.setContentType("application/json; charset=UTF-8");
+            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            resp.getWriter().write("{\"status\":\"error\",\"message\":\"권한이 없습니다.\"}");
+            return;
+        }
+
+        resp.sendRedirect(ctx + redirectPath);
     }
 
     @Override
