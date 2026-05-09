@@ -398,8 +398,8 @@
         'APPROVED': { label: '승인됨', badgeClass: 'bg-green-100 text-green-700',  rowClass: 'bg-green-50' },
         'REJECTED': { label: '반려됨', badgeClass: 'bg-red-100 text-red-700',      rowClass: 'bg-red-50' },
         'CANCELED': { label: '취소됨', badgeClass: 'bg-gray-200 text-gray-700', rowClass: 'bg-gray-50' },
-        'DELIVERED': { label: '지점 배송 완료', badgeClass: 'bg-blue-100 text-blue-700', rowClass: 'bg-blue-50' },
-        'COMPLETED': { label: '지점 입고 완료', badgeClass: 'bg-purple-100 text-purple-700', rowClass: 'bg-purple-50' },
+        'DELIVERED': { label: '승인됨(지점 배송완료)', badgeClass: 'bg-green-100 text-green-700', rowClass: 'bg-green-50' },
+        'COMPLETED': { label: '승인됨(지점 입고완료)', badgeClass: 'bg-green-100 text-green-700', rowClass: 'bg-green-50' },
         
         'default': { label: '미확인', badgeClass: 'bg-gray-100 text-gray-500', rowClass: '' }
     };
@@ -734,16 +734,26 @@
     }
 
     function applyStatusFilter() {
-        filteredOrders = (currentStatusFilter === '전체')
-            ? allOrders
-            : allOrders.filter(function(o) { return o.status === currentStatusFilter; });
+        if (currentStatusFilter === '전체') {
+            filteredOrders = allOrders;
+        } else if (currentStatusFilter === 'APPROVED') {
+            filteredOrders = allOrders.filter(function(o) {
+                return o.status === 'APPROVED' || o.status === 'DELIVERED' || o.status === 'COMPLETED';
+            });
+        } else {
+            filteredOrders = allOrders.filter(function(o) { return o.status === currentStatusFilter; });
+        }
         currentPage = 1;
         renderTable();
     }
 
     function updateStatusCounts() {
         var counts = { PENDING: 0, APPROVED: 0, REJECTED: 0 };
-        allOrders.forEach(function(o) { if (o.status in counts) counts[o.status]++; });
+        allOrders.forEach(function(o) {
+            if (o.status === 'PENDING') counts.PENDING++;
+            else if (o.status === 'APPROVED' || o.status === 'DELIVERED' || o.status === 'COMPLETED') counts.APPROVED++;
+            else if (o.status === 'REJECTED') counts.REJECTED++;
+        });
         document.getElementById('countAll').textContent      = allOrders.length + '건';
         document.getElementById('countPending').textContent  = counts.PENDING   + '건';
         document.getElementById('countApproved').textContent = counts.APPROVED  + '건';

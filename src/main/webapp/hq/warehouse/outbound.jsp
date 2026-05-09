@@ -107,13 +107,6 @@
     font-weight: 700;
 }
 
-.status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
-.status-pending { background: #fff7e6; color: #d97706; }
-.status-approved { background: #e8f5e9; color: #16a34a; }
-.status-rejected { background: #ffe4e6; color: #dc2626; }
-.status-canceled { background: #f3f4f6; color: #6b7280; }
-.status-delivered { background: #e0f2fe; color: #0284c7; }
-.status-completed { background: #ede9fe; color: #7c3aed; }
 </style>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 </head>
@@ -205,18 +198,15 @@
 
         <!-- ===== 탭 UI ===== -->
         <div class="bg-white rounded-lg border border-gray-200 mb-6 overflow-hidden">
-            <div class="grid grid-cols-4 border-b border-gray-200">
+            <div class="grid grid-cols-3 border-b border-gray-200">
                 <a href="#" class="tab-link active text-center py-3 font-semibold text-gray-500" data-status="전체">
                     전체 <span id="countAll">0건</span>
                 </a>
                 <a href="#" class="tab-link text-center py-3 font-semibold text-amber-500" data-status="PENDING">
-                    승인 대기 <span id="countWaiting" class="text-xs text-amber-400">0건</span>
+                    배차 대기 <span id="countPending" class="text-xs text-amber-400">0건</span>
                 </a>
-                <a href="#" class="tab-link text-center py-3 font-semibold text-green-600" data-status="APPROVED">
-                    승인됨 <span id="countPreparing" class="text-xs text-green-400">0건</span>
-                </a>
-                <a href="#" class="tab-link text-center py-3 font-semibold text-blue-600" data-status="DELIVERED">
-                    지점 배송 완료 <span id="countCompleted" class="text-xs text-blue-400">0건</span>
+                <a href="#" class="tab-link text-center py-3 font-semibold text-blue-600" data-status="SHIPPED">
+                    배송 완료 <span id="countShipped" class="text-xs text-blue-400">0건</span>
                 </a>
             </div>
         </div>
@@ -234,7 +224,8 @@
                             <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">발주서 번호</th>
                             <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">지점명</th>
                             <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">출고 시점</th>
-                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">처리자</th>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">배송자</th>
+                            <th class="text-left   py-3 px-6 text-sm font-semibold text-gray-900">배송차량</th>
                             <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">출고 상태</th>
                             <th class="text-center py-3 px-6 text-sm font-semibold text-gray-900">상세조회</th>
                         </tr>
@@ -278,7 +269,7 @@
         <!-- 모달 헤더 -->
         <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white z-10">
             <div>
-                <h3 class="text-lg font-bold text-gray-900">발주/출고 상세보기</h3>
+                <h3 class="text-lg font-bold text-gray-900">출고 상세 정보</h3>
                 <p class="text-xs text-gray-500 mt-1" id="modalSubtitle"></p>
             </div>
 
@@ -302,30 +293,27 @@
                 <div class="grid grid-cols-2 gap-4 bg-gray-50 rounded-lg border border-gray-200 p-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">발주서 번호</label>
-                        <div id="detailOrderId"
-                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white font-mono text-blue-600">
-                        </div>
+                        <div id="detailOrderId" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white font-mono text-blue-600"></div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">지점명</label>
-                        <div id="detailBranch"
-                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 font-medium">
-                        </div>
+                        <div id="detailBranch" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 font-medium"></div>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">출고 시점</label>
-                        <div id="detailDate"
-                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900">
-                        </div>
+                        <div id="detailDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900"></div>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">처리자</label>
-                        <div id="detailHandler"
-                             class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900">
-                        </div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">배송자</label>
+                        <div id="detailDriver" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">배송차량</label>
+                        <div id="detailVehicle" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900"></div>
                     </div>
 
                     <div>
@@ -349,7 +337,7 @@
                         <thead class="bg-gray-50 border-b border-gray-200">
                             <tr id="itemsTableHeader"></tr>
                         </thead>
-                        <tbody id="itemsTableBody" class="bg-white divide-y divide-gray-100"></tbody>
+                        <tbody id="itemsTableBody" class="bg-white divide-y divide-gray-200"></tbody>
                     </table>
                 </div>
             </div>
@@ -408,23 +396,18 @@
     // 상수 / 설정
     // ============================================================
     var STATUS_CONFIG = {
-        'PENDING':   { label: '승인 대기', badgeClass: 'status-pending' },
-        'APPROVED':  { label: '승인됨', badgeClass: 'status-approved' },
-        'REJECTED':  { label: '반려됨', badgeClass: 'status-rejected' },
-        'CANCELED':  { label: '취소됨', badgeClass: 'status-canceled' },
-        'DELIVERED': { label: '지점 배송 완료', badgeClass: 'status-delivered' },
-        'COMPLETED': { label: '지점 입고 완료', badgeClass: 'status-completed' },
-        'default':   { label: '-', badgeClass: 'status-canceled' }
+        'PENDING':   { label: '배차 대기', badgeClass: 'bg-yellow-100 text-yellow-700', rowClass: 'bg-yellow-50' },
+        'SHIPPED':   { label: '배송 완료', badgeClass: 'bg-blue-100 text-blue-700', rowClass: 'bg-blue-50' },
+        'default':   { label: '-', badgeClass: 'bg-gray-100 text-gray-500', rowClass: '' }
     };
 
     function normalizeStatus(status) {
-        var value = String(status || '').toUpperCase();
+        var value = String(status || '');
 
-        if (value === '출고대기') return 'PENDING';
-        if (value === '준비중') return 'APPROVED';
-        if (value === '출고완료') return 'DELIVERED';
+        if (value === '배차대기') return 'PENDING';
+        if (value === '배송완료') return 'SHIPPED';
 
-        return value;
+        return value.toUpperCase();
     }
 
     function getStatusMeta(status) {
@@ -433,7 +416,7 @@
 
     function renderStatusBadge(status) {
         var meta = getStatusMeta(status);
-        return '<span class="' + meta.badgeClass + '">' + meta.label + '</span>';
+        return '<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ' + meta.badgeClass + '">' + meta.label + '</span>';
     }
 
     // ============================================================
@@ -786,15 +769,14 @@
     }
 
     function updateStatusCounts() {
-        var counts = { PENDING: 0, APPROVED: 0, DELIVERED: 0 };
+        var counts = { PENDING: 0, SHIPPED: 0 };
         allRecords.forEach(function(r) {
             var key = normalizeStatus(r.status);
             if (key in counts) counts[key]++;
         });
-        document.getElementById('countAll').textContent       = allRecords.length + '건';
-        document.getElementById('countWaiting').textContent   = counts.PENDING + '건';
-        document.getElementById('countPreparing').textContent = counts.APPROVED + '건';
-        document.getElementById('countCompleted').textContent = counts.DELIVERED + '건';
+        document.getElementById('countAll').textContent     = allRecords.length + '건';
+        document.getElementById('countPending').textContent = counts.PENDING + '건';
+        document.getElementById('countShipped').textContent = counts.SHIPPED + '건';
     }
 
     // ============================================================
@@ -873,9 +855,9 @@
 	     pageRecords.forEach(function(record) {
 	         var meta = STATUS_CONFIG[record.status] || STATUS_CONFIG['default'];
 	         var tr = document.createElement('tr');
-	
-	         tr.className = 'border-b border-gray-100 hover:bg-gray-50';
-	
+
+             tr.className = 'border-b border-gray-100 hover:bg-gray-50 ' + meta.rowClass;
+
 	         tr.innerHTML =
 	             '<td class="py-4 px-6 font-mono text-sm text-blue-600">' + record.poNo + '</td>' +
 	             '<td class="py-4 px-6 font-medium text-gray-900">' +
@@ -884,33 +866,31 @@
 	             '<td class="py-4 px-6 text-gray-700 text-sm">' +
 	                 '<i class="fas fa-calendar text-gray-400 mr-2"></i>' + record.outboundAt +
 	             '</td>' +
-	             '<td class="py-4 px-6 text-gray-700 text-sm">' + (record.handler || '-') + '</td>' +
+	             '<td class="py-4 px-6 text-gray-700 text-sm">' + (record.driverName || '-') + '</td>' +
+	             '<td class="py-4 px-6 text-gray-700 text-sm">' + (record.plateNumber || '-') + '</td>' +
 	             '<td class="py-4 px-6 text-center">' + renderStatusBadge(record.status) + '</td>' +
-
 	             '<td class="py-4 px-6 text-center">' +
-	                 '<button onclick="openDetail(\'' + record.hqOutboundNo + '\')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">상세조회</button>' +
+	                 '<button onclick="openDetail(' + record.hqOutboundNo + ')" class="text-blue-600 hover:text-blue-700 text-sm font-medium">상세조회</button>' +
 	             '</td>';
-	
+
 	         tbody.appendChild(tr);
 	     });
-	
+
 	     updatePagination(totalPages, startIndex, endIndex);
 	 }
-	
+
 	 // ============================================================
 	 // 페이지네이션
 	 // ============================================================
 	 function updatePagination(totalPages, startIndex, endIndex) {
 	     var container = document.getElementById('paginationContainer');
-	
+
 	     if (totalPages <= 1) {
 	         container.classList.add('hidden');
 	         return;
 	     }
-	
+
 	     container.classList.remove('hidden');
-	
-	     document.getElementById('paginationInfo').textContent =
 	         (startIndex + 1)
 	         + '-'
 	         + Math.min(endIndex, filteredRecords.length)
@@ -989,7 +969,8 @@
             document.getElementById('detailOrderId').textContent  = data.poNo;
             document.getElementById('detailBranch').textContent   = data.branchName;
             document.getElementById('detailDate').textContent     = data.outboundAt;
-            document.getElementById('detailHandler').textContent  = data.handler || '-';
+            document.getElementById('detailDriver').textContent   = data.driverName || '-';
+            document.getElementById('detailVehicle').textContent  = data.plateNumber || '-';
             document.getElementById('detailStatus').innerHTML = renderStatusBadge(data.status);
 
             // 품목 테이블 헤더

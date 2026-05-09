@@ -6,7 +6,8 @@ public class WarehouseOutboundDTO {
     private Integer branchCode;
     private String branchName;
     private String status;
-    private String handler;
+    private String driverName;
+    private String plateNumber;
     private String outboundAt;
 
     public Integer getHqOutboundNo() {
@@ -39,11 +40,17 @@ public class WarehouseOutboundDTO {
     public void setStatus(String status) {
         this.status = status;
     }
-    public String getHandler() {
-        return handler;
+    public String getDriverName() {
+        return driverName;
     }
-    public void setHandler(String handler) {
-        this.handler = handler;
+    public void setDriverName(String driverName) {
+        this.driverName = driverName;
+    }
+    public String getPlateNumber() {
+        return plateNumber;
+    }
+    public void setPlateNumber(String plateNumber) {
+        this.plateNumber = plateNumber;
     }
 	public String getOutboundAt() {
 		return outboundAt;

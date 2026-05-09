@@ -15,15 +15,19 @@
 	        b.branch_code as branchCode,
 	        b.name as branchName,
 	        CASE
-				WHEN h.status = 'PENDING'   THEN '출고대기'
-				WHEN h.status = 'PREPARING' THEN '준비중'
-				WHEN h.status = 'SHIPPED'   THEN '출고완료'
+				WHEN h.status = 'PENDING'   THEN '배차대기'
+				WHEN h.status = 'SHIPPED'   THEN '배송완료'
 				ELSE '-'
 			END AS status,
-	        h.handler as handler,
+	        COALESCE(e.name, '-') as driverName,
+	        COALESCE(v.plate_number, '-') as plateNumber,
 	        DATE_FORMAT(h.shipped_at, '%Y-%m-%d %H:%i:%s') as outboundAt
 	    FROM hq_outbound h
 	    JOIN branch b ON h.branch_code = b.branch_code
+	    LEFT JOIN dispatch d ON h.po_no = d.po_no
+	    LEFT JOIN driver dr ON d.driver_id = dr.driver_id
+	    LEFT JOIN employee e ON dr.emp_no = e.emp_no
+	    LEFT JOIN vehicle v ON d.vehicle_id = v.vehicle_id
 	
 	    <where>
 	        <if test="branchName != null">
@@ -49,15 +53,19 @@
             h.branch_code as branchCode,
             b.name as branchName,
             CASE
-				WHEN h.status = 'PENDING'   THEN '출고대기'
-				WHEN h.status = 'PREPARING' THEN '준비중'
-				WHEN h.status = 'SHIPPED'   THEN '출고완료'
+				WHEN h.status = 'PENDING'   THEN '배차대기'
+				WHEN h.status = 'SHIPPED'   THEN '배송완료'
 				ELSE '-'
 			END AS status,
-            h.handler as handler,
+            COALESCE(e.name, '-') as driverName,
+            COALESCE(v.plate_number, '-') as plateNumber,
             DATE_FORMAT(h.shipped_at, '%Y-%m-%d %H:%i:%s') as outboundAt
         FROM hq_outbound h
         JOIN branch b ON h.branch_code = b.branch_code
+        LEFT JOIN dispatch d ON h.po_no = d.po_no
+        LEFT JOIN driver dr ON d.driver_id = dr.driver_id
+        LEFT JOIN employee e ON dr.emp_no = e.emp_no
+        LEFT JOIN vehicle v ON d.vehicle_id = v.vehicle_id
         WHERE h.hq_outbound_no = #{value}
     </select>
 

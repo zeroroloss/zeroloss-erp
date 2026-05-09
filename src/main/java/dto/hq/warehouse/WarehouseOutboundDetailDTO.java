@@ -8,6 +8,8 @@ public class WarehouseOutboundDetailDTO {
     private Integer branchCode;
     private String branchName;
     private String status; 	// 출고대기, 준비중, 출고완료
+    private String driverName;
+    private String plateNumber;
     private String outboundAt;
 
     private List<WarehouseOutboundItemDTO> items;
@@ -15,8 +17,8 @@ public class WarehouseOutboundDetailDTO {
 	@Override
 	public String toString() {
 		return "WarehouseOutboundDetailDTO [hqOutboundNo=" + hqOutboundNo + ", poNo=" + poNo + ", branchCode="
-				+ branchCode + ", branchName=" + branchName + ", status=" + status + ", outboundAt=" + outboundAt
-				+ ", items=" + items + "]";
+				+ branchCode + ", branchName=" + branchName + ", status=" + status + ", driverName=" + driverName
+				+ ", plateNumber=" + plateNumber + ", outboundAt=" + outboundAt + ", items=" + items + "]";
 	}
 
 	public Integer getHqOutboundNo() {
@@ -57,6 +59,22 @@ public class WarehouseOutboundDetailDTO {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getDriverName() {
+		return driverName;
+	}
+
+	public void setDriverName(String driverName) {
+		this.driverName = driverName;
+	}
+
+	public String getPlateNumber() {
+		return plateNumber;
+	}
+
+	public void setPlateNumber(String plateNumber) {
+		this.plateNumber = plateNumber;
 	}
 
 	public String getOutboundAt() {

@@ -76,6 +76,12 @@ public class DispatchServiceImpl implements DispatchService {
                 driverParams.put("isActive", 0);
                 session.update("mapper.dispatchMapper.updateDriverStatus", driverParams);
                 
+                // hq_outbound 상태를 SHIPPED로 변경
+                Map<String, Object> outboundParams = new HashMap<>();
+                outboundParams.put("poNo", dto.getPoNo());
+                outboundParams.put("status", "SHIPPED");
+                session.update("mapper.dispatchMapper.updateHqOutboundStatus", outboundParams);
+                
                 // 알림 처리 (본사 -> 직영점)
                 sendDispatchNotification(session, dto.getPoNo());
 
