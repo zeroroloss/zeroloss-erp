@@ -33,6 +33,7 @@ manager.*.log
 .vscode/
 
 # Maven / Gradle caches
+build.gradle
 /.gradle/
 
 # OS files
