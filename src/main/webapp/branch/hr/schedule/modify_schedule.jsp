@@ -40,7 +40,6 @@
                         <option value="OPEN">오픈</option>
                         <option value="MIDDLE">미들</option>
                         <option value="CLOSE">마감</option>
-                        <option value="OFF">휴무</option>
                     </select>
                 </div>
             </div>

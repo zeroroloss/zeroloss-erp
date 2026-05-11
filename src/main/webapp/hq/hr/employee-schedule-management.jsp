@@ -940,8 +940,6 @@
 	                middleSchedules.push(schedule);
 	            } else if (schedule.type === 'CLOSE') {
 	                closeSchedules.push(schedule);
-	            } else if (schedule.type === 'OFF') {
-	                offSchedules.push(schedule);
 	            }
 	        }
 	
@@ -965,13 +963,6 @@
 	            html += '<div class="schedule-event type-CLOSE">';
 	            html += '<span class="font-semibold">마감</span> ';
 	            html += makeNameLinks(closeSchedules);
-	            html += '</div>';
-	        }
-	
-	        if (offSchedules.length > 0) {
-	            html += '<div class="schedule-event type-OFF">';
-	            html += '<span class="font-semibold">휴무</span> ';
-	            html += makeNameLinks(offSchedules);
 	            html += '</div>';
 	        }
 	
@@ -1406,8 +1397,7 @@
 	            select.innerHTML =
 	                '<option value="OPEN">오픈</option>' +
 	                '<option value="MIDDLE">미들</option>' +
-	                '<option value="CLOSE">마감</option>' +
-	                '<option value="OFF">휴무</option>';
+	                '<option value="CLOSE">마감</option>';
 	
 	            return;
 	        }

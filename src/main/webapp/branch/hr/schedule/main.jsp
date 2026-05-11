@@ -73,7 +73,6 @@
 	.type-OPEN {background: #00853D;}
 	.type-MIDDLE {background: #2563eb;}
 	.type-CLOSE {background: #9333ea;}
-	.type-OFF {background: #6b7280;}
 	.employee-name-link {cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-weight: 600}
 	.employee-name-link:hover {opacity: 0.8;}
 
@@ -227,11 +226,6 @@
 					                <div class="flex items-center gap-2">
 					                    <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
 					                    <span class="text-gray-600">마감</span>
-					                </div>
-					
-					                <div class="flex items-center gap-2">
-					                    <div class="w-3 h-3 bg-gray-500 rounded-full"></div>
-					                    <span class="text-gray-600">휴무</span>
 					                </div>
 					            </div>
 					
