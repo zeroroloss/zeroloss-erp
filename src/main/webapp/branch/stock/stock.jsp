@@ -680,15 +680,16 @@
 	        var qty    = document.getElementById('mQty');
 	        var reason = document.getElementById('mReason');
 	        var detail = document.getElementById('mDetail');
+	        var row    = stockData.find(function (x) { return x.branchStockCode === currentModalStockNo; });
 	
 	        if (!qty.readOnly && (!qty.value || parseInt(qty.value) <= 0)) { commonShowAlert('알림', '폐기 수량을 입력해주세요.'); return; }
 	        if (!reason.disabled && !reason.value) { commonShowAlert('알림', '폐기 사유를 선택해주세요.'); return; }
 	
 	        var formData = new URLSearchParams();
 	        formData.append('branchStockCode', currentModalStockNo);
-	        formData.append('disposalQty',     disposalQty);
-	        formData.append('disposalReason',  reason.value);
-	        formData.append('reasonDetail',    detail.value || '');
+	        formData.append('disposalQty', qty.readOnly ? row.currentQty : qty.value);
+	        formData.append('disposalReason', reason.value);
+	        formData.append('reasonDetail', detail.value || '');
 	
 	        fetch(contextPath + '/branch/stock/disposal', {
 	            method: 'POST',
