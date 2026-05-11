@@ -554,11 +554,21 @@
 
     // 신규 등록 모달 열기
     function showAddModal() {
+    	var hireDateInput = document.getElementById("hireDate");
+
+        if (hireDateInput) {
+            hireDateInput.value = formatDateLocal(new Date());
+        }
+
         document.getElementById("addModal").classList.remove("modal-hidden");
     }
 
     // 신규 등록 모달 닫기
     function closeAddModal() {
+    	if (typeof closeCustomDatePicker === "function") {
+            closeCustomDatePicker();
+        }
+
         document.getElementById("addModal").classList.add("modal-hidden");
     }
 
@@ -856,6 +866,8 @@
     function parseDateLocal(dateStr) { if (!dateStr) return null; var parts = String(dateStr).split('-'); if (parts.length !== 3) return null; return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])); }
     function formatDateLocal(date) { return date.getFullYear() + '-' + pad(date.getMonth()+1) + '-' + pad(date.getDate()); }
 
+    window.formatDateLocal = formatDateLocal;
+
     var customDateTargetId = null;
     var customPickerDate = new Date();
 
@@ -906,7 +918,8 @@
 
     function closeCustomDatePicker() { var p = document.getElementById('customDatePicker'); if (p) p.classList.add('hidden'); customDateTargetId = null; }
     document.addEventListener('mousedown', function(event){ var picker = document.getElementById('customDatePicker'); if (!picker || picker.classList.contains('hidden')) return; if (picker.contains(event.target)) return; if (customDateTargetId && document.getElementById(customDateTargetId) && document.getElementById(customDateTargetId).contains(event.target)) return; closeCustomDatePicker(); });
-
+    window.closeCustomDatePicker = closeCustomDatePicker;
+    
     // make functions available for debugging if needed
     window.renderCustomDatePicker = renderCustomDatePicker;
 })();

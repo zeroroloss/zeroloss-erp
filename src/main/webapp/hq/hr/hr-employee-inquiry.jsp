@@ -19,6 +19,89 @@
             opacity: 0 !important;
             pointer-events: none !important;
         }
+        /* 커스텀 날짜 선택기 */
+		.custom-date-picker {
+		    position: fixed;
+		    width: 300px;
+		    background: #fff;
+		    border: 1px solid #d1d5db;
+		    border-radius: 0.75rem;
+		    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+		    z-index: 9999;
+		    padding: 14px;
+		}
+		
+		.custom-date-picker.hidden {
+		    display: none;
+		}
+		
+		.custom-date-picker-header {
+		    display: flex;
+		    align-items: center;
+		    justify-content: space-between;
+		    margin-bottom: 12px;
+		}
+		
+		.custom-date-nav-btn {
+		    width: 30px;
+		    height: 30px;
+		    border-radius: 0.5rem;
+		    border: 1px solid #e5e7eb;
+		    color: #4b5563;
+		    background: #fff;
+		    cursor: pointer;
+		}
+		
+		.custom-date-nav-btn:hover {
+		    background: #f3f4f6;
+		}
+		
+		.custom-date-weekdays,
+		.custom-date-days {
+		    display: grid;
+		    grid-template-columns: repeat(7, 1fr);
+		    gap: 4px;
+		}
+		
+		.custom-date-weekdays div {
+		    text-align: center;
+		    font-size: 11px;
+		    font-weight: 700;
+		    color: #6b7280;
+		    padding: 4px 0;
+		}
+		
+		.custom-date-day {
+		    height: 32px;
+		    border-radius: 0.5rem;
+		    border: none;
+		    background: #fff;
+		    font-size: 12px;
+		    cursor: pointer;
+		    color: #111827;
+		}
+		
+		.custom-date-day:hover {
+		    background: #ecfdf3;
+		    color: #00853D;
+		    font-weight: 700;
+		}
+		
+		.custom-date-day.other-month {
+		    color: #c4c4c4;
+		}
+		
+		.custom-date-day.today {
+		    border: 1px solid #00853D;
+		    color: #00853D;
+		    font-weight: 700;
+		}
+		
+		.custom-date-day.selected {
+		    background: #00853D;
+		    color: #fff;
+		    font-weight: 700;
+		}
     </style>
 </head>
 <body class="bg-gray-50">
@@ -221,9 +304,12 @@
                         <input type="email" id="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" placeholder="user@zeroloss.com">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">입사일</label>
-                        <input type="date" id="hireDate" name="hireDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                    </div>
+					    <label class="block text-sm font-medium text-gray-700 mb-1">입사일</label>
+					    <div class="relative">
+					        <input type="text" id="hireDate" name="hireDate" readonly onclick="openCustomDatePicker('hireDate', event)" placeholder="YYYY-MM-DD" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent bg-white cursor-pointer">
+					        <i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+					    </div>
+					</div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">상태</label>
                         <select id="status" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
@@ -368,7 +454,282 @@
 	    </div>
 	</div>
 
+	<!-- 커스텀 달력 -->
+	<div id="customDatePicker" class="custom-date-picker hidden" onclick="event.stopPropagation()">
+	    <div class="custom-date-picker-header">
+	        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(-1)">
+	            <i class="fas fa-chevron-left text-xs"></i>
+	        </button>
+	
+	        <div class="flex items-center gap-2">
+	            <select id="customDatePickerYear"
+	                    onchange="changeCustomPickerYearMonth()"
+	                    class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+	            </select>
+	
+	            <select id="customDatePickerMonth"
+	                    onchange="changeCustomPickerYearMonth()"
+	                    class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
+	            </select>
+	        </div>
+	
+	        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(1)">
+	            <i class="fas fa-chevron-right text-xs"></i>
+	        </button>
+	    </div>
+	
+	    <div class="custom-date-weekdays">
+	        <div>일</div>
+	        <div>월</div>
+	        <div>화</div>
+	        <div>수</div>
+	        <div>목</div>
+	        <div>금</div>
+	        <div>토</div>
+	    </div>
+	
+	    <div id="customDatePickerDays" class="custom-date-days"></div>
+	</div>
+
     <script>
+	    /************************************************************
+	     커스텀 날짜 선택기
+	     ************************************************************/
+	
+	    var customDateTargetId = null;
+	    var customPickerDate = new Date();
+	
+	    function formatDateLocal(date) {
+	        return date.getFullYear() + '-' +
+	            String(date.getMonth() + 1).padStart(2, '0') + '-' +
+	            String(date.getDate()).padStart(2, '0');
+	    }
+	
+	    function parseDateLocal(dateStr) {
+	        if (!dateStr) {
+	            return null;
+	        }
+	
+	        var parts = String(dateStr).split('-');
+	
+	        if (parts.length !== 3) {
+	            return null;
+	        }
+	
+	        return new Date(
+	            Number(parts[0]),
+	            Number(parts[1]) - 1,
+	            Number(parts[2])
+	        );
+	    }
+	
+	    function openCustomDatePicker(inputId, event) {
+	        if (event) {
+	            event.stopPropagation();
+	        }
+	
+	        customDateTargetId = inputId;
+	
+	        var input = document.getElementById(inputId);
+	
+	        if (!input) {
+	            return;
+	        }
+	
+	        var selectedDate = parseDateLocal(input.value);
+	
+	        customPickerDate = selectedDate || new Date();
+	
+	        renderCustomDatePicker();
+	        positionCustomDatePicker(input);
+	
+	        document.getElementById('customDatePicker').classList.remove('hidden');
+	    }
+	
+	    function positionCustomDatePicker(input) {
+	        var picker = document.getElementById('customDatePicker');
+	        var rect = input.getBoundingClientRect();
+	
+	        var pickerWidth = 300;
+	        var pickerHeight = 330;
+	
+	        var top = rect.bottom + 6;
+	        var left = rect.left;
+	
+	        if (left + pickerWidth > window.innerWidth) {
+	            left = window.innerWidth - pickerWidth - 12;
+	        }
+	
+	        if (top + pickerHeight > window.innerHeight) {
+	            top = rect.top - pickerHeight - 6;
+	        }
+	
+	        picker.style.top = top + 'px';
+	        picker.style.left = left + 'px';
+	    }
+	
+	    function changeCustomPickerMonth(amount) {
+	        customPickerDate.setMonth(customPickerDate.getMonth() + amount);
+	        renderCustomDatePicker();
+	    }
+	
+	    function changeCustomPickerYearMonth() {
+	        var yearSelect = document.getElementById('customDatePickerYear');
+	        var monthSelect = document.getElementById('customDatePickerMonth');
+	
+	        var selectedYear = Number(yearSelect.value);
+	        var selectedMonth = Number(monthSelect.value);
+	
+	        customPickerDate = new Date(selectedYear, selectedMonth, 1);
+	
+	        renderCustomDatePicker();
+	    }
+	
+	    function renderCustomDatePicker() {
+	        var year = customPickerDate.getFullYear();
+	        var month = customPickerDate.getMonth();
+	
+	        renderCustomPickerYearMonthSelect(year, month);
+	
+	        var firstDay = new Date(year, month, 1);
+	        var lastDay = new Date(year, month + 1, 0);
+	        var prevLastDay = new Date(year, month, 0);
+	
+	        var startDay = firstDay.getDay();
+	        var days = [];
+	
+	        for (var i = startDay - 1; i >= 0; i--) {
+	            days.push({
+	                date: new Date(year, month - 1, prevLastDay.getDate() - i),
+	                currentMonth: false
+	            });
+	        }
+	
+	        for (var d = 1; d <= lastDay.getDate(); d++) {
+	            days.push({
+	                date: new Date(year, month, d),
+	                currentMonth: true
+	            });
+	        }
+	
+	        var nextDay = 1;
+	
+	        while (days.length < 42) {
+	            days.push({
+	                date: new Date(year, month + 1, nextDay),
+	                currentMonth: false
+	            });
+	
+	            nextDay++;
+	        }
+	
+	        var targetInput = customDateTargetId ? document.getElementById(customDateTargetId) : null;
+	        var selectedValue = targetInput ? targetInput.value : '';
+	        var todayValue = formatDateLocal(new Date());
+	
+	        var html = '';
+	
+	        for (var j = 0; j < days.length; j++) {
+	            var dateValue = formatDateLocal(days[j].date);
+	            var className = 'custom-date-day';
+	
+	            if (!days[j].currentMonth) {
+	                className += ' other-month';
+	            }
+	
+	            if (dateValue === todayValue) {
+	                className += ' today';
+	            }
+	
+	            if (dateValue === selectedValue) {
+	                className += ' selected';
+	            }
+	
+	            html += '<button type="button" class="' + className + '" onclick="selectCustomDate(\'' + dateValue + '\')">';
+	            html += days[j].date.getDate();
+	            html += '</button>';
+	        }
+	
+	        document.getElementById('customDatePickerDays').innerHTML = html;
+	    }
+	
+	    function renderCustomPickerYearMonthSelect(year, month) {
+	        var yearSelect = document.getElementById('customDatePickerYear');
+	        var monthSelect = document.getElementById('customDatePickerMonth');
+	
+	        var yearHtml = '';
+	        var startYear = year - 10;
+	        var endYear = year + 10;
+	
+	        for (var y = startYear; y <= endYear; y++) {
+	            yearHtml += '<option value="' + y + '"';
+	
+	            if (y === year) {
+	                yearHtml += ' selected';
+	            }
+	
+	            yearHtml += '>' + y + '년</option>';
+	        }
+	
+	        var monthHtml = '';
+	
+	        for (var m = 0; m < 12; m++) {
+	            monthHtml += '<option value="' + m + '"';
+	
+	            if (m === month) {
+	                monthHtml += ' selected';
+	            }
+	
+	            monthHtml += '>' + (m + 1) + '월</option>';
+	        }
+	
+	        yearSelect.innerHTML = yearHtml;
+	        monthSelect.innerHTML = monthHtml;
+	    }
+	
+	    function selectCustomDate(dateValue) {
+	        if (!customDateTargetId) {
+	            return;
+	        }
+	
+	        document.getElementById(customDateTargetId).value = dateValue;
+	        closeCustomDatePicker();
+	    }
+	
+	    function closeCustomDatePicker() {
+	        var picker = document.getElementById('customDatePicker');
+	
+	        if (picker) {
+	            picker.classList.add('hidden');
+	        }
+	
+	        customDateTargetId = null;
+	    }
+	
+	    document.addEventListener('mousedown', function (event) {
+	        var picker = document.getElementById('customDatePicker');
+	
+	        if (!picker || picker.classList.contains('hidden')) {
+	            return;
+	        }
+	
+	        var target = event.target;
+	
+	        if (picker.contains(target)) {
+	            return;
+	        }
+	
+	        if (
+	            customDateTargetId &&
+	            document.getElementById(customDateTargetId) &&
+	            document.getElementById(customDateTargetId).contains(target)
+	        ) {
+	            return;
+	        }
+	
+	        closeCustomDatePicker();
+	    });
+    
 	    /************************************************************
 	     * 1. 전역 변수
 	     ************************************************************/
@@ -750,11 +1111,18 @@
 	
 	    // 신규 직원 등록 모달 열기
 	    function showAddModal() {
+	    	var hireDateInput = document.getElementById("hireDate");
+
+	        if (hireDateInput && !hireDateInput.value) {
+	            hireDateInput.value = formatDateLocal(new Date());
+	        }
 	        document.getElementById("addModal").classList.remove("modal-hidden");
 	    }
 	
 	    // 신규 직원 등록 모달 닫기 및 입력값 초기화
 	    function closeAddModal() {
+	    	closeCustomDatePicker();
+	    	
 	        var modal = document.getElementById("addModal");
 	
 	        modal.classList.add("modal-hidden");
