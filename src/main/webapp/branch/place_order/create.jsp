@@ -667,9 +667,9 @@
     }
 
     function clampQty(item, qty) {
-        var minQty = Math.max(0, toNumber(item.minQty));
+    	var minQty = 1;
         var maxQty = Math.max(0, toNumber(item.maxQty));
-        var adjusted = Math.max(0, toNumber(qty));
+        var adjusted = Math.max(1, toNumber(qty));
 
         if (adjusted < minQty) {
             adjusted = minQty;
@@ -862,7 +862,7 @@
         }
 
         orderTbody.innerHTML = orderList.map(function(item) {
-            var minQty = Math.max(0, toNumber(item.minQty));
+        	var minQty = 1;
             var maxQty = Math.max(0, toNumber(item.maxQty));
             var hasMax = maxQty > 0;
             var limitText = hasMax
