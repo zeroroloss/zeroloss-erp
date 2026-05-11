@@ -186,7 +186,7 @@
 				            공지사항
 				        </h3>
 				
-				        <a href="<%= request.getContextPath() %>/hq/support/headquarters-notices.jsp"
+				        <a href="<%= request.getContextPath() %>/branch/support/branch-notices.jsp"
 				           class="inline-flex items-center gap-1 text-sm font-medium text-[#00853D] hover:text-[#006B2F] transition-all whitespace-nowrap">
 				            바로가기
 				            <i class="fas fa-arrow-right text-xs"></i>
@@ -249,7 +249,7 @@
         const topNoticeList = document.getElementById('topNoticeList');
 
         try {
-            const response = await fetch(ctx + '/hq/support/headquarters-notices-data');
+            const response = await fetch(ctx + '/branch/support/branch-notices-data');
 
             if (!response.ok) {
                 throw new Error('공지사항 조회 실패');
@@ -285,7 +285,7 @@
 
                 return '' +
                     '<div class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100 hover:bg-green-50/50 hover:border-[#00853D]/20 transition-colors cursor-pointer" ' +
-                         'onclick="location.href=\'' + ctx + '/hq/support/headquarters-notices.jsp\'">' +
+                         'onclick="location.href=\'' + ctx + '/branch/support/branch-notices.jsp\'">' +
 
                         '<div class="w-8 h-8 rounded-lg ' + typeStyle.iconBg + ' ' + typeStyle.iconText + ' flex items-center justify-center flex-shrink-0">' +
                             '<i class="' + typeStyle.icon + ' text-sm"></i>' +

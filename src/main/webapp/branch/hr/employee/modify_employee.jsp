@@ -85,8 +85,7 @@
                     <input type="text"
                            id="editHireDate"
                            readonly
-                           onclick="openCustomDatePicker('editHireDate', event)"
-                           class="view-field editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+                           class="view-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
                 </div>
 
                 <div>
