@@ -1,735 +1,517 @@
-﻿<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>본사 및 지점별 직원 정보 통합 조회 - ZERO LOSS 본사 관리 시스템</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-	<script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
-    <style>
-        .sidebar-open .sidebar {
-            transform: translateX(0);
-        }
-        .modal-hidden {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-        }
-        /* 커스텀 날짜 선택기 */
-		.custom-date-picker {
-		    position: fixed;
-		    width: 300px;
-		    background: #fff;
-		    border: 1px solid #d1d5db;
-		    border-radius: 0.75rem;
-		    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-		    z-index: 9999;
-		    padding: 14px;
-		}
-		
-		.custom-date-picker.hidden {
-		    display: none;
-		}
-		
-		.custom-date-picker-header {
-		    display: flex;
-		    align-items: center;
-		    justify-content: space-between;
-		    margin-bottom: 12px;
-		}
-		
-		.custom-date-nav-btn {
-		    width: 30px;
-		    height: 30px;
-		    border-radius: 0.5rem;
-		    border: 1px solid #e5e7eb;
-		    color: #4b5563;
-		    background: #fff;
-		    cursor: pointer;
-		}
-		
-		.custom-date-nav-btn:hover {
-		    background: #f3f4f6;
-		}
-		
-		.custom-date-weekdays,
-		.custom-date-days {
-		    display: grid;
-		    grid-template-columns: repeat(7, 1fr);
-		    gap: 4px;
-		}
-		
-		.custom-date-weekdays div {
-		    text-align: center;
-		    font-size: 11px;
-		    font-weight: 700;
-		    color: #6b7280;
-		    padding: 4px 0;
-		}
-		
-		.custom-date-day {
-		    height: 32px;
-		    border-radius: 0.5rem;
-		    border: none;
-		    background: #fff;
-		    font-size: 12px;
-		    cursor: pointer;
-		    color: #111827;
-		}
-		
-		.custom-date-day:hover {
-		    background: #ecfdf3;
-		    color: #00853D;
-		    font-weight: 700;
-		}
-		
-		.custom-date-day.other-month {
-		    color: #c4c4c4;
-		}
-		
-		.custom-date-day.today {
-		    border: 1px solid #00853D;
-		    color: #00853D;
-		    font-weight: 700;
-		}
-		
-		.custom-date-day.selected {
-		    background: #00853D;
-		    color: #fff;
-		    font-weight: 700;
-		}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>본사 및 지점별 직원 정보 통합 조회 - ZERO LOSS 본사 관리 시스템</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="<%=request.getContextPath()%>/common/js/modal.js"></script>
+<style>
+.sidebar-open .sidebar {
+	transform: translateX(0);
+}
+
+.modal-hidden {
+	display: none !important;
+	visibility: hidden !important;
+	opacity: 0 !important;
+	pointer-events: none !important;
+}
+
+.custom-date-picker {
+	position: fixed;
+	width: 300px;
+	background: #fff;
+	border: 1px solid #d1d5db;
+	border-radius: 0.75rem;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+	z-index: 9999;
+	padding: 14px;
+}
+
+.custom-date-picker.hidden {
+	display: none;
+}
+
+.custom-date-picker-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 12px;
+}
+
+.custom-date-nav-btn {
+	width: 30px;
+	height: 30px;
+	border-radius: 0.5rem;
+	border: 1px solid #e5e7eb;
+	color: #4b5563;
+	background: #fff;
+	cursor: pointer;
+}
+
+.custom-date-nav-btn:hover {
+	background: #f3f4f6;
+}
+
+.custom-date-weekdays, .custom-date-days {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	gap: 4px;
+}
+
+.custom-date-weekdays div {
+	text-align: center;
+	font-size: 11px;
+	font-weight: 700;
+	color: #6b7280;
+	padding: 4px 0;
+}
+
+.custom-date-day {
+	height: 32px;
+	border-radius: 0.5rem;
+	border: none;
+	background: #fff;
+	font-size: 12px;
+	cursor: pointer;
+	color: #111827;
+}
+
+.custom-date-day:hover {
+	background: #ecfdf3;
+	color: #00853D;
+	font-weight: 700;
+}
+
+.custom-date-day.other-month {
+	color: #c4c4c4;
+}
+
+.custom-date-day.today {
+	border: 1px solid #00853D;
+	color: #00853D;
+	font-weight: 700;
+}
+
+.custom-date-day.selected {
+	background: #00853D;
+	color: #fff;
+	font-weight: 700;
+}
+</style>
 </head>
 <body class="bg-gray-50">
-    <%@ include file="/hq/common/sidebar.jsp" %>
-       <!-- 메인 콘텐츠 -->
-       <div class="lg:pl-72">
+	<%@ include file="/hq/common/sidebar.jsp"%>
+	<!-- 메인 콘텐츠 -->
+	<div class="lg:pl-72">
 
-           <!-- 페이지 콘텐츠 -->
-           <main class="p-6">
-               <div class="space-y-6">
-                   
-                   <!-- 페이지 헤더 -->
-                   <div class="flex items-center justify-between">
-                       <div>
-                           <h2 class="text-3xl font-bold text-gray-900">본사 및 지점별 직원 정보 통합 조회</h2>
-                           <p class="text-gray-500 mt-1">전체 직원 정보를 통합하여 관리하세요</p>
-                       </div>
-                       <button onclick="showAddModal()" class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
-                           <i class="fas fa-user-plus w-5 h-5"></i>
-                           <span>신규 직원 등록</span>
-                       </button>
-                   </div>
+		<!-- 페이지 콘텐츠 -->
+		<main class="p-6">
+			<div class="space-y-6">
 
-                   <!-- 통계 카드 -->
+				<!-- 페이지 헤더 -->
+				<div class="flex items-center justify-between">
+					<div>
+						<h2 class="text-3xl font-bold text-gray-900">본사 및 지점별 직원 정보
+							통합 조회</h2>
+						<p class="text-gray-500 mt-1">전체 직원 정보를 통합하여 관리하세요</p>
+					</div>
+					<button onclick="showAddModal()"
+						class="flex items-center gap-2 bg-[#00853D] text-white px-4 py-2.5 rounded-lg hover:bg-[#006B2F] transition-colors">
+						<i class="fas fa-user-plus w-5 h-5"></i> <span>신규 직원 등록</span>
+					</button>
+				</div>
+
+				<!-- 통계 카드 -->
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-				    <div class="bg-white rounded-lg border border-gray-200 p-4">
-				        <div class="flex items-center gap-4">
-				            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-				                <i class="fas fa-users w-6 h-6 text-green-600"></i>
-				            </div>
-				            <div>
-				                <p class="text-sm text-gray-500">총 재직 인원</p>
-				                <p class="text-2xl font-bold text-gray-900 mt-1" id="totalEmp">${totalEmp}</p>
-				            </div>
-				        </div>
-				    </div>
-				
-				    <div class="bg-white rounded-lg border border-gray-200 p-4">
-				        <div class="flex items-center gap-4">
-				            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-				                <i class="fas fa-building w-6 h-6 text-blue-600"></i>
-				            </div>
-				            <div>
-				                <p class="text-sm text-gray-500">전체 직영점 수</p>
-				                <p class="text-2xl font-bold text-gray-900 mt-1" id="totalBranch">${totalBranch - 1}</p>
-				            </div>
-				        </div>
-				    </div>
-				
-				    <div class="bg-white rounded-lg border border-gray-200 p-4">
-				        <div class="flex items-center gap-4">
-				            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-				                <i class="fas fa-user-plus w-6 h-6 text-yellow-600"></i>
-				            </div>
-				            <div>
-				                <p class="text-sm text-gray-500">올해 신입 인원</p>
-				                <p class="text-2xl font-bold text-gray-900 mt-1" id="newEmpCnt">${newEmpCnt}</p>
-				            </div>
-				        </div>
-				    </div>
-				</div>
-
-                   <!-- 필터 섹션 -->
-                   <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
-                       <div class="flex flex-col gap-4">
-                           <!-- 검색 -->
-                           <div class="flex items-center justify-between gap-4">
-                           	<div>
-                           		<h3 class="text-sm font-semibold text-gray-800">직원 검색</h3>
-                           		<p class="text-xs text-gray-500 mt-1">사번, 소속, 부서, 이름 기준으로 검색할 수 있습니다.</p>
-                           	</div>
-                           	
-                           	<div class="flex items-center gap-2">
-                           		<!-- 소속명 선택 -->
-				                <select id="branchNameSelect"
-				                        class="w-44 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
-				                    <option value="">전체 소속</option>
-									<c:forEach var="branch" items="${branchNameList}">
-									    <option value="${branch.branchName}">
-									        ${branch.branchName}
-									    </option>
-									</c:forEach>
-				                </select>
-                           	
-				                <div class="relative w-80">
-				                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
-                           			<input type="text" id="searchInput" onkeydown="if(event.key === 'Enter') applyFilters();" placeholder="검색어를 입력하세요"class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
-				                </div>
-                           		<button type="button" onclick="applyFilters()" class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">조회</button>
-				                <button type="button" onclick="resetFilters()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">초기화</button>
-				            </div>
-				        </div>
-				    </div>
-				</div>
-
-                    <!-- 직원 테이블 -->
-					<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-					    <div class="overflow-x-auto">
-					        <table class="w-full">
-					            <thead class="bg-gray-50 border-b border-gray-200">
-					                <tr>
-					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
-					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">소속</th>
-					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">부서</th>
-					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">직급</th>
-					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">역할</th>
-					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연락처</th>
-					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
-					                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
-					                </tr>
-					            </thead>
-					            <tbody id="employeeTableBody" class="bg-white divide-y divide-gray-200">
-					                <!-- 동적 생성 -->
-					            </tbody>
-					        </table>
-					    </div>
-						<div id="paginationContainer"
-							class="px-6 py-4 border-t border-gray-200 flex flex-col items-center justify-center gap-3 hidden">
-							<div id="paginationInfo" class="text-sm text-gray-600">
-								<!-- 동적으로 생성됨 -->
+					<div class="bg-white rounded-lg border border-gray-200 p-4">
+						<div class="flex items-center gap-4">
+							<div
+								class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-users w-6 h-6 text-green-600"></i>
 							</div>
-		
-							<div class="flex items-center justify-center gap-2">
-								<div id="pageButtons" class="flex items-center gap-1">
-									<!-- 동적으로 생성됨 -->
-								</div>
+							<div>
+								<p class="text-sm text-gray-500">총 재직 인원</p>
+								<p class="text-2xl font-bold text-gray-900 mt-1" id="totalEmp">${totalEmp}</p>
 							</div>
 						</div>
-						
 					</div>
-                </div>
-            </main>
-        </div>
-    </div>
-    
-    <!-- 신규 직원 등록 모달 -->
-    <div id="addModal" class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onclick="if(event.target === this) closeAddModal()">
-        <div class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-            <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
-                <h3 class="text-lg font-bold text-gray-900">신규 직원 등록</h3>
-                <button onclick="closeAddModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times w-5 h-5"></i>
-                </button>
-            </div>
 
-            <div class="p-6 space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
-                        <input type="text" id="name" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" placeholder="홍길동">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">사번</label>
-                        <input type="text" id="empNo" name="empNo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" placeholder="EMP-007">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">소속</label>
-                        <select name="branchCode" id ="branchCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
-                            <option value="">선택하세요</option>
-	                        <c:forEach var="branch" items="${branchNameList}">
-	                        	<option value="${branch.branchCode }" class="text-gray-900 bg-white">${branch.branchName}</option>
-	                        </c:forEach>
-	                    </select>
-	                </div>
-	                <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">부서</label>
-                        <input type="text" id="dept" name="dept" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" placeholder="영업팀">
-                    </div>
-	                
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">직급</label>
-                        <select id="gradeCode" name="gradeCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
-					        <option value="">선택하세요</option>
-					        <option value="">선택 안 함</option>
-					        <option value="GR_DIR">부장</option>
-					        <option value="GR_DPT">차장</option>
-					        <option value="GR_MGR">과장</option>
-					        <option value="GR_AST">대리</option>
-					        <option value="GR_STF">사원</option>
-					        <option value="GR_DRV">배달기사</option>
-					    </select>
-                    </div>
-	                <div>
-					    <label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
-					    <select id="positionCode" name="positionCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
-					        <option value="">선택하세요</option>
-					        <option value="">선택 안 함</option>
-					        <option value="POS_MGR">점장</option>
-					        <option value="POS_SUP">매니저</option>
-					        <option value="POS_STF">직원</option>
-					        <option value="POS_PTM">알바</option>
-					    </select>
+					<div class="bg-white rounded-lg border border-gray-200 p-4">
+						<div class="flex items-center gap-4">
+							<div
+								class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-building w-6 h-6 text-blue-600"></i>
+							</div>
+							<div>
+								<p class="text-sm text-gray-500">전체 직영점 수</p>
+								<p class="text-2xl font-bold text-gray-900 mt-1"
+									id="totalBranch">${totalBranch - 1}</p>
+							</div>
+						</div>
 					</div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">연락처</label>
-                        <input type="tel" id="phone" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" placeholder="010-0000-0000">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-                        <input type="email" id="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent" placeholder="user@zeroloss.com">
-                    </div>
-                    <div>
-					    <label class="block text-sm font-medium text-gray-700 mb-1">입사일</label>
-					    <div class="relative">
-					        <input type="text" id="hireDate" name="hireDate" readonly onclick="openCustomDatePicker('hireDate', event)" placeholder="YYYY-MM-DD" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent bg-white cursor-pointer">
-					        <i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-					    </div>
+
+					<div class="bg-white rounded-lg border border-gray-200 p-4">
+						<div class="flex items-center gap-4">
+							<div
+								class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+								<i class="fas fa-user-plus w-6 h-6 text-yellow-600"></i>
+							</div>
+							<div>
+								<p class="text-sm text-gray-500">올해 신입 인원</p>
+								<p class="text-2xl font-bold text-gray-900 mt-1" id="newEmpCnt">${newEmpCnt}</p>
+							</div>
+						</div>
 					</div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">상태</label>
-                        <select id="status" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
-                            <option value="ACTIVE">재직</option>
-					        <option value="LEAVE">휴직</option>
-					        <option value="RESIGNED">퇴사</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+				</div>
 
-            <div class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
-                <button onclick="closeAddModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
-                    취소
-                </button>
-                <button type="button" onclick="saveEmployee()" class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
-                    추가
-                </button>
-            </div>
-        </div>
-    </div>
+				<!-- 필터 섹션 -->
+				<div
+					class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+					<div class="flex flex-col gap-4">
+						<!-- 검색 -->
+						<div class="flex items-center justify-between gap-4">
+							<div>
+								<h3 class="text-sm font-semibold text-gray-800">직원 검색</h3>
+								<p class="text-xs text-gray-500 mt-1">사번, 소속, 부서, 이름 기준으로
+									검색할 수 있습니다.</p>
+							</div>
 
-    <!-- Edit Employee Modal -->
-	<div id="editModal" class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onclick="if(event.target === this) closeEditModal()">
-	    <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
-	        <div class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
-	            <h3 class="text-lg font-bold text-gray-900">직원 상세 조회</h3>
-	            <div class="flex items-center gap-3">
-	                <button type="button" id="editModeBtn" onclick="changeToEditMode()"
-	                        class="px-3 py-1.5 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
-	                    수정
-	                </button>
-	
-	                <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600">
-	                    <i class="fas fa-times w-5 h-5"></i>
-	                </button>
-	            </div>
-	        </div>
-	
-	        <div class="p-6 space-y-4">
-	            <input type="hidden" id="editEmpNo" name="editEmpNo">
-	
-	            <div class="grid grid-cols-2 gap-4">
-	                <div>
-	                    <label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
-	                    <input type="text" id="editName" readonly
-	                           class="view-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
-	                </div>
-	
-	                <div>
-	                    <label class="block text-sm font-medium text-gray-700 mb-1">사번</label>
-	                    <input type="text" id="editEmpNoView" readonly
-	                           class="view-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
-	                </div>
-	
-	                <div>
-	                    <label class="block text-sm font-medium text-gray-700 mb-1">소속</label>
-	                    <select name="editBranchCode" id="editBranchCode" disabled
-	                            class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-500 bg-gray-100 cursor-not-allowed">
-	                        <option value="">선택하세요</option>
-	                        <c:forEach var="branch" items="${branchNameList}">
-	                            <option value="${branch.branchCode}" class="text-gray-900 bg-white">${branch.branchName}</option>
-	                        </c:forEach>
-	                    </select>
-	                </div>
-	
-	                <div>
-	                    <label class="block text-sm font-medium text-gray-700 mb-1">부서</label>
-	                    <input type="text" id="editDept" name="editDept" readonly
-	                           class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
-	                </div>
-	
-	                <div>
-	                    <label class="block text-sm font-medium text-gray-700 mb-1">직급</label>
-	                    <select id="editGradeCode" name="editGradeCode" disabled
-	                            class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-500 bg-gray-100 cursor-not-allowed">
-	                        <option value="">선택하세요</option>
-	                        <option value="">선택 안 함</option>
-	                        <option value="GR_DIR">부장</option>
-	                        <option value="GR_DPT">차장</option>
-	                        <option value="GR_MGR">과장</option>
-	                        <option value="GR_AST">대리</option>
-	                        <option value="GR_STF">사원</option>
-	                        <option value="GR_DRV">배달기사</option>
-	                    </select>
-	                </div>
-	
-	                <div>
-	                    <label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
-	                    <select id="editPositionCode" name="editPositionCode" disabled
-	                            class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-500 bg-gray-100 cursor-not-allowed">
-	                        <option value="">선택하세요</option>
-	                        <option value="">선택 안 함</option>
-	                        <option value="POS_MGR">점장</option>
-	                        <option value="POS_SUP">매니저</option>
-	                        <option value="POS_STF">직원</option>
-	                        <option value="POS_PTM">알바</option>
-	                    </select>
-	                </div>
-	
-	                <div>
-	                    <label class="block text-sm font-medium text-gray-700 mb-1">연락처</label>
-	                    <input type="text" id="editPhone" name="editPhone" readonly
-	                           class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
-	                </div>
-	
-	                <div>
-	                    <label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-	                    <input type="email" id="editEmail" name="editEmail" readonly
-	                           class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
-	                </div>
-	
-	                <div>
-	                    <label class="block text-sm font-medium text-gray-700 mb-1">입사일</label>
-	                    <input type="text" id="editHireDate" readonly
-	                           class="view-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
-	                </div>
-	
-	                <div>
-	                    <label class="block text-sm font-medium text-gray-700 mb-1">상태</label>
-	                    <select id="editStatus" name="editStatus" disabled
-	                            class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-500 bg-gray-100 cursor-not-allowed">
-	                        <option value="ACTIVE">재직</option>
-	                        <option value="LEAVE">휴직</option>
-	                        <option value="RESIGNED">퇴사</option>
-	                    </select>
-	                </div>
-	            </div>
-	        </div>
-	
-	        <div class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
-	            <button type="button" onclick="closeEditModal()"
-	                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
-	                닫기
-	            </button>
-	
-	            <button type="button" id="saveBtn" onclick="updateEmployee()"
-	                    class="hidden px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
-	                저장
-	            </button>
-	        </div>
-	    </div>
+							<div class="flex items-center gap-2">
+								<!-- 소속명 선택 -->
+								<select id="branchNameSelect"
+									class="w-44 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+									<option value="">전체 소속</option>
+									<c:forEach var="branch" items="${branchNameList}">
+										<option value="${branch.branchName}">
+											${branch.branchName}</option>
+									</c:forEach>
+								</select>
+
+								<div class="relative w-80">
+									<i
+										class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+									<input type="text" id="searchInput"
+										onkeydown="if(event.key === 'Enter') applyFilters();"
+										placeholder="검색어를 입력하세요"
+										class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none transition-all">
+								</div>
+								<button type="button" onclick="applyFilters()"
+									class="px-5 py-2 bg-[#00853D] text-white rounded-lg text-sm font-medium hover:bg-[#006B31] transition-colors">조회</button>
+								<button type="button" onclick="resetFilters()"
+									class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">초기화</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 직원 테이블 -->
+				<div
+					class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+					<div class="overflow-x-auto">
+						<table class="w-full">
+							<thead class="bg-gray-50 border-b border-gray-200">
+								<tr>
+									<th
+										class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+									<th
+										class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">소속</th>
+									<th
+										class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">부서</th>
+									<th
+										class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">직급</th>
+									<th
+										class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">역할</th>
+									<th
+										class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연락처</th>
+									<th
+										class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+									<th
+										class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
+								</tr>
+							</thead>
+							<tbody id="employeeTableBody"
+								class="bg-white divide-y divide-gray-200">
+								<!-- 동적 생성 -->
+							</tbody>
+						</table>
+					</div>
+					<div id="paginationContainer"
+						class="px-6 py-4 border-t border-gray-200 flex flex-col items-center justify-center gap-3 hidden">
+						<div id="paginationInfo" class="text-sm text-gray-600">
+							<!-- 동적으로 생성됨 -->
+						</div>
+
+						<div class="flex items-center justify-center gap-2">
+							<div id="pageButtons" class="flex items-center gap-1">
+								<!-- 동적으로 생성됨 -->
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</main>
+	</div>
 	</div>
 
-	<!-- 커스텀 달력 -->
-	<div id="customDatePicker" class="custom-date-picker hidden" onclick="event.stopPropagation()">
-	    <div class="custom-date-picker-header">
-	        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(-1)">
-	            <i class="fas fa-chevron-left text-xs"></i>
-	        </button>
-	
-	        <div class="flex items-center gap-2">
-	            <select id="customDatePickerYear"
-	                    onchange="changeCustomPickerYearMonth()"
-	                    class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
-	            </select>
-	
-	            <select id="customDatePickerMonth"
-	                    onchange="changeCustomPickerYearMonth()"
-	                    class="px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold focus:ring-2 focus:ring-[#00853D]/30 focus:border-[#00853D] outline-none">
-	            </select>
-	        </div>
-	
-	        <button type="button" class="custom-date-nav-btn" onclick="changeCustomPickerMonth(1)">
-	            <i class="fas fa-chevron-right text-xs"></i>
-	        </button>
-	    </div>
-	
-	    <div class="custom-date-weekdays">
-	        <div>일</div>
-	        <div>월</div>
-	        <div>화</div>
-	        <div>수</div>
-	        <div>목</div>
-	        <div>금</div>
-	        <div>토</div>
-	    </div>
-	
-	    <div id="customDatePickerDays" class="custom-date-days"></div>
+	<!-- 신규 직원 등록 모달 -->
+	<div id="addModal"
+		class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+		onclick="if(event.target === this) closeAddModal()">
+		<div
+			class="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+			onclick="event.stopPropagation()">
+			<div
+				class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
+				<h3 class="text-lg font-bold text-gray-900">신규 직원 등록</h3>
+				<button onclick="closeAddModal()"
+					class="text-gray-400 hover:text-gray-600">
+					<i class="fas fa-times w-5 h-5"></i>
+				</button>
+			</div>
+
+			<div class="p-6 space-y-4">
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
+						<input type="text" id="name" name="name"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent"
+							placeholder="홍길동">
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">사번</label>
+						<input type="text" id="empNo" name="empNo"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent"
+							placeholder="EMP-007">
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">소속</label>
+						<select name="branchCode" id="branchCode"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
+							<option value="">선택하세요</option>
+							<c:forEach var="branch" items="${branchNameList}">
+								<option value="${branch.branchCode }"
+									class="text-gray-900 bg-white">${branch.branchName}</option>
+							</c:forEach>
+						</select>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">부서</label>
+						<input type="text" id="dept" name="dept"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent"
+							placeholder="영업팀">
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">직급</label>
+						<select id="gradeCode" name="gradeCode"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
+							<option value="">선택하세요</option>
+							<option value="">선택 안 함</option>
+							<option value="GR_DIR">부장</option>
+							<option value="GR_DPT">차장</option>
+							<option value="GR_MGR">과장</option>
+							<option value="GR_AST">대리</option>
+							<option value="GR_STF">사원</option>
+							<option value="GR_DRV">배달기사</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
+						<select id="positionCode" name="positionCode"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm text-gray-900 bg-white">
+							<option value="">선택하세요</option>
+							<option value="">선택 안 함</option>
+							<option value="POS_MGR">점장</option>
+							<option value="POS_SUP">매니저</option>
+							<option value="POS_STF">직원</option>
+							<option value="POS_PTM">알바</option>
+						</select>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+						<input type="tel" id="phone" name="phone"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent"
+							placeholder="010-0000-0000">
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+						<input type="email" id="email" name="email"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent"
+							placeholder="user@zeroloss.com">
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">입사일</label>
+						<div class="date-picker-wrap relative">
+							<input type="text" id="hireDate" name="hireDate" readonly
+								placeholder="날짜를 선택하세요" onclick="openHireDatePicker(this)"
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent cursor-pointer">
+							<i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+						</div>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">상태</label>
+						<select id="status" name="status"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent">
+							<option value="ACTIVE">재직</option>
+							<option value="LEAVE">휴직</option>
+							<option value="RESIGNED">퇴사</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<div
+				class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
+				<button onclick="closeAddModal()"
+					class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+					취소</button>
+				<button type="button" onclick="saveEmployee()"
+					class="px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+					추가</button>
+			</div>
+		</div>
 	</div>
 
-    <script>
-	    /************************************************************
-	     커스텀 날짜 선택기
-	     ************************************************************/
-	
-	    var customDateTargetId = null;
-	    var customPickerDate = new Date();
-	
-	    function formatDateLocal(date) {
-	        return date.getFullYear() + '-' +
-	            String(date.getMonth() + 1).padStart(2, '0') + '-' +
-	            String(date.getDate()).padStart(2, '0');
-	    }
-	
-	    function parseDateLocal(dateStr) {
-	        if (!dateStr) {
-	            return null;
-	        }
-	
-	        var parts = String(dateStr).split('-');
-	
-	        if (parts.length !== 3) {
-	            return null;
-	        }
-	
-	        return new Date(
-	            Number(parts[0]),
-	            Number(parts[1]) - 1,
-	            Number(parts[2])
-	        );
-	    }
-	
-	    function openCustomDatePicker(inputId, event) {
-	        if (event) {
-	            event.stopPropagation();
-	        }
-	
-	        customDateTargetId = inputId;
-	
-	        var input = document.getElementById(inputId);
-	
-	        if (!input) {
-	            return;
-	        }
-	
-	        var selectedDate = parseDateLocal(input.value);
-	
-	        customPickerDate = selectedDate || new Date();
-	
-	        renderCustomDatePicker();
-	        positionCustomDatePicker(input);
-	
-	        document.getElementById('customDatePicker').classList.remove('hidden');
-	    }
-	
-	    function positionCustomDatePicker(input) {
-	        var picker = document.getElementById('customDatePicker');
-	        var rect = input.getBoundingClientRect();
-	
-	        var pickerWidth = 300;
-	        var pickerHeight = 330;
-	
-	        var top = rect.bottom + 6;
-	        var left = rect.left;
-	
-	        if (left + pickerWidth > window.innerWidth) {
-	            left = window.innerWidth - pickerWidth - 12;
-	        }
-	
-	        if (top + pickerHeight > window.innerHeight) {
-	            top = rect.top - pickerHeight - 6;
-	        }
-	
-	        picker.style.top = top + 'px';
-	        picker.style.left = left + 'px';
-	    }
-	
-	    function changeCustomPickerMonth(amount) {
-	        customPickerDate.setMonth(customPickerDate.getMonth() + amount);
-	        renderCustomDatePicker();
-	    }
-	
-	    function changeCustomPickerYearMonth() {
-	        var yearSelect = document.getElementById('customDatePickerYear');
-	        var monthSelect = document.getElementById('customDatePickerMonth');
-	
-	        var selectedYear = Number(yearSelect.value);
-	        var selectedMonth = Number(monthSelect.value);
-	
-	        customPickerDate = new Date(selectedYear, selectedMonth, 1);
-	
-	        renderCustomDatePicker();
-	    }
-	
-	    function renderCustomDatePicker() {
-	        var year = customPickerDate.getFullYear();
-	        var month = customPickerDate.getMonth();
-	
-	        renderCustomPickerYearMonthSelect(year, month);
-	
-	        var firstDay = new Date(year, month, 1);
-	        var lastDay = new Date(year, month + 1, 0);
-	        var prevLastDay = new Date(year, month, 0);
-	
-	        var startDay = firstDay.getDay();
-	        var days = [];
-	
-	        for (var i = startDay - 1; i >= 0; i--) {
-	            days.push({
-	                date: new Date(year, month - 1, prevLastDay.getDate() - i),
-	                currentMonth: false
-	            });
-	        }
-	
-	        for (var d = 1; d <= lastDay.getDate(); d++) {
-	            days.push({
-	                date: new Date(year, month, d),
-	                currentMonth: true
-	            });
-	        }
-	
-	        var nextDay = 1;
-	
-	        while (days.length < 42) {
-	            days.push({
-	                date: new Date(year, month + 1, nextDay),
-	                currentMonth: false
-	            });
-	
-	            nextDay++;
-	        }
-	
-	        var targetInput = customDateTargetId ? document.getElementById(customDateTargetId) : null;
-	        var selectedValue = targetInput ? targetInput.value : '';
-	        var todayValue = formatDateLocal(new Date());
-	
-	        var html = '';
-	
-	        for (var j = 0; j < days.length; j++) {
-	            var dateValue = formatDateLocal(days[j].date);
-	            var className = 'custom-date-day';
-	
-	            if (!days[j].currentMonth) {
-	                className += ' other-month';
-	            }
-	
-	            if (dateValue === todayValue) {
-	                className += ' today';
-	            }
-	
-	            if (dateValue === selectedValue) {
-	                className += ' selected';
-	            }
-	
-	            html += '<button type="button" class="' + className + '" onclick="selectCustomDate(\'' + dateValue + '\')">';
-	            html += days[j].date.getDate();
-	            html += '</button>';
-	        }
-	
-	        document.getElementById('customDatePickerDays').innerHTML = html;
-	    }
-	
-	    function renderCustomPickerYearMonthSelect(year, month) {
-	        var yearSelect = document.getElementById('customDatePickerYear');
-	        var monthSelect = document.getElementById('customDatePickerMonth');
-	
-	        var yearHtml = '';
-	        var startYear = year - 10;
-	        var endYear = year + 10;
-	
-	        for (var y = startYear; y <= endYear; y++) {
-	            yearHtml += '<option value="' + y + '"';
-	
-	            if (y === year) {
-	                yearHtml += ' selected';
-	            }
-	
-	            yearHtml += '>' + y + '년</option>';
-	        }
-	
-	        var monthHtml = '';
-	
-	        for (var m = 0; m < 12; m++) {
-	            monthHtml += '<option value="' + m + '"';
-	
-	            if (m === month) {
-	                monthHtml += ' selected';
-	            }
-	
-	            monthHtml += '>' + (m + 1) + '월</option>';
-	        }
-	
-	        yearSelect.innerHTML = yearHtml;
-	        monthSelect.innerHTML = monthHtml;
-	    }
-	
-	    function selectCustomDate(dateValue) {
-	        if (!customDateTargetId) {
-	            return;
-	        }
-	
-	        document.getElementById(customDateTargetId).value = dateValue;
-	        closeCustomDatePicker();
-	    }
-	
-	    function closeCustomDatePicker() {
-	        var picker = document.getElementById('customDatePicker');
-	
-	        if (picker) {
-	            picker.classList.add('hidden');
-	        }
-	
-	        customDateTargetId = null;
-	    }
-	
-	    document.addEventListener('mousedown', function (event) {
-	        var picker = document.getElementById('customDatePicker');
-	
-	        if (!picker || picker.classList.contains('hidden')) {
-	            return;
-	        }
-	
-	        var target = event.target;
-	
-	        if (picker.contains(target)) {
-	            return;
-	        }
-	
-	        if (
-	            customDateTargetId &&
-	            document.getElementById(customDateTargetId) &&
-	            document.getElementById(customDateTargetId).contains(target)
-	        ) {
-	            return;
-	        }
-	
-	        closeCustomDatePicker();
-	    });
-    
+	<!-- Edit Employee Modal -->
+	<div id="editModal"
+		class="modal-hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+		onclick="if(event.target === this) closeEditModal()">
+		<div
+			class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+			onclick="event.stopPropagation()">
+			<div
+				class="border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 bg-white">
+				<h3 class="text-lg font-bold text-gray-900">직원 상세 조회</h3>
+				<div class="flex items-center gap-3">
+					<button type="button" id="editModeBtn" onclick="changeToEditMode()"
+						class="px-3 py-1.5 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+						수정</button>
+
+					<button type="button" onclick="closeEditModal()"
+						class="text-gray-400 hover:text-gray-600">
+						<i class="fas fa-times w-5 h-5"></i>
+					</button>
+				</div>
+			</div>
+
+			<div class="p-6 space-y-4">
+				<input type="hidden" id="editEmpNo" name="editEmpNo">
+
+				<div class="grid grid-cols-2 gap-4">
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">이름</label>
+						<input type="text" id="editName" readonly
+							class="view-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">사번</label>
+						<input type="text" id="editEmpNoView" readonly
+							class="view-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">소속</label>
+						<select name="editBranchCode" id="editBranchCode" disabled
+							class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-500 bg-gray-100 cursor-not-allowed">
+							<option value="">선택하세요</option>
+							<c:forEach var="branch" items="${branchNameList}">
+								<option value="${branch.branchCode}"
+									class="text-gray-900 bg-white">${branch.branchName}</option>
+							</c:forEach>
+						</select>
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">부서</label>
+						<input type="text" id="editDept" name="editDept" readonly
+							class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">직급</label>
+						<select id="editGradeCode" name="editGradeCode" disabled
+							class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-500 bg-gray-100 cursor-not-allowed">
+							<option value="">선택하세요</option>
+							<option value="">선택 안 함</option>
+							<option value="GR_DIR">부장</option>
+							<option value="GR_DPT">차장</option>
+							<option value="GR_MGR">과장</option>
+							<option value="GR_AST">대리</option>
+							<option value="GR_STF">사원</option>
+							<option value="GR_DRV">배달기사</option>
+						</select>
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">역할</label>
+						<select id="editPositionCode" name="editPositionCode" disabled
+							class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-500 bg-gray-100 cursor-not-allowed">
+							<option value="">선택하세요</option>
+							<option value="">선택 안 함</option>
+							<option value="POS_MGR">점장</option>
+							<option value="POS_SUP">매니저</option>
+							<option value="POS_STF">직원</option>
+							<option value="POS_PTM">알바</option>
+						</select>
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">연락처</label>
+						<input type="text" id="editPhone" name="editPhone" readonly
+							class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">이메일</label>
+						<input type="email" id="editEmail" name="editEmail" readonly
+							class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">입사일</label>
+						<div class="date-picker-wrap relative">
+							<input type="text" id="editHireDate" readonly
+								placeholder="날짜를 선택하세요" onclick="openEditHireDatePicker(this)"
+								class="view-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-500 cursor-not-allowed">
+							<i class="fas fa-calendar-check absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+						</div>
+					</div>
+
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">상태</label>
+						<select id="editStatus" name="editStatus" disabled
+							class="editable-field w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-500 bg-gray-100 cursor-not-allowed">
+							<option value="ACTIVE">재직</option>
+							<option value="LEAVE">휴직</option>
+							<option value="RESIGNED">퇴사</option>
+						</select>
+					</div>
+				</div>
+			</div>
+
+			<div
+				class="border-t border-gray-200 px-6 py-3 flex justify-end gap-3 sticky bottom-0 bg-white">
+				<button type="button" onclick="closeEditModal()"
+					class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+					닫기</button>
+
+				<button type="button" id="saveBtn" onclick="updateEmployee()"
+					class="hidden px-4 py-2 bg-[#00853D] text-white rounded-lg hover:bg-[#006B2F] text-sm">
+					저장</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
 	    /************************************************************
 	     * 1. 전역 변수
 	     ************************************************************/
@@ -1111,18 +893,11 @@
 	
 	    // 신규 직원 등록 모달 열기
 	    function showAddModal() {
-	    	var hireDateInput = document.getElementById("hireDate");
-
-	        if (hireDateInput && !hireDateInput.value) {
-	            hireDateInput.value = formatDateLocal(new Date());
-	        }
 	        document.getElementById("addModal").classList.remove("modal-hidden");
 	    }
 	
 	    // 신규 직원 등록 모달 닫기 및 입력값 초기화
 	    function closeAddModal() {
-	    	closeCustomDatePicker();
-	    	
 	        var modal = document.getElementById("addModal");
 	
 	        modal.classList.add("modal-hidden");
@@ -1160,7 +935,7 @@
 	        params.append("hireDate", document.getElementById("hireDate").value);
 	        params.append("status", document.getElementById("status").value);
 	
-	        fetch("<%= request.getContextPath() %>/hq/hr/employee", {
+	        fetch("<%=request.getContextPath()%>/hq/hr/employee", {
 	            method: "POST",
 	            headers: {
 	                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
@@ -1323,7 +1098,7 @@
 	        params.append("email", document.getElementById("editEmail").value);
 	        params.append("status", document.getElementById("editStatus").value);
 	
-	        fetch("<%= request.getContextPath() %>/hq/hr/employee", {
+	        fetch("<%=request.getContextPath()%>/hq/hr/employee", {
 	            method: "POST",
 	            headers: {
 	                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
@@ -1344,7 +1119,7 @@
 	        })
 	        .catch(function (error) {
 	            console.error(error);
-	            location.href = "<%= request.getContextPath() %>/common/500.jsp";
+	            location.href = "<%=request.getContextPath()%>/common/500.jsp";
 	        });
 	    }
 	
@@ -1376,7 +1151,255 @@
 	        document.getElementById('paginationInfo').textContent = '';
 	        document.getElementById('pageButtons').innerHTML = '';
 	    }
+	    /************************************************************
+	     * 공통 달력 유틸
+	     ************************************************************/
+	    function buildYearOptions(selectEl) {
+	        if (selectEl.options.length > 0) return;
+	        var thisYear = new Date().getFullYear();
+	        for (var y = 1990; y <= thisYear; y++) {
+	            var opt = document.createElement('option');
+	            opt.value = y;
+	            opt.text = y + '년';
+	            selectEl.appendChild(opt);
+	        }
+	    }
+
+	    function buildCalendarHTML(year, month, selected, onClickFn) {
+	        var today = new Date();
+	        var firstDay = new Date(year, month, 1).getDay();
+	        var lastDate = new Date(year, month + 1, 0).getDate();
+	        var prevLastDate = new Date(year, month, 0).getDate();
+	        var html = '';
+
+	        for (var i = firstDay - 1; i >= 0; i--) {
+	            html += '<button class="custom-date-day other-month" disabled>' + (prevLastDate - i) + '</button>';
+	        }
+	        for (var d = 1; d <= lastDate; d++) {
+	            var isToday = (d === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+	            var isSelected = selected &&
+	                (d === selected.getDate() && month === selected.getMonth() && year === selected.getFullYear());
+	            var cls = 'custom-date-day' + (isSelected ? ' selected' : (isToday ? ' today' : ''));
+	            html += '<button class="' + cls + '" onclick="' + onClickFn + '(' + year + ',' + month + ',' + d + ')">' + d + '</button>';
+	        }
+	        var totalCells = Math.ceil((firstDay + lastDate) / 7) * 7;
+	        var nextDay = 1;
+	        for (var n = firstDay + lastDate; n < totalCells; n++) {
+	            html += '<button class="custom-date-day other-month" disabled>' + (nextDay++) + '</button>';
+	        }
+	        return html;
+	    }
+
+	    /************************************************************
+	     * 신규등록 입사일 달력
+	     ************************************************************/
+	    var hireDateTarget = null;
+	    var hireDateCurrent = new Date();
+	    var hireDateSelected = null;
+
+	    function openHireDatePicker(inputEl) {
+	        hireDateTarget = inputEl;
+	        var picker = document.getElementById('hireDatePicker');
+	        buildYearOptions(document.getElementById('hireDateYear'));
+	        document.getElementById('hireDateYear').value = hireDateCurrent.getFullYear();
+	        document.getElementById('hireDateMonth').value = hireDateCurrent.getMonth();
+	        renderHireDateCalendar();
+	        var rect = inputEl.getBoundingClientRect();
+	        
+	        var pickerHeight = 320;
+	        var spaceBelow = window.innerHeight - rect.bottom;
+
+	        if (spaceBelow < pickerHeight) {
+	            picker.style.top = (rect.top + window.scrollY - pickerHeight - 6) + 'px';
+	        } else {
+	            picker.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+	        }
+	        picker.style.left = rect.left + 'px';
+	        picker.classList.remove('hidden');
+	        setTimeout(function () {
+	            document.addEventListener('click', closeHireDatePickerOutside);
+	        }, 0);
+	    }
+
+	    function closeHireDatePickerOutside(e) {
+	        var picker = document.getElementById('hireDatePicker');
+	        if (!picker.contains(e.target) && e.target !== hireDateTarget) {
+	            picker.classList.add('hidden');
+	            document.removeEventListener('click', closeHireDatePickerOutside);
+	        }
+	    }
+
+	    function changeHireMonth(dir) {
+	        var year = parseInt(document.getElementById('hireDateYear').value);
+	        var month = parseInt(document.getElementById('hireDateMonth').value);
+	        var d = new Date(year, month + dir, 1);
+	        document.getElementById('hireDateYear').value = d.getFullYear();
+	        document.getElementById('hireDateMonth').value = d.getMonth();
+	        renderHireDateCalendar();
+	    }
+
+	    function renderHireDateCalendar() {
+	        var year = parseInt(document.getElementById('hireDateYear').value);
+	        var month = parseInt(document.getElementById('hireDateMonth').value);
+	        document.getElementById('hireDateDays').innerHTML = buildCalendarHTML(year, month, hireDateSelected, 'selectHireDate');
+	    }
+
+	    function selectHireDate(year, month, day) {
+	        hireDateSelected = new Date(year, month, day);
+	        var mm = String(month + 1).padStart(2, '0');
+	        var dd = String(day).padStart(2, '0');
+	        document.getElementById('hireDate').value = year + '-' + mm + '-' + dd;
+	        document.getElementById('hireDatePicker').classList.add('hidden');
+	        document.removeEventListener('click', closeHireDatePickerOutside);
+	        renderHireDateCalendar();
+	    }
+
+	    /************************************************************
+	     * 수정 입사일 달력
+	     ************************************************************/
+	    var editHireDateTarget = null;
+	    var editHireDateCurrent = new Date();
+	    var editHireDateSelected = null;
+
+	    function openEditHireDatePicker(inputEl) {
+	        if (inputEl.readOnly) return;
+	        editHireDateTarget = inputEl;
+	        var picker = document.getElementById('editHireDatePicker');
+	        buildYearOptions(document.getElementById('editHireDateYear'));
+	        document.getElementById('editHireDateYear').value = editHireDateCurrent.getFullYear();
+	        document.getElementById('editHireDateMonth').value = editHireDateCurrent.getMonth();
+	        renderEditHireDateCalendar();
+	        var rect = inputEl.getBoundingClientRect();
+	        var pickerHeight = 320;
+	        var spaceBelow = window.innerHeight - rect.bottom;
+
+	        if (spaceBelow < pickerHeight) {
+	            picker.style.top = (rect.top + window.scrollY - pickerHeight - 6) + 'px';
+	        } else {
+	            picker.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+	        }
+	        picker.style.left = rect.left + 'px';
+	        picker.classList.remove('hidden');
+	        setTimeout(function () {
+	            document.addEventListener('click', closeEditHireDatePickerOutside);
+	        }, 0);
+	    }
+
+	    function closeEditHireDatePickerOutside(e) {
+	        var picker = document.getElementById('editHireDatePicker');
+	        if (!picker.contains(e.target) && e.target !== editHireDateTarget) {
+	            picker.classList.add('hidden');
+	            document.removeEventListener('click', closeEditHireDatePickerOutside);
+	        }
+	    }
+
+	    function changeEditHireMonth(dir) {
+	        var year = parseInt(document.getElementById('editHireDateYear').value);
+	        var month = parseInt(document.getElementById('editHireDateMonth').value);
+	        var d = new Date(year, month + dir, 1);
+	        document.getElementById('editHireDateYear').value = d.getFullYear();
+	        document.getElementById('editHireDateMonth').value = d.getMonth();
+	        renderEditHireDateCalendar();
+	    }
+
+	    function renderEditHireDateCalendar() {
+	        var year = parseInt(document.getElementById('editHireDateYear').value);
+	        var month = parseInt(document.getElementById('editHireDateMonth').value);
+	        document.getElementById('editHireDateDays').innerHTML = buildCalendarHTML(year, month, editHireDateSelected, 'selectEditHireDate');
+	    }
+
+	    function selectEditHireDate(year, month, day) {
+	        editHireDateSelected = new Date(year, month, day);
+	        var mm = String(month + 1).padStart(2, '0');
+	        var dd = String(day).padStart(2, '0');
+	        document.getElementById('editHireDate').value = year + '-' + mm + '-' + dd;
+	        document.getElementById('editHireDatePicker').classList.add('hidden');
+	        document.removeEventListener('click', closeEditHireDatePickerOutside);
+	        renderEditHireDateCalendar();
+	    }
 	</script>
+	<!-- 신규등록 입사일 달력 -->
+	<div id="hireDatePicker" class="custom-date-picker hidden">
+		<div class="custom-date-picker-header">
+			<button class="custom-date-nav-btn" onclick="changeHireMonth(-1)">
+				<i class="fas fa-chevron-left text-xs"></i>
+			</button>
+			<div class="flex gap-2">
+				<select id="hireDateYear" onchange="renderHireDateCalendar()"
+					class="border border-gray-300 rounded-lg text-sm px-2"></select> <select
+					id="hireDateMonth" onchange="renderHireDateCalendar()"
+					class="border border-gray-300 rounded-lg text-sm px-2">
+					<option value="0">1월</option>
+					<option value="1">2월</option>
+					<option value="2">3월</option>
+					<option value="3">4월</option>
+					<option value="4">5월</option>
+					<option value="5">6월</option>
+					<option value="6">7월</option>
+					<option value="7">8월</option>
+					<option value="8">9월</option>
+					<option value="9">10월</option>
+					<option value="10">11월</option>
+					<option value="11">12월</option>
+				</select>
+			</div>
+			<button class="custom-date-nav-btn" onclick="changeHireMonth(1)">
+				<i class="fas fa-chevron-right text-xs"></i>
+			</button>
+		</div>
+		<div class="custom-date-weekdays">
+			<div>일</div>
+			<div>월</div>
+			<div>화</div>
+			<div>수</div>
+			<div>목</div>
+			<div>금</div>
+			<div>토</div>
+		</div>
+		<div id="hireDateDays" class="custom-date-days"></div>
+	</div>
+
+	<!-- 수정 입사일 달력 -->
+	<div id="editHireDatePicker" class="custom-date-picker hidden">
+		<div class="custom-date-picker-header">
+			<button class="custom-date-nav-btn" onclick="changeEditHireMonth(-1)">
+				<i class="fas fa-chevron-left text-xs"></i>
+			</button>
+			<div class="flex gap-2">
+				<select id="editHireDateYear"
+					onchange="renderEditHireDateCalendar()"
+					class="border border-gray-300 rounded-lg text-sm px-2"></select> <select
+					id="editHireDateMonth" onchange="renderEditHireDateCalendar()"
+					class="border border-gray-300 rounded-lg text-sm px-2">
+					<option value="0">1월</option>
+					<option value="1">2월</option>
+					<option value="2">3월</option>
+					<option value="3">4월</option>
+					<option value="4">5월</option>
+					<option value="5">6월</option>
+					<option value="6">7월</option>
+					<option value="7">8월</option>
+					<option value="8">9월</option>
+					<option value="9">10월</option>
+					<option value="10">11월</option>
+					<option value="11">12월</option>
+				</select>
+			</div>
+			<button class="custom-date-nav-btn" onclick="changeEditHireMonth(1)">
+				<i class="fas fa-chevron-right text-xs"></i>
+			</button>
+		</div>
+		<div class="custom-date-weekdays">
+			<div>일</div>
+			<div>월</div>
+			<div>화</div>
+			<div>수</div>
+			<div>목</div>
+			<div>금</div>
+			<div>토</div>
+		</div>
+		<div id="editHireDateDays" class="custom-date-days"></div>
+	</div>
 </body>
 </html>
 

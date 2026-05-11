@@ -49,8 +49,7 @@
 
                     <div class="flex flex-col sm:flex-row gap-4">
                         <div class="flex-1 relative">
-                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                            <input type="text" id="searchInput" placeholder="레시피명 검색..." onkeyup="handleSearchKeyup(event)" class="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
+                            <input type="text" id="searchInput" placeholder="레시피명 검색..." onkeyup="handleSearchKeyup(event)" class="w-full pl-[14px] pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00853D] focus:border-transparent text-sm">
                             <button onclick="applyFilters()" class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-[#00853D] transition-colors">
                                 <i class="fas fa-search w-4 h-4"></i>
                             </button>
