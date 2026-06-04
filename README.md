@@ -46,7 +46,11 @@
 
 [![ZEROLOSS](https://github.com/user-attachments/assets/ad979695-ce80-407a-b667-6d50144a4f07)](https://www.youtube.com/watch?v=4lr9RNzK9lc)
 
+---
 
+# 💾 DB ERD
+
+<img width="2044" height="1594" alt="Image" src="https://github.com/user-attachments/assets/7f231745-5e65-4c7a-87ed-396c0b57cb8f" />
 
 ---
 
