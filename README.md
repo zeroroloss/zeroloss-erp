@@ -350,5 +350,5 @@
 
 
 <div align="center">
-<img width="352" height="192" alt="로고" src="https://github.com/zeroroloss/zeroloss-erp/issues/1#issuecomment-4627001095" />
+<img width="352" height="192" alt="Image" src="https://github.com/user-attachments/assets/46251343-76ca-40b5-a3ce-ca75aa1a6d00" />
 </div>
