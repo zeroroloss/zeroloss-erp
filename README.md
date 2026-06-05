@@ -349,7 +349,6 @@
 - 키오스크 주문 데이터와 ERP 운영 데이터를 연결한 통합 관리
 
 
----
-ZEROLOSS
----
-직영점 통합 ERP 시스템
+<div align="center">
+<img width="352" height="192" alt="로고" src="https://github.com/zeroroloss/zeroloss-erp/issues/1#issuecomment-4627001095" />
+</div>
